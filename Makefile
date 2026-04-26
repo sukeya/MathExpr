@@ -32,7 +32,7 @@ BUILD_LIST       := $(BUILD_SRC:%.cpp=%)
 
 all: $(BUILD_LIST)
 
-$(BUILD_LIST) : %: %.cpp exprtk.hpp
+$(BUILD_LIST) : %: %.cpp math_expr.hpp
 	$(COMPILER) $(OPTIONS) -o $@ $@.cpp $(LINKER_OPT)
 
 strip_bin :
@@ -46,7 +46,7 @@ valgrind :
 			$$cmd; \
 		fi done;
 
-pgo: exprtk_benchmark.cpp exprtk.hpp
+pgo: exprtk_benchmark.cpp math_expr.hpp
 	$(COMPILER) $(BASE_OPTIONS) -O3 -DNDEBUG -march=native -fprofile-generate -o exprtk_benchmark exprtk_benchmark.cpp $(LINKER_OPT)
 	./exprtk_benchmark
 	$(COMPILER) $(BASE_OPTIONS) -O3 -DNDEBUG -march=native -fprofile-use -o exprtk_benchmark exprtk_benchmark.cpp $(LINKER_OPT)

@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include <string>
 
-#include "exprtk.hpp"
+#include "math_expr.hpp"
 
 
 template <typename T>

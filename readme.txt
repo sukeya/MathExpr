@@ -138,7 +138,7 @@ locations:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [SECTION 05 - INSTALLATION]
-The header  file exprtk.hpp  should be  placed in a project or  system
+The header  file math_expr.hpp  should be  placed in a project or  system
 include path (e.g: /usr/include/).
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -5779,7 +5779,7 @@ to stdout.
 #include <cstdio>
 #include <string>
 
-#include "exprtk.hpp"
+#include "math_expr.hpp"
 
 template <typename T>
 struct myfunc final : public exprtk::ifunction<T>
@@ -5962,7 +5962,7 @@ files:
 
    (00) Makefile
    (01) readme.txt
-   (02) exprtk.hpp
+   (02) math_expr.hpp
    (03) exprtk_test.cpp
    (04) exprtk_benchmark.cpp
    (05) exprtk_simple_example_01.cpp

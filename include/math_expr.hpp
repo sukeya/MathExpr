@@ -65,7 +65,7 @@ namespace exprtk
    #endif
 
    #define exprtk_error_location             \
-   "exprtk.hpp:" + details::to_str(__LINE__) \
+   "math_expr.hpp:" + details::to_str(__LINE__) \
 
    #if __cplusplus >= 201103L
       #define exprtk_override override
