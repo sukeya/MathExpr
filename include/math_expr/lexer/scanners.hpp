@@ -13,7 +13,7 @@
       {
       public:
 
-         virtual ~token_scanner() math_expr_override
+         virtual ~token_scanner() override
          {}
 
          explicit token_scanner(const std::size_t& stride)
@@ -25,7 +25,7 @@
             }
          }
 
-         inline std::size_t process(generator& g) math_expr_override
+         inline std::size_t process(generator& g) override
          {
             if (g.token_list_.size() >= stride_)
             {
@@ -122,7 +122,7 @@
       {
       public:
 
-         inline std::size_t process(generator& g) math_expr_override
+         inline std::size_t process(generator& g) override
          {
             std::size_t changes = 0;
 

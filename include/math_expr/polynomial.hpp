@@ -21,7 +21,7 @@
 
             virtual bool process(const std::string& unknown_symbol,
                                  symbol_table_t& symbol_table,
-                                 std::string&) math_expr_override
+                                 std::string&) override
             {
                static T v[1];
                symbol_table.add_vector(unknown_symbol,v);
@@ -673,98 +673,98 @@
          disable_has_side_effects(*this);
       }
 
-      virtual ~polynomial() math_expr_override
+      virtual ~polynomial() override
       {}
 
       #define poly_rtrn(NN) \
       return (NN != N) ? std::numeric_limits<T>::quiet_NaN() :
 
-      inline virtual T operator() (const T& x, const T& c1, const T& c0) math_expr_override
+      inline virtual T operator() (const T& x, const T& c1, const T& c0) override
       {
          poly_rtrn(1) (poly_impl<T,1>::evaluate(x, c1, c0));
       }
 
-      inline virtual T operator() (const T& x, const T& c2, const T& c1, const T& c0) math_expr_override
+      inline virtual T operator() (const T& x, const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(2) (poly_impl<T,2>::evaluate(x, c2, c1, c0));
       }
 
-      inline virtual T operator() (const T& x, const T& c3, const T& c2, const T& c1, const T& c0) math_expr_override
+      inline virtual T operator() (const T& x, const T& c3, const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(3) (poly_impl<T,3>::evaluate(x, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c4, const T& c3, const T& c2, const T& c1,
-                                   const T& c0) math_expr_override
+                                   const T& c0) override
       {
          poly_rtrn(4) (poly_impl<T,4>::evaluate(x, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c5, const T& c4, const T& c3, const T& c2,
-                                   const T& c1, const T& c0) math_expr_override
+                                   const T& c1, const T& c0) override
       {
          poly_rtrn(5) (poly_impl<T,5>::evaluate(x, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c6, const T& c5, const T& c4, const T& c3,
-                                   const T& c2, const T& c1, const T& c0) math_expr_override
+                                   const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(6) (poly_impl<T,6>::evaluate(x, c6, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c7, const T& c6, const T& c5, const T& c4,
-                                   const T& c3, const T& c2, const T& c1, const T& c0) math_expr_override
+                                   const T& c3, const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(7) (poly_impl<T,7>::evaluate(x, c7, c6, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c8, const T& c7, const T& c6, const T& c5,
-                                   const T& c4, const T& c3, const T& c2, const T& c1, const T& c0) math_expr_override
+                                   const T& c4, const T& c3, const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(8) (poly_impl<T,8>::evaluate(x, c8, c7, c6, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c9, const T& c8, const T& c7, const T& c6,
                                    const T& c5, const T& c4, const T& c3, const T& c2, const T& c1,
-                                   const T& c0) math_expr_override
+                                   const T& c0) override
       {
          poly_rtrn(9) (poly_impl<T,9>::evaluate(x, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c10, const T& c9, const T& c8, const T& c7,
                                    const T& c6, const T& c5, const T& c4, const T& c3, const T& c2,
-                                   const T& c1, const T& c0) math_expr_override
+                                   const T& c1, const T& c0) override
       {
          poly_rtrn(10) (poly_impl<T,10>::evaluate(x, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c11, const T& c10, const T& c9, const T& c8,
                                    const T& c7, const T& c6, const T& c5, const T& c4, const T& c3,
-                                   const T& c2, const T& c1, const T& c0) math_expr_override
+                                   const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(11) (poly_impl<T,11>::evaluate(x, c11, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
       }
 
       inline virtual T operator() (const T& x, const T& c12, const T& c11, const T& c10, const T& c9,
                                    const T& c8, const T& c7, const T& c6, const T& c5, const T& c4,
-                                   const T& c3, const T& c2, const T& c1, const T& c0) math_expr_override
+                                   const T& c3, const T& c2, const T& c1, const T& c0) override
       {
          poly_rtrn(12) (poly_impl<T,12>::evaluate(x, c12, c11, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
       }
 
       #undef poly_rtrn
 
-      inline virtual T operator() () math_expr_override
+      inline virtual T operator() () override
       {
          return std::numeric_limits<T>::quiet_NaN();
       }
 
-      inline virtual T operator() (const T&) math_expr_override
+      inline virtual T operator() (const T&) override
       {
          return std::numeric_limits<T>::quiet_NaN();
       }
 
-      inline virtual T operator() (const T&, const T&) math_expr_override
+      inline virtual T operator() (const T&, const T&) override
       {
          return std::numeric_limits<T>::quiet_NaN();
       }

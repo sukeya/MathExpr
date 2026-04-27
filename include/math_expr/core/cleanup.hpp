@@ -6,20 +6,20 @@
    #undef math_expr_error_location
    #endif
 
-   #ifdef math_expr_fallthrough
-   #undef math_expr_fallthrough
+   #ifdef [[fallthrough]];
+   #undef [[fallthrough]];
    #endif
 
-   #ifdef math_expr_override
-   #undef math_expr_override
+   #ifdef override
+   #undef override
    #endif
 
-   #ifdef math_expr_final
-   #undef math_expr_final
+   #ifdef final
+   #undef final
    #endif
 
-   #ifdef math_expr_delete
-   #undef math_expr_delete
+   #ifdef = delete
+   #undef = delete
    #endif
 
 } // namespace math_expr

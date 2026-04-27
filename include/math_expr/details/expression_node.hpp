@@ -814,7 +814,7 @@
             virtual std::size_t vector_base_size()         const = 0;
          };
 
-         class array_vector_impl math_expr_final : public vector_holder_base
+         class array_vector_impl final : public vector_holder_base
          {
          public:
 
@@ -825,26 +825,26 @@
 
          protected:
 
-            value_ptr value_at(const std::size_t& index) const math_expr_override
+            value_ptr value_at(const std::size_t& index) const override
             {
                assert(index < size_);
                return const_cast<const_value_ptr>(vec_ + index);
             }
 
-            std::size_t vector_size() const math_expr_override
+            std::size_t vector_size() const override
             {
                return size_;
             }
 
-            std::size_t vector_base_size() const math_expr_override
+            std::size_t vector_base_size() const override
             {
                return vector_size();
             }
 
          private:
 
-            array_vector_impl(const array_vector_impl&) math_expr_delete;
-            array_vector_impl& operator=(const array_vector_impl&) math_expr_delete;
+            array_vector_impl(const array_vector_impl&) = delete;
+            array_vector_impl& operator=(const array_vector_impl&) = delete;
 
             const Type* vec_;
             const std::size_t size_;
@@ -852,7 +852,7 @@
 
          template <typename Allocator,
                    template <typename, typename> class Sequence>
-         class sequence_vector_impl math_expr_final : public vector_holder_base
+         class sequence_vector_impl final : public vector_holder_base
          {
          public:
 
@@ -864,31 +864,31 @@
 
          protected:
 
-            value_ptr value_at(const std::size_t& index) const math_expr_override
+            value_ptr value_at(const std::size_t& index) const override
             {
                assert(index < sequence_.size());
                return (&sequence_[index]);
             }
 
-            std::size_t vector_size() const math_expr_override
+            std::size_t vector_size() const override
             {
                return sequence_.size();
             }
 
-            std::size_t vector_base_size() const math_expr_override
+            std::size_t vector_base_size() const override
             {
                return vector_size();
             }
 
          private:
 
-            sequence_vector_impl(const sequence_vector_impl&) math_expr_delete;
-            sequence_vector_impl& operator=(const sequence_vector_impl&) math_expr_delete;
+            sequence_vector_impl(const sequence_vector_impl&) = delete;
+            sequence_vector_impl& operator=(const sequence_vector_impl&) = delete;
 
             sequence_t& sequence_;
          };
 
-         class vector_view_impl math_expr_final : public vector_holder_base
+         class vector_view_impl final : public vector_holder_base
          {
          public:
 
@@ -900,53 +900,53 @@
                assert(vec_view_.size() > 0);
             }
 
-            void set_ref(value_ptr* ref) math_expr_override
+            void set_ref(value_ptr* ref) override
             {
                vec_view_.set_ref(ref);
             }
 
-            void remove_ref(value_ptr* ref) math_expr_override
+            void remove_ref(value_ptr* ref) override
             {
                vec_view_.remove_ref(ref);
             }
 
-            bool rebaseable() const math_expr_override
+            bool rebaseable() const override
             {
                return true;
             }
 
-            vector_view<Type>* rebaseable_instance() math_expr_override
+            vector_view<Type>* rebaseable_instance() override
             {
                return &vec_view_;
             }
 
          protected:
 
-            value_ptr value_at(const std::size_t& index) const math_expr_override
+            value_ptr value_at(const std::size_t& index) const override
             {
                assert(index < vec_view_.size());
                return (&vec_view_[index]);
             }
 
-            std::size_t vector_size() const math_expr_override
+            std::size_t vector_size() const override
             {
                return vec_view_.size();
             }
 
-            std::size_t vector_base_size() const math_expr_override
+            std::size_t vector_base_size() const override
             {
                return vec_view_.base_size();
             }
 
          private:
 
-            vector_view_impl(const vector_view_impl&) math_expr_delete;
-            vector_view_impl& operator=(const vector_view_impl&) math_expr_delete;
+            vector_view_impl(const vector_view_impl&) = delete;
+            vector_view_impl& operator=(const vector_view_impl&) = delete;
 
             vector_view_t& vec_view_;
          };
 
-         class resizable_vector_impl math_expr_final : public vector_holder_base
+         class resizable_vector_impl final : public vector_holder_base
          {
          public:
 
@@ -961,41 +961,41 @@
                assert(size_ <= vector_base_size());
             }
 
-            virtual ~resizable_vector_impl() math_expr_override
+            virtual ~resizable_vector_impl() override
             {}
 
          protected:
 
-            value_ptr value_at(const std::size_t& index) const math_expr_override
+            value_ptr value_at(const std::size_t& index) const override
             {
                assert(index < vector_size());
                return const_cast<const_value_ptr>(vec_ + index);
             }
 
-            std::size_t vector_size() const math_expr_override
+            std::size_t vector_size() const override
             {
                return vec_view_holder_.size();
             }
 
-            std::size_t vector_base_size() const math_expr_override
+            std::size_t vector_base_size() const override
             {
                return vec_view_holder_.base_size();
             }
 
-            bool rebaseable() const math_expr_override
+            bool rebaseable() const override
             {
                return true;
             }
 
-            virtual vector_view<Type>* rebaseable_instance() math_expr_override
+            virtual vector_view<Type>* rebaseable_instance() override
             {
                return &vec_view_holder_;
             }
 
          private:
 
-            resizable_vector_impl(const resizable_vector_impl&) math_expr_delete;
-            resizable_vector_impl& operator=(const resizable_vector_impl&) math_expr_delete;
+            resizable_vector_impl(const resizable_vector_impl&) = delete;
+            resizable_vector_impl& operator=(const resizable_vector_impl&) = delete;
 
             const Type* vec_;
             const std::size_t size_;
@@ -1091,8 +1091,8 @@
 
       private:
 
-         vector_holder(const vector_holder<Type>&) math_expr_delete;
-         vector_holder<Type>& operator=(const vector_holder<Type>&) math_expr_delete;
+         vector_holder(const vector_holder<Type>&) = delete;
+         vector_holder<Type>& operator=(const vector_holder<Type>&) = delete;
 
          mutable vector_holder_base* vector_holder_base_;
          uchar_t buffer[64];

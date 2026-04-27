@@ -454,8 +454,8 @@
 
       private:
 
-         scope_element_manager(const scope_element_manager&) math_expr_delete;
-         scope_element_manager& operator=(const scope_element_manager&) math_expr_delete;
+         scope_element_manager(const scope_element_manager&) = delete;
+         scope_element_manager& operator=(const scope_element_manager&) = delete;
 
          parser_t& parser_;
          std::vector<scope_element> element_;
@@ -496,8 +496,8 @@
 
       private:
 
-         scope_handler(const scope_handler&) math_expr_delete;
-         scope_handler& operator=(const scope_handler&) math_expr_delete;
+         scope_handler(const scope_handler&) = delete;
+         scope_handler& operator=(const scope_handler&) = delete;
 
          parser_t& parser_;
       };
@@ -660,8 +660,8 @@
 
       private:
 
-         stack_limit_handler(const stack_limit_handler&) math_expr_delete;
-         stack_limit_handler& operator=(const stack_limit_handler&) math_expr_delete;
+         stack_limit_handler(const stack_limit_handler&) = delete;
+         stack_limit_handler& operator=(const stack_limit_handler&) = delete;
 
          parser_t& parser_;
          bool limit_exceeded_;
@@ -3349,8 +3349,8 @@
 
       private:
 
-         scoped_expression_delete(const scoped_expression_delete&) math_expr_delete;
-         scoped_expression_delete& operator=(const scoped_expression_delete&) math_expr_delete;
+         scoped_expression_delete(const scoped_expression_delete&) = delete;
+         scoped_expression_delete& operator=(const scoped_expression_delete&) = delete;
       };
 
       template <typename Type, std::size_t N>
@@ -3387,8 +3387,8 @@
 
       private:
 
-         scoped_delete(const scoped_delete<Type,N>&) math_expr_delete;
-         scoped_delete<Type,N>& operator=(const scoped_delete<Type,N>&) math_expr_delete;
+         scoped_delete(const scoped_delete<Type,N>&) = delete;
+         scoped_delete<Type,N>& operator=(const scoped_delete<Type,N>&) = delete;
       };
 
       template <typename Type>
@@ -3422,8 +3422,8 @@
 
       private:
 
-         scoped_deq_delete(const scoped_deq_delete<Type>&) math_expr_delete;
-         scoped_deq_delete<Type>& operator=(const scoped_deq_delete<Type>&) math_expr_delete;
+         scoped_deq_delete(const scoped_deq_delete<Type>&) = delete;
+         scoped_deq_delete<Type>& operator=(const scoped_deq_delete<Type>&) = delete;
       };
 
       template <typename Type>
@@ -3462,8 +3462,8 @@
 
       private:
 
-         scoped_vec_delete(const scoped_vec_delete<Type>&) math_expr_delete;
-         scoped_vec_delete<Type>& operator=(const scoped_vec_delete<Type>&) math_expr_delete;
+         scoped_vec_delete(const scoped_vec_delete<Type>&) = delete;
+         scoped_vec_delete<Type>& operator=(const scoped_vec_delete<Type>&) = delete;
       };
 
       struct scoped_bool_negator
@@ -6395,8 +6395,8 @@
             }
          }
 
-         type_checker(const type_checker&) math_expr_delete;
-         type_checker& operator=(const type_checker&) math_expr_delete;
+         type_checker(const type_checker&) = delete;
+         type_checker& operator=(const type_checker&) = delete;
 
          bool invalid_state_;
          parser_t& parser_;
@@ -19665,8 +19665,8 @@
 
    private:
 
-      parser(const parser<T>&) math_expr_delete;
-      parser<T>& operator=(const parser<T>&) math_expr_delete;
+      parser(const parser<T>&) = delete;
+      parser<T>& operator=(const parser<T>&) = delete;
 
       settings_store settings_;
       expression_generator<T> expression_generator_;

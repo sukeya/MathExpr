@@ -1,4 +1,4 @@
-   class count math_expr_final : public math_expr::igeneric_function<T>
+   class count final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -20,7 +20,7 @@
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          std::size_t cnt = 0;
 

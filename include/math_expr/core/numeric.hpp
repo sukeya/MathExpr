@@ -1092,7 +1092,7 @@
                   return_result = false;                             \
                   break;                                             \
                }                                                     \
-               math_expr_fallthrough                                    \
+               [[fallthrough]];                                    \
 
                #else
 
@@ -1104,7 +1104,7 @@
                   return_result = false;           \
                   break;                           \
                }                                   \
-               math_expr_fallthrough                  \
+               [[fallthrough]];                  \
 
                #endif
 

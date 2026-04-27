@@ -6,7 +6,7 @@
          : stride_(stride)
          {}
 
-         inline std::size_t process(generator& g) math_expr_override
+         inline std::size_t process(generator& g) override
          {
             if (g.token_list_.empty())
                return 0;

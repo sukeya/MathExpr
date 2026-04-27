@@ -1,4 +1,4 @@
-      class sf3_var_node math_expr_final : public expression_node<T>
+      class sf3_var_node final : public expression_node<T>
       {
       public:
 
@@ -10,20 +10,20 @@
          , v2_(v2)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return SpecialFunction::process(v0_, v1_, v2_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_trinary;
          }
 
       private:
 
-         sf3_var_node(const sf3_var_node<T,SpecialFunction>&) math_expr_delete;
-         sf3_var_node<T,SpecialFunction>& operator=(const sf3_var_node<T,SpecialFunction>&) math_expr_delete;
+         sf3_var_node(const sf3_var_node<T,SpecialFunction>&) = delete;
+         sf3_var_node<T,SpecialFunction>& operator=(const sf3_var_node<T,SpecialFunction>&) = delete;
 
          const T& v0_;
          const T& v1_;
@@ -31,7 +31,7 @@
       };
 
       template <typename T, typename SpecialFunction>
-      class sf4_var_node math_expr_final : public expression_node<T>
+      class sf4_var_node final : public expression_node<T>
       {
       public:
 
@@ -44,20 +44,20 @@
          , v3_(v3)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return SpecialFunction::process(v0_, v1_, v2_, v3_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_trinary;
          }
 
       private:
 
-         sf4_var_node(const sf4_var_node<T,SpecialFunction>&) math_expr_delete;
-         sf4_var_node<T,SpecialFunction>& operator=(const sf4_var_node<T,SpecialFunction>&) math_expr_delete;
+         sf4_var_node(const sf4_var_node<T,SpecialFunction>&) = delete;
+         sf4_var_node<T,SpecialFunction>& operator=(const sf4_var_node<T,SpecialFunction>&) = delete;
 
          const T& v0_;
          const T& v1_;
@@ -66,7 +66,7 @@
       };
 
       template <typename T, typename VarArgFunction>
-      class vararg_node math_expr_final : public expression_node<T>
+      class vararg_node final : public expression_node<T>
       {
       public:
 
@@ -97,27 +97,27 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return VarArgFunction::process(arg_list_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vararg;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(arg_list_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
          }
@@ -139,7 +139,7 @@
       };
 
       template <typename T, typename VarArgFunction>
-      class vararg_varnode math_expr_final : public expression_node<T>
+      class vararg_varnode final : public expression_node<T>
       {
       public:
 
@@ -170,17 +170,17 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return VarArgFunction::process(arg_list_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vararg;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
@@ -192,7 +192,7 @@
       };
 
       template <typename T, typename VecFunction>
-      class vectorize_node math_expr_final : public expression_node<T>
+      class vectorize_node final : public expression_node<T>
       {
       public:
 
@@ -210,28 +210,28 @@
             }
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             v_.first->value();
             return VecFunction::process(ivec_ptr_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecfunc;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return ivec_ptr_ && v_.first && v_.first->valid();
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(v_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(v_);
          }
@@ -243,7 +243,7 @@
       };
 
       template <typename T>
-      class assignment_node math_expr_final : public binary_node<T>
+      class assignment_node final : public binary_node<T>
       {
       public:
 
@@ -262,7 +262,7 @@
             }
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& result = var_node_ptr_->ref();
                result = branch(1)->value();
@@ -270,7 +270,7 @@
             return result;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return var_node_ptr_ && binary_node<T>::valid();
          }
@@ -281,7 +281,7 @@
       };
 
       template <typename T>
-      class assignment_vec_elem_node math_expr_final : public binary_node<T>
+      class assignment_vec_elem_node final : public binary_node<T>
       {
       public:
 
@@ -302,7 +302,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& result = vec_node_ptr_->ref();
                result = branch(1)->value();
@@ -310,7 +310,7 @@
             return result;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return vec_node_ptr_ && binary_node<T>::valid();
          }
@@ -321,7 +321,7 @@
       };
 
       template <typename T>
-      class assignment_vec_elem_rtc_node math_expr_final : public binary_node<T>
+      class assignment_vec_elem_rtc_node final : public binary_node<T>
       {
       public:
 
@@ -342,7 +342,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& result = vec_node_ptr_->ref();
                result = branch(1)->value();
@@ -350,7 +350,7 @@
             return result;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return vec_node_ptr_ && binary_node<T>::valid();
          }
@@ -361,7 +361,7 @@
       };
 
       template <typename T>
-      class assignment_rebasevec_elem_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_elem_node final : public binary_node<T>
       {
       public:
 
@@ -382,7 +382,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& result = rbvec_node_ptr_->ref();
                result = branch(1)->value();
@@ -390,7 +390,7 @@
             return result;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -401,7 +401,7 @@
       };
 
       template <typename T>
-      class assignment_rebasevec_elem_rtc_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_elem_rtc_node final : public binary_node<T>
       {
       public:
 
@@ -422,7 +422,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& result = rbvec_node_ptr_->ref();
                result = branch(1)->value();
@@ -430,7 +430,7 @@
             return result;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -441,7 +441,7 @@
       };
 
       template <typename T>
-      class assignment_rebasevec_celem_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_celem_node final : public binary_node<T>
       {
       public:
 
@@ -462,7 +462,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& result = rbvec_node_ptr_->ref();
                result = branch(1)->value();
@@ -470,7 +470,7 @@
             return result;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -481,7 +481,7 @@
       };
 
       template <typename T>
-      class assignment_vec_node math_expr_final
+      class assignment_vec_node final
                                 : public binary_node     <T>
                                 , public vector_interface<T>
       {
@@ -508,7 +508,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T v = branch(1)->value();
 
@@ -540,7 +540,7 @@
             {
                #define case_stmt(N) \
                case N : *vec++ = v; \
-               math_expr_fallthrough   \
+               [[fallthrough]];   \
 
                #ifndef math_expr_disable_superscalar_unroll
                case_stmt(15) case_stmt(14)
@@ -560,22 +560,22 @@
             return vec_node_ptr_->value();
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return vec_node_ptr_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return vec_node_ptr_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecvalass;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                vec_node_ptr_ &&
@@ -583,22 +583,22 @@
                binary_node<T>::valid();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return vec_node_ptr_->vec_holder().size();
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return vec_node_ptr_->vec_holder().base_size();
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
@@ -610,7 +610,7 @@
       };
 
       template <typename T>
-      class assignment_vecvec_node math_expr_final
+      class assignment_vecvec_node final
                                    : public binary_node     <T>
                                    , public vector_interface<T>
       {
@@ -670,7 +670,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(1)->value();
 
@@ -710,14 +710,14 @@
                fall_through                      \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -727,46 +727,46 @@
             return vec0_node_ptr_->value();
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return vec0_node_ptr_;
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return vec0_node_ptr_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecvecass;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return std::min(
                vec0_node_ptr_->vec_holder().size(),
                vec1_node_ptr_->vec_holder().size());
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return std::min(
                vec0_node_ptr_->vec_holder().base_size(),
                vec1_node_ptr_->vec_holder().base_size());
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
@@ -781,7 +781,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_op_node math_expr_final : public binary_node<T>
+      class assignment_op_node final : public binary_node<T>
       {
       public:
 
@@ -802,7 +802,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = var_node_ptr_->ref();
             v = Operation::process(v,branch(1)->value());
@@ -810,7 +810,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return var_node_ptr_ && binary_node<T>::valid();
          }
@@ -821,7 +821,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_vec_elem_op_node math_expr_final : public binary_node<T>
+      class assignment_vec_elem_op_node final : public binary_node<T>
       {
       public:
 
@@ -842,7 +842,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = vec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -850,7 +850,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return vec_node_ptr_ && binary_node<T>::valid();
          }
@@ -861,7 +861,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_vec_elem_op_rtc_node math_expr_final : public binary_node<T>
+      class assignment_vec_elem_op_rtc_node final : public binary_node<T>
       {
       public:
 
@@ -882,7 +882,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = vec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -890,7 +890,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return vec_node_ptr_ && binary_node<T>::valid();
          }
@@ -901,7 +901,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_vec_celem_op_rtc_node math_expr_final : public binary_node<T>
+      class assignment_vec_celem_op_rtc_node final : public binary_node<T>
       {
       public:
 
@@ -922,7 +922,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = vec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -930,7 +930,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return vec_node_ptr_ && binary_node<T>::valid();
          }
@@ -941,7 +941,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_rebasevec_elem_op_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_elem_op_node final : public binary_node<T>
       {
       public:
 
@@ -962,7 +962,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = rbvec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -970,7 +970,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -981,7 +981,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_rebasevec_celem_op_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_celem_op_node final : public binary_node<T>
       {
       public:
 
@@ -1002,7 +1002,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = rbvec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -1010,7 +1010,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -1021,7 +1021,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_rebasevec_elem_op_rtc_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_elem_op_rtc_node final : public binary_node<T>
       {
       public:
 
@@ -1042,7 +1042,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = rbvec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -1050,7 +1050,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -1061,7 +1061,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_rebasevec_celem_op_rtc_node math_expr_final : public binary_node<T>
+      class assignment_rebasevec_celem_op_rtc_node final : public binary_node<T>
       {
       public:
 
@@ -1082,7 +1082,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T& v = rbvec_node_ptr_->ref();
                v = Operation::process(v,branch(1)->value());
@@ -1090,7 +1090,7 @@
             return v;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return rbvec_node_ptr_ && binary_node<T>::valid();
          }
@@ -1101,7 +1101,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_vec_op_node math_expr_final
+      class assignment_vec_op_node final
                                    : public binary_node     <T>
                                    , public vector_interface<T>
       {
@@ -1128,7 +1128,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T v = branch(1)->value();
 
@@ -1163,14 +1163,14 @@
                fall_through                          \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -1180,22 +1180,22 @@
             return vec_node_ptr_->value();
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return vec_node_ptr_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return vec_node_ptr_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecopvalass;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                vec_node_ptr_           &&
@@ -1203,27 +1203,27 @@
                binary_node<T>::valid() ;
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return vec_node_ptr_->vec_holder().size();
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return vec_node_ptr_->vec_holder().base_size();
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
 
-         bool side_effect() const math_expr_override
+         bool side_effect() const override
          {
             return true;
          }
@@ -1235,7 +1235,7 @@
       };
 
       template <typename T, typename Operation>
-      class assignment_vecvec_op_node math_expr_final
+      class assignment_vecvec_op_node final
                                       : public binary_node     <T>
                                       , public vector_interface<T>
       {
@@ -1288,7 +1288,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -1328,14 +1328,14 @@
                fall_through                                                      \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -1345,51 +1345,51 @@
             return vec0_node_ptr_->value();
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return vec0_node_ptr_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return vec0_node_ptr_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecopvecass;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return std::min(
                vec0_node_ptr_->vec_holder().size(),
                vec1_node_ptr_->vec_holder().size());
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return std::min(
                vec0_node_ptr_->vec_holder().base_size(),
                vec1_node_ptr_->vec_holder().base_size());
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
 
-         bool side_effect() const math_expr_override
+         bool side_effect() const override
          {
             return true;
          }
@@ -1465,7 +1465,7 @@
       }
 
       template <typename T, typename Operation>
-      class vec_binop_vecvec_node math_expr_final
+      class vec_binop_vecvec_node final
                                   : public binary_node     <T>
                                   , public vector_interface<T>
       {
@@ -1554,7 +1554,7 @@
             memory_context_.clear();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -1593,7 +1593,7 @@
             {
                #define case_stmt(N)                                              \
                case N : { vec2[i] = Operation::process(vec0[i], vec1[i]); ++i; } \
-               math_expr_fallthrough                                                \
+               [[fallthrough]];                                                \
 
                #ifndef math_expr_disable_superscalar_unroll
                case_stmt(15) case_stmt(14)
@@ -1614,46 +1614,46 @@
             return (vds().data())[0];
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecvecarith;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return std::min(
                vec0_node_ptr_->vec_holder().size(),
                vec1_node_ptr_->vec_holder().size());
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return std::min(
                vec0_node_ptr_->vec_holder().base_size(),
                vec1_node_ptr_->vec_holder().base_size());
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
@@ -1668,7 +1668,7 @@
       };
 
       template <typename T, typename Operation>
-      class vec_binop_vecval_node math_expr_final
+      class vec_binop_vecval_node final
                                   : public binary_node     <T>
                                   , public vector_interface<T>
       {
@@ -1724,7 +1724,7 @@
             memory_context_.clear();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
                         branch(0)->value();
             const T v = branch(1)->value();
@@ -1764,14 +1764,14 @@
                fall_through                                                \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -1781,22 +1781,22 @@
             return (vds().data())[0];
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecvalarith;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                vec0_node_ptr_          &&
@@ -1804,22 +1804,22 @@
                binary_node<T>::valid();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return vec0_node_ptr_->size();
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return vec0_node_ptr_->vec_holder().base_size();
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
@@ -1832,7 +1832,7 @@
       };
 
       template <typename T, typename Operation>
-      class vec_binop_valvec_node math_expr_final
+      class vec_binop_valvec_node final
                                   : public binary_node     <T>
                                   , public vector_interface<T>
       {
@@ -1888,7 +1888,7 @@
             memory_context_.clear();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T v = branch(0)->value();
                         branch(1)->value();
@@ -1928,14 +1928,14 @@
                fall_through                                                \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -1945,22 +1945,22 @@
             return (vds().data())[0];
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecvalarith;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                vec1_node_ptr_               &&
@@ -1969,22 +1969,22 @@
                binary_node<T>::valid();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return vec1_node_ptr_->vec_holder().size();
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return vec1_node_ptr_->vec_holder().base_size();
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
@@ -1997,7 +1997,7 @@
       };
 
       template <typename T, typename Operation>
-      class unary_vector_node math_expr_final
+      class unary_vector_node final
                               : public unary_node      <T>
                               , public vector_interface<T>
       {
@@ -2051,7 +2051,7 @@
             memory_context_.clear();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch()->value();
 
@@ -2087,7 +2087,7 @@
             {
                #define case_stmt(N)                                     \
                case N : { vec1[i] = Operation::process(vec0[i]); ++i; } \
-               math_expr_fallthrough                                       \
+               [[fallthrough]];                                       \
 
                #ifndef math_expr_disable_superscalar_unroll
                case_stmt(15) case_stmt(14)
@@ -2108,42 +2108,42 @@
             return (vds().data())[0];
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecunaryop;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return vec0_node_ptr_ && unary_node<T>::valid();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return vec0_node_ptr_->vec_holder().size();
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return vec0_node_ptr_->vec_holder().base_size();
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
@@ -2156,7 +2156,7 @@
       };
 
       template <typename T>
-      class conditional_vector_node math_expr_final
+      class conditional_vector_node final
                                     : public expression_node <T>
                                     , public vector_interface<T>
       {
@@ -2228,7 +2228,7 @@
             memory_context_.clear();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
             T* source_vector = 0;
@@ -2255,22 +2255,22 @@
             return result;
          }
 
-         vector_node_ptr vec() const math_expr_override
+         vector_node_ptr vec() const override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         vector_node_ptr vec() math_expr_override
+         vector_node_ptr vec() override
          {
             return memory_context_.temp_vec_node_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vecondition;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                initialised_                                      &&
@@ -2280,36 +2280,36 @@
                size() <= base_size();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return result_vec_size_;
          }
 
-         std::size_t base_size() const math_expr_override
+         std::size_t base_size() const override
          {
             return std::min(
                consequent_node_ptr_ ->vec_holder().base_size(),
                alternative_node_ptr_->vec_holder().base_size());
          }
 
-         vds_t& vds() math_expr_override
+         vds_t& vds() override
          {
             return vds_;
          }
 
-         const vds_t& vds() const math_expr_override
+         const vds_t& vds() const override
          {
             return vds_;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(condition_   , node_delete_list);
             expression_node<T>::ndb_t::collect(consequent_  , node_delete_list);
             expression_node<T>::ndb_t::collect(alternative_ , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth
                (condition_, consequent_, alternative_);
@@ -2331,7 +2331,7 @@
       };
 
       template <typename T>
-      class scand_node math_expr_final : public binary_node<T>
+      class scand_node final : public binary_node<T>
       {
       public:
 
@@ -2346,7 +2346,7 @@
             assert(binary_node<T>::valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return (
                      std::not_equal_to<T>()
@@ -2358,7 +2358,7 @@
       };
 
       template <typename T>
-      class scor_node math_expr_final : public binary_node<T>
+      class scor_node final : public binary_node<T>
       {
       public:
 
@@ -2373,7 +2373,7 @@
             assert(binary_node<T>::valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return (
                      std::not_equal_to<T>()
@@ -2385,7 +2385,7 @@
       };
 
       template <typename T, typename IFunction, std::size_t N>
-      class function_N_node math_expr_final : public expression_node<T>
+      class function_N_node final : public expression_node<T>
       {
       public:
 
@@ -2436,7 +2436,7 @@
             return this < (&fn);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             // Needed for incompetent and broken msvc compiler versions
             #ifdef _MSC_VER
@@ -2453,22 +2453,22 @@
             #endif
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_function;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::template compute_node_depth<N>(branch_);
          }
@@ -2706,7 +2706,7 @@
       };
 
       template <typename T, typename IFunction>
-      class function_N_node<T,IFunction,0> math_expr_final : public expression_node<T>
+      class function_N_node<T,IFunction,0> final : public expression_node<T>
       {
       public:
 
@@ -2724,17 +2724,17 @@
             return this < (&fn);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return (*function_)();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_function;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return function_;
          }
@@ -2745,7 +2745,7 @@
       };
 
       template <typename T, typename VarArgFunction>
-      class vararg_function_node math_expr_final : public expression_node<T>
+      class vararg_function_node final : public expression_node<T>
       {
       public:
 
@@ -2765,23 +2765,23 @@
             return this < (&fn);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             populate_value_list();
             return (*function_)(value_list_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_vafunction;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return function_;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             for (std::size_t i = 0; i < arg_list_.size(); ++i)
             {
@@ -2792,7 +2792,7 @@
             }
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
          }
@@ -2859,12 +2859,12 @@
             }
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override math_expr_final
+         std::size_t node_depth() const override final
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
@@ -2978,7 +2978,7 @@
             return this < (&fn);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (populate_value_list())
             {
@@ -2990,12 +2990,12 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_genfunction;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return function_;
          }
@@ -3091,7 +3091,7 @@
             return this < (&fn);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (gen_function_t::populate_value_list())
             {
@@ -3113,37 +3113,37 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strfunction;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return gen_function_t::function_;
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return ret_string_;
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
            return &ret_string_[0];
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return ret_string_.size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return range_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return range_;
          }
@@ -3170,7 +3170,7 @@
          , param_seq_index_(param_seq_index)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             assert(gen_function_t::valid());
 
@@ -3189,7 +3189,7 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override math_expr_final
+         inline typename expression_node<T>::node_type type() const override final
          {
             return expression_node<T>::e_genfunction;
          }
@@ -3201,7 +3201,7 @@
 
       #ifndef math_expr_disable_string_capabilities
       template <typename T, typename StringFunction>
-      class multimode_strfunction_node math_expr_final : public string_function_node<T,StringFunction>
+      class multimode_strfunction_node final : public string_function_node<T,StringFunction>
       {
       public:
 
@@ -3215,7 +3215,7 @@
          , param_seq_index_(param_seq_index)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (str_function_t::populate_value_list())
             {
@@ -3238,7 +3238,7 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strfunction;
          }

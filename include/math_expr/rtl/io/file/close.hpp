@@ -1,4 +1,4 @@
-   struct close math_expr_final : public math_expr::ifunction<T>
+   struct close final : public math_expr::ifunction<T>
    {
       using math_expr::ifunction<T>::operator();
 
@@ -6,7 +6,7 @@
       : math_expr::ifunction<T>(1)
       { details::perform_check<T>(); }
 
-      inline T operator() (const T& v) math_expr_override
+      inline T operator() (const T& v) override
       {
          details::file_descriptor* fd = details::make_handle(v);
 

@@ -29,7 +29,7 @@
                ignore_set_.insert(symbol);
             }
 
-            inline int insert(const lexer::token& t0, const lexer::token& t1, lexer::token& new_token) math_expr_override
+            inline int insert(const lexer::token& t0, const lexer::token& t1, lexer::token& new_token) override
             {
                bool match         = false;
                new_token.type     = lexer::token::e_mul;
@@ -76,7 +76,7 @@
             std::set<std::string,details::ilesscompare> ignore_set_;
          };
 
-         class operator_joiner math_expr_final : public token_joiner
+         class operator_joiner final : public token_joiner
          {
          public:
 
@@ -84,7 +84,7 @@
             : token_joiner(stride)
             {}
 
-            inline bool join(const lexer::token& t0, const lexer::token& t1, lexer::token& t) math_expr_override
+            inline bool join(const lexer::token& t0, const lexer::token& t1, lexer::token& t) override
             {
                // ': =' --> ':='
                if ((t0.type == lexer::token::e_colon) && (t1.type == lexer::token::e_eq))
@@ -232,7 +232,7 @@
             inline bool join(const lexer::token& t0,
                              const lexer::token& t1,
                              const lexer::token& t2,
-                             lexer::token& t) math_expr_override
+                             lexer::token& t) override
             {
                // '[ * ]' --> '[*]'
                if (
@@ -252,7 +252,7 @@
             }
          };
 
-         class bracket_checker math_expr_final : public lexer::token_scanner
+         class bracket_checker final : public lexer::token_scanner
          {
          public:
 
@@ -263,7 +263,7 @@
             , state_(true)
             {}
 
-            bool result() math_expr_override
+            bool result() override
             {
                if (!stack_.empty())
                {
@@ -284,7 +284,7 @@
                return error_token_;
             }
 
-            void reset() math_expr_override
+            void reset() override
             {
                // Why? because msvc doesn't support swap properly.
                stack_ = std::stack<std::pair<char,std::size_t> >();
@@ -292,7 +292,7 @@
                error_token_.clear();
             }
 
-            bool operator() (const lexer::token& t) math_expr_override
+            bool operator() (const lexer::token& t) override
             {
                if (
                     !t.value.empty()                       &&
@@ -338,7 +338,7 @@
          };
 
          template <typename T>
-         class numeric_checker math_expr_final : public lexer::token_scanner
+         class numeric_checker final : public lexer::token_scanner
          {
          public:
 
@@ -349,18 +349,18 @@
             , current_index_(0)
             {}
 
-            bool result() math_expr_override
+            bool result() override
             {
                return error_list_.empty();
             }
 
-            void reset() math_expr_override
+            void reset() override
             {
                error_list_.clear();
                current_index_ = 0;
             }
 
-            bool operator() (const lexer::token& t) math_expr_override
+            bool operator() (const lexer::token& t) override
             {
                if (token::e_number == t.type)
                {
@@ -401,7 +401,7 @@
             std::vector<std::size_t> error_list_;
          };
 
-         class symbol_replacer math_expr_final : public lexer::token_modifier
+         class symbol_replacer final : public lexer::token_modifier
          {
          private:
 
@@ -444,7 +444,7 @@
 
          private:
 
-            bool modify(lexer::token& t) math_expr_override
+            bool modify(lexer::token& t) override
             {
                if (lexer::token::e_symbol == t.type)
                {
@@ -468,7 +468,7 @@
             replace_map_t replace_map_;
          };
 
-         class sequence_validator math_expr_final : public lexer::token_scanner
+         class sequence_validator final : public lexer::token_scanner
          {
          private:
 
@@ -507,12 +507,12 @@
                add_invalid_set1(lexer::token::e_ternary);
             }
 
-            bool result() math_expr_override
+            bool result() override
             {
                return error_list_.empty();
             }
 
-            bool operator() (const lexer::token& t0, const lexer::token& t1) math_expr_override
+            bool operator() (const lexer::token& t0, const lexer::token& t1) override
             {
                const set_t::value_type p = std::make_pair(t0.type,t1.type);
 
@@ -640,7 +640,7 @@
             std::vector<std::pair<lexer::token,lexer::token> > error_list_;
          };
 
-         class sequence_validator_3tokens math_expr_final : public lexer::token_scanner
+         class sequence_validator_3tokens final : public lexer::token_scanner
          {
          private:
 
@@ -674,12 +674,12 @@
                add_invalid(lexer::token::e_pow    , lexer::token::e_mod    , lexer::token::e_pow   );
             }
 
-            bool result() math_expr_override
+            bool result() override
             {
                return error_list_.empty();
             }
 
-            bool operator() (const lexer::token& t0, const lexer::token& t1, const lexer::token& t2) math_expr_override
+            bool operator() (const lexer::token& t0, const lexer::token& t1, const lexer::token& t2) override
             {
                const set_t::value_type p = std::make_pair(t0.type,std::make_pair(t1.type,t2.type));
 

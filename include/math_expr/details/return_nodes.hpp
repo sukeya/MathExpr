@@ -19,7 +19,7 @@
 
       #ifndef math_expr_disable_return_statement
       template <typename T>
-      class return_node math_expr_final : public generic_function_node<T,null_igenfunc<T> >
+      class return_node final : public generic_function_node<T,null_igenfunc<T> >
       {
       public:
 
@@ -36,7 +36,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (gen_function_t::populate_value_list())
             {
@@ -53,12 +53,12 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_return;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return results_context_;
          }
@@ -82,7 +82,7 @@
       };
 
       template <typename T>
-      class return_envelope_node math_expr_final : public expression_node<T>
+      class return_envelope_node final : public expression_node<T>
       {
       public:
 
@@ -98,7 +98,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             try
             {
@@ -115,12 +115,12 @@
             }
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_retenv;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return results_context_ && body_.first;
          }
@@ -130,12 +130,12 @@
             return &return_invoked_;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(body_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(body_);
          }

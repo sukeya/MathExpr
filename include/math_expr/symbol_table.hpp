@@ -29,52 +29,52 @@
 
    protected:
 
-       struct freefunc00 math_expr_final : public math_expr::ifunction<T>
+       struct freefunc00 final : public math_expr::ifunction<T>
        {
           using math_expr::ifunction<T>::operator();
 
           explicit freefunc00(ff00_functor ff) : math_expr::ifunction<T>(0), f(ff) {}
-          inline T operator() () math_expr_override
+          inline T operator() () override
           { return f(); }
           ff00_functor f;
        };
 
-      struct freefunc01 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc01 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc01(ff01_functor ff) : math_expr::ifunction<T>(1), f(ff) {}
-         inline T operator() (const T& v0) math_expr_override
+         inline T operator() (const T& v0) override
          { return f(v0); }
          ff01_functor f;
       };
 
-      struct freefunc02 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc02 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc02(ff02_functor ff) : math_expr::ifunction<T>(2), f(ff) {}
-         inline T operator() (const T& v0, const T& v1) math_expr_override
+         inline T operator() (const T& v0, const T& v1) override
          { return f(v0, v1); }
          ff02_functor f;
       };
 
-      struct freefunc03 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc03 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc03(ff03_functor ff) : math_expr::ifunction<T>(3), f(ff) {}
-         inline T operator() (const T& v0, const T& v1, const T& v2) math_expr_override
+         inline T operator() (const T& v0, const T& v1, const T& v2) override
          { return f(v0, v1, v2); }
          ff03_functor f;
       };
 
-      struct freefunc04 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc04 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc04(ff04_functor ff) : math_expr::ifunction<T>(4), f(ff) {}
-         inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3) math_expr_override
+         inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3) override
          { return f(v0, v1, v2, v3); }
          ff04_functor f;
       };
@@ -84,120 +84,120 @@
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc05(ff05_functor ff) : math_expr::ifunction<T>(5), f(ff) {}
-         inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4) math_expr_override
+         inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4) override
          { return f(v0, v1, v2, v3, v4); }
          ff05_functor f;
       };
 
-      struct freefunc06 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc06 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc06(ff06_functor ff) : math_expr::ifunction<T>(6), f(ff) {}
-         inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) math_expr_override
+         inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) override
          { return f(v0, v1, v2, v3, v4, v5); }
          ff06_functor f;
       };
 
-      struct freefunc07 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc07 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc07(ff07_functor ff) : math_expr::ifunction<T>(7), f(ff) {}
          inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                              const T& v5, const T& v6) math_expr_override
+                              const T& v5, const T& v6) override
          { return f(v0, v1, v2, v3, v4, v5, v6); }
          ff07_functor f;
       };
 
-      struct freefunc08 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc08 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc08(ff08_functor ff) : math_expr::ifunction<T>(8), f(ff) {}
          inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                              const T& v5, const T& v6, const T& v7) math_expr_override
+                              const T& v5, const T& v6, const T& v7) override
          { return f(v0, v1, v2, v3, v4, v5, v6, v7); }
          ff08_functor f;
       };
 
-      struct freefunc09 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc09 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc09(ff09_functor ff) : math_expr::ifunction<T>(9), f(ff) {}
          inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                              const T& v5, const T& v6, const T& v7, const T& v8) math_expr_override
+                              const T& v5, const T& v6, const T& v7, const T& v8) override
          { return f(v0, v1, v2, v3, v4, v5, v6, v7, v8); }
          ff09_functor f;
       };
 
-      struct freefunc10 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc10 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc10(ff10_functor ff) : math_expr::ifunction<T>(10), f(ff) {}
          inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                              const T& v5, const T& v6, const T& v7, const T& v8, const T& v9) math_expr_override
+                              const T& v5, const T& v6, const T& v7, const T& v8, const T& v9) override
          { return f(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9); }
          ff10_functor f;
       };
 
-      struct freefunc11 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc11 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc11(ff11_functor ff) : math_expr::ifunction<T>(11), f(ff) {}
          inline T operator() (const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                              const T& v5, const T& v6, const T& v7, const T& v8, const T& v9, const T& v10) math_expr_override
+                              const T& v5, const T& v6, const T& v7, const T& v8, const T& v9, const T& v10) override
          { return f(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10); }
          ff11_functor f;
       };
 
-      struct freefunc12 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc12 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc12(ff12_functor ff) : math_expr::ifunction<T>(12), f(ff) {}
          inline T operator() (const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
                               const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                              const T& v10, const T& v11) math_expr_override
+                              const T& v10, const T& v11) override
          { return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11); }
          ff12_functor f;
       };
 
-      struct freefunc13 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc13 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc13(ff13_functor ff) : math_expr::ifunction<T>(13), f(ff) {}
          inline T operator() (const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
                               const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                              const T& v10, const T& v11, const T& v12) math_expr_override
+                              const T& v10, const T& v11, const T& v12) override
          { return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11, v12); }
          ff13_functor f;
       };
 
-      struct freefunc14 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc14 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc14(ff14_functor ff) : math_expr::ifunction<T>(14), f(ff) {}
          inline T operator() (const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
                               const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                              const T& v10, const T& v11, const T& v12, const T& v13) math_expr_override
+                              const T& v10, const T& v11, const T& v12, const T& v13) override
          { return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11, v12, v13); }
          ff14_functor f;
       };
 
-      struct freefunc15 math_expr_final : public math_expr::ifunction<T>
+      struct freefunc15 final : public math_expr::ifunction<T>
       {
          using math_expr::ifunction<T>::operator();
 
          explicit freefunc15(ff15_functor ff) : math_expr::ifunction<T>(15), f(ff) {}
          inline T operator() (const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
                               const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                              const T& v10, const T& v11, const T& v12, const T& v13, const T& v14) math_expr_override
+                              const T& v10, const T& v11, const T& v12, const T& v13, const T& v14) override
          { return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11, v12, v13, v14); }
          ff15_functor f;
       };

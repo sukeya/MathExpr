@@ -84,7 +84,7 @@ namespace math_expr
    } // namespace math_expr::rtl::io::details
 
    template <typename T>
-   struct print math_expr_final : public math_expr::igeneric_function<T>
+   struct print final : public math_expr::igeneric_function<T>
    {
       typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
 
@@ -96,7 +96,7 @@ namespace math_expr
          math_expr::enable_zero_parameters(*this);
       }
 
-      inline T operator() (parameter_list_t parameters) math_expr_override
+      inline T operator() (parameter_list_t parameters) override
       {
          details::print_impl<T>::process(scalar_format_,parameters);
          return T(0);
@@ -106,7 +106,7 @@ namespace math_expr
    };
 
    template <typename T>
-   struct println math_expr_final : public math_expr::igeneric_function<T>
+   struct println final : public math_expr::igeneric_function<T>
    {
       typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
 
@@ -118,7 +118,7 @@ namespace math_expr
          math_expr::enable_zero_parameters(*this);
       }
 
-      inline T operator() (parameter_list_t parameters) math_expr_override
+      inline T operator() (parameter_list_t parameters) override
       {
          details::print_impl<T>::process(scalar_format_,parameters);
          printf("\n");

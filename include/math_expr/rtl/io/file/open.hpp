@@ -231,7 +231,7 @@ namespace math_expr
    } // namespace math_expr::rtl::io::file::details
 
    template <typename T>
-   class open math_expr_final : public math_expr::igeneric_function<T>
+   class open final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -246,7 +246,7 @@ namespace math_expr
       : math_expr::igeneric_function<T>("S|SS")
       { details::perform_check<T>(); }
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const std::string file_name = to_str(string_t(parameters[0]));
 
@@ -285,7 +285,7 @@ namespace math_expr
    };
 
    template <typename T>
-   struct close math_expr_final : public math_expr::ifunction<T>
+   struct close final : public math_expr::ifunction<T>
    {
       using math_expr::ifunction<T>::operator();
 
@@ -293,7 +293,7 @@ namespace math_expr
       : math_expr::ifunction<T>(1)
       { details::perform_check<T>(); }
 
-      inline T operator() (const T& v) math_expr_override
+      inline T operator() (const T& v) override
       {
          details::file_descriptor* fd = details::make_handle(v);
 
@@ -307,7 +307,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class write math_expr_final : public math_expr::igeneric_function<T>
+   class write final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -324,7 +324,7 @@ namespace math_expr
       : igfun_t("TS|TST|TV|TVT")
       { details::perform_check<T>(); }
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          details::file_descriptor* fd = details::make_handle(scalar_t(parameters[0])());
 
@@ -364,7 +364,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class read math_expr_final : public math_expr::igeneric_function<T>
+   class read final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -381,7 +381,7 @@ namespace math_expr
       : igfun_t("TS|TST|TV|TVT")
       { details::perform_check<T>(); }
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          details::file_descriptor* fd = details::make_handle(scalar_t(parameters[0])());
 
@@ -421,7 +421,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class getline math_expr_final : public math_expr::igeneric_function<T>
+   class getline final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -437,7 +437,7 @@ namespace math_expr
       : igfun_t("T",igfun_t::e_rtrn_string)
       { details::perform_check<T>(); }
 
-      inline T operator() (std::string& result, parameter_list_t parameters) math_expr_override
+      inline T operator() (std::string& result, parameter_list_t parameters) override
       {
          details::file_descriptor* fd = details::make_handle(scalar_t(parameters[0])());
          return T(fd->getline(result) ? 1 : 0);
@@ -445,7 +445,7 @@ namespace math_expr
    };
 
    template <typename T>
-   struct eof math_expr_final : public math_expr::ifunction<T>
+   struct eof final : public math_expr::ifunction<T>
    {
       using math_expr::ifunction<T>::operator();
 
@@ -453,7 +453,7 @@ namespace math_expr
       : math_expr::ifunction<T>(1)
       { details::perform_check<T>(); }
 
-      inline T operator() (const T& v) math_expr_override
+      inline T operator() (const T& v) override
       {
          details::file_descriptor* fd = details::make_handle(v);
          return (fd->eof() ? T(1) : T(0));

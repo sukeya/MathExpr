@@ -1,4 +1,4 @@
-   struct println math_expr_final : public math_expr::igeneric_function<T>
+   struct println final : public math_expr::igeneric_function<T>
    {
       typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
 
@@ -10,7 +10,7 @@
          math_expr::enable_zero_parameters(*this);
       }
 
-      inline T operator() (parameter_list_t parameters) math_expr_override
+      inline T operator() (parameter_list_t parameters) override
       {
          details::print_impl<T>::process(scalar_format_,parameters);
          printf("\n");

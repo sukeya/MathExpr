@@ -64,7 +64,7 @@ namespace math_expr
    } // namespace math_expr::rtl::details
 
    template <typename T>
-   class all_true math_expr_final : public math_expr::igeneric_function<T>
+   class all_true final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -86,7 +86,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          if (2 == ps_index)
          {
@@ -127,7 +127,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class all_false math_expr_final : public math_expr::igeneric_function<T>
+   class all_false final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -149,7 +149,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          if (2 == ps_index)
          {
@@ -190,7 +190,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class any_true math_expr_final : public math_expr::igeneric_function<T>
+   class any_true final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -212,7 +212,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          if (2 == ps_index)
          {
@@ -253,7 +253,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class any_false math_expr_final : public math_expr::igeneric_function<T>
+   class any_false final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -275,7 +275,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          if (2 == ps_index)
          {
@@ -316,7 +316,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class count math_expr_final : public math_expr::igeneric_function<T>
+   class count final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -338,7 +338,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          std::size_t cnt = 0;
 
@@ -375,7 +375,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class copy math_expr_final : public math_expr::igeneric_function<T>
+   class copy final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -396,7 +396,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[0]);
                vector_t y(parameters[(0 == ps_index) ? 1 : 3]);
@@ -428,7 +428,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class rol math_expr_final : public math_expr::igeneric_function<T>
+   class rol final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -449,7 +449,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -479,7 +479,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class ror math_expr_final : public math_expr::igeneric_function<T>
+   class ror final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -500,7 +500,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -530,7 +530,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class reverse math_expr_final : public math_expr::igeneric_function<T>
+   class reverse final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -551,7 +551,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -571,7 +571,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class shift_left math_expr_final : public math_expr::igeneric_function<T>
+   class shift_left final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -592,7 +592,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -629,7 +629,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class shift_right math_expr_final : public math_expr::igeneric_function<T>
+   class shift_right final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -650,7 +650,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -689,7 +689,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class sort math_expr_final : public math_expr::igeneric_function<T>
+   class sort final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -712,7 +712,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -752,7 +752,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class nthelement math_expr_final : public math_expr::igeneric_function<T>
+   class nthelement final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -773,7 +773,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -799,7 +799,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class assign math_expr_final : public math_expr::igeneric_function<T>
+   class assign final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -821,7 +821,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -851,7 +851,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class iota math_expr_final : public math_expr::igeneric_function<T>
+   class iota final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -878,7 +878,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -911,7 +911,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class sumk math_expr_final : public math_expr::igeneric_function<T>
+   class sumk final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -933,7 +933,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t vec(parameters[0]);
 
@@ -964,7 +964,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpy math_expr_final : public math_expr::igeneric_function<T>
+   class axpy final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -986,7 +986,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
                vector_t y(parameters[2]);
@@ -1011,7 +1011,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpby math_expr_final : public math_expr::igeneric_function<T>
+   class axpby final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1033,7 +1033,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
                vector_t y(parameters[3]);
@@ -1059,7 +1059,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpyz math_expr_final : public math_expr::igeneric_function<T>
+   class axpyz final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1081,7 +1081,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
          const vector_t y(parameters[2]);
@@ -1109,7 +1109,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpbyz math_expr_final : public math_expr::igeneric_function<T>
+   class axpbyz final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1131,7 +1131,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
          const vector_t y(parameters[3]);
@@ -1160,7 +1160,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpbsy math_expr_final : public math_expr::igeneric_function<T>
+   class axpbsy final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1182,7 +1182,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
                vector_t y(parameters[4]);
@@ -1210,7 +1210,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpbsyz math_expr_final : public math_expr::igeneric_function<T>
+   class axpbsyz final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1232,7 +1232,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
          const vector_t y(parameters[4]);
@@ -1263,7 +1263,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class axpbz math_expr_final : public math_expr::igeneric_function<T>
+   class axpbz final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1285,7 +1285,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[1]);
                vector_t z(parameters[3]);
@@ -1311,7 +1311,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class diff math_expr_final : public math_expr::igeneric_function<T>
+   class diff final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1333,7 +1333,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[0]);
                vector_t y(parameters[1]);
@@ -1359,7 +1359,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class dot math_expr_final : public math_expr::igeneric_function<T>
+   class dot final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1380,7 +1380,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[0]);
          const vector_t y(parameters[1]);
@@ -1405,7 +1405,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class dotk math_expr_final : public math_expr::igeneric_function<T>
+   class dotk final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1426,7 +1426,7 @@ namespace math_expr
         */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          const vector_t x(parameters[0]);
          const vector_t y(parameters[1]);
@@ -1452,7 +1452,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class threshold_below math_expr_final : public math_expr::igeneric_function<T>
+   class threshold_below final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1477,7 +1477,7 @@ namespace math_expr
       */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -1511,7 +1511,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class threshold_above math_expr_final : public math_expr::igeneric_function<T>
+   class threshold_above final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1536,7 +1536,7 @@ namespace math_expr
       */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          vector_t vec(parameters[0]);
 
@@ -1570,7 +1570,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class min_elemwise math_expr_final : public math_expr::igeneric_function<T>
+   class min_elemwise final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1593,7 +1593,7 @@ namespace math_expr
       */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          std::size_t out_vec_index = 0;
          std::size_t in_vec_index  = (ps_index & 1) ? 1 : 0;
@@ -1634,7 +1634,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class max_elemwise math_expr_final : public math_expr::igeneric_function<T>
+   class max_elemwise final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1657,7 +1657,7 @@ namespace math_expr
       */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          std::size_t out_vec_index = 0;
          std::size_t in_vec_index  = (ps_index & 1) ? 1 : 0;
@@ -1698,7 +1698,7 @@ namespace math_expr
    };
 
    template <typename T>
-   class select math_expr_final : public math_expr::igeneric_function<T>
+   class select final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -1718,7 +1718,7 @@ namespace math_expr
       */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
                vector_t out (parameters[0]);
          const vector_t mask(parameters[1]);

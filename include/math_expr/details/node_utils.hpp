@@ -293,7 +293,7 @@
       }
 
       template <typename T>
-      struct vararg_add_op math_expr_final : public opr_base<T>
+      struct vararg_add_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -360,7 +360,7 @@
       };
 
       template <typename T>
-      struct vararg_mul_op math_expr_final : public opr_base<T>
+      struct vararg_mul_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -427,7 +427,7 @@
       };
 
       template <typename T>
-      struct vararg_avg_op math_expr_final : public opr_base<T>
+      struct vararg_avg_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -483,7 +483,7 @@
       };
 
       template <typename T>
-      struct vararg_min_op math_expr_final : public opr_base<T>
+      struct vararg_min_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -554,7 +554,7 @@
       };
 
       template <typename T>
-      struct vararg_max_op math_expr_final : public opr_base<T>
+      struct vararg_max_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -625,7 +625,7 @@
       };
 
       template <typename T>
-      struct vararg_mand_op math_expr_final : public opr_base<T>
+      struct vararg_mand_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -705,7 +705,7 @@
       };
 
       template <typename T>
-      struct vararg_mor_op math_expr_final : public opr_base<T>
+      struct vararg_mor_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -785,7 +785,7 @@
       };
 
       template <typename T>
-      struct vararg_multi_op math_expr_final : public opr_base<T>
+      struct vararg_multi_op final : public opr_base<T>
       {
          typedef typename opr_base<T>::Type Type;
 
@@ -917,16 +917,16 @@
                   fall_through                      \
 
                   #ifndef math_expr_disable_superscalar_unroll
-                  case_stmt(16, math_expr_fallthrough) case_stmt(15, math_expr_fallthrough)
-                  case_stmt(14, math_expr_fallthrough) case_stmt(13, math_expr_fallthrough)
-                  case_stmt(12, math_expr_fallthrough) case_stmt(11, math_expr_fallthrough)
-                  case_stmt(10, math_expr_fallthrough) case_stmt( 9, math_expr_fallthrough)
-                  case_stmt( 8, math_expr_fallthrough) case_stmt( 7, math_expr_fallthrough)
-                  case_stmt( 6, math_expr_fallthrough) case_stmt( 5, math_expr_fallthrough)
+                  case_stmt(16, [[fallthrough]];) case_stmt(15, [[fallthrough]];)
+                  case_stmt(14, [[fallthrough]];) case_stmt(13, [[fallthrough]];)
+                  case_stmt(12, [[fallthrough]];) case_stmt(11, [[fallthrough]];)
+                  case_stmt(10, [[fallthrough]];) case_stmt( 9, [[fallthrough]];)
+                  case_stmt( 8, [[fallthrough]];) case_stmt( 7, [[fallthrough]];)
+                  case_stmt( 6, [[fallthrough]];) case_stmt( 5, [[fallthrough]];)
 
                   #endif
-                  case_stmt( 4, math_expr_fallthrough) case_stmt( 3, math_expr_fallthrough)
-                  case_stmt( 2, math_expr_fallthrough) case_stmt( 1, (void)0;)
+                  case_stmt( 4, [[fallthrough]];) case_stmt( 3, [[fallthrough]];)
+                  case_stmt( 2, [[fallthrough]];) case_stmt( 1, (void)0;)
                }
 
                #undef case_stmt
@@ -969,14 +969,14 @@
                fall_through                      \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -1017,15 +1017,15 @@
                   fall_through                      \
 
                   #ifndef math_expr_disable_superscalar_unroll
-                  case_stmt(16, math_expr_fallthrough) case_stmt(15, math_expr_fallthrough)
-                  case_stmt(14, math_expr_fallthrough) case_stmt(13, math_expr_fallthrough)
-                  case_stmt(12, math_expr_fallthrough) case_stmt(11, math_expr_fallthrough)
-                  case_stmt(10, math_expr_fallthrough) case_stmt( 9, math_expr_fallthrough)
-                  case_stmt( 8, math_expr_fallthrough) case_stmt( 7, math_expr_fallthrough)
-                  case_stmt( 6, math_expr_fallthrough) case_stmt( 5, math_expr_fallthrough)
+                  case_stmt(16, [[fallthrough]];) case_stmt(15, [[fallthrough]];)
+                  case_stmt(14, [[fallthrough]];) case_stmt(13, [[fallthrough]];)
+                  case_stmt(12, [[fallthrough]];) case_stmt(11, [[fallthrough]];)
+                  case_stmt(10, [[fallthrough]];) case_stmt( 9, [[fallthrough]];)
+                  case_stmt( 8, [[fallthrough]];) case_stmt( 7, [[fallthrough]];)
+                  case_stmt( 6, [[fallthrough]];) case_stmt( 5, [[fallthrough]];)
                   #endif
-                  case_stmt( 4, math_expr_fallthrough) case_stmt( 3, math_expr_fallthrough)
-                  case_stmt( 2, math_expr_fallthrough) case_stmt( 1, (void)0;)
+                  case_stmt( 4, [[fallthrough]];) case_stmt( 3, [[fallthrough]];)
+                  case_stmt( 2, [[fallthrough]];) case_stmt( 1, (void)0;)
                }
 
                #undef case_stmt
@@ -1068,14 +1068,14 @@
                fall_through                      \
 
                #ifndef math_expr_disable_superscalar_unroll
-               case_stmt(15, math_expr_fallthrough) case_stmt(14, math_expr_fallthrough)
-               case_stmt(13, math_expr_fallthrough) case_stmt(12, math_expr_fallthrough)
-               case_stmt(11, math_expr_fallthrough) case_stmt(10, math_expr_fallthrough)
-               case_stmt( 9, math_expr_fallthrough) case_stmt( 8, math_expr_fallthrough)
-               case_stmt( 7, math_expr_fallthrough) case_stmt( 6, math_expr_fallthrough)
-               case_stmt( 5, math_expr_fallthrough) case_stmt( 4, math_expr_fallthrough)
+               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
                #endif
-               case_stmt( 3, math_expr_fallthrough) case_stmt( 2, math_expr_fallthrough)
+               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
 
@@ -1335,7 +1335,7 @@
       };
 
       template <typename T, typename Operation>
-      class unary_variable_node math_expr_final : public uv_base_node<T>
+      class unary_variable_node final : public uv_base_node<T>
       {
       public:
 
@@ -1346,36 +1346,36 @@
          : v_(var)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(v_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
 
-         inline const T& v() const math_expr_override
+         inline const T& v() const override
          {
             return v_;
          }
 
       private:
 
-         unary_variable_node(const unary_variable_node<T,Operation>&) math_expr_delete;
-         unary_variable_node<T,Operation>& operator=(const unary_variable_node<T,Operation>&) math_expr_delete;
+         unary_variable_node(const unary_variable_node<T,Operation>&) = delete;
+         unary_variable_node<T,Operation>& operator=(const unary_variable_node<T,Operation>&) = delete;
 
          const T& v_;
       };
 
       template <typename T>
-      class uvouv_node math_expr_final : public expression_node<T>
+      class uvouv_node final : public expression_node<T>
       {
       public:
 
@@ -1394,12 +1394,12 @@
          , f_ (bf  )
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return f_(u0_(v0_),u1_(v1_));
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_uvouv;
          }
@@ -1431,8 +1431,8 @@
 
       private:
 
-         uvouv_node(const uvouv_node<T>&) math_expr_delete;
-         uvouv_node<T>& operator=(const uvouv_node<T>&) math_expr_delete;
+         uvouv_node(const uvouv_node<T>&) = delete;
+         uvouv_node<T>& operator=(const uvouv_node<T>&) = delete;
 
          const T& v0_;
          const T& v1_;
@@ -1442,7 +1442,7 @@
       };
 
       template <typename T, typename Operation>
-      class unary_branch_node math_expr_final : public expression_node<T>
+      class unary_branch_node final : public expression_node<T>
       {
       public:
 
@@ -1455,17 +1455,17 @@
             construct_branch_pair(branch_, branch);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(branch_.first->value());
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
@@ -1475,7 +1475,7 @@
             return Operation::operation();
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
@@ -1485,20 +1485,20 @@
             branch_.second = false;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         unary_branch_node(const unary_branch_node<T,Operation>&) math_expr_delete;
-         unary_branch_node<T,Operation>& operator=(const unary_branch_node<T,Operation>&) math_expr_delete;
+         unary_branch_node(const unary_branch_node<T,Operation>&) = delete;
+         unary_branch_node<T,Operation>& operator=(const unary_branch_node<T,Operation>&) = delete;
 
          branch_t branch_;
       };
@@ -1750,7 +1750,7 @@
       #undef synthesis_node_type_define
 
       template <typename T, typename T0, typename T1>
-      class T0oT1 math_expr_final : public expression_node<T>
+      class T0oT1 final : public expression_node<T>
       {
       public:
 
@@ -1765,18 +1765,18 @@
          , f_ (p2)
          {}
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             static const typename expression_node<T>::node_type result = nodetype_T0oT1<T,T0,T1>::result;
             return result;
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return e_default;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return f_(t0_,t1_);
          }
@@ -1808,7 +1808,7 @@
 
       private:
 
-         T0oT1(const T0oT1<T,T0,T1>&) math_expr_delete;
+         T0oT1(const T0oT1<T,T0,T1>&) = delete;
          T0oT1<T,T0,T1>& operator=(const T0oT1<T,T0,T1>&) { return (*this); }
 
          T0 t0_;
@@ -1817,7 +1817,7 @@
       };
 
       template <typename T, typename T0, typename T1, typename T2, typename ProcessMode>
-      class T0oT1oT2 math_expr_final : public T0oT1oT2_base_node<T>
+      class T0oT1oT2 final : public T0oT1oT2_base_node<T>
       {
       public:
 
@@ -1835,7 +1835,7 @@
          , f1_(p4)
          {}
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             static const typename expression_node<T>::node_type result = nodetype_T0oT1oT2<T,T0,T1,T2>::result;
             return result;
@@ -1846,7 +1846,7 @@
             return e_default;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return ProcessMode::process(t0_, t1_, t2_, f0_, f1_);
          }
@@ -1876,7 +1876,7 @@
             return f1_;
          }
 
-         std::string type_id() const math_expr_override
+         std::string type_id() const override
          {
             return id();
          }
@@ -1896,8 +1896,8 @@
 
       private:
 
-         T0oT1oT2(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         T0oT1oT2(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
 
          T0 t0_;
          T1 t1_;
@@ -1907,7 +1907,7 @@
       };
 
       template <typename T, typename T0_, typename T1_, typename T2_, typename T3_, typename ProcessMode>
-      class T0oT1oT2oT3 math_expr_final : public T0oT1oT2oT3_base_node<T>
+      class T0oT1oT2oT3 final : public T0oT1oT2oT3_base_node<T>
       {
       public:
 
@@ -1931,7 +1931,7 @@
          , f2_(p6)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return ProcessMode::process(t0_, t1_, t2_, t3_, f0_, f1_, f2_);
          }
@@ -1971,7 +1971,7 @@
             return f2_;
          }
 
-         inline std::string type_id() const math_expr_override
+         inline std::string type_id() const override
          {
             return id();
          }
@@ -1993,8 +1993,8 @@
 
       private:
 
-         T0oT1oT2oT3(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         T0oT1oT2oT3(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
 
          T0 t0_;
          T1 t1_;
@@ -2006,7 +2006,7 @@
       };
 
       template <typename T, typename T0, typename T1, typename T2>
-      class T0oT1oT2_sf3 math_expr_final : public T0oT1oT2_base_node<T>
+      class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
       {
       public:
 
@@ -2022,18 +2022,18 @@
          , f_ (p3)
          {}
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             static const typename expression_node<T>::node_type result = nodetype_T0oT1oT2<T,T0,T1,T2>::result;
             return result;
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return e_default;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return f_(t0_, t1_, t2_);
          }
@@ -2078,8 +2078,8 @@
 
       private:
 
-         T0oT1oT2_sf3(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         T0oT1oT2_sf3(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
 
          T0 t0_;
          T1 t1_;
@@ -2103,7 +2103,7 @@
       };
 
       template <typename T, typename T0, typename T1, typename T2, typename SF3Operation>
-      class T0oT1oT2_sf3ext math_expr_final : public sf3ext_type_node<T,T0,T1,T2>
+      class T0oT1oT2_sf3ext final : public sf3ext_type_node<T,T0,T1,T2>
       {
       public:
 
@@ -2116,7 +2116,7 @@
          , t2_(p2)
          {}
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             static const typename expression_node<T>::node_type result = nodetype_T0oT1oT2<T,T0,T1,T2>::result;
             return result;
@@ -2127,27 +2127,27 @@
             return e_default;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return SF3Operation::process(t0_, t1_, t2_);
          }
 
-         T0 t0() const math_expr_override
+         T0 t0() const override
          {
             return t0_;
          }
 
-         T1 t1() const math_expr_override
+         T1 t1() const override
          {
             return t1_;
          }
 
-         T2 t2() const math_expr_override
+         T2 t2() const override
          {
             return t2_;
          }
 
-         std::string type_id() const math_expr_override
+         std::string type_id() const override
          {
             return id();
          }
@@ -2167,8 +2167,8 @@
 
       private:
 
-         T0oT1oT2_sf3ext(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         T0oT1oT2_sf3ext(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
 
          T0 t0_;
          T1 t1_;
@@ -2190,7 +2190,7 @@
       }
 
       template <typename T, typename T0, typename T1, typename T2, typename T3>
-      class T0oT1oT2oT3_sf4 math_expr_final : public T0oT1oT2_base_node<T>
+      class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
       {
       public:
 
@@ -2207,18 +2207,18 @@
          , f_ (p4)
          {}
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             static const typename expression_node<T>::node_type result = nodetype_T0oT1oT2oT3<T,T0,T1,T2,T3>::result;
             return result;
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return e_default;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return f_(t0_, t1_, t2_, t3_);
          }
@@ -2268,8 +2268,8 @@
 
       private:
 
-         T0oT1oT2oT3_sf4(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         T0oT1oT2oT3_sf4(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
 
          T0 t0_;
          T1 t1_;
@@ -2279,7 +2279,7 @@
       };
 
       template <typename T, typename T0, typename T1, typename T2, typename T3, typename SF4Operation>
-      class T0oT1oT2oT3_sf4ext math_expr_final : public T0oT1oT2oT3_base_node<T>
+      class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
       {
       public:
 
@@ -2293,13 +2293,13 @@
          , t3_(p3)
          {}
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             static const typename expression_node<T>::node_type result = nodetype_T0oT1oT2oT3<T,T0,T1,T2,T3>::result;
             return result;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return SF4Operation::process(t0_, t1_, t2_, t3_);
          }
@@ -2324,7 +2324,7 @@
             return t3_;
          }
 
-         std::string type_id() const math_expr_override
+         std::string type_id() const override
          {
             return id();
          }
@@ -2344,8 +2344,8 @@
 
       private:
 
-         T0oT1oT2oT3_sf4ext(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         T0oT1oT2oT3_sf4ext(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
 
          T0 t0_;
          T1 t1_;
@@ -2398,7 +2398,7 @@
       };
 
       template <typename T, typename Operation>
-      class vov_node math_expr_final : public vov_base_node<T>
+      class vov_node final : public vov_base_node<T>
       {
       public:
 
@@ -2411,27 +2411,27 @@
          , v1_(var1)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(v0_,v1_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
 
-         inline const T& v0() const math_expr_override
+         inline const T& v0() const override
          {
             return v0_;
          }
 
-         inline const T& v1() const math_expr_override
+         inline const T& v1() const override
          {
             return v1_;
          }
@@ -2443,12 +2443,12 @@
 
       private:
 
-         vov_node(const vov_node<T,Operation>&) math_expr_delete;
-         vov_node<T,Operation>& operator=(const vov_node<T,Operation>&) math_expr_delete;
+         vov_node(const vov_node<T,Operation>&) = delete;
+         vov_node<T,Operation>& operator=(const vov_node<T,Operation>&) = delete;
       };
 
       template <typename T, typename Operation>
-      class cov_node math_expr_final : public cov_base_node<T>
+      class cov_node final : public cov_base_node<T>
       {
       public:
 
@@ -2461,27 +2461,27 @@
          , v_(var)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(c_,v_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
 
-         inline const T c() const math_expr_override
+         inline const T c() const override
          {
             return c_;
          }
 
-         inline const T& v() const math_expr_override
+         inline const T& v() const override
          {
             return v_;
          }
@@ -2493,12 +2493,12 @@
 
       private:
 
-         cov_node(const cov_node<T,Operation>&) math_expr_delete;
-         cov_node<T,Operation>& operator=(const cov_node<T,Operation>&) math_expr_delete;
+         cov_node(const cov_node<T,Operation>&) = delete;
+         cov_node<T,Operation>& operator=(const cov_node<T,Operation>&) = delete;
       };
 
       template <typename T, typename Operation>
-      class voc_node math_expr_final : public voc_base_node<T>
+      class voc_node final : public voc_base_node<T>
       {
       public:
 
@@ -2511,22 +2511,22 @@
          , c_(const_var)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(v_,c_);
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
 
-         inline const T c() const math_expr_override
+         inline const T c() const override
          {
             return c_;
          }
 
-         inline const T& v() const math_expr_override
+         inline const T& v() const override
          {
             return v_;
          }
@@ -2538,12 +2538,12 @@
 
       private:
 
-         voc_node(const voc_node<T,Operation>&) math_expr_delete;
-         voc_node<T,Operation>& operator=(const voc_node<T,Operation>&) math_expr_delete;
+         voc_node(const voc_node<T,Operation>&) = delete;
+         voc_node<T,Operation>& operator=(const voc_node<T,Operation>&) = delete;
       };
 
       template <typename T, typename Operation>
-      class vob_node math_expr_final : public vob_base_node<T>
+      class vob_node final : public vob_base_node<T>
       {
       public:
 
@@ -2559,47 +2559,47 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(v_,branch_.first->value());
          }
 
-         inline const T& v() const math_expr_override
+         inline const T& v() const override
          {
             return v_;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         vob_node(const vob_node<T,Operation>&) math_expr_delete;
-         vob_node<T,Operation>& operator=(const vob_node<T,Operation>&) math_expr_delete;
+         vob_node(const vob_node<T,Operation>&) = delete;
+         vob_node<T,Operation>& operator=(const vob_node<T,Operation>&) = delete;
 
          const T& v_;
          branch_t branch_;
       };
 
       template <typename T, typename Operation>
-      class bov_node math_expr_final : public bov_base_node<T>
+      class bov_node final : public bov_base_node<T>
       {
       public:
 
@@ -2615,47 +2615,47 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(branch_.first->value(),v_);
          }
 
-         inline const T& v() const math_expr_override
+         inline const T& v() const override
          {
             return v_;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         bov_node(const bov_node<T,Operation>&) math_expr_delete;
-         bov_node<T,Operation>& operator=(const bov_node<T,Operation>&) math_expr_delete;
+         bov_node(const bov_node<T,Operation>&) = delete;
+         bov_node<T,Operation>& operator=(const bov_node<T,Operation>&) = delete;
 
          const T& v_;
          branch_t branch_;
       };
 
       template <typename T, typename Operation>
-      class cob_node math_expr_final : public cob_base_node<T>
+      class cob_node final : public cob_base_node<T>
       {
       public:
 
@@ -2671,63 +2671,63 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(c_,branch_.first->value());
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
 
-         inline const T c() const math_expr_override
+         inline const T c() const override
          {
             return c_;
          }
 
-         inline void set_c(const T new_c) math_expr_override
+         inline void set_c(const T new_c) override
          {
             (*const_cast<T*>(&c_)) = new_c;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
 
-         inline expression_node<T>* move_branch(const std::size_t&) math_expr_override
+         inline expression_node<T>* move_branch(const std::size_t&) override
          {
             branch_.second = false;
             return branch_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         cob_node(const cob_node<T,Operation>&) math_expr_delete;
-         cob_node<T,Operation>& operator=(const cob_node<T,Operation>&) math_expr_delete;
+         cob_node(const cob_node<T,Operation>&) = delete;
+         cob_node<T,Operation>& operator=(const cob_node<T,Operation>&) = delete;
 
          const T  c_;
          branch_t branch_;
       };
 
       template <typename T, typename Operation>
-      class boc_node math_expr_final : public boc_base_node<T>
+      class boc_node final : public boc_base_node<T>
       {
       public:
 
@@ -2743,56 +2743,56 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(branch_.first->value(),c_);
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
 
-         inline const T c() const math_expr_override
+         inline const T c() const override
          {
             return c_;
          }
 
-         inline void set_c(const T new_c) math_expr_override
+         inline void set_c(const T new_c) override
          {
             (*const_cast<T*>(&c_)) = new_c;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
 
-         inline expression_node<T>* move_branch(const std::size_t&) math_expr_override
+         inline expression_node<T>* move_branch(const std::size_t&) override
          {
             branch_.second = false;
             return branch_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         boc_node(const boc_node<T,Operation>&) math_expr_delete;
-         boc_node<T,Operation>& operator=(const boc_node<T,Operation>&) math_expr_delete;
+         boc_node(const boc_node<T,Operation>&) = delete;
+         boc_node<T,Operation>& operator=(const boc_node<T,Operation>&) = delete;
 
          const T  c_;
          branch_t branch_;
@@ -2800,7 +2800,7 @@
 
       #ifndef math_expr_disable_string_capabilities
       template <typename T, typename SType0, typename SType1, typename Operation>
-      class sos_node math_expr_final : public sos_base_node<T>
+      class sos_node final : public sos_base_node<T>
       {
       public:
 
@@ -2813,17 +2813,17 @@
          , s1_(p1)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(s0_,s1_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
@@ -2845,12 +2845,12 @@
 
       private:
 
-         sos_node(const sos_node<T,SType0,SType1,Operation>&) math_expr_delete;
-         sos_node<T,SType0,SType1,Operation>& operator=(const sos_node<T,SType0,SType1,Operation>&) math_expr_delete;
+         sos_node(const sos_node<T,SType0,SType1,Operation>&) = delete;
+         sos_node<T,SType0,SType1,Operation>& operator=(const sos_node<T,SType0,SType1,Operation>&) = delete;
       };
 
       template <typename T, typename SType0, typename SType1, typename RangePack, typename Operation>
-      class str_xrox_node math_expr_final : public sos_base_node<T>
+      class str_xrox_node final : public sos_base_node<T>
       {
       public:
 
@@ -2865,12 +2865,12 @@
          , rp0_(rp0)
          {}
 
-        ~str_xrox_node() math_expr_override
+        ~str_xrox_node() override
          {
             rp0_.free();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             std::size_t r0 = 0;
             std::size_t r1 = 0;
@@ -2881,12 +2881,12 @@
                return T(0);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
@@ -2909,12 +2909,12 @@
 
       private:
 
-         str_xrox_node(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         str_xrox_node(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
       };
 
       template <typename T, typename SType0, typename SType1, typename RangePack, typename Operation>
-      class str_xoxr_node math_expr_final : public sos_base_node<T>
+      class str_xoxr_node final : public sos_base_node<T>
       {
       public:
 
@@ -2934,7 +2934,7 @@
             rp1_.free();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             std::size_t r0 = 0;
             std::size_t r1 = 0;
@@ -2951,12 +2951,12 @@
                return T(0);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
@@ -2979,12 +2979,12 @@
 
       private:
 
-         str_xoxr_node(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         str_xoxr_node(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
       };
 
       template <typename T, typename SType0, typename SType1, typename RangePack, typename Operation>
-      class str_xroxr_node math_expr_final : public sos_base_node<T>
+      class str_xroxr_node final : public sos_base_node<T>
       {
       public:
 
@@ -3000,13 +3000,13 @@
          , rp1_(rp1)
          {}
 
-        ~str_xroxr_node() math_expr_override
+        ~str_xroxr_node() override
          {
             rp0_.free();
             rp1_.free();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             std::size_t r0_0 = 0;
             std::size_t r0_1 = 0;
@@ -3028,12 +3028,12 @@
                return T(0);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
@@ -3057,12 +3057,12 @@
 
       private:
 
-         str_xroxr_node(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         str_xroxr_node(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
       };
 
       template <typename T, typename Operation>
-      class str_sogens_node math_expr_final : public binary_node<T>
+      class str_sogens_node final : public binary_node<T>
       {
       public:
 
@@ -3124,7 +3124,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -3153,20 +3153,20 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_;
          }
 
       private:
 
-         str_sogens_node(const str_sogens_node<T,Operation>&) math_expr_delete;
-         str_sogens_node<T,Operation>& operator=(const str_sogens_node<T,Operation>&) math_expr_delete;
+         str_sogens_node(const str_sogens_node<T,Operation>&) = delete;
+         str_sogens_node<T,Operation>& operator=(const str_sogens_node<T,Operation>&) = delete;
 
          str_base_ptr str0_base_ptr_;
          str_base_ptr str1_base_ptr_;
@@ -3176,7 +3176,7 @@
       };
 
       template <typename T, typename SType0, typename SType1, typename SType2, typename Operation>
-      class sosos_node math_expr_final : public sosos_base_node<T>
+      class sosos_node final : public sosos_base_node<T>
       {
       public:
 
@@ -3191,17 +3191,17 @@
          , s2_(p2)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Operation::process(s0_, s1_, s2_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return Operation::type();
          }
 
-         inline operator_type operation() const math_expr_override
+         inline operator_type operation() const override
          {
             return Operation::operation();
          }
@@ -3229,13 +3229,13 @@
 
       private:
 
-         sosos_node(const node_type&) math_expr_delete;
-         node_type& operator=(const node_type&) math_expr_delete;
+         sosos_node(const node_type&) = delete;
+         node_type& operator=(const node_type&) = delete;
       };
       #endif
 
       template <typename T, typename PowOp>
-      class ipow_node math_expr_final: public expression_node<T>
+      class ipow_node final: public expression_node<T>
       {
       public:
 
@@ -3246,26 +3246,26 @@
          : v_(v)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return PowOp::result(v_);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_ipow;
          }
 
       private:
 
-         ipow_node(const ipow_node<T,PowOp>&) math_expr_delete;
-         ipow_node<T,PowOp>& operator=(const ipow_node<T,PowOp>&) math_expr_delete;
+         ipow_node(const ipow_node<T,PowOp>&) = delete;
+         ipow_node<T,PowOp>& operator=(const ipow_node<T,PowOp>&) = delete;
 
          const T& v_;
       };
 
       template <typename T, typename PowOp>
-      class bipow_node math_expr_final : public expression_node<T>
+      class bipow_node final : public expression_node<T>
       {
       public:
 
@@ -3279,41 +3279,41 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return PowOp::result(branch_.first->value());
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_ipow;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         bipow_node(const bipow_node<T,PowOp>&) math_expr_delete;
-         bipow_node<T,PowOp>& operator=(const bipow_node<T,PowOp>&) math_expr_delete;
+         bipow_node(const bipow_node<T,PowOp>&) = delete;
+         bipow_node<T,PowOp>& operator=(const bipow_node<T,PowOp>&) = delete;
 
          branch_t branch_;
       };
 
       template <typename T, typename PowOp>
-      class ipowinv_node math_expr_final : public expression_node<T>
+      class ipowinv_node final : public expression_node<T>
       {
       public:
 
@@ -3324,26 +3324,26 @@
          : v_(v)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return (T(1) / PowOp::result(v_));
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_ipowinv;
          }
 
       private:
 
-         ipowinv_node(const ipowinv_node<T,PowOp>&) math_expr_delete;
-         ipowinv_node<T,PowOp>& operator=(const ipowinv_node<T,PowOp>&) math_expr_delete;
+         ipowinv_node(const ipowinv_node<T,PowOp>&) = delete;
+         ipowinv_node<T,PowOp>& operator=(const ipowinv_node<T,PowOp>&) = delete;
 
          const T& v_;
       };
 
       template <typename T, typename PowOp>
-      class bipowinv_node math_expr_final : public expression_node<T>
+      class bipowinv_node final : public expression_node<T>
       {
       public:
 
@@ -3357,35 +3357,35 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return (T(1) / PowOp::result(branch_.first->value()));
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_ipowinv;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
 
       private:
 
-         bipowinv_node(const bipowinv_node<T,PowOp>&) math_expr_delete;
-         bipowinv_node<T,PowOp>& operator=(const bipowinv_node<T,PowOp>&) math_expr_delete;
+         bipowinv_node(const bipowinv_node<T,PowOp>&) = delete;
+         bipowinv_node<T,PowOp>& operator=(const bipowinv_node<T,PowOp>&) = delete;
 
          branch_t branch_;
       };

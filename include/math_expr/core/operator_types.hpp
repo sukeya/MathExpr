@@ -253,8 +253,8 @@
 
          private:
 
-            control_block(const control_block&) math_expr_delete;
-            control_block& operator=(const control_block&) math_expr_delete;
+            control_block(const control_block&) = delete;
+            control_block& operator=(const control_block&) = delete;
 
             inline void create_data()
             {

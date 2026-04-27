@@ -12,13 +12,13 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return numeric::process<T>
                      (operation_,branch_.first->value());
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_unary;
          }
@@ -28,12 +28,12 @@
             return operation_;
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first && branch_.first->valid();
          }
@@ -43,12 +43,12 @@
             branch_.second = false;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_final
+         std::size_t node_depth() const final
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
@@ -76,7 +76,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return numeric::process<T>
                    (
@@ -86,7 +86,7 @@
                    );
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_binary;
          }
@@ -96,25 +96,25 @@
             return operation_;
          }
 
-         inline expression_node<T>* branch(const std::size_t& index = 0) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t& index = 0) const override
          {
             assert(index < 2);
             return branch_[index].first;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                branch_[0].first && branch_[0].first->valid() &&
                branch_[1].first && branch_[1].first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_final
+         std::size_t node_depth() const final
          {
             return expression_node<T>::ndb_t::template compute_node_depth<2>(branch_);
          }
@@ -126,7 +126,7 @@
       };
 
       template <typename T, typename Operation>
-      class binary_ext_node math_expr_final : public expression_node<T>
+      class binary_ext_node final : public expression_node<T>
       {
       public:
 
@@ -139,14 +139,14 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T arg0 = branch_[0].first->value();
             const T arg1 = branch_[1].first->value();
             return Operation::process(arg0,arg1);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_binary_ext;
          }
@@ -156,25 +156,25 @@
             return Operation::operation();
          }
 
-         inline expression_node<T>* branch(const std::size_t& index = 0) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t& index = 0) const override
          {
             assert(index < 2);
             return branch_[index].first;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                branch_[0].first && branch_[0].first->valid() &&
                branch_[1].first && branch_[1].first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::template compute_node_depth<2>(branch_);
          }
@@ -202,7 +202,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T arg0 = branch_[0].first->value();
             const T arg1 = branch_[1].first->value();
@@ -224,12 +224,12 @@
             }
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_trinary;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                branch_[0].first && branch_[0].first->valid() &&
@@ -237,12 +237,12 @@
                branch_[2].first && branch_[2].first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override math_expr_final
+         std::size_t node_depth() const override final
          {
             return expression_node<T>::ndb_t::template compute_node_depth<3>(branch_);
          }
@@ -271,27 +271,27 @@
             init_branches<4>(branch_, branch0, branch1, branch2, branch3);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_quaternary;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override math_expr_final
+         std::size_t node_depth() const override final
          {
             return expression_node<T>::ndb_t::template compute_node_depth<4>(branch_);
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                branch_[0].first && branch_[0].first->valid() &&

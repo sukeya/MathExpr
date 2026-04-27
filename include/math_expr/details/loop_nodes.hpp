@@ -14,7 +14,7 @@
       class continue_exception {};
 
       template <typename T>
-      class break_node math_expr_final : public expression_node<T>
+      class break_node final : public expression_node<T>
       {
       public:
 
@@ -26,7 +26,7 @@
             construct_branch_pair(return_, ret);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T result = return_.first ?
                              return_.first->value() :
@@ -39,17 +39,17 @@
             #endif
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_break;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(return_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(return_);
          }
@@ -60,11 +60,11 @@
       };
 
       template <typename T>
-      class continue_node math_expr_final : public expression_node<T>
+      class continue_node final : public expression_node<T>
       {
       public:
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             throw continue_exception();
             #if !defined(_MSC_VER) && !defined(__NVCOMPILER)
@@ -72,7 +72,7 @@
             #endif
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_break;
          }
@@ -144,7 +144,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -156,25 +156,25 @@
             return result;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_while;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                condition_.first && condition_.first->valid() &&
                loop_body_.first && loop_body_.first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(condition_ , node_delete_list);
             expression_node<T>::ndb_t::collect(loop_body_ , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(condition_, loop_body_);
          }
@@ -186,7 +186,7 @@
       };
 
       template <typename T>
-      class while_loop_rtc_node math_expr_final
+      class while_loop_rtc_node final
                                 : public while_loop_node<T>
                                 , public loop_runtime_checker
       {
@@ -204,7 +204,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
 
             T result = T(0);
@@ -221,7 +221,7 @@
 
          using parent_t::valid;
 
-         bool valid() const math_expr_override math_expr_final
+         bool valid() const override final
          {
             return parent_t::valid() &&
                    loop_runtime_checker::valid();
@@ -244,7 +244,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -257,25 +257,25 @@
             return result;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_repeat;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                condition_.first && condition_.first->valid() &&
                loop_body_.first && loop_body_.first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(condition_ , node_delete_list);
             expression_node<T>::ndb_t::collect(loop_body_ , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(condition_, loop_body_);
          }
@@ -287,7 +287,7 @@
       };
 
       template <typename T>
-      class repeat_until_loop_rtc_node math_expr_final
+      class repeat_until_loop_rtc_node final
                                        : public repeat_until_loop_node<T>
                                        , public loop_runtime_checker
       {
@@ -305,7 +305,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -322,7 +322,7 @@
 
          using parent_t::valid;
 
-         inline bool valid() const math_expr_override math_expr_final
+         inline bool valid() const override final
          {
             return parent_t::valid() &&
                    loop_runtime_checker::valid();
@@ -349,7 +349,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -375,17 +375,17 @@
             return result;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_for;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return condition_.first && loop_body_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(initialiser_ , node_delete_list);
             expression_node<T>::ndb_t::collect(condition_   , node_delete_list);
@@ -393,7 +393,7 @@
             expression_node<T>::ndb_t::collect(loop_body_   , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth
                (initialiser_, condition_, incrementor_, loop_body_);
@@ -408,7 +408,7 @@
       };
 
       template <typename T>
-      class for_loop_rtc_node math_expr_final
+      class for_loop_rtc_node final
                               : public for_loop_node<T>
                               , public loop_runtime_checker
       {
@@ -428,7 +428,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -458,7 +458,7 @@
 
          using parent_t::valid;
 
-         inline bool valid() const math_expr_override math_expr_final
+         inline bool valid() const override final
          {
             return parent_t::valid() &&
                    loop_runtime_checker::valid();
@@ -481,7 +481,7 @@
             assert(parent_t::valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -504,7 +504,7 @@
       };
 
       template <typename T>
-      class while_loop_bc_rtc_node math_expr_final
+      class while_loop_bc_rtc_node final
                                    : public while_loop_bc_node<T>
                                    , public loop_runtime_checker
       {
@@ -522,7 +522,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -547,7 +547,7 @@
 
          using parent_t::valid;
 
-         inline bool valid() const math_expr_override math_expr_final
+         inline bool valid() const override final
          {
             return parent_t::valid() &&
                    loop_runtime_checker::valid();
@@ -569,7 +569,7 @@
             assert(parent_t::valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -593,7 +593,7 @@
       };
 
       template <typename T>
-      class repeat_until_loop_bc_rtc_node math_expr_final
+      class repeat_until_loop_bc_rtc_node final
                                           : public repeat_until_loop_bc_node<T>
                                           , public loop_runtime_checker
       {
@@ -611,7 +611,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -637,7 +637,7 @@
 
          using parent_t::valid;
 
-         inline bool valid() const math_expr_override math_expr_final
+         inline bool valid() const override final
          {
             return parent_t::valid() &&
                    loop_runtime_checker::valid();
@@ -661,7 +661,7 @@
             assert(parent_t::valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -708,7 +708,7 @@
       };
 
       template <typename T>
-      class for_loop_bc_rtc_node math_expr_final
+      class for_loop_bc_rtc_node final
                                  : public for_loop_bc_node<T>
                                  , public loop_runtime_checker
       {
@@ -728,7 +728,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             T result = T(0);
 
@@ -777,7 +777,7 @@
 
          using parent_t::valid;
 
-         inline bool valid() const math_expr_override math_expr_final
+         inline bool valid() const override final
          {
             return parent_t::valid() &&
                    loop_runtime_checker::valid();
@@ -818,7 +818,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const std::size_t upper_bound = (arg_list_.size() - 1);
 
@@ -836,22 +836,22 @@
             return arg_list_[upper_bound].first->value();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override math_expr_final
+         inline typename expression_node<T>::node_type type() const override final
          {
             return expression_node<T>::e_switch;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return !arg_list_.empty();
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(arg_list_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override math_expr_final
+         std::size_t node_depth() const override final
          {
             return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
          }
@@ -862,7 +862,7 @@
       };
 
       template <typename T, typename Switch_N>
-      class switch_n_node math_expr_final : public switch_node<T>
+      class switch_n_node final : public switch_node<T>
       {
       public:
 
@@ -874,14 +874,14 @@
          : switch_node<T>(arg_list)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return Switch_N::process(switch_node<T>::arg_list_);
          }
       };
 
       template <typename T>
-      class multi_switch_node math_expr_final : public expression_node<T>
+      class multi_switch_node final : public expression_node<T>
       {
       public:
 
@@ -913,7 +913,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const std::size_t upper_bound = (arg_list_.size() - 1);
 
@@ -933,22 +933,22 @@
             return result;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_mswitch;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return !arg_list_.empty() && (0 == (arg_list_.size() % 2));
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(arg_list_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override math_expr_final
+         std::size_t node_depth() const override final
          {
             return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
          }

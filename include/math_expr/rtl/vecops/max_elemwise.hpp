@@ -1,4 +1,4 @@
-   class max_elemwise math_expr_final : public math_expr::igeneric_function<T>
+   class max_elemwise final : public math_expr::igeneric_function<T>
    {
    public:
 
@@ -21,7 +21,7 @@
       */
       {}
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) math_expr_override
+      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
          std::size_t out_vec_index = 0;
          std::size_t in_vec_index  = (ps_index & 1) ? 1 : 0;

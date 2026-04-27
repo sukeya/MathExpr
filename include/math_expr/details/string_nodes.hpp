@@ -1,4 +1,4 @@
-      class stringvar_node math_expr_final
+      class stringvar_node final
                            : public expression_node <T>
                            , public string_base_node<T>
                            , public range_interface <T>
@@ -27,7 +27,7 @@
             return this < (&v);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             rp_.n1_c.second  = (*value_).size();
             rp_.cache.second = rp_.n1_c.second;
@@ -35,17 +35,17 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return ref();
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return &(*value_)[0];
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return ref().size();
          }
@@ -60,17 +60,17 @@
             return (*value_);
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return rp_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return rp_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_stringvar;
          }
@@ -94,7 +94,7 @@
       std::string stringvar_node<T>::null_value = std::string("");
 
       template <typename T>
-      class string_range_node math_expr_final
+      class string_range_node final
                               : public expression_node <T>
                               , public string_base_node<T>
                               , public range_interface <T>
@@ -120,22 +120,22 @@
             return this < (&v);
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline std::string str() const math_expr_override
+         inline std::string str() const override
          {
             return (*value_);
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return &(*value_)[0];
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return ref().size();
          }
@@ -155,17 +155,17 @@
             return (*value_);
          }
 
-         inline range_t& range_ref() math_expr_override
+         inline range_t& range_ref() override
          {
             return rp_;
          }
 
-         inline const range_t& range_ref() const math_expr_override
+         inline const range_t& range_ref() const override
          {
             return rp_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_stringvarrng;
          }
@@ -180,7 +180,7 @@
       std::string string_range_node<T>::null_value = std::string("");
 
       template <typename T>
-      class const_string_range_node math_expr_final
+      class const_string_range_node final
                                     : public expression_node <T>
                                     , public string_base_node<T>
                                     , public range_interface <T>
@@ -194,27 +194,27 @@
          , rp_(rp)
          {}
 
-        ~const_string_range_node() math_expr_override
+        ~const_string_range_node() override
          {
             rp_.free();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return value_;
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return value_.data();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return value_.size();
          }
@@ -224,32 +224,32 @@
             return rp_;
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return rp_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return rp_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_cstringvarrng;
          }
 
       private:
 
-         const_string_range_node(const const_string_range_node<T>&) math_expr_delete;
-         const_string_range_node<T>& operator=(const const_string_range_node<T>&) math_expr_delete;
+         const_string_range_node(const const_string_range_node<T>&) = delete;
+         const_string_range_node<T>& operator=(const const_string_range_node<T>&) = delete;
 
          const std::string value_;
          range_t rp_;
       };
 
       template <typename T>
-      class generic_string_range_node math_expr_final
+      class generic_string_range_node final
                                       : public expression_node <T>
                                       , public string_base_node<T>
                                       , public range_interface <T>
@@ -295,12 +295,12 @@
             assert(valid());
          }
 
-        ~generic_string_range_node() math_expr_override
+        ~generic_string_range_node() override
          {
             base_range_.free();
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch_.first->value();
 
@@ -330,47 +330,47 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return value_;
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return &value_[0];
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return value_.size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return range_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return range_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strgenrange;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_ && branch_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
@@ -387,7 +387,7 @@
       };
 
       template <typename T>
-      class string_concat_node math_expr_final
+      class string_concat_node final
                                : public binary_node     <T>
                                , public string_base_node<T>
                                , public range_interface <T>
@@ -453,7 +453,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -485,37 +485,37 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return value_;
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return &value_[0];
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return value_.size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return range_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return range_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strconcat;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_ && binary_node<T>::valid();
          }
@@ -532,7 +532,7 @@
       };
 
       template <typename T>
-      class swap_string_node math_expr_final
+      class swap_string_node final
                              : public binary_node     <T>
                              , public string_base_node<T>
                              , public range_interface <T>
@@ -569,7 +569,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -579,37 +579,37 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return str0_node_ptr_->str();
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
            return str0_node_ptr_->base();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return str0_node_ptr_->size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return str0_node_ptr_->range_ref();
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return str0_node_ptr_->range_ref();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strswap;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_ && binary_node<T>::valid();
          }
@@ -622,7 +622,7 @@
       };
 
       template <typename T>
-      class swap_genstrings_node math_expr_final : public binary_node<T>
+      class swap_genstrings_node final : public binary_node<T>
       {
       public:
 
@@ -682,7 +682,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -737,7 +737,7 @@
                {
                   #define case_stmt(N)                       \
                   case N : { std::swap(s0[i], s1[i]); ++i; } \
-                  math_expr_fallthrough                         \
+                  [[fallthrough]];                         \
 
                   #ifndef math_expr_disable_superscalar_unroll
                   case_stmt(15) case_stmt(14)
@@ -759,20 +759,20 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strswap;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_ && binary_node<T>::valid();
          }
 
       private:
 
-         swap_genstrings_node(const swap_genstrings_node<T>&) math_expr_delete;
-         swap_genstrings_node<T>& operator=(const swap_genstrings_node<T>&) math_expr_delete;
+         swap_genstrings_node(const swap_genstrings_node<T>&) = delete;
+         swap_genstrings_node<T>& operator=(const swap_genstrings_node<T>&) = delete;
 
          str_base_ptr str0_base_ptr_;
          str_base_ptr str1_base_ptr_;
@@ -782,7 +782,7 @@
       };
 
       template <typename T>
-      class stringvar_size_node math_expr_final : public expression_node<T>
+      class stringvar_size_node final : public expression_node<T>
       {
       public:
 
@@ -796,12 +796,12 @@
          : value_(&v)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return T((*value_).size());
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_stringvarsize;
          }
@@ -815,7 +815,7 @@
       const std::string stringvar_size_node<T>::null_value = std::string("");
 
       template <typename T>
-      class string_size_node math_expr_final : public expression_node<T>
+      class string_size_node final : public expression_node<T>
       {
       public:
 
@@ -836,28 +836,28 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch_.first->value();
             return T(str_base_ptr_->size());
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_stringsize;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return str_base_ptr_;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
@@ -881,7 +881,7 @@
       };
 
       template <typename T, typename AssignmentProcess = asn_assignment>
-      class assignment_string_node math_expr_final
+      class assignment_string_node final
                                    : public binary_node     <T>
                                    , public string_base_node<T>
                                    , public range_interface <T>
@@ -937,7 +937,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(1)->value();
 
@@ -958,37 +958,37 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return str0_node_ptr_->str();
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
            return str0_node_ptr_->base();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return str0_node_ptr_->size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return str0_node_ptr_->range_ref();
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return str0_node_ptr_->range_ref();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strass;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_ && binary_node<T>::valid();
          }
@@ -1003,7 +1003,7 @@
       };
 
       template <typename T, typename AssignmentProcess = asn_assignment>
-      class assignment_string_range_node math_expr_final
+      class assignment_string_range_node final
                                          : public binary_node     <T>
                                          , public string_base_node<T>
                                          , public range_interface <T>
@@ -1068,7 +1068,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             branch(0)->value();
             branch(1)->value();
@@ -1098,37 +1098,37 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return str0_base_ptr_->str();
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return str0_base_ptr_->base();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return str0_base_ptr_->size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return str0_rng_node_ptr_->range_ref();
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return str0_rng_node_ptr_->range_ref();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strass;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return initialised_ && binary_node<T>::valid();
          }
@@ -1144,7 +1144,7 @@
       };
 
       template <typename T>
-      class conditional_string_node math_expr_final
+      class conditional_string_node final
                                     : public trinary_node    <T>
                                     , public string_base_node<T>
                                     , public range_interface <T>
@@ -1211,7 +1211,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             std::size_t r0 = 0;
             std::size_t r1 = 0;
@@ -1256,37 +1256,37 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return value_;
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return &value_[0];
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return value_.size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return range_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return range_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strcondition;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                initialised_                         &&
@@ -1311,7 +1311,7 @@
       };
 
       template <typename T>
-      class cons_conditional_str_node math_expr_final
+      class cons_conditional_str_node final
                                       : public binary_node     <T>
                                       , public string_base_node<T>
                                       , public range_interface <T>
@@ -1359,7 +1359,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (is_true(condition_))
             {
@@ -1411,12 +1411,12 @@
             return range_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_strccondition;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                initialised_                         &&
@@ -1437,7 +1437,7 @@
       };
 
       template <typename T, typename VarArgFunction>
-      class str_vararg_node math_expr_final
+      class str_vararg_node final
                             : public expression_node <T>
                             , public string_base_node<T>
                             , public range_interface <T>
@@ -1502,7 +1502,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (!arg_list_.empty())
             {
@@ -1514,50 +1514,50 @@
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return str_base_ptr_->str();
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return str_base_ptr_->base();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return str_base_ptr_->size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return str_range_ptr_->range_ref();
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return str_range_ptr_->range_ref();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_stringvararg;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                initialised_ &&
                final_node_.first && final_node_.first->valid();
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(final_node_ , node_delete_list);
             expression_node<T>::ndb_t::collect(arg_list_   , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return std::max(
                expression_node<T>::ndb_t::compute_node_depth(final_node_),
@@ -1575,7 +1575,7 @@
       #endif
 
       template <typename T>
-      class assert_node math_expr_final : public expression_node<T>
+      class assert_node final : public expression_node<T>
       {
       public:
 
@@ -1608,7 +1608,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (details::is_true(assert_condition_node_.first->value()))
             {
@@ -1628,12 +1628,12 @@
             return T(0);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_assert;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return (
                      assert_check_ &&
@@ -1651,13 +1651,13 @@
                    );
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(assert_condition_node_, node_delete_list);
             expression_node<T>::ndb_t::collect(assert_message_node_  , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth
                (assert_condition_node_, assert_message_node_);
@@ -1897,7 +1897,7 @@
       #undef define_sfop4
 
       template <typename T, typename SpecialFunction>
-      class sf3_node math_expr_final : public trinary_node<T>
+      class sf3_node final : public trinary_node<T>
       {
       public:
 
@@ -1910,7 +1910,7 @@
          : trinary_node<T>(opr, branch0, branch1, branch2)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T x = trinary_node<T>::branch_[0].first->value();
             const T y = trinary_node<T>::branch_[1].first->value();
@@ -1921,7 +1921,7 @@
       };
 
       template <typename T, typename SpecialFunction>
-      class sf4_node math_expr_final : public quaternary_node<T>
+      class sf4_node final : public quaternary_node<T>
       {
       public:
 
@@ -1935,7 +1935,7 @@
          : quaternary_node<T>(opr, branch0, branch1, branch2, branch3)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T x = quaternary_node<T>::branch_[0].first->value();
             const T y = quaternary_node<T>::branch_[1].first->value();

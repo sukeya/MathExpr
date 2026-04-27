@@ -456,8 +456,8 @@
 
       private:
 
-         scoped_bft(const scoped_bft&) math_expr_delete;
-         scoped_bft& operator=(const scoped_bft&) math_expr_delete;
+         scoped_bft(const scoped_bft&) = delete;
+         scoped_bft& operator=(const scoped_bft&) = delete;
       };
 
       struct func_0param : public base_func
@@ -466,7 +466,7 @@
 
          func_0param() : base_func(0) {}
 
-         inline T operator() () math_expr_override
+         inline T operator() () override
          {
             scoped_bft<func_0param> sb(*this);
             return this->value(base_func::expression);
@@ -479,7 +479,7 @@
 
          func_1param() : base_func(1) {}
 
-         inline T operator() (type v0) math_expr_override
+         inline T operator() (type v0) override
          {
             scoped_bft<func_1param> sb(*this);
             base_func::update(v0);
@@ -493,7 +493,7 @@
 
          func_2param() : base_func(2) {}
 
-         inline T operator() (type v0, type v1) math_expr_override
+         inline T operator() (type v0, type v1) override
          {
             scoped_bft<func_2param> sb(*this);
             base_func::update(v0, v1);
@@ -507,7 +507,7 @@
 
          func_3param() : base_func(3) {}
 
-         inline T operator() (type v0, type v1, type v2) math_expr_override
+         inline T operator() (type v0, type v1, type v2) override
          {
             scoped_bft<func_3param> sb(*this);
             base_func::update(v0, v1, v2);
@@ -521,7 +521,7 @@
 
          func_4param() : base_func(4) {}
 
-         inline T operator() (type v0, type v1, type v2, type v3) math_expr_override
+         inline T operator() (type v0, type v1, type v2, type v3) override
          {
             scoped_bft<func_4param> sb(*this);
             base_func::update(v0, v1, v2, v3);
@@ -535,7 +535,7 @@
 
          func_5param() : base_func(5) {}
 
-         inline T operator() (type v0, type v1, type v2, type v3, type v4) math_expr_override
+         inline T operator() (type v0, type v1, type v2, type v3, type v4) override
          {
             scoped_bft<func_5param> sb(*this);
             base_func::update(v0, v1, v2, v3, v4);
@@ -549,7 +549,7 @@
 
          func_6param() : base_func(6) {}
 
-         inline T operator() (type v0, type v1, type v2, type v3, type v4, type v5) math_expr_override
+         inline T operator() (type v0, type v1, type v2, type v3, type v4, type v5) override
          {
             scoped_bft<func_6param> sb(*this);
             base_func::update(v0, v1, v2, v3, v4, v5);
@@ -577,9 +577,9 @@
       }
 
       #define def_fp_retval(N)                                            \
-      struct func_##N##param_retval math_expr_final : public func_##N##param \
+      struct func_##N##param_retval final : public func_##N##param \
       {                                                                   \
-         inline T value(expression_t& e) math_expr_override                  \
+         inline T value(expression_t& e) override                  \
          {                                                                \
             return return_value(e);                                       \
          }                                                                \

@@ -1,4 +1,4 @@
-      class conditional_node math_expr_final : public expression_node<T>
+      class conditional_node final : public expression_node<T>
       {
       public:
 
@@ -15,7 +15,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (is_true(condition_))
                return consequent_.first->value();
@@ -23,12 +23,12 @@
                return alternative_.first->value();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_conditional;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                condition_  .first && condition_  .first->valid() &&
@@ -36,14 +36,14 @@
                alternative_.first && alternative_.first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(condition_   , node_delete_list);
             expression_node<T>::ndb_t::collect(consequent_  , node_delete_list);
             expression_node<T>::ndb_t::collect(alternative_ , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth
                (condition_, consequent_, alternative_);
@@ -57,7 +57,7 @@
       };
 
       template <typename T>
-      class cons_conditional_node math_expr_final : public expression_node<T>
+      class cons_conditional_node final : public expression_node<T>
       {
       public:
 
@@ -73,7 +73,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             if (is_true(condition_))
                return consequent_.first->value();
@@ -81,25 +81,25 @@
                return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_conditional;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return
                condition_ .first && condition_ .first->valid() &&
                consequent_.first && consequent_.first->valid() ;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(condition_  , node_delete_list);
             expression_node<T>::ndb_t::collect(consequent_ , node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::
                compute_node_depth(condition_, consequent_);

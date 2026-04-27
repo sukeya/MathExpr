@@ -1,13 +1,13 @@
-      class null_node math_expr_final : public expression_node<T>
+      class null_node final : public expression_node<T>
       {
       public:
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_null;
          }
@@ -59,7 +59,7 @@
       }
 
       template <typename T>
-      class null_eq_node math_expr_final : public expression_node<T>
+      class null_eq_node final : public expression_node<T>
       {
       public:
 
@@ -73,7 +73,7 @@
             assert(valid());
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             const T v = branch_.first->value();
             const bool result = details::numeric::is_nan(v);
@@ -84,27 +84,27 @@
                return equality_ ? T(0) : T(1);
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_nulleq;
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return branch_.first;
          }
 
-         inline bool valid() const math_expr_override
+         inline bool valid() const override
          {
             return branch_.first;
          }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) math_expr_override
+         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
          {
             expression_node<T>::ndb_t::collect(branch_, node_delete_list);
          }
 
-         std::size_t node_depth() const math_expr_override
+         std::size_t node_depth() const override
          {
             return expression_node<T>::ndb_t::compute_node_depth(branch_);
          }
@@ -116,7 +116,7 @@
       };
 
       template <typename T>
-      class literal_node math_expr_final : public expression_node<T>
+      class literal_node final : public expression_node<T>
       {
       public:
 
@@ -124,25 +124,25 @@
          : value_(v)
          {}
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return value_;
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_constant;
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return reinterpret_cast<expression_node<T>*>(0);
          }
 
       private:
 
-         literal_node(const literal_node<T>&) math_expr_delete;
-         literal_node<T>& operator=(const literal_node<T>&) math_expr_delete;
+         literal_node(const literal_node<T>&) = delete;
+         literal_node<T>& operator=(const literal_node<T>&) = delete;
 
          const T value_;
       };
@@ -187,7 +187,7 @@
       };
 
       template <typename T>
-      class string_literal_node math_expr_final
+      class string_literal_node final
                                 : public expression_node <T>
                                 , public string_base_node<T>
                                 , public range_interface <T>
@@ -205,50 +205,50 @@
             rp_.cache.second = rp_.n1_c.second;
          }
 
-         inline T value() const math_expr_override
+         inline T value() const override
          {
             return std::numeric_limits<T>::quiet_NaN();
          }
 
-         inline typename expression_node<T>::node_type type() const math_expr_override
+         inline typename expression_node<T>::node_type type() const override
          {
             return expression_node<T>::e_stringconst;
          }
 
-         inline expression_node<T>* branch(const std::size_t&) const math_expr_override
+         inline expression_node<T>* branch(const std::size_t&) const override
          {
             return reinterpret_cast<expression_node<T>*>(0);
          }
 
-         std::string str() const math_expr_override
+         std::string str() const override
          {
             return value_;
          }
 
-         char_cptr base() const math_expr_override
+         char_cptr base() const override
          {
             return value_.data();
          }
 
-         std::size_t size() const math_expr_override
+         std::size_t size() const override
          {
             return value_.size();
          }
 
-         range_t& range_ref() math_expr_override
+         range_t& range_ref() override
          {
             return rp_;
          }
 
-         const range_t& range_ref() const math_expr_override
+         const range_t& range_ref() const override
          {
             return rp_;
          }
 
       private:
 
-         string_literal_node(const string_literal_node<T>&) math_expr_delete;
-         string_literal_node<T>& operator=(const string_literal_node<T>&) math_expr_delete;
+         string_literal_node(const string_literal_node<T>&) = delete;
+         string_literal_node<T>& operator=(const string_literal_node<T>&) = delete;
 
          const std::string value_;
          range_t rp_;
