@@ -1,3 +1,5 @@
+namespace math_expr::lexer
+{
       class generator
       {
       public:
@@ -704,3 +706,4 @@
          friend class token_joiner;
       }; // class generator
 
+} // namespace math_expr::lexer

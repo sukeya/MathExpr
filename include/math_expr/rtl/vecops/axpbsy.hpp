@@ -1,3 +1,6 @@
+namespace math_expr::rtl::vecops
+{
+   template <typename T>
    class axpbsy final : public math_expr::igeneric_function<T>
    {
    public:
@@ -47,4 +50,5 @@
       }
    };
 
-   template <typename T>
+
+} // namespace math_expr::rtl::vecops

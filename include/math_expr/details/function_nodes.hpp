@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T, typename SpecialFunction>
       class sf3_var_node final : public expression_node<T>
       {
       public:
@@ -3249,3 +3252,4 @@
       };
       #endif
 
+} // namespace math_expr::details

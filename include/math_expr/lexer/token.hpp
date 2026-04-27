@@ -1,5 +1,5 @@
-   namespace lexer
-   {
+namespace math_expr::lexer
+{
       struct token
       {
          enum token_type
@@ -185,3 +185,4 @@
          std::size_t position;
       };
 
+} // namespace math_expr::lexer

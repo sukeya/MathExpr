@@ -1,3 +1,6 @@
+namespace math_expr::rtl::io
+{
+   template <typename T>
    struct package
    {
       print  <T> p;
@@ -21,7 +24,4 @@
          return true;
       }
    };
-
-   } // namespace math_expr::rtl::io
-   } // namespace math_expr::rtl
-}    // namespace math_expr
+} // math_expr::rtl::io

@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       class expression_node : public node_collector_interface<expression_node<T> >
                             , public node_depth_base<expression_node<T> >
       {
@@ -1098,4 +1101,5 @@
          uchar_t buffer[64];
       };
 
-      template <typename T>
+
+} // namespace math_expr::details

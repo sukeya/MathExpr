@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       class unary_node : public expression_node<T>
       {
       public:
@@ -306,4 +309,5 @@
          branch_t branch_[4];
       };
 
-      template <typename T>
+
+} // namespace math_expr::details

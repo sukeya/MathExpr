@@ -1,3 +1,5 @@
+namespace math_expr::lexer
+{
       class helper_interface
       {
       public:
@@ -137,3 +139,4 @@
          virtual bool modify(token& t) = 0;
       };
 
+} // namespace math_expr::lexer

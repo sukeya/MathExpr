@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       class conditional_node final : public expression_node<T>
       {
       public:
@@ -111,3 +114,4 @@
          branch_t consequent_;
       };
 
+} // namespace math_expr::details

@@ -1,3 +1,5 @@
+namespace math_expr::details
+{
       class return_exception {};
 
       template <typename T>
@@ -213,4 +215,5 @@
       math_expr_define_unary_op(trunc)
       #undef math_expr_define_unary_op
 
-      template <typename T>
+
+} // namespace math_expr::details

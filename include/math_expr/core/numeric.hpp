@@ -1,3 +1,5 @@
+namespace math_expr::details
+{
       template<typename T>
       struct set_zero_value_impl
       {
@@ -1395,4 +1397,4 @@
          typedef T (*ufunc_t)(Type t0);
       };
 
-   } // namespace details
+} // namespace math_expr::details

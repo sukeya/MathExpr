@@ -1,3 +1,6 @@
+namespace math_expr::rtl::io::file
+{
+   template <typename T>
    struct package
    {
       open   <T> o;
@@ -29,8 +32,4 @@
          return true;
       }
    };
-
-   } // namespace math_expr::rtl::io::file
-   } // namespace math_expr::rtl::io
-   } // namespace math_expr::rtl
-}    // namespace math_expr
+} // math_expr::rtl::io::file

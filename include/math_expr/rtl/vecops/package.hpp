@@ -1,3 +1,6 @@
+namespace math_expr::rtl::vecops
+{
+   template <typename T>
    struct package
    {
       all_true       <T> at;
@@ -83,6 +86,4 @@
       }
    };
 
-   } // namespace math_expr::rtl::vecops
-   } // namespace math_expr::rtl
-}    // namespace math_expr
+} // math_expr::rtl::vecops

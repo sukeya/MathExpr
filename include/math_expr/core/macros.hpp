@@ -1,10 +1,8 @@
-namespace math_expr
-{
    #ifdef math_expr_enable_debugging
      #define math_expr_debug(params) printf params
    #else
      #define math_expr_debug(params) (void)0
    #endif
 
-   #define math_expr_error_location                     \
-   std::string(__FILE__) + ":" + details::to_str(__LINE__) \
+   #define math_expr_error_location \
+   std::string(__FILE__) + ":" + details::to_str(__LINE__)

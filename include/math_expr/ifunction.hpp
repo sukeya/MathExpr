@@ -1,3 +1,5 @@
+namespace math_expr
+{
    template <typename T>
    class ifunction : public function_traits
    {
@@ -94,3 +96,4 @@
       std::size_t param_count;
    };
 
+} // namespace math_expr

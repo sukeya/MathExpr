@@ -1,3 +1,5 @@
+namespace math_expr
+{
    template <typename T>
    struct type_store
    {
@@ -221,3 +223,4 @@
       return std::string(view.begin(),view.size());
    }
 
+} // namespace math_expr

@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       class stringvar_node final
                            : public expression_node <T>
                            , public string_base_node<T>
@@ -1946,4 +1949,5 @@
          }
       };
 
-      template <typename T, typename SpecialFunction>
+
+} // namespace math_expr::details

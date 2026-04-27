@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       class variable_node final
                           : public expression_node<T>
                           , public ivariable      <T>
@@ -3792,4 +3795,5 @@
          }
       };
 
-      template <typename T, typename SpecialFunction>
+
+} // namespace math_expr::details

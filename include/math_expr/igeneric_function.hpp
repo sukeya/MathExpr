@@ -1,3 +1,5 @@
+namespace math_expr
+{
    template <typename T>
    class igeneric_function : public function_traits
    {
@@ -76,3 +78,4 @@
       }
    };
 
+} // namespace math_expr

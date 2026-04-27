@@ -1,5 +1,5 @@
-   namespace details
-   {
+namespace math_expr::details
+{
       enum operator_type
       {
          e_default , e_null    , e_add     , e_sub     ,
@@ -537,4 +537,5 @@
       template <typename Node>
       struct node_depth_base;
 
-      template <typename T>
+
+} // namespace math_expr::details

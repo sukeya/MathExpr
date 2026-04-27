@@ -1,3 +1,5 @@
+namespace math_expr
+{
    template <typename T>
    class ivararg_function : public function_traits
    {
@@ -13,3 +15,4 @@
       }
    };
 
+} // namespace math_expr

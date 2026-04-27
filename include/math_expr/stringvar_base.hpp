@@ -1,3 +1,5 @@
+namespace math_expr
+{
    #ifndef math_expr_disable_string_capabilities
    template <typename T>
    class stringvar_base
@@ -38,3 +40,4 @@
    template <typename T> class parser;
    template <typename T> class expression_helper;
 
+} // namespace math_expr

@@ -1,3 +1,5 @@
+namespace math_expr::lexer
+{
       class parser_helper
       {
       public:
@@ -219,4 +221,4 @@
          token_t     current_token_;
          token_t     store_current_token_;
       };
-   }
+} // namespace math_expr::lexer

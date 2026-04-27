@@ -1,3 +1,5 @@
+namespace math_expr
+{
    class function_traits
    {
    public:
@@ -81,3 +83,4 @@
       func.max_num_args() = num_args;
    }
 
+} // namespace math_expr

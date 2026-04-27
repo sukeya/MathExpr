@@ -1,5 +1,5 @@
-   namespace details
-   {
+namespace math_expr::details
+{
       typedef char                   char_t;
       typedef char_t*                char_ptr;
       typedef char_t const*          char_cptr;
@@ -87,3 +87,4 @@
                 is_whitespace(c);
       }
 
+} // namespace math_expr::details

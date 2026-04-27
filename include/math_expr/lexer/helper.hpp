@@ -1,3 +1,5 @@
+namespace math_expr::lexer
+{
       namespace helper
       {
 
@@ -883,3 +885,4 @@
          };
       }
 
+} // namespace math_expr::lexer

@@ -1,3 +1,5 @@
+namespace math_expr::lexer
+{
       class token_joiner : public helper_interface
       {
       public:
@@ -112,3 +114,4 @@
          const std::size_t stride_;
       };
 
+} // namespace math_expr::lexer

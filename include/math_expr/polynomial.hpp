@@ -1,3 +1,5 @@
+namespace math_expr
+{
    namespace details
    {
       template <typename T>
@@ -770,4 +772,5 @@
       }
    };
 
-   template <typename T>
+
+} // namespace math_expr

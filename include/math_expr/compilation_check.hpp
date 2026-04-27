@@ -1,3 +1,5 @@
+namespace math_expr
+{
    struct compilation_check
    {
       struct compilation_context
@@ -12,3 +14,5 @@
    };
 
    typedef compilation_check* compilation_check_ptr;
+
+} // namespace math_expr

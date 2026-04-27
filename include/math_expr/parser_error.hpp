@@ -1,3 +1,5 @@
+namespace math_expr
+{
    namespace parser_error
    {
       enum error_mode
@@ -132,3 +134,5 @@
          p.state_.type_check_enabled = false;
       }
    }
+
+} // namespace math_expr

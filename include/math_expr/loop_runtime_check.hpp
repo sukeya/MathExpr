@@ -1,3 +1,5 @@
+namespace math_expr
+{
    struct loop_runtime_check
    {
       enum loop_types
@@ -47,3 +49,5 @@
    };
 
    typedef loop_runtime_check* loop_runtime_check_ptr;
+
+} // namespace math_expr

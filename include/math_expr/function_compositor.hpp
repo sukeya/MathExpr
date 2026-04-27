@@ -1,3 +1,6 @@
+namespace math_expr
+{
+   template <typename T>
    class function_compositor
    {
    public:

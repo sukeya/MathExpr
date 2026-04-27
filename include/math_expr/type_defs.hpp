@@ -1,3 +1,6 @@
+namespace math_expr
+{
+   template <typename T>
    struct type_defs
    {
       typedef symbol_table<T>         symbol_table_t;

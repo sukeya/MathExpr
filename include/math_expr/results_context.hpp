@@ -1,3 +1,5 @@
+namespace math_expr
+{
    #ifndef math_expr_disable_return_statement
    namespace details
    {
@@ -118,3 +120,4 @@
       #endif
    };
 
+} // namespace math_expr

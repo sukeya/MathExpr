@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       class null_node final : public expression_node<T>
       {
       public:
@@ -255,4 +258,5 @@
       };
       #endif
 
-      template <typename T>
+
+} // namespace math_expr::details

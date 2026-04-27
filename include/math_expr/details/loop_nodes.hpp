@@ -1,3 +1,5 @@
+namespace math_expr::details
+{
       #ifndef math_expr_disable_break_continue
       template <typename T>
       class break_exception
@@ -970,4 +972,5 @@
          virtual const T& ref() const = 0;
       };
 
-      template <typename T>
+
+} // namespace math_expr::details

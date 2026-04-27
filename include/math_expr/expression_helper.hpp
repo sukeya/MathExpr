@@ -1,3 +1,6 @@
+namespace math_expr
+{
+   template <typename T>
    class expression_helper
    {
    public:
@@ -148,3 +151,4 @@
       return expr.control_block_ && !expression_helper<T>::is_null(expr);
    }
 
+} // namespace math_expr

@@ -1,3 +1,5 @@
+namespace math_expr
+{
    template <typename T>
    class vector_view
    {
@@ -151,3 +153,4 @@
    template <typename T> class results_context;
    namespace  details { template <typename T> class vector_interface; }
 
+} // namespace math_expr

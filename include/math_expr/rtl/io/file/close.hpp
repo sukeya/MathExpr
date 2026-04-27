@@ -1,3 +1,6 @@
+namespace math_expr::rtl::io::file
+{
+   template <typename T>
    struct close final : public math_expr::ifunction<T>
    {
       using math_expr::ifunction<T>::operator();
@@ -19,4 +22,5 @@
       }
    };
 
-   template <typename T>
+
+} // namespace math_expr::rtl::io::file

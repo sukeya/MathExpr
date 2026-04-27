@@ -1,3 +1,5 @@
+namespace math_expr::details
+{
       #ifndef math_expr_disable_caseinsensitivity
       inline void case_normalise(std::string& s)
       {
@@ -580,3 +582,4 @@
                 );
       }
 
+} // namespace math_expr::details

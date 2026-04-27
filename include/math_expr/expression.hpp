@@ -1,3 +1,6 @@
+namespace math_expr
+{
+   template <typename T>
    class expression
    {
    private:
@@ -404,4 +407,5 @@
       friend bool is_valid(const expression<TT>& expr);
    }; // class expression
 
-   template <typename T>
+
+} // namespace math_expr

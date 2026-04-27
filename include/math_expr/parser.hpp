@@ -1,3 +1,5 @@
+namespace math_expr
+{
 
    template <typename T>
    class parser : public lexer::parser_helper
@@ -19714,3 +19716,4 @@
       friend void details::disable_type_checking(ParserType& p);
    }; // class parser
 
+} // namespace math_expr

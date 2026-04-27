@@ -1,3 +1,5 @@
+namespace math_expr
+{
    template <typename T>
    class symbol_table
    {
@@ -1740,4 +1742,5 @@
    template <typename T>
    class function_compositor;
 
-   template <typename T>
+
+} // namespace math_expr

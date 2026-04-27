@@ -1,3 +1,5 @@
+namespace math_expr
+{
    struct assert_check
    {
       struct assert_context
@@ -16,3 +18,5 @@
    };
 
    typedef assert_check* assert_check_ptr;
+
+} // namespace math_expr

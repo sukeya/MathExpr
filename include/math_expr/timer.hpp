@@ -111,4 +111,5 @@ namespace math_expr
       #endif
    };
 
-   template <typename T>
+
+} // namespace math_expr

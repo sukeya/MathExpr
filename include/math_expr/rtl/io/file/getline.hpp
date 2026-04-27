@@ -1,3 +1,6 @@
+namespace math_expr::rtl::io::file
+{
+   template <typename T>
    class getline final : public math_expr::igeneric_function<T>
    {
    public:
@@ -21,4 +24,5 @@
       }
    };
 
-   template <typename T>
+
+} // namespace math_expr::rtl::io::file

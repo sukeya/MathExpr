@@ -1,3 +1,5 @@
+namespace math_expr
+{
    struct vector_access_runtime_check
    {
       struct violation_context
@@ -21,3 +23,5 @@
    };
 
    typedef vector_access_runtime_check* vector_access_runtime_check_ptr;
+
+} // namespace math_expr

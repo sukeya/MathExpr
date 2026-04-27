@@ -1,3 +1,6 @@
+namespace math_expr::details
+{
+      template <typename T>
       struct opr_base
       {
          typedef typename details::functor_t<T>::Type    Type;
@@ -4015,4 +4018,4 @@
          #undef register_op
       }
 
-   } // namespace details
+} // namespace math_expr::details
