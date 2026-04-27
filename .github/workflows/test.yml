@@ -1,0 +1,55 @@
+name: Test
+run-name: Test
+on: pull_request
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install gcc
+        run: sudo apt install -y gcc
+      - name: Build tests
+        run: |
+          cmake --preset test_gcc -B build/debug/gcc
+          cd ./build/debug/gcc && ninja
+      - name: Run tests
+        run: |
+          ./build/debug/gcc/test/math_expr_test
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install llvm
+        run: bash .github/scripts/install_llvm.sh
+      - name: Build tests
+        run: |
+          cmake --preset test_clang -B build/debug/clang
+          cd ./build/debug/clang && ninja
+      - name: Run tests
+        run: |
+          ./build/debug/clang/test/math_expr_test
+
+  clang_memory:
+    # libstdc++ and libc++ have uninitialized variables,
+    # so I skip this job temporarily.
+    if: "false"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install llvm
+        run: bash .github/scripts/install_llvm.sh
+      - name: Build tests
+        run: |
+          cmake --preset test_clang_memory -B build/debug/clang/memory
+          cd ./build/debug/clang/memory && ninja
+      - name: Run tests
+        run: |
+          ./build/debug/clang/memory/test/math_expr_test
