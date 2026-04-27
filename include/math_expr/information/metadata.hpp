@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_INFORMATION_METADATA_HPP
+#define MATH_EXPR_INFORMATION_METADATA_HPP
+
 namespace math_expr
 {
    namespace information
@@ -24,3 +27,5 @@ namespace math_expr
    } // namespace information
 
 } // namespace math_expr
+
+#endif

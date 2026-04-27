@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_ASSERT_CHECK_HPP
+#define MATH_EXPR_ASSERT_CHECK_HPP
+
 namespace math_expr
 {
    struct assert_check
@@ -20,3 +23,5 @@ namespace math_expr
    typedef assert_check* assert_check_ptr;
 
 } // namespace math_expr
+
+#endif

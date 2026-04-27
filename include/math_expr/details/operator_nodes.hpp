@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_DETAILS_OPERATOR_NODES_HPP
+#define MATH_EXPR_DETAILS_OPERATOR_NODES_HPP
+
 namespace math_expr::details
 {
       template <typename T>
@@ -311,3 +314,5 @@ namespace math_expr::details
 
 
 } // namespace math_expr::details
+
+#endif

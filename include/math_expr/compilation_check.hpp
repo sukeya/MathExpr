@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_COMPILATION_CHECK_HPP
+#define MATH_EXPR_COMPILATION_CHECK_HPP
+
 namespace math_expr
 {
    struct compilation_check
@@ -16,3 +19,5 @@ namespace math_expr
    typedef compilation_check* compilation_check_ptr;
 
 } // namespace math_expr
+
+#endif

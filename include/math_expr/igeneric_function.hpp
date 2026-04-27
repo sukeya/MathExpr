@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_IGENERIC_FUNCTION_HPP
+#define MATH_EXPR_IGENERIC_FUNCTION_HPP
+
 namespace math_expr
 {
    template <typename T>
@@ -79,3 +82,5 @@ namespace math_expr
    };
 
 } // namespace math_expr
+
+#endif

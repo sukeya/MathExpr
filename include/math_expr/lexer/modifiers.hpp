@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_MODIFIERS_HPP
+#define MATH_EXPR_LEXER_MODIFIERS_HPP
+
 namespace math_expr::lexer
 {
       class token_inserter : public helper_interface
@@ -110,3 +113,5 @@ namespace math_expr::lexer
       };
 
 } // namespace math_expr::lexer
+
+#endif

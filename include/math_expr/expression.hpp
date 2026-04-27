@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_EXPRESSION_HPP
+#define MATH_EXPR_EXPRESSION_HPP
+
 namespace math_expr
 {
    template <typename T>
@@ -409,3 +412,5 @@ namespace math_expr
 
 
 } // namespace math_expr
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_TOKEN_HPP
+#define MATH_EXPR_LEXER_TOKEN_HPP
+
 namespace math_expr::lexer
 {
       struct token
@@ -186,3 +189,5 @@ namespace math_expr::lexer
       };
 
 } // namespace math_expr::lexer
+
+#endif

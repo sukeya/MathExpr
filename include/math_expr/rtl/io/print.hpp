@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_RTL_IO_PRINT_HPP
+#define MATH_EXPR_RTL_IO_PRINT_HPP
+
 #ifndef math_expr_disable_rtl_io
 namespace math_expr
 {
@@ -156,4 +159,6 @@ namespace math_expr
    } // namespace math_expr::rtl::io
    } // namespace math_expr::rtl
 }    // namespace math_expr
+#endif
+
 #endif

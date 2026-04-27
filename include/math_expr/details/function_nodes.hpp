@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_DETAILS_FUNCTION_NODES_HPP
+#define MATH_EXPR_DETAILS_FUNCTION_NODES_HPP
+
 namespace math_expr::details
 {
       template <typename T, typename SpecialFunction>
@@ -3253,3 +3256,5 @@ namespace math_expr::details
       #endif
 
 } // namespace math_expr::details
+
+#endif

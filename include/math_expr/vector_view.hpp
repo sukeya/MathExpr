@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_VECTOR_VIEW_HPP
+#define MATH_EXPR_VECTOR_VIEW_HPP
+
 namespace math_expr
 {
    template <typename T>
@@ -154,3 +157,5 @@ namespace math_expr
    namespace  details { template <typename T> class vector_interface; }
 
 } // namespace math_expr
+
+#endif

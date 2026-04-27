@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_CORE_STRING_UTILS_HPP
+#define MATH_EXPR_CORE_STRING_UTILS_HPP
+
 namespace math_expr::details
 {
       #ifndef math_expr_disable_caseinsensitivity
@@ -583,3 +586,5 @@ namespace math_expr::details
       }
 
 } // namespace math_expr::details
+
+#endif

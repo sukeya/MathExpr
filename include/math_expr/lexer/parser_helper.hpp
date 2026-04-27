@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_PARSER_HELPER_HPP
+#define MATH_EXPR_LEXER_PARSER_HELPER_HPP
+
 namespace math_expr::lexer
 {
       class parser_helper
@@ -222,3 +225,5 @@ namespace math_expr::lexer
          token_t     store_current_token_;
       };
 } // namespace math_expr::lexer
+
+#endif

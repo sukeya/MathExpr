@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_RTL_IO_FILE_EOF_HPP
+#define MATH_EXPR_RTL_IO_FILE_EOF_HPP
+
 namespace math_expr::rtl::io::file
 {
    template <typename T>
@@ -18,3 +21,5 @@ namespace math_expr::rtl::io::file
 
 
 } // namespace math_expr::rtl::io::file
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_POLYNOMIAL_HPP
+#define MATH_EXPR_POLYNOMIAL_HPP
+
 namespace math_expr
 {
    namespace details
@@ -774,3 +777,5 @@ namespace math_expr
 
 
 } // namespace math_expr
+
+#endif

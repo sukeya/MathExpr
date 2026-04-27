@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LOOP_RUNTIME_CHECK_HPP
+#define MATH_EXPR_LOOP_RUNTIME_CHECK_HPP
+
 namespace math_expr
 {
    struct loop_runtime_check
@@ -51,3 +54,5 @@ namespace math_expr
    typedef loop_runtime_check* loop_runtime_check_ptr;
 
 } // namespace math_expr
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_STRINGVAR_BASE_HPP
+#define MATH_EXPR_STRINGVAR_BASE_HPP
+
 namespace math_expr
 {
    #ifndef math_expr_disable_string_capabilities
@@ -41,3 +44,5 @@ namespace math_expr
    template <typename T> class expression_helper;
 
 } // namespace math_expr
+
+#endif

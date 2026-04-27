@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_PARSER_ERROR_HPP
+#define MATH_EXPR_PARSER_ERROR_HPP
+
 namespace math_expr
 {
    namespace parser_error
@@ -136,3 +139,5 @@ namespace math_expr
    }
 
 } // namespace math_expr
+
+#endif

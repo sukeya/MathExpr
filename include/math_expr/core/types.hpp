@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_CORE_TYPES_HPP
+#define MATH_EXPR_CORE_TYPES_HPP
+
 namespace math_expr::details
 {
       typedef char                   char_t;
@@ -88,3 +91,5 @@ namespace math_expr::details
       }
 
 } // namespace math_expr::details
+
+#endif

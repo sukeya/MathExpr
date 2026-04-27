@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_JOINERS_HPP
+#define MATH_EXPR_LEXER_JOINERS_HPP
+
 namespace math_expr::lexer
 {
       class token_joiner : public helper_interface
@@ -115,3 +118,5 @@ namespace math_expr::lexer
       };
 
 } // namespace math_expr::lexer
+
+#endif

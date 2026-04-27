@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_RTL_VECOPS_HELPER_HPP
+#define MATH_EXPR_RTL_VECOPS_HELPER_HPP
+
 #ifndef math_expr_disable_rtl_vecops
 namespace math_expr
 {
@@ -1842,4 +1845,6 @@ namespace math_expr
    } // namespace math_expr::rtl::vecops
    } // namespace math_expr::rtl
 }    // namespace math_expr
+#endif
+
 #endif

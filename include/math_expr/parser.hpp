@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_PARSER_HPP
+#define MATH_EXPR_PARSER_HPP
+
 namespace math_expr
 {
 
@@ -19717,3 +19720,5 @@ namespace math_expr
    }; // class parser
 
 } // namespace math_expr
+
+#endif

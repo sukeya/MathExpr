@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_RTL_IO_PACKAGE_HPP
+#define MATH_EXPR_RTL_IO_PACKAGE_HPP
+
 namespace math_expr::rtl::io
 {
    template <typename T>
@@ -25,3 +28,5 @@ namespace math_expr::rtl::io
       }
    };
 } // math_expr::rtl::io
+
+#endif

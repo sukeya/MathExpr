@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_FUNCTION_TRAITS_HPP
+#define MATH_EXPR_FUNCTION_TRAITS_HPP
+
 namespace math_expr
 {
    class function_traits
@@ -84,3 +87,5 @@ namespace math_expr
    }
 
 } // namespace math_expr
+
+#endif

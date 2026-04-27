@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_HELPER_HPP
+#define MATH_EXPR_LEXER_HELPER_HPP
+
 namespace math_expr::lexer
 {
       namespace helper
@@ -886,3 +889,5 @@ namespace math_expr::lexer
       }
 
 } // namespace math_expr::lexer
+
+#endif

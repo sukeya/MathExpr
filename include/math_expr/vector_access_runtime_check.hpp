@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_VECTOR_ACCESS_RUNTIME_CHECK_HPP
+#define MATH_EXPR_VECTOR_ACCESS_RUNTIME_CHECK_HPP
+
 namespace math_expr
 {
    struct vector_access_runtime_check
@@ -25,3 +28,5 @@ namespace math_expr
    typedef vector_access_runtime_check* vector_access_runtime_check_ptr;
 
 } // namespace math_expr
+
+#endif

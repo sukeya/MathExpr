@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_CORE_FWD_HPP
+#define MATH_EXPR_CORE_FWD_HPP
+
 // SPDX-License-Identifier: MIT
 
 namespace math_expr
@@ -39,3 +42,5 @@ namespace math_expr
       template <typename T> class return_envelope_node;
    }
 }
+
+#endif

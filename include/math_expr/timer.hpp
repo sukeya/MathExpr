@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_TIMER_HPP
+#define MATH_EXPR_TIMER_HPP
+
 #if defined(_MSC_VER) || defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #   ifndef NOMINMAX
 #      define NOMINMAX
@@ -113,3 +116,5 @@ namespace math_expr
 
 
 } // namespace math_expr
+
+#endif

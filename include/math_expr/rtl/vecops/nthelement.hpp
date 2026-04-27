@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_RTL_VECOPS_NTHELEMENT_HPP
+#define MATH_EXPR_RTL_VECOPS_NTHELEMENT_HPP
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -49,3 +52,5 @@ namespace math_expr::rtl::vecops
 
 
 } // namespace math_expr::rtl::vecops
+
+#endif

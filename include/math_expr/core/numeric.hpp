@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_CORE_NUMERIC_HPP
+#define MATH_EXPR_CORE_NUMERIC_HPP
+
 namespace math_expr::details
 {
       template<typename T>
@@ -1398,3 +1401,5 @@ namespace math_expr::details
       };
 
 } // namespace math_expr::details
+
+#endif

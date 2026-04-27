@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_RESULTS_CONTEXT_HPP
+#define MATH_EXPR_RESULTS_CONTEXT_HPP
+
 namespace math_expr
 {
    #ifndef math_expr_disable_return_statement
@@ -121,3 +124,5 @@ namespace math_expr
    };
 
 } // namespace math_expr
+
+#endif

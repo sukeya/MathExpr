@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_CORE_OPERATOR_TYPES_HPP
+#define MATH_EXPR_CORE_OPERATOR_TYPES_HPP
+
 namespace math_expr::details
 {
       enum operator_type
@@ -539,3 +542,5 @@ namespace math_expr::details
 
 
 } // namespace math_expr::details
+
+#endif

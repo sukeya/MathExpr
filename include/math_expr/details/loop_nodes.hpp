@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_DETAILS_LOOP_NODES_HPP
+#define MATH_EXPR_DETAILS_LOOP_NODES_HPP
+
 namespace math_expr::details
 {
       #ifndef math_expr_disable_break_continue
@@ -974,3 +977,5 @@ namespace math_expr::details
 
 
 } // namespace math_expr::details
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_FUNCTION_COMPOSITOR_HPP
+#define MATH_EXPR_FUNCTION_COMPOSITOR_HPP
+
 namespace math_expr
 {
    template <typename T>
@@ -982,3 +985,5 @@ namespace math_expr
    }; // class function_compositor
 
 } // namespace math_expr
+
+#endif

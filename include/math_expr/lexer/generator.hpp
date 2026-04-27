@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_GENERATOR_HPP
+#define MATH_EXPR_LEXER_GENERATOR_HPP
+
 namespace math_expr::lexer
 {
       class generator
@@ -707,3 +710,5 @@ namespace math_expr::lexer
       }; // class generator
 
 } // namespace math_expr::lexer
+
+#endif

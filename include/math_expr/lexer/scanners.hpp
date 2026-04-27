@@ -1,3 +1,6 @@
+#ifndef MATH_EXPR_LEXER_SCANNERS_HPP
+#define MATH_EXPR_LEXER_SCANNERS_HPP
+
 namespace math_expr::lexer
 {
       class helper_interface
@@ -140,3 +143,5 @@ namespace math_expr::lexer
       };
 
 } // namespace math_expr::lexer
+
+#endif
