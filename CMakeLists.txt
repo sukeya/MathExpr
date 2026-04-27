@@ -53,9 +53,9 @@ install(TARGETS MathExpr
 
 install(
   DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}/MathExpr
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}
+    ${CMAKE_INSTALL_INCLUDEDIR}/MathExpr
 )
 
 install(EXPORT MathExprTargets
