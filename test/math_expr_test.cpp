@@ -17,15 +17,20 @@
 */
 
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <cstdint>
 #include <deque>
 #include <fstream>
 #include <numeric>
+#include <random>
 #include <string>
 #include <vector>
+
+#include <catch2/catch_test_macros.hpp>
 
 #include "math_expr.hpp"
 
@@ -35,6 +40,12 @@ typedef float numeric_type;
 #else
 typedef double numeric_type;
 #endif
+
+template <typename T>
+inline bool not_equal(const T& t0, const T& t1,
+                      const T& epsilon = T(0.0000000001));
+
+inline bool not_equal(const float& t0, const float& t1, const float& epsilon = 0.000001f);
 
 #if __cplusplus >= 201103L
    #define math_expr_test_override override
@@ -47,6 +58,68 @@ typedef double numeric_type;
 #endif
 
 typedef std::pair<std::string,numeric_type> test_t;
+
+namespace test_support
+{
+
+constexpr std::uint32_t k_random_seed = 0x5eed1234u;
+constexpr std::size_t   k_algorithm_samples = 128;
+constexpr std::size_t   k_expression_instance_count = 10;
+
+inline std::mt19937 make_rng(const std::uint32_t case_salt)
+{
+   return std::mt19937(k_random_seed ^ (case_salt * 0x9e3779b9u));
+}
+
+template <typename T>
+constexpr T default_tolerance()
+{
+   return T(0.0000000001);
+}
+
+template <>
+constexpr float default_tolerance<float>()
+{
+   return 0.000001f;
+}
+
+template <typename T>
+T random_between(std::mt19937& rng, const T low, const T high)
+{
+   std::uniform_real_distribution<double> distribution(static_cast<double>(low),
+                                                       static_cast<double>(high));
+   return static_cast<T>(distribution(rng));
+}
+
+template <typename T>
+void require_compiles(const std::string& expression_string,
+                      math_expr::parser<T>& parser,
+                      math_expr::expression<T>& expression)
+{
+   INFO("Expression: " << expression_string);
+   REQUIRE(parser.compile(expression_string, expression));
+}
+
+template <typename T>
+void require_compile_fails(const std::string& expression_string,
+                           math_expr::parser<T>& parser,
+                           math_expr::expression<T>& expression)
+{
+   INFO("Expression: " << expression_string);
+   REQUIRE_FALSE(parser.compile(expression_string, expression));
+}
+
+template <typename T>
+void expect_near(const T& actual,
+                 const T& expected,
+                 const T& epsilon = default_tolerance<T>())
+{
+   INFO("Expected: " << static_cast<double>(expected));
+   INFO("Actual: " << static_cast<double>(actual));
+   CHECK_FALSE(not_equal(actual, expected, epsilon));
+}
+
+} // namespace test_support
 
 static const test_t global_test_list[] =
 {
@@ -1141,13 +1214,12 @@ inline bool not_equal_impl(const T& t1,
 }
 
 template <typename T>
-inline bool not_equal(const T& t0, const T& t1,
-                      const T& epsilon = T(0.0000000001))
+inline bool not_equal(const T& t0, const T& t1, const T& epsilon)
 {
    return not_equal_impl(t0,t1,epsilon);
 }
 
-inline bool not_equal(const float& t0, const float& t1, const float& epsilon = 0.000001f)
+inline bool not_equal(const float& t0, const float& t1, const float& epsilon)
 {
    return not_equal_impl(t0,t1,epsilon);
 }
@@ -13371,68 +13443,473 @@ bool run_test22()
 }
 
 template <typename T>
-struct type_name { static inline std::string value() { return "unknown"; } };
-template <> struct type_name<float>       { static inline std::string value() { return "float";       } };
-template <> struct type_name<double>      { static inline std::string value() { return "double";      } };
-template <> struct type_name<long double> { static inline std::string value() { return "long double"; } };
-
-int main(int argc, char*argv[])
+T semicircle_antiderivative(const T& x)
 {
-   const std::string test_set = (argc == 2) ? std::string(argv[1]) : "";
+   const T y = std::max(T(0), T(1) - (x * x));
+   return T(0.5) * ((x * std::sqrt(y)) + std::asin(x));
+}
 
-   #define perform_test(Type,Number)                                              \
-   {                                                                              \
-      const std::string test_name = "run_test"#Number;                            \
-      if (                                                                        \
-           test_set.empty() ||                                                    \
-           test_set.find(test_name) != std::string::npos                          \
-         )                                                                        \
-      {                                                                           \
-         math_expr::timer timer;                                                     \
-         timer.start();                                                           \
-         if (!run_test##Number<Type>())                                           \
-         {                                                                        \
-            printf("run_test"#Number" (%s) *** FAILED! ***\n",                    \
-                   type_name<Type>::value().c_str());                             \
-            result = EXIT_FAILURE;                                                \
-         }                                                                        \
-         else                                                                     \
-         {                                                                        \
-            timer.stop();                                                         \
-            printf("run_test"#Number" (%s) - Result: SUCCESS   Time: %8.4fsec\n", \
-                   type_name<Type>::value().c_str(),                              \
-                   timer.time());                                                 \
-         }                                                                        \
-      }                                                                           \
-   }                                                                              \
+template <typename T>
+void check_literal_constant_folding_cases()
+{
+   for (std::size_t i = 0; i < global_test_list_size; ++i)
+   {
+      INFO("Literal expression: " << global_test_list[i].first);
+      REQUIRE(test_expression<T>(global_test_list[i].first, T(global_test_list[i].second)));
+   }
 
-   int result = 0;
+   const std::vector<test_t> tests = edge_cases<T>::test_cases();
 
-   perform_test( numeric_type, 00 )
-   perform_test( numeric_type, 01 )
-   perform_test( numeric_type, 02 )
-   perform_test( numeric_type, 03 )
-   perform_test( numeric_type, 04 )
-   perform_test( numeric_type, 05 )
-   perform_test( numeric_type, 06 )
-   perform_test( numeric_type, 07 )
-   perform_test( numeric_type, 08 )
-   perform_test( numeric_type, 09 )
-   perform_test( numeric_type, 10 )
-   perform_test( numeric_type, 11 )
-   perform_test( numeric_type, 12 )
-   perform_test( numeric_type, 13 )
-   perform_test( numeric_type, 14 )
-   perform_test( numeric_type, 15 )
-   perform_test( numeric_type, 16 )
-   perform_test( numeric_type, 17 )
-   perform_test( numeric_type, 18 )
-   perform_test( numeric_type, 19 )
-   perform_test( numeric_type, 20 )
-   perform_test( numeric_type, 21 )
-   perform_test( numeric_type, 22 )
+   for (std::size_t i = 0; i < tests.size(); ++i)
+   {
+      INFO("Edge-case literal expression: " << tests[i].first);
+      REQUIRE(test_expression<T>(tests[i].first, T(tests[i].second)));
+   }
+}
 
-   #undef perform_test
+template <typename T>
+void check_randomized_clamp_algorithm()
+{
+   const std::string expression_string = "clamp(-1.0,sin(2 * pi * x) + cos(y / 2 * pi),+1.0)";
 
-   return result;
+   T x = T(0);
+   T y = T(0);
+
+   math_expr::symbol_table<T> symbol_table;
+   symbol_table.add_variable("x",x);
+   symbol_table.add_variable("y",y);
+   symbol_table.add_constants();
+
+   math_expr::expression<T> expression;
+   expression.register_symbol_table(symbol_table);
+
+   math_expr::parser<T> parser;
+   test_support::require_compiles(expression_string, parser, expression);
+
+   const T pi = T(3.141592653589793238462643383279502);
+   std::mt19937 rng = test_support::make_rng(0x0400u);
+
+   for (std::size_t sample_index = 0; sample_index < test_support::k_algorithm_samples; ++sample_index)
+   {
+      x = test_support::random_between<T>(rng, T(-1000), T(+1000));
+      y = test_support::random_between<T>(rng, T(-1000), T(+1000));
+
+      CAPTURE(sample_index, x, y);
+
+      const T actual =
+         expression.value();
+      const T expected =
+         clamp<T>(T(-1),
+                  std::sin(T(2) * pi * x) + std::cos((y / T(2)) * pi),
+                  T(+1));
+
+      test_support::expect_near(actual, expected, T(0.00001));
+   }
+}
+
+template <typename T>
+void check_randomized_expression_instance_consistency()
+{
+   typedef math_expr::expression<T> expression_t;
+
+   const std::string expression_string = "clamp(-1.0,sin(2 * pi * x_var123) + cos(y_var123 / 2 * pi),+1.0)";
+
+   T x = T(0);
+   T y = T(0);
+
+   math_expr::symbol_table<T> symbol_table;
+   symbol_table.add_variable("x_var123",x);
+   symbol_table.add_variable("y_var123",y);
+   symbol_table.add_constants();
+
+   std::deque<expression_t> expressions;
+   expressions.resize(test_support::k_expression_instance_count);
+
+   for (std::size_t i = 0; i < expressions.size(); ++i)
+   {
+      expression_t& expression = expressions[i];
+      expression.register_symbol_table(symbol_table);
+
+      math_expr::parser<T> parser;
+      INFO("Expression instance index: " << i);
+      test_support::require_compiles(expression_string, parser, expression);
+   }
+
+   const T pi = T(3.141592653589793238462643383279502);
+   std::mt19937 rng = test_support::make_rng(0x0500u);
+
+   for (std::size_t sample_index = 0; sample_index < test_support::k_algorithm_samples; ++sample_index)
+   {
+      x = test_support::random_between<T>(rng, T(-1000), T(+1000));
+      y = test_support::random_between<T>(rng, T(-1000), T(+1000));
+
+      const T expected =
+         clamp<T>(T(-1),
+                  std::sin(T(2) * pi * x) + std::cos((y / T(2)) * pi),
+                  T(+1));
+
+      CAPTURE(sample_index, x, y);
+
+      for (std::size_t expression_index = 0; expression_index < expressions.size(); ++expression_index)
+      {
+         INFO("Expression instance index: " << expression_index);
+         test_support::expect_near(expressions[expression_index].value(), expected, T(0.00001));
+      }
+   }
+}
+
+template <typename T>
+void check_randomized_integration_algorithm()
+{
+   typedef math_expr::expression<T> expression_t;
+
+   const std::string expression_string = "sqrt(1 - (x^2))";
+
+   T x = T(0);
+
+   math_expr::symbol_table<T> symbol_table;
+   symbol_table.add_variable("x",x);
+
+   expression_t expression;
+   expression.register_symbol_table(symbol_table);
+
+   math_expr::parser<T> parser;
+   test_support::require_compiles(expression_string, parser, expression);
+
+   std::mt19937 rng = test_support::make_rng(0x0600u);
+
+   for (std::size_t sample_index = 0; sample_index < test_support::k_algorithm_samples; ++sample_index)
+   {
+      T lower = test_support::random_between<T>(rng, T(-0.95), T(+0.95));
+      T upper = test_support::random_between<T>(rng, T(-0.95), T(+0.95));
+
+      if (upper < lower)
+         std::swap(lower, upper);
+
+      CAPTURE(sample_index, lower, upper);
+
+      const T result_by_ref = math_expr::integrate(expression, x, lower, upper);
+      const T result_by_name = math_expr::integrate(expression, "x", lower, upper);
+      const T expected = semicircle_antiderivative(upper) - semicircle_antiderivative(lower);
+
+      test_support::expect_near(result_by_ref, result_by_name, T(0.000001));
+      test_support::expect_near(result_by_ref, expected, T(0.0005));
+   }
+}
+
+template <typename T>
+void check_randomized_derivative_algorithm()
+{
+   typedef math_expr::expression<T> expression_t;
+
+   const std::string expression_string = "sin(2x + 1 / 3)";
+
+   T x = T(0);
+
+   math_expr::symbol_table<T> symbol_table;
+   symbol_table.add_variable("x",x);
+
+   expression_t expression;
+   expression.register_symbol_table(symbol_table);
+
+   math_expr::parser<T> parser;
+   test_support::require_compiles(expression_string, parser, expression);
+
+   std::mt19937 rng = test_support::make_rng(0x0700u);
+
+   for (std::size_t sample_index = 0; sample_index < test_support::k_algorithm_samples; ++sample_index)
+   {
+      x = test_support::random_between<T>(rng, T(-200), T(+200));
+
+      CAPTURE(sample_index, x);
+
+      const T deriv1_expected = T(2) * std::cos((T(2) * x) + T(1.0 / 3.0));
+      const T deriv1_by_ref = math_expr::derivative(expression,x);
+      const T deriv1_by_name = math_expr::derivative(expression,"x");
+
+      const T deriv2_expected = T(-4) * std::sin((T(2) * x) + T(1.0 / 3.0));
+      const T deriv2_by_ref = math_expr::second_derivative(expression,x);
+      const T deriv2_by_name = math_expr::second_derivative(expression,"x");
+
+      const T deriv3_expected = T(-8) * std::cos((T(2) * x) + T(1.0 / 3.0));
+      const T deriv3_by_ref = math_expr::third_derivative(expression,x);
+      const T deriv3_by_name = math_expr::third_derivative(expression,"x");
+
+      test_support::expect_near(deriv1_by_ref, deriv1_by_name, T(0.00001));
+      test_support::expect_near(deriv1_by_ref, deriv1_expected, T(0.00001));
+
+      test_support::expect_near(deriv2_by_ref, deriv2_by_name, T(0.000001));
+      test_support::expect_near(deriv2_by_ref, deriv2_expected, T(0.01));
+
+      test_support::expect_near(deriv3_by_ref, deriv3_by_name, T(0.000001));
+      test_support::expect_near(deriv3_by_ref, deriv3_expected, T(0.01));
+   }
+}
+
+template <typename T>
+void check_randomized_custom_function_algorithm()
+{
+   typedef math_expr::expression<T> expression_t;
+
+   const std::string expression_string =
+      "myfunc0(sin(x * pi),y / 2) + myfunc1(sin(x * pi),y / 2)+"
+      "myfunc2(sin(x * pi),y / 2) + myfunc3(sin(x * pi),y / 2)+"
+      "myfunc4(sin(x * pi),y / 2) + myfunc5(sin(x * pi),y / 2)+"
+      "myfunc6(sin(x * pi),y / 2) + myfunc7(sin(x * pi),y / 2)+"
+      "myfunc8(sin(x * pi),y / 2) + myfunc9(sin(x * pi),y / 2)";
+
+   T x = T(0);
+   T y = T(0);
+   myfunc<T> mf;
+
+   math_expr::symbol_table<T> symbol_table;
+   symbol_table.add_variable("x",x);
+   symbol_table.add_variable("y",y);
+   symbol_table.add_function("myfunc0",mf);
+   symbol_table.add_function("myfunc1",mf);
+   symbol_table.add_function("myfunc2",mf);
+   symbol_table.add_function("myfunc3",mf);
+   symbol_table.add_function("myfunc4",mf);
+   symbol_table.add_function("myfunc5",mf);
+   symbol_table.add_function("myfunc6",mf);
+   symbol_table.add_function("myfunc7",mf);
+   symbol_table.add_function("myfunc8",mf);
+   symbol_table.add_function("myfunc9",mf);
+   symbol_table.add_constants();
+
+   expression_t expression;
+   expression.register_symbol_table(symbol_table);
+
+   math_expr::parser<T> parser;
+   test_support::require_compiles(expression_string, parser, expression);
+
+   const T pi = T(3.141592653589793238462643383279502);
+   std::mt19937 rng = test_support::make_rng(0x0900u);
+
+   for (std::size_t sample_index = 0; sample_index < test_support::k_algorithm_samples; ++sample_index)
+   {
+      x = test_support::random_between<T>(rng, T(-10), T(+10));
+      y = test_support::random_between<T>(rng, T(-10), T(+10));
+
+      CAPTURE(sample_index, x, y);
+
+      const T argument0 = std::sin(x * pi);
+      const T argument1 = y / T(2);
+      const T expected =
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1) +
+         mf(argument0, argument1);
+
+      test_support::expect_near(expression.value(), expected, T(0.000001));
+   }
+}
+
+template <typename T>
+void check_randomized_polynomial_algorithm()
+{
+   typedef math_expr::expression<T> expression_t;
+
+   const std::string expression_string = "poly03(x,a,b,c,d)";
+
+   T x = T(0);
+   T a = T(0);
+   T b = T(0);
+   T c = T(0);
+   T d = T(0);
+
+   math_expr::polynomial<T, 1> poly01;
+   math_expr::polynomial<T, 2> poly02;
+   math_expr::polynomial<T, 3> poly03;
+   math_expr::polynomial<T, 4> poly04;
+   math_expr::polynomial<T, 5> poly05;
+   math_expr::polynomial<T, 6> poly06;
+   math_expr::polynomial<T, 7> poly07;
+   math_expr::polynomial<T, 8> poly08;
+   math_expr::polynomial<T, 9> poly09;
+   math_expr::polynomial<T,10> poly10;
+   math_expr::polynomial<T,11> poly11;
+   math_expr::polynomial<T,12> poly12;
+
+   math_expr::symbol_table<T> symbol_table;
+   symbol_table.add_variable("x",x);
+   symbol_table.add_variable("a",a);
+   symbol_table.add_variable("b",b);
+   symbol_table.add_variable("c",c);
+   symbol_table.add_variable("d",d);
+   symbol_table.add_function("poly01", poly01);
+   symbol_table.add_function("poly02", poly02);
+   symbol_table.add_function("poly03", poly03);
+   symbol_table.add_function("poly04", poly04);
+   symbol_table.add_function("poly05", poly05);
+   symbol_table.add_function("poly06", poly06);
+   symbol_table.add_function("poly07", poly07);
+   symbol_table.add_function("poly08", poly08);
+   symbol_table.add_function("poly09", poly09);
+   symbol_table.add_function("poly10", poly10);
+   symbol_table.add_function("poly11", poly11);
+   symbol_table.add_function("poly12", poly12);
+
+   expression_t expression;
+   expression.register_symbol_table(symbol_table);
+
+   math_expr::parser<T> parser;
+   test_support::require_compiles(expression_string, parser, expression);
+
+   std::mt19937 rng = test_support::make_rng(0x0c00u);
+
+   for (std::size_t sample_index = 0; sample_index < test_support::k_algorithm_samples; ++sample_index)
+   {
+      x = test_support::random_between<T>(rng, T(-3), T(+3));
+      a = test_support::random_between<T>(rng, T(-3), T(+3));
+      b = test_support::random_between<T>(rng, T(-3), T(+3));
+      c = test_support::random_between<T>(rng, T(-3), T(+3));
+      d = test_support::random_between<T>(rng, T(-3), T(+3));
+
+      CAPTURE(sample_index, x, a, b, c, d);
+
+      const T expected = (((a * x) + b) * x + c) * x + d;
+      test_support::expect_near(expression.value(), expected, T(0.000001));
+   }
+}
+
+TEST_CASE("Literal expressions compile into constant nodes", "[literal][regression]")
+{
+   check_literal_constant_folding_cases<numeric_type>();
+}
+
+TEST_CASE("Arithmetic parser regressions remain stable", "[parser][regression]")
+{
+   SECTION("core arithmetic semantics and vector indexing")
+   {
+      REQUIRE(run_test01<numeric_type>());
+   }
+
+   SECTION("broad expression syntax sweep")
+   {
+      REQUIRE(run_test08<numeric_type>());
+   }
+
+   SECTION("numeric identities and rewrite-sensitive expressions")
+   {
+      REQUIRE(run_test13<numeric_type>());
+   }
+
+   SECTION("parser settings and compile-time behavior")
+   {
+      REQUIRE(run_test14<numeric_type>());
+   }
+
+   SECTION("vector and assignment semantics")
+   {
+      REQUIRE(run_test15<numeric_type>());
+      REQUIRE(run_test16<numeric_type>());
+      REQUIRE(run_test17<numeric_type>());
+   }
+}
+
+TEST_CASE("String semantics regressions remain stable", "[string][regression]")
+{
+   REQUIRE(run_test02<numeric_type>());
+}
+
+TEST_CASE("Diagnostics and invalid expressions stay guarded", "[diagnostics][parser][limits]")
+{
+   SECTION("invalid syntax and symbol misuse are rejected")
+   {
+      REQUIRE(run_test03<numeric_type>());
+   }
+
+   SECTION("assert handlers report expected failures")
+   {
+      REQUIRE(run_test21<numeric_type>());
+   }
+
+   SECTION("local symbol limits reject oversize expressions")
+   {
+      REQUIRE(run_test22<numeric_type>());
+   }
+}
+
+TEST_CASE("Symbol tables and runtime registries remain consistent", "[symbol-table][regression]")
+{
+   SECTION("symbol registration and enumeration")
+   {
+      REQUIRE(run_test10<numeric_type>());
+   }
+
+   SECTION("removal and package edge cases")
+   {
+      REQUIRE(run_test18<numeric_type>());
+   }
+}
+
+TEST_CASE("Function registration regressions remain stable", "[function][regression]")
+{
+   SECTION("custom functions and overload registration")
+   {
+      REQUIRE(run_test09<numeric_type>());
+   }
+
+   SECTION("polynomial helper expressions")
+   {
+      REQUIRE(run_test12<numeric_type>());
+   }
+
+   SECTION("function compositor support")
+   {
+      REQUIRE(run_test19<numeric_type>());
+   }
+}
+
+TEST_CASE("Expression lifecycle and packages remain stable", "[expression][regression]")
+{
+   SECTION("expression reuse and dependency tracking")
+   {
+      REQUIRE(run_test11<numeric_type>());
+   }
+
+   SECTION("runtime packages and helper utilities")
+   {
+      REQUIRE(run_test20<numeric_type>());
+   }
+}
+
+TEST_CASE("Numerical algorithms match their C++ reference implementations", "[algorithm][randomized]")
+{
+   SECTION("clamp expression matches direct trigonometric reference")
+   {
+      check_randomized_clamp_algorithm<numeric_type>();
+   }
+
+   SECTION("multiple compiled instances produce identical values")
+   {
+      check_randomized_expression_instance_consistency<numeric_type>();
+   }
+
+   SECTION("integration matches analytic semicircle area")
+   {
+      check_randomized_integration_algorithm<numeric_type>();
+   }
+
+   SECTION("first through third derivatives match analytic results")
+   {
+      check_randomized_derivative_algorithm<numeric_type>();
+   }
+
+   SECTION("custom function composition matches direct evaluation")
+   {
+      check_randomized_custom_function_algorithm<numeric_type>();
+   }
+
+   SECTION("polynomial helper matches manual Horner evaluation")
+   {
+      check_randomized_polynomial_algorithm<numeric_type>();
+   }
 }
