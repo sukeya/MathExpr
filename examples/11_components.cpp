@@ -26,9 +26,9 @@
 template <typename T>
 void square_wave2()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string wave_program =
       " var r := 0;                                          "

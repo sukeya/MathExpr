@@ -26,9 +26,9 @@
 template <typename T>
 void file_io()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string fileio_program =
       " var file_name := 'file.txt';                          "
@@ -57,8 +57,8 @@ void file_io()
       "    return [false];                                    "
       " }                                                     ";
 
-   exprtk::rtl::io::file::package<T> fileio_package;
-   exprtk::rtl::io::println<T>       println;
+   math_expr::rtl::io::file::package<T> fileio_package;
+   math_expr::rtl::io::println<T>       println;
 
    symbol_table_t symbol_table;
    symbol_table.add_function("println",println);

@@ -27,10 +27,10 @@
 template <typename T>
 void newton_sqrt()
 {
-   typedef exprtk::symbol_table<T>         symbol_table_t;
-   typedef exprtk::expression<T>           expression_t;
-   typedef exprtk::parser<T>               parser_t;
-   typedef exprtk::function_compositor<T>  compositor_t;
+   typedef math_expr::symbol_table<T>         symbol_table_t;
+   typedef math_expr::expression<T>           expression_t;
+   typedef math_expr::parser<T>               parser_t;
+   typedef math_expr::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
    T x = T(0);
@@ -80,7 +80,7 @@ void newton_sqrt()
       const T real   = std::sqrt(x);
       const T error  = std::abs(result - real);
 
-      const bool err_in_bound = error <= exprtk::details::numeric::constant::pi;
+      const bool err_in_bound = error <= math_expr::details::numeric::constant::pi;
 
       printf("sqrt(%6.2f) - Result: %15.13f\tReal: %15.13f\tError: %18.16f EIB: %c\n",
              x,

@@ -24,17 +24,17 @@
 
 
 template <typename T, T Process(const unsigned char)>
-struct char_process : public exprtk::igeneric_function<T>
+struct char_process : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T> igfun_t;
+   typedef typename math_expr::igeneric_function<T> igfun_t;
    typedef typename igfun_t::parameter_list_t    parameter_list_t;
    typedef typename igfun_t::generic_type        generic_type;
    typedef typename generic_type::string_view    string_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    char_process()
-   : exprtk::igeneric_function<T>("S")
+   : math_expr::igeneric_function<T>("S")
    {}
 
    inline T operator()(parameter_list_t parameters)
@@ -59,9 +59,9 @@ T to_num_func(const unsigned char c)
 template <typename T>
 void rpn_example()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string rpn_program =
       " var stack[1000] := [0];                                                  "
@@ -107,7 +107,7 @@ void rpn_example()
 
    char_process<T,is_digit_func<T> > isdigit;
    char_process<T,to_num_func<T> >   tonum;
-   exprtk::rtl::io::println<T>       println;
+   math_expr::rtl::io::println<T>       println;
 
    symbol_table_t symbol_table;
    symbol_table.add_stringvar("rpn_expression", rpn_expression);

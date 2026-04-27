@@ -26,11 +26,11 @@
 template <typename T>
 void composite()
 {
-   typedef exprtk::symbol_table<T>         symbol_table_t;
-   typedef exprtk::expression<T>           expression_t;
-   typedef exprtk::parser<T>               parser_t;
-   typedef exprtk::parser_error::type      err_t;
-   typedef exprtk::function_compositor<T>  compositor_t;
+   typedef math_expr::symbol_table<T>         symbol_table_t;
+   typedef math_expr::expression<T>           expression_t;
+   typedef math_expr::parser<T>               parser_t;
+   typedef math_expr::parser_error::type      err_t;
+   typedef math_expr::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
    T x = T(1);
@@ -73,7 +73,7 @@ void composite()
          printf("Error: %02d  Position: %02d Type: [%14s] Msg: %s\tExpression: %s\n",
                 static_cast<unsigned int>(i),
                 static_cast<unsigned int>(error.token.position),
-                exprtk::parser_error::to_str(error.mode).c_str(),
+                math_expr::parser_error::to_str(error.mode).c_str(),
                 error.diagnostic.c_str(),
                 expression_string.c_str());
       }

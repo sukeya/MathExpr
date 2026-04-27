@@ -26,11 +26,11 @@
 
 
 template <typename T>
-struct rnd_01 : public exprtk::ifunction<T>
+struct rnd_01 : public math_expr::ifunction<T>
 {
-   using exprtk::ifunction<T>::operator();
+   using math_expr::ifunction<T>::operator();
 
-   rnd_01() : exprtk::ifunction<T>(0)
+   rnd_01() : math_expr::ifunction<T>(0)
    { ::srand(static_cast<unsigned int>(time(NULL))); }
 
    inline T operator()()
@@ -44,9 +44,9 @@ struct rnd_01 : public exprtk::ifunction<T>
 template <typename T>
 void monte_carlo_pi()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string monte_carlo_pi_program =
       " var samples[2 * 10^8] := [(rnd_01^2 + rnd_01^2) <= 1]; "

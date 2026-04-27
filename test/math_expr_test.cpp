@@ -30,20 +30,20 @@
 #include "math_expr.hpp"
 
 
-#ifdef exprtk_test_float32_type
+#ifdef math_expr_test_float32_type
 typedef float numeric_type;
 #else
 typedef double numeric_type;
 #endif
 
 #if __cplusplus >= 201103L
-   #define exprtk_test_override override
-   #define exprtk_test_final    final
-   #define exprtk_test_delete   = delete
+   #define math_expr_test_override override
+   #define math_expr_test_final    final
+   #define math_expr_test_delete   = delete
 #else
-   #define exprtk_test_override
-   #define exprtk_test_final
-   #define exprtk_test_delete
+   #define math_expr_test_override
+   #define math_expr_test_final
+   #define math_expr_test_delete
 #endif
 
 typedef std::pair<std::string,numeric_type> test_t;
@@ -1155,21 +1155,21 @@ inline bool not_equal(const float& t0, const float& t1, const float& epsilon = 0
 template <typename T>
 inline bool test_expression(const std::string& expression_string, const T& expected_result)
 {
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_constants();
 
-   exprtk::polynomial<T, 1> poly01;
-   exprtk::polynomial<T, 2> poly02;
-   exprtk::polynomial<T, 3> poly03;
-   exprtk::polynomial<T, 4> poly04;
-   exprtk::polynomial<T, 5> poly05;
-   exprtk::polynomial<T, 6> poly06;
-   exprtk::polynomial<T, 7> poly07;
-   exprtk::polynomial<T, 8> poly08;
-   exprtk::polynomial<T, 9> poly09;
-   exprtk::polynomial<T,10> poly10;
-   exprtk::polynomial<T,11> poly11;
-   exprtk::polynomial<T,12> poly12;
+   math_expr::polynomial<T, 1> poly01;
+   math_expr::polynomial<T, 2> poly02;
+   math_expr::polynomial<T, 3> poly03;
+   math_expr::polynomial<T, 4> poly04;
+   math_expr::polynomial<T, 5> poly05;
+   math_expr::polynomial<T, 6> poly06;
+   math_expr::polynomial<T, 7> poly07;
+   math_expr::polynomial<T, 8> poly08;
+   math_expr::polynomial<T, 9> poly09;
+   math_expr::polynomial<T,10> poly10;
+   math_expr::polynomial<T,11> poly11;
+   math_expr::polynomial<T,12> poly12;
 
    symbol_table.add_function("poly01", poly01);
    symbol_table.add_function("poly02", poly02);
@@ -1184,11 +1184,11 @@ inline bool test_expression(const std::string& expression_string, const T& expec
    symbol_table.add_function("poly11", poly11);
    symbol_table.add_function("poly12", poly12);
 
-   exprtk::expression<T> expression;
+   math_expr::expression<T> expression;
    expression.register_symbol_table(symbol_table);
 
    {
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expression_string,expression))
       {
@@ -1200,7 +1200,7 @@ inline bool test_expression(const std::string& expression_string, const T& expec
       }
    }
 
-   if (!exprtk::expression_helper<T>::is_literal(expression))
+   if (!math_expr::expression_helper<T>::is_literal(expression))
    {
       printf("test_expression() - Error: Expression did not compile to a constant!   Expression: %s\n",
              expression_string.c_str());
@@ -1800,15 +1800,15 @@ bool run_test01()
             T x = test.x;
             T y = test.y;
 
-            exprtk::symbol_table<T> symbol_table;
+            math_expr::symbol_table<T> symbol_table;
             symbol_table.add_variable("x",x);
             symbol_table.add_variable("y",y);
 
-            exprtk::expression<T> expression;
+            math_expr::expression<T> expression;
             expression.register_symbol_table(symbol_table);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(test.expr,expression))
                {
@@ -1910,17 +1910,17 @@ bool run_test01()
          {
             test_xyzw<T>& test = const_cast<test_xyzw<T>&>(test_list[i]);
 
-            exprtk::symbol_table<T> symbol_table;
+            math_expr::symbol_table<T> symbol_table;
             symbol_table.add_variable("x",test.x);
             symbol_table.add_variable("y",test.y);
             symbol_table.add_variable("z",test.z);
             symbol_table.add_variable("w",test.w);
 
-            exprtk::expression<T> expression;
+            math_expr::expression<T> expression;
             expression.register_symbol_table(symbol_table);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(test.expr,expression))
                {
@@ -1992,18 +1992,18 @@ bool run_test01()
             T y = T(7.7);
             T z = T(8.8);
 
-            exprtk::symbol_table<T> symbol_table;
+            math_expr::symbol_table<T> symbol_table;
             symbol_table.add_variable("x",x);
             symbol_table.add_variable("y",y);
             symbol_table.add_variable("z",z);
             symbol_table.add_vector  ("v",v);
             symbol_table.add_vector  ("i",index);
 
-            exprtk::expression<T> expression;
+            math_expr::expression<T> expression;
             expression.register_symbol_table(symbol_table);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(expr_list[i],expression))
                {
@@ -2049,21 +2049,21 @@ bool run_test01()
             T y = T(7.7);
             T z = T(8.8);
 
-            exprtk::vector_view<T> v     = exprtk::make_vector_view(v_    ,6);
-            exprtk::vector_view<T> index = exprtk::make_vector_view(index_,6);
+            math_expr::vector_view<T> v     = math_expr::make_vector_view(v_    ,6);
+            math_expr::vector_view<T> index = math_expr::make_vector_view(index_,6);
 
-            exprtk::symbol_table<T> symbol_table;
+            math_expr::symbol_table<T> symbol_table;
             symbol_table.add_variable("x",x);
             symbol_table.add_variable("y",y);
             symbol_table.add_variable("z",z);
             symbol_table.add_vector  ("v",v);
             symbol_table.add_vector  ("i",index);
 
-            exprtk::expression<T> expression;
+            math_expr::expression<T> expression;
             expression.register_symbol_table(symbol_table);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(expr_list[i],expression))
                {
@@ -2847,7 +2847,7 @@ bool run_test02()
             T r2 = T(7);
             T r3 = T(3);
 
-            exprtk::symbol_table<T> symbol_table;
+            math_expr::symbol_table<T> symbol_table;
             symbol_table.add_stringvar("a", str_a);
             symbol_table.add_stringvar("b", str_b);
             symbol_table.add_stringvar("c", str_c);
@@ -2856,11 +2856,11 @@ bool run_test02()
             symbol_table.add_variable("r2", r2);
             symbol_table.add_variable("r3", r3);
 
-            exprtk::expression<T> expression;
+            math_expr::expression<T> expression;
             expression.register_symbol_table(symbol_table);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(test.expr, expression))
                {
@@ -2912,15 +2912,15 @@ bool run_test02()
          " s1 := 'xyz';                     "
          " s0 < s1;                         ";
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
       symbol_table.add_stringvar("s0" ,s0);
       symbol_table.add_stringvar("s1" ,s1);
 
-      exprtk::expression<T> expression;
+      math_expr::expression<T> expression;
       expression.register_symbol_table(symbol_table);
 
       {
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expression_str,expression))
          {
@@ -2961,9 +2961,9 @@ bool run_test02()
 template <typename T>
 bool run_test03()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_string =
       "A+A0+aA+Aa0+b+B1+Bb+bB1+A+A0+AA+AA0+B+B1+BB+BB1+a+a0+aa+aa0+b+b1+bb+bb1+"
@@ -3037,7 +3037,7 @@ bool run_test03()
       expression.register_symbol_table(symbol_table_1);
 
       {
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expression_string,expression))
          {
@@ -3182,7 +3182,7 @@ bool run_test03()
 
          for (std::size_t i = 0; i < invalid_expr_size; ++i)
          {
-            exprtk::expression<T> expression;
+            math_expr::expression<T> expression;
 
             if (parser.compile(invalid_expr[i],expression))
             {
@@ -3267,8 +3267,8 @@ bool run_test04()
 {
    const std::string expression_string = "clamp(-1.0,sin(2 * pi * x) + cos(y / 2 * pi),+1.0)";
 
-   exprtk::symbol_table<T> symbol_table;
-   exprtk::expression<T> expression;
+   math_expr::symbol_table<T> symbol_table;
+   math_expr::expression<T> expression;
 
    T x = T(-1000);
    T y = T(-1000);
@@ -3280,7 +3280,7 @@ bool run_test04()
    expression.register_symbol_table(symbol_table);
 
    {
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expression_string,expression))
       {
@@ -3322,11 +3322,11 @@ bool run_test04()
 template <typename T>
 bool run_test05()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    const std::string expression_string = "clamp(-1.0,sin(2 * pi * x_var123) + cos(y_var123 / 2 * pi),+1.0)";
 
-   exprtk::symbol_table<T>  symbol_table;
+   math_expr::symbol_table<T>  symbol_table;
    std::deque<expression_t> expression_list;
 
    T x = T(-1000);
@@ -3343,7 +3343,7 @@ bool run_test05()
       e.register_symbol_table(symbol_table);
 
       {
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expression_string,e))
          {
@@ -3395,20 +3395,20 @@ bool run_test05()
 template <typename T>
 bool run_test06()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    const std::string expression_string = "sqrt(1 - (x^2))";
 
    T x = T(0);
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_variable("x",x);
 
    expression_t expression;
    expression.register_symbol_table(symbol_table);
 
    {
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expression_string,expression))
       {
@@ -3420,8 +3420,8 @@ bool run_test06()
       }
    }
 
-   T total_area1 = exprtk::integrate(expression,x,T(-1),T(1));
-   T total_area2 = exprtk::integrate(expression,"x",T(-1),T(1));
+   T total_area1 = math_expr::integrate(expression,x,T(-1),T(1));
+   T total_area2 = math_expr::integrate(expression,"x",T(-1),T(1));
    const T pi = T(3.141592653589793238462643383279502);
 
    if (not_equal(total_area1,total_area2,T(0.000001)))
@@ -3445,20 +3445,20 @@ bool run_test06()
 template <typename T>
 bool run_test07()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    const std::string expression_string = "sin(2x + 1 / 3)";
 
    T x = T(0);
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_variable("x",x);
 
    expression_t expression;
    expression.register_symbol_table(symbol_table);
 
    {
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expression_string,expression))
       {
@@ -3474,8 +3474,8 @@ bool run_test07()
    {
       {
          T deriv1_real_result = T(2) * std::cos(T(2) * x + T(1.0 / 3.0));
-         T deriv1_result1 = exprtk::derivative(expression,x);
-         T deriv1_result2 = exprtk::derivative(expression,"x");
+         T deriv1_result1 = math_expr::derivative(expression,x);
+         T deriv1_result2 = math_expr::derivative(expression,"x");
 
          if (not_equal(deriv1_result1,deriv1_result2,T(0.00001)))
          {
@@ -3496,8 +3496,8 @@ bool run_test07()
 
       {
          T deriv2_real_result = T(-4) * std::sin(T(2) * x + T(1.0 / 3.0));
-         T deriv2_result1 = exprtk::second_derivative(expression,x);
-         T deriv2_result2 = exprtk::second_derivative(expression,"x");
+         T deriv2_result1 = math_expr::second_derivative(expression,x);
+         T deriv2_result2 = math_expr::second_derivative(expression,"x");
 
          if (not_equal(deriv2_result1,deriv2_result2,T(0.0000001)))
          {
@@ -3518,8 +3518,8 @@ bool run_test07()
 
       {
          T deriv3_real_result = T(-8) * std::cos(T(2) * x + T(1.0 / 3.0));
-         T deriv3_result1 = exprtk::third_derivative(expression,x);
-         T deriv3_result2 = exprtk::third_derivative(expression,"x");
+         T deriv3_result1 = math_expr::third_derivative(expression,x);
+         T deriv3_result2 = math_expr::third_derivative(expression,"x");
 
          if (not_equal(deriv3_result1,deriv3_result2,T(0.0000001)))
          {
@@ -3693,7 +3693,7 @@ bool run_test08()
    {
       for (std::size_t j = 0; j < expr_str_size; ++j)
       {
-         typedef exprtk::expression<T> expression_t;
+         typedef math_expr::expression<T> expression_t;
 
          T x = T(1.12345);
          T y = T(2.12345);
@@ -3701,7 +3701,7 @@ bool run_test08()
          T w = T(4.12345);
          T u = T(5.12345);
 
-         exprtk::symbol_table<T> symbol_table;
+         math_expr::symbol_table<T> symbol_table;
          symbol_table.add_variable("x",x);
          symbol_table.add_variable("y",y);
          symbol_table.add_variable("z",z);
@@ -3712,7 +3712,7 @@ bool run_test08()
          expression.register_symbol_table(symbol_table);
 
          {
-            exprtk::parser<T> parser;
+            math_expr::parser<T> parser;
 
             if (!parser.compile(expr_str[j],expression))
             {
@@ -3732,11 +3732,11 @@ bool run_test08()
 }
 
 template <typename T>
-struct myfunc exprtk_test_final : public exprtk::ifunction<T>
+struct myfunc math_expr_test_final : public math_expr::ifunction<T>
 {
-   using exprtk::ifunction<T>::operator();
+   using math_expr::ifunction<T>::operator();
 
-   myfunc() : exprtk::ifunction<T>(2) {}
+   myfunc() : math_expr::ifunction<T>(2) {}
 
    inline T operator()(const T& v1, const T& v2)
    {
@@ -3763,7 +3763,7 @@ bool run_test09()
 
       for (std::size_t i = 0; i < rounds; ++i)
       {
-         typedef exprtk::expression<T> expression_t;
+         typedef math_expr::expression<T> expression_t;
          const std::string expression_string =
             "myfunc0(sin(x * pi),y / 2) + myfunc1(sin(x * pi),y / 2)+"
             "myfunc2(sin(x * pi),y / 2) + myfunc3(sin(x * pi),y / 2)+"
@@ -3790,7 +3790,7 @@ bool run_test09()
          T y = T(2) + (i / T(10000));
          myfunc<T> mf;
 
-         exprtk::symbol_table<T> symbol_table;
+         math_expr::symbol_table<T> symbol_table;
          symbol_table.add_variable("x",x);
          symbol_table.add_variable("y",y);
          symbol_table.add_function("myfunc0",mf);
@@ -3809,7 +3809,7 @@ bool run_test09()
          expression.register_symbol_table(symbol_table);
 
          {
-            exprtk::parser<T> parser;
+            math_expr::parser<T> parser;
 
             if (!parser.compile(expression_string,expression))
             {
@@ -3852,8 +3852,8 @@ bool run_test09()
    }
 
    {
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
 
       bool result = true;
 
@@ -3883,7 +3883,7 @@ bool run_test09()
          expression_t expression;
          expression.register_symbol_table(symbol_table);
 
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expression_list[i],expression))
          {
@@ -3905,7 +3905,7 @@ bool run_test09()
 template <typename T>
 bool run_test10()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    T  x = T(1.1);
    T  y = T(2.2);
@@ -3919,9 +3919,9 @@ bool run_test10()
 
    struct test
    {
-      static inline bool variable(exprtk::symbol_table<T>& symbol_table, const std::string& variable_name, const T& value)
+      static inline bool variable(math_expr::symbol_table<T>& symbol_table, const std::string& variable_name, const T& value)
       {
-         exprtk::details::variable_node<T>* var = symbol_table.get_variable(variable_name);
+         math_expr::details::variable_node<T>* var = symbol_table.get_variable(variable_name);
 
          if (var)
             return (!not_equal(var->ref(),value));
@@ -3929,9 +3929,9 @@ bool run_test10()
             return false;
       }
 
-      static inline bool string(exprtk::symbol_table<T>& symbol_table, const std::string& string_name, const std::string& str)
+      static inline bool string(math_expr::symbol_table<T>& symbol_table, const std::string& string_name, const std::string& str)
       {
-         exprtk::details::stringvar_node<T>* str_node = symbol_table.get_stringvar(string_name);
+         math_expr::details::stringvar_node<T>* str_node = symbol_table.get_stringvar(string_name);
 
          if (str_node)
             return (str_node->ref() == str);
@@ -3943,7 +3943,7 @@ bool run_test10()
    {
       static const std::size_t rounds = 10;
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       for (std::size_t r = 0; r < rounds; ++r)
       {
@@ -4319,7 +4319,7 @@ bool run_test10()
          y0 = T(i + 2.22);
          z0 = T(i + 3.33);
 
-         exprtk::symbol_table<T> st0;
+         math_expr::symbol_table<T> st0;
 
          st0.add_variable("x0",x0);
          st0.add_variable("y0",y0);
@@ -4328,7 +4328,7 @@ bool run_test10()
          expression0.register_symbol_table(st0);
 
          {
-            exprtk::parser<T> parser;
+            math_expr::parser<T> parser;
 
             if (!parser.compile(expression_string,expression0))
             {
@@ -4342,11 +4342,11 @@ bool run_test10()
 
          {
             expression_t expression1;
-            exprtk::symbol_table<T> st1 = st0;
+            math_expr::symbol_table<T> st1 = st0;
             expression1.register_symbol_table(st1);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(expression_string,expression1))
                {
@@ -4373,7 +4373,7 @@ bool run_test10()
 
       std::string e = "string";
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       symbol_table.add_variable ("a",a);
       symbol_table.add_variable ("b",b);
@@ -4386,7 +4386,7 @@ bool run_test10()
 
       std::string expression_string = "(E == '1234') and (sin(a) + C) / b";
 
-      typedef exprtk::parser<T> parser_t;
+      typedef math_expr::parser<T> parser_t;
       typedef typename parser_t::dependent_entity_collector::symbol_t symbol_t;
 
       std::deque<symbol_t> symbol_list;
@@ -4436,7 +4436,7 @@ bool run_test10()
 
       std::string e = "string";
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       symbol_table.add_variable ("a",a);
       symbol_table.add_variable ("b",b);
@@ -4453,7 +4453,7 @@ bool run_test10()
          "c := d + 1;     "
          "e := e + 'abc'; ";
 
-      typedef exprtk::parser<T> parser_t;
+      typedef math_expr::parser<T> parser_t;
       typedef typename parser_t::dependent_entity_collector::symbol_t symbol_t;
 
       std::deque<symbol_t> variable_list;
@@ -4494,8 +4494,8 @@ bool run_test10()
    }
 
    {
-      exprtk::symbol_table<T> symbol_table0;
-      exprtk::symbol_table<T> symbol_table1;
+      math_expr::symbol_table<T> symbol_table0;
+      math_expr::symbol_table<T> symbol_table1;
 
       if (symbol_table0 == symbol_table1)
       {
@@ -4521,8 +4521,8 @@ bool run_test10()
 
       std::string e = "a string";
 
-      exprtk::symbol_table<T> symbol_table0;
-      exprtk::symbol_table<T> symbol_table1;
+      math_expr::symbol_table<T> symbol_table0;
+      math_expr::symbol_table<T> symbol_table1;
       expression_t expression;
 
       for (std::size_t i = 0; i < 10000; ++i)
@@ -4557,13 +4557,13 @@ bool run_test10()
       std::vector<std::string> var_symbol_list;
       std::vector<std::string> func_symbol_list;
 
-      if (!exprtk::collect_variables(expression, var_symbol_list))
+      if (!math_expr::collect_variables(expression, var_symbol_list))
       {
          printf("run_test10() - Failed to collect variables.\n");
          return false;
       }
 
-      if (!exprtk::collect_functions(expression, func_symbol_list))
+      if (!math_expr::collect_functions(expression, func_symbol_list))
       {
          printf("run_test10() - Failed to collect functions.\n");
          return false;
@@ -5144,7 +5144,7 @@ bool run_test10()
 
       static const std::size_t rounds = 20;
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       T zero = T(0);
       T one  = T(1);
@@ -5163,7 +5163,7 @@ bool run_test10()
             expression.register_symbol_table(symbol_table);
 
             {
-               exprtk::parser<T> parser;
+               math_expr::parser<T> parser;
 
                if (!parser.compile(expression_list[i],expression))
                {
@@ -5198,7 +5198,7 @@ bool run_test10()
       // reuse parser
       for (std::size_t r = 0; r < rounds; ++r)
       {
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          for (std::size_t i = 0; i < expression_list_size; ++i)
          {
@@ -5239,14 +5239,14 @@ bool run_test10()
 template <typename T>
 bool run_test11()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    std::string expression_string = "(x + y) / 3";
 
    T x = T(1.0);
    T y = T(2.0);
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_variable("x",x);
    symbol_table.add_variable("y",y);
 
@@ -5258,7 +5258,7 @@ bool run_test11()
    for (std::size_t i = 0; i < rounds; ++i)
    {
       {
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expression_string,expression))
          {
@@ -5285,7 +5285,7 @@ bool run_test11()
       }
 
       {
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expression_string,expression))
          {
@@ -5312,7 +5312,7 @@ bool run_test11()
 template <typename T>
 bool run_test12()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    static const std::string expression_string[] =
    {
@@ -5346,20 +5346,20 @@ bool run_test12()
 
    T x = T(1.23456);
 
-   exprtk::polynomial<T, 1> poly01;
-   exprtk::polynomial<T, 2> poly02;
-   exprtk::polynomial<T, 3> poly03;
-   exprtk::polynomial<T, 4> poly04;
-   exprtk::polynomial<T, 5> poly05;
-   exprtk::polynomial<T, 6> poly06;
-   exprtk::polynomial<T, 7> poly07;
-   exprtk::polynomial<T, 8> poly08;
-   exprtk::polynomial<T, 9> poly09;
-   exprtk::polynomial<T,10> poly10;
-   exprtk::polynomial<T,11> poly11;
-   exprtk::polynomial<T,12> poly12;
+   math_expr::polynomial<T, 1> poly01;
+   math_expr::polynomial<T, 2> poly02;
+   math_expr::polynomial<T, 3> poly03;
+   math_expr::polynomial<T, 4> poly04;
+   math_expr::polynomial<T, 5> poly05;
+   math_expr::polynomial<T, 6> poly06;
+   math_expr::polynomial<T, 7> poly07;
+   math_expr::polynomial<T, 8> poly08;
+   math_expr::polynomial<T, 9> poly09;
+   math_expr::polynomial<T,10> poly10;
+   math_expr::polynomial<T,11> poly11;
+   math_expr::polynomial<T,12> poly12;
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
 
    symbol_table.add_variable("x",x);
    symbol_table.add_function("poly01", poly01);
@@ -5387,7 +5387,7 @@ bool run_test12()
          const std::string& expr_str = expression_string[j];
 
          {
-            exprtk::parser<T> parser;
+            math_expr::parser<T> parser;
 
             if (!parser.compile(expr_str,expression))
             {
@@ -5411,37 +5411,37 @@ bool run_test12()
 }
 
 template <typename T>
-struct sine_deg exprtk_test_final : public exprtk::ifunction<T>
+struct sine_deg math_expr_test_final : public math_expr::ifunction<T>
 {
-   using exprtk::ifunction<T>::operator();
+   using math_expr::ifunction<T>::operator();
 
-   sine_deg() : exprtk::ifunction<T>(1) {}
+   sine_deg() : math_expr::ifunction<T>(1) {}
 
-   inline T operator()(const T& v) exprtk_test_override
+   inline T operator()(const T& v) math_expr_test_override
    {
-      return std::sin((v * T(exprtk::details::numeric::constant::pi)) / T(180));
+      return std::sin((v * T(math_expr::details::numeric::constant::pi)) / T(180));
    }
 };
 
 template <typename T>
-struct cosine_deg exprtk_test_final : public exprtk::ifunction<T>
+struct cosine_deg math_expr_test_final : public math_expr::ifunction<T>
 {
-   using exprtk::ifunction<T>::operator();
+   using math_expr::ifunction<T>::operator();
 
-   cosine_deg() : exprtk::ifunction<T>(1) {}
+   cosine_deg() : math_expr::ifunction<T>(1) {}
 
-   inline T operator()(const T& v) exprtk_test_override
+   inline T operator()(const T& v) math_expr_test_override
    {
-      return std::cos((v * T(exprtk::details::numeric::constant::pi)) / T(180));
+      return std::cos((v * T(math_expr::details::numeric::constant::pi)) / T(180));
    }
 };
 
 template <typename T>
 bool run_test13()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    static const std::string expression_string[] =
    {
@@ -5616,8 +5616,8 @@ inline T isnan(const T t)
 template <typename T>
 bool run_test14()
 {
-   typedef exprtk::expression<T>             expression_t;
-   typedef exprtk::parser<T>                 parser_t;
+   typedef math_expr::expression<T>             expression_t;
+   typedef math_expr::parser<T>                 parser_t;
    typedef typename parser_t::settings_store settings_t;
 
    T x = T(0);
@@ -5625,22 +5625,22 @@ bool run_test14()
    T z = T(0);
    T w = T(0);
 
-   exprtk::polynomial<T, 1> poly01;
-   exprtk::polynomial<T, 2> poly02;
-   exprtk::polynomial<T, 3> poly03;
-   exprtk::polynomial<T, 4> poly04;
-   exprtk::polynomial<T, 5> poly05;
-   exprtk::polynomial<T, 6> poly06;
-   exprtk::polynomial<T, 7> poly07;
-   exprtk::polynomial<T, 8> poly08;
-   exprtk::polynomial<T, 9> poly09;
-   exprtk::polynomial<T,10> poly10;
-   exprtk::polynomial<T,11> poly11;
-   exprtk::polynomial<T,12> poly12;
+   math_expr::polynomial<T, 1> poly01;
+   math_expr::polynomial<T, 2> poly02;
+   math_expr::polynomial<T, 3> poly03;
+   math_expr::polynomial<T, 4> poly04;
+   math_expr::polynomial<T, 5> poly05;
+   math_expr::polynomial<T, 6> poly06;
+   math_expr::polynomial<T, 7> poly07;
+   math_expr::polynomial<T, 8> poly08;
+   math_expr::polynomial<T, 9> poly09;
+   math_expr::polynomial<T,10> poly10;
+   math_expr::polynomial<T,11> poly11;
+   math_expr::polynomial<T,12> poly12;
 
-   exprtk::rtl::vecops::package<T> vector_package;
+   math_expr::rtl::vecops::package<T> vector_package;
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_constants();
    symbol_table.add_variable("x",x);
    symbol_table.add_variable("y",y);
@@ -5665,7 +5665,7 @@ bool run_test14()
    expression_t expression;
    expression.register_symbol_table(symbol_table);
 
-   exprtk::parser<T> parser;
+   math_expr::parser<T> parser;
 
    static const std::size_t secondary_compile_options =
       settings_t::e_replacer          +
@@ -5681,17 +5681,17 @@ bool run_test14()
    std::deque<std::string> expr_str_list;
    std::deque<std::string> expr_noncomm_str_list;
 
-   load_expressions("exprtk_functional_test.txt"     , expr_str_list);
-   load_expressions("exprtk_functional_ext_test.txt" , expr_str_list);
+   load_expressions("math_expr_functional_test.txt"     , expr_str_list);
+   load_expressions("math_expr_functional_ext_test.txt" , expr_str_list);
 
    if (expr_str_list.empty())
    {
       return true;
    }
 
-   load_expressions("exprtk_noncommutative_test.txt" , expr_noncomm_str_list);
+   load_expressions("math_expr_noncommutative_test.txt" , expr_noncomm_str_list);
 
-   std::deque<exprtk::expression<T> > expression_list;
+   std::deque<math_expr::expression<T> > expression_list;
    bool error_found = false;
 
    static const std::size_t rounds = 5;
@@ -5700,7 +5700,7 @@ bool run_test14()
    {
       for (std::size_t i = 0; i < expr_str_list.size(); ++i)
       {
-         exprtk::expression<T> current_expression;
+         math_expr::expression<T> current_expression;
 
          current_expression.register_symbol_table(symbol_table);
 
@@ -5720,7 +5720,7 @@ bool run_test14()
 
       for (std::size_t i = 0; i < expr_noncomm_str_list.size(); ++i)
       {
-         exprtk::expression<T> current_expression;
+         math_expr::expression<T> current_expression;
 
          current_expression.register_symbol_table(symbol_table);
 
@@ -5766,13 +5766,13 @@ bool run_test14()
 template <typename T>
 bool run_test15()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    T x = T(1.1);
    T y = T(2.2);
    T z = T(3.3);
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_constants();
    symbol_table.add_variable("x",x);
    symbol_table.add_variable("y",y);
@@ -5808,7 +5808,7 @@ bool run_test15()
       expression_t expression;
       expression.register_symbol_table(symbol_table);
 
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expr_str_list[i],expression))
       {
@@ -5828,7 +5828,7 @@ bool run_test15()
    {
       base_expression.register_symbol_table(symbol_table);
 
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(base_expr_str,base_expression))
       {
@@ -5862,31 +5862,31 @@ bool run_test15()
 }
 
 template <typename T>
-struct base_func : public exprtk::ifunction<T>
+struct base_func : public math_expr::ifunction<T>
 {
-   using exprtk::ifunction<T>::operator();
+   using math_expr::ifunction<T>::operator();
 
    typedef const T& type;
-   base_func(const std::size_t& n) : exprtk::ifunction<T>(n) {}
-   inline T operator()(type v0, type v1, type v2, type v3, type v4) exprtk_test_override { return (v0 + v1 + v2 + v3 + v4); }
-   inline T operator()(type v0, type v1, type v2, type v3) exprtk_test_override { return (v0 + v1 + v2 + v3); }
-   inline T operator()(type v0, type v1, type v2) exprtk_test_override { return (v0 + v1 + v2); }
-   inline T operator()(type v0, type v1) exprtk_test_override { return (v0 + v1); }
-   inline T operator()(type v0) exprtk_test_override { return v0; }
-   inline T operator()() exprtk_test_override { return T(1.1234); }
+   base_func(const std::size_t& n) : math_expr::ifunction<T>(n) {}
+   inline T operator()(type v0, type v1, type v2, type v3, type v4) math_expr_test_override { return (v0 + v1 + v2 + v3 + v4); }
+   inline T operator()(type v0, type v1, type v2, type v3) math_expr_test_override { return (v0 + v1 + v2 + v3); }
+   inline T operator()(type v0, type v1, type v2) math_expr_test_override { return (v0 + v1 + v2); }
+   inline T operator()(type v0, type v1) math_expr_test_override { return (v0 + v1); }
+   inline T operator()(type v0) math_expr_test_override { return v0; }
+   inline T operator()() math_expr_test_override { return T(1.1234); }
 };
 
-template <typename T> struct test_func5 exprtk_test_final : public base_func<T> { test_func5() : base_func<T>(5){} };
-template <typename T> struct test_func4 exprtk_test_final : public base_func<T> { test_func4() : base_func<T>(4){} };
-template <typename T> struct test_func3 exprtk_test_final : public base_func<T> { test_func3() : base_func<T>(3){} };
-template <typename T> struct test_func2 exprtk_test_final : public base_func<T> { test_func2() : base_func<T>(2){} };
-template <typename T> struct test_func1 exprtk_test_final : public base_func<T> { test_func1() : base_func<T>(1){} };
-template <typename T> struct test_func0 exprtk_test_final : public base_func<T> { test_func0() : base_func<T>(0){} };
+template <typename T> struct test_func5 math_expr_test_final : public base_func<T> { test_func5() : base_func<T>(5){} };
+template <typename T> struct test_func4 math_expr_test_final : public base_func<T> { test_func4() : base_func<T>(4){} };
+template <typename T> struct test_func3 math_expr_test_final : public base_func<T> { test_func3() : base_func<T>(3){} };
+template <typename T> struct test_func2 math_expr_test_final : public base_func<T> { test_func2() : base_func<T>(2){} };
+template <typename T> struct test_func1 math_expr_test_final : public base_func<T> { test_func1() : base_func<T>(1){} };
+template <typename T> struct test_func0 math_expr_test_final : public base_func<T> { test_func0() : base_func<T>(0){} };
 
 template <typename T>
 bool run_test16()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    T x = T(1.1);
    T y = T(2.2);
@@ -5901,7 +5901,7 @@ bool run_test16()
    test_func4<T> test_func04;
    test_func5<T> test_func05;
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_constants();
    symbol_table.add_variable("x",x);
    symbol_table.add_variable("y",y);
@@ -5991,7 +5991,7 @@ bool run_test16()
       expression_t expression;
       expression.register_symbol_table(symbol_table);
 
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expr_str_list[i],expression))
       {
@@ -6024,7 +6024,7 @@ bool run_test16()
 template <typename T>
 bool run_test17()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef math_expr::expression<T> expression_t;
 
    T x = T(1.1);
    T y = T(2.2);
@@ -6037,7 +6037,7 @@ bool run_test17()
    T one  = T(1);
    T zero = T(0);
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
    symbol_table.add_constants();
    symbol_table.add_variable("x",x);
    symbol_table.add_variable("y",y);
@@ -6109,7 +6109,7 @@ bool run_test17()
       expression_t expression;
       expression.register_symbol_table(symbol_table);
 
-      exprtk::parser<T> parser;
+      math_expr::parser<T> parser;
 
       if (!parser.compile(expr_str_list[i],expression))
       {
@@ -6140,16 +6140,16 @@ bool run_test17()
 }
 
 template <typename T>
-struct va_func exprtk_test_final : public exprtk::ivararg_function<T>
+struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
 {
    va_func()
    {
-      exprtk::enable_zero_parameters(*this);
-      exprtk::set_min_num_args(*this,  0);
-      exprtk::set_max_num_args(*this, 20);
+      math_expr::enable_zero_parameters(*this);
+      math_expr::set_min_num_args(*this,  0);
+      math_expr::set_max_num_args(*this, 20);
    }
 
-   inline T operator()(const std::vector<T>& arglist) exprtk_test_override
+   inline T operator()(const std::vector<T>& arglist) math_expr_test_override
    {
       T result = T(0);
 
@@ -6163,16 +6163,16 @@ struct va_func exprtk_test_final : public exprtk::ivararg_function<T>
 };
 
 template <typename T>
-struct gen_func exprtk_test_final : public exprtk::igeneric_function<T>
+struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T>::generic_type generic_type;
-   typedef typename exprtk::igeneric_function<T>::parameter_list_t parameter_list_t;
+   typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
+   typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
 
    typedef typename generic_type::scalar_view scalar_t;
    typedef typename generic_type::vector_view vector_t;
    typedef typename generic_type::string_view string_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    gen_func()
    : scalar_count(0)
@@ -6180,7 +6180,7 @@ struct gen_func exprtk_test_final : public exprtk::igeneric_function<T>
    , string_count(0)
    {}
 
-   inline T operator()(parameter_list_t params) exprtk_test_override
+   inline T operator()(parameter_list_t params) math_expr_test_override
    {
       for (std::size_t i = 0; i < params.size(); ++i)
       {
@@ -6196,8 +6196,8 @@ struct gen_func exprtk_test_final : public exprtk::igeneric_function<T>
 
             case generic_type::e_string : {
                                              if (
-                                                  ("CdEf"   != exprtk::to_str(string_t(gt))) &&
-                                                  ("abc123" != exprtk::to_str(string_t(gt)))
+                                                  ("CdEf"   != math_expr::to_str(string_t(gt))) &&
+                                                  ("abc123" != math_expr::to_str(string_t(gt)))
                                                 )
                                              {
                                                 return std::numeric_limits<T>::quiet_NaN();
@@ -6220,42 +6220,42 @@ struct gen_func exprtk_test_final : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct gen_func2 exprtk_test_final : public exprtk::igeneric_function<T>
+struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T>::parameter_list_t parameter_list_t;
+   typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    gen_func2()
    {}
 
-   inline T operator()(parameter_list_t) exprtk_test_override
+   inline T operator()(parameter_list_t) math_expr_test_override
    {
       return T(0);
    }
 
-   inline T operator()(const std::size_t&, parameter_list_t params) exprtk_test_override
+   inline T operator()(const std::size_t&, parameter_list_t params) math_expr_test_override
    {
       return this->operator()(params);
    }
 };
 
 template <typename T>
-struct inc_func exprtk_test_final : public exprtk::igeneric_function<T>
+struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T>::generic_type generic_type;
-   typedef typename exprtk::igeneric_function<T>::parameter_list_t parameter_list_t;
+   typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
+   typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
 
    typedef typename generic_type::scalar_view scalar_t;
    typedef typename generic_type::vector_view vector_t;
    typedef typename generic_type::string_view string_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    inc_func()
    {}
 
-   inline T operator()(parameter_list_t params) exprtk_test_override
+   inline T operator()(parameter_list_t params) math_expr_test_override
    {
       for (std::size_t i = 0; i < params.size(); ++i)
       {
@@ -6296,27 +6296,27 @@ struct inc_func exprtk_test_final : public exprtk::igeneric_function<T>
       return T(0);
    }
 
-   inline T operator()(const std::size_t&, parameter_list_t params) exprtk_test_override
+   inline T operator()(const std::size_t&, parameter_list_t params) math_expr_test_override
    {
       return this->operator()(params);
    }
 };
 
 template <typename T>
-struct rem_space_and_uppercase exprtk_test_final : public exprtk::igeneric_function<T>
+struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T> igenfunc_t;
+   typedef typename math_expr::igeneric_function<T> igenfunc_t;
    typedef typename igenfunc_t::generic_type     generic_type;
    typedef typename igenfunc_t::parameter_list_t parameter_list_t;
    typedef typename generic_type::string_view    string_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    rem_space_and_uppercase()
    : igenfunc_t("S",igenfunc_t::e_rtrn_string)
    {}
 
-   inline T operator()(std::string& result, parameter_list_t params) exprtk_test_override
+   inline T operator()(std::string& result, parameter_list_t params) math_expr_test_override
    {
       string_t string(params[0]);
 
@@ -6334,7 +6334,7 @@ struct rem_space_and_uppercase exprtk_test_final : public exprtk::igeneric_funct
       return T(0);
    }
 
-   inline T operator()(const std::size_t& param_seq_index, std::string& result, parameter_list_t params) exprtk_test_override
+   inline T operator()(const std::size_t& param_seq_index, std::string& result, parameter_list_t params) math_expr_test_override
    {
       if (1 == param_seq_index)
          return this->operator()(result,params);
@@ -6344,24 +6344,24 @@ struct rem_space_and_uppercase exprtk_test_final : public exprtk::igeneric_funct
 };
 
 template <typename T>
-struct vararg_func exprtk_test_final : public exprtk::igeneric_function<T>
+struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T>::parameter_list_t
+   typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                   parameter_list_t;
 
-   typedef typename exprtk::igeneric_function<T>::generic_type
+   typedef typename math_expr::igeneric_function<T>::generic_type
                                                   generic_type;
 
    typedef typename generic_type::scalar_view scalar_t;
    typedef typename generic_type::vector_view vector_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    vararg_func()
-   : exprtk::igeneric_function<T>("Z|T*|V")
+   : math_expr::igeneric_function<T>("Z|T*|V")
    {}
 
-   inline T operator()(const std::size_t& ps_index, parameter_list_t /*arglist*/) exprtk_test_override
+   inline T operator()(const std::size_t& ps_index, parameter_list_t /*arglist*/) math_expr_test_override
    {
       switch (ps_index)
       {                         // Overload resolution:
@@ -6374,23 +6374,23 @@ struct vararg_func exprtk_test_final : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct vecrebase_func exprtk_test_final : public exprtk::igeneric_function<T>
+struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T>::parameter_list_t
+   typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                   parameter_list_t;
 
-   typedef typename exprtk::igeneric_function<T>::generic_type
+   typedef typename math_expr::igeneric_function<T>::generic_type
                                                   generic_type;
 
    typedef typename generic_type::vector_view vector_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    vecrebase_func()
-   : exprtk::igeneric_function<T>("V")
+   : math_expr::igeneric_function<T>("V")
    {}
 
-   inline T operator()(parameter_list_t params) exprtk_test_override
+   inline T operator()(parameter_list_t params) math_expr_test_override
    {
       vector_t v(params[0]);
       return std::accumulate(v.begin(), v.end(), T(0));
@@ -6398,17 +6398,17 @@ struct vecrebase_func exprtk_test_final : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct overload_func exprtk_test_final : exprtk::igeneric_function<T>
+struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
 {
-   typedef typename exprtk::igeneric_function<T> igfun_t;
+   typedef typename math_expr::igeneric_function<T> igfun_t;
    typedef typename igfun_t::parameter_list_t    parameter_list_t;
    typedef typename igfun_t::generic_type        generic_type;
    typedef typename generic_type::vector_view    vector_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    overload_func(const std::string& param_seq_list)
-   : exprtk::igeneric_function<T>(param_seq_list, igfun_t::e_rtrn_overload)
+   : math_expr::igeneric_function<T>(param_seq_list, igfun_t::e_rtrn_overload)
    , current_ps_index(std::numeric_limits<std::size_t>::max())
    {
       clear();
@@ -6421,7 +6421,7 @@ struct overload_func exprtk_test_final : exprtk::igeneric_function<T>
    }
 
    inline T operator()(const std::size_t& ps_index,
-                       parameter_list_t parameters) exprtk_test_override
+                       parameter_list_t parameters) math_expr_test_override
    {
       current_ps_index = ps_index;
       determine_param_seq(parameters);
@@ -6430,7 +6430,7 @@ struct overload_func exprtk_test_final : exprtk::igeneric_function<T>
 
    inline T operator()(const std::size_t& ps_index,
                        std::string& result,
-                       parameter_list_t parameters) exprtk_test_override
+                       parameter_list_t parameters) math_expr_test_override
    {
       current_ps_index = ps_index;
       determine_param_seq(parameters);
@@ -6477,9 +6477,9 @@ struct overload_func exprtk_test_final : exprtk::igeneric_function<T>
    };
 };
 
-struct vector_access_rtc_counter : public exprtk::vector_access_runtime_check
+struct vector_access_rtc_counter : public math_expr::vector_access_runtime_check
 {
-   bool handle_runtime_violation(violation_context&) exprtk_test_override
+   bool handle_runtime_violation(violation_context&) math_expr_test_override
    {
       rtc_count++;
       return false;
@@ -6492,7 +6492,7 @@ template <typename T>
 bool run_test18()
 {
    {
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
       symbol_table.remove_variable("x",true);
       symbol_table.remove_variable("x",false);
       symbol_table.remove_stringvar("x");
@@ -6502,7 +6502,7 @@ bool run_test18()
    }
 
    {
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       {
          T x;
@@ -6582,7 +6582,7 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::expression<T> expression_t;
+      typedef math_expr::expression<T> expression_t;
 
       T x = T(1.1);
       T y = T(2.2);
@@ -6594,7 +6594,7 @@ bool run_test18()
 
       va_func<T> vaf;
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
       symbol_table.add_constants();
       symbol_table.add_variable("x",x);
       symbol_table.add_variable("y",y);
@@ -6632,7 +6632,7 @@ bool run_test18()
          expression_t expression;
          expression.register_symbol_table(symbol_table);
 
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(expr_str_list[i],expression))
          {
@@ -6666,9 +6666,9 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       T x = T(33);
       T y = T(77);
@@ -6770,9 +6770,9 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       T x = T(33);
       T y = T(77);
@@ -6951,9 +6951,9 @@ bool run_test18()
 
       for (std::size_t i = 0; i < expression_list_size; ++i)
       {
-         typedef exprtk::symbol_table<T> symbol_table_t;
-         typedef exprtk::expression<T>   expression_t;
-         typedef exprtk::parser<T>       parser_t;
+         typedef math_expr::symbol_table<T> symbol_table_t;
+         typedef math_expr::expression<T>   expression_t;
+         typedef math_expr::parser<T>       parser_t;
 
          T x = T(33);
          T y = T(77);
@@ -7070,9 +7070,9 @@ bool run_test18()
       std::string s3 = "XXXXXXXXXXXXXXX";
       std::string s4 = "XXXXXXXXXXXXXXX";
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       symbol_table_t symbol_table;
 
@@ -7186,9 +7186,9 @@ bool run_test18()
    {
       bool error_found = false;
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       symbol_table_t symbol_table;
 
@@ -7259,9 +7259,9 @@ bool run_test18()
    {
       bool error_found = false;
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       std::vector<T> v0;
       std::vector<T> v1;
@@ -7279,7 +7279,7 @@ bool run_test18()
 
       const std::string expr_string = "sum(v + 1)";
 
-      exprtk::vector_view<T> v = exprtk::make_vector_view(v0,v0.size());
+      math_expr::vector_view<T> v = math_expr::make_vector_view(v0,v0.size());
 
       symbol_table_t symbol_table;
       symbol_table.add_vector("v",v);
@@ -7349,9 +7349,9 @@ bool run_test18()
    {
       bool error_found = false;
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       std::vector<T> v0;
       std::vector<T> s;
@@ -7368,7 +7368,7 @@ bool run_test18()
 
       const std::string expr_string = "v[0] + v[1] + v[2]";
 
-      exprtk::vector_view<T> v = exprtk::make_vector_view(v0,4);
+      math_expr::vector_view<T> v = math_expr::make_vector_view(v0,4);
 
       symbol_table_t symbol_table;
       symbol_table.add_vector("v",v);
@@ -7414,9 +7414,9 @@ bool run_test18()
    {
       bool error_found = false;
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       std::vector<T> v0;
       std::vector<T> s;
@@ -7433,7 +7433,7 @@ bool run_test18()
 
       const std::string expr_string = "var i := 0; var j := 1; var k := 2; v[i] + v[j] + v[k]";
 
-      exprtk::vector_view<T> v = exprtk::make_vector_view(v0,4);
+      math_expr::vector_view<T> v = math_expr::make_vector_view(v0,4);
 
       symbol_table_t symbol_table;
       symbol_table.add_vector("v",v);
@@ -7477,9 +7477,9 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       const std::string const_folded_expression_list[] =
       {
@@ -7512,11 +7512,11 @@ bool run_test18()
       T v0[vector_size] = { 0, 2, 4, 6, 8 };
       T v1[vector_size] = { 1, 3, 5, 7, 9 };
 
-      exprtk::vector_view<T> vv0 = exprtk::make_vector_view(v0, vector_size);
-      exprtk::vector_view<T> vv1 = exprtk::make_vector_view(v1, vector_size);
+      math_expr::vector_view<T> vv0 = math_expr::make_vector_view(v0, vector_size);
+      math_expr::vector_view<T> vv1 = math_expr::make_vector_view(v1, vector_size);
 
-      exprtk::rtl::vecops::package<T> vector_package;
-      exprtk::rtl::io::package<T>     io_package;
+      math_expr::rtl::vecops::package<T> vector_package;
+      math_expr::rtl::io::package<T>     io_package;
 
       symbol_table_t symbol_table;
 
@@ -7543,7 +7543,7 @@ bool run_test18()
             return false;
          }
 
-         if (!exprtk::expression_helper<T>::is_literal(expression))
+         if (!math_expr::expression_helper<T>::is_literal(expression))
          {
             printf("run_test18() - Error: Expression did not compile to a constant! [1] Expression: %s\n",
                    expression_string.c_str());
@@ -7581,9 +7581,9 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       const std::string rebase_expression_list[] =
       {
@@ -7610,11 +7610,11 @@ bool run_test18()
       T v0[vector_size] = { 0, 2, 4, 6, 8 };
       T v1[vector_size] = { 1, 3, 5, 7, 9 };
 
-      exprtk::vector_view<T> vv0 = exprtk::make_vector_view(v0, vector_size);
-      exprtk::vector_view<T> vv1 = exprtk::make_vector_view(v1, vector_size);
+      math_expr::vector_view<T> vv0 = math_expr::make_vector_view(v0, vector_size);
+      math_expr::vector_view<T> vv1 = math_expr::make_vector_view(v1, vector_size);
 
-      exprtk::rtl::vecops::package<T> vector_package;
-      exprtk::rtl::io::package<T>     io_package;
+      math_expr::rtl::vecops::package<T> vector_package;
+      math_expr::rtl::io::package<T>     io_package;
 
       symbol_table_t symbol_table;
 
@@ -7666,9 +7666,9 @@ bool run_test18()
    {
       bool error_found = false;
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       std::vector<T> v0;
       std::vector<T> s;
@@ -7685,7 +7685,7 @@ bool run_test18()
 
       const std::string expr_string = "var i := 0; v[i + 0] + v[i + 1] + v[i + 2]";
 
-      exprtk::vector_view<T> v = exprtk::make_vector_view(v0,4);
+      math_expr::vector_view<T> v = math_expr::make_vector_view(v0,4);
 
       symbol_table_t symbol_table;
       symbol_table.add_vector("v",v);
@@ -7729,9 +7729,9 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       T v0[] = { T(0), T(1), T(2), T(3), T(4) };
       T v1[] = { T(5), T(6), T(7), T(8), T(9) };
@@ -7739,7 +7739,7 @@ bool run_test18()
       const std::size_t v0_size = sizeof(v0) / sizeof (T);
       const std::size_t v1_size = sizeof(v1) / sizeof (T);
 
-      exprtk::vector_view<T> v = exprtk::make_vector_view(v0, v0_size);
+      math_expr::vector_view<T> v = math_expr::make_vector_view(v0, v0_size);
 
       vecrebase_func<T> vec_sum;
 
@@ -7793,11 +7793,11 @@ bool run_test18()
    {
       bool error_found = false;
 
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
-      exprtk::rtl::vecops::package<T> vecops_pkg;
+      math_expr::rtl::vecops::package<T> vecops_pkg;
 
       symbol_table_t symbol_table;
       symbol_table.add_package(vecops_pkg);
@@ -8019,7 +8019,7 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::expression<T> expression_t;
+      typedef math_expr::expression<T> expression_t;
 
       std::string a = "a";
       std::string b = "b";
@@ -8040,7 +8040,7 @@ bool run_test18()
                           "T:TTSS|T:SSTT|T:STTS|T:TSST"
                         );
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       symbol_table.add_constants();
       symbol_table.add_variable ("x",x);
@@ -8107,7 +8107,7 @@ bool run_test18()
          expression_t expression;
          expression.register_symbol_table(symbol_table);
 
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(test_pack_list[i].first, expression))
          {
@@ -8164,7 +8164,7 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::expression<T> expression_t;
+      typedef math_expr::expression<T> expression_t;
 
       std::string a = "a";
       std::string b = "b";
@@ -8186,7 +8186,7 @@ bool run_test18()
          "S:TTSS|S:SSTT|S:STTS|S:TSST"
       );
 
-      exprtk::symbol_table<T> symbol_table;
+      math_expr::symbol_table<T> symbol_table;
 
       symbol_table.add_constants();
       symbol_table.add_variable ("x",x);
@@ -8254,7 +8254,7 @@ bool run_test18()
          expression_t expression;
          expression.register_symbol_table(symbol_table);
 
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          if (!parser.compile(test_pack_list[i].first, expression))
          {
@@ -8312,9 +8312,9 @@ bool run_test18()
    }
 
    {
-      typedef exprtk::symbol_table<T> symbol_table_t;
-      typedef exprtk::expression<T>   expression_t;
-      typedef exprtk::parser<T>       parser_t;
+      typedef math_expr::symbol_table<T> symbol_table_t;
+      typedef math_expr::expression<T>   expression_t;
+      typedef math_expr::parser<T>       parser_t;
 
       typedef std::pair<std::string,std::size_t> rtc_test_t;
       static const rtc_test_t rtc_tests[] =
@@ -8368,8 +8368,8 @@ bool run_test18()
             T x = 6;
             T v[5] = { 0, 1, 2, 3, 4 };
             T w[3] = { 0, 1, 2 };
-            exprtk::vector_view<T> vv = exprtk::make_vector_view(v, 5);
-            exprtk::vector_view<T> ww = exprtk::make_vector_view(w, 3);
+            math_expr::vector_view<T> vv = math_expr::make_vector_view(v, 5);
+            math_expr::vector_view<T> ww = math_expr::make_vector_view(w, 3);
 
             symbol_table_t symbol_table;
             expression_t   expression;
@@ -8416,8 +8416,8 @@ bool run_test18()
             T w[3]  = { 0, 1, 2 };
             T v0[5] = { 0, 1, 2, 3, 4 };
             T v1[5] = { 0, 1, 2, 3, 4 };
-            exprtk::vector_view<T> vv = exprtk::make_vector_view(v, 5);
-            exprtk::vector_view<T> ww = exprtk::make_vector_view(w, 3);
+            math_expr::vector_view<T> vv = math_expr::make_vector_view(v, 5);
+            math_expr::vector_view<T> ww = math_expr::make_vector_view(w, 3);
 
             symbol_table_t symbol_table;
             expression_t   expression;
@@ -8483,24 +8483,24 @@ bool run_test18()
 }
 
 template <typename T>
-struct depth_to_str exprtk_test_final : public exprtk::igeneric_function<T>
+struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T>
 {
-   typedef exprtk::igeneric_function<T>           igenfunct_t;
+   typedef math_expr::igeneric_function<T>           igenfunct_t;
    typedef typename igenfunct_t::generic_type     generic_t;
    typedef typename igenfunct_t::parameter_list_t parameter_list_t;
    typedef typename generic_t::scalar_view        scalar_t;
 
    depth_to_str()
-   : exprtk::igeneric_function<T>("T",igenfunct_t::e_rtrn_string)
+   : math_expr::igeneric_function<T>("T",igenfunct_t::e_rtrn_string)
    {}
 
    using igenfunct_t::operator();
 
    inline T operator()(std::string& result,
-                       parameter_list_t parameters) exprtk_test_override
+                       parameter_list_t parameters) math_expr_test_override
    {
 
-      result = "depth" + exprtk::details::to_str(static_cast<int>(scalar_t(parameters[0])()));
+      result = "depth" + math_expr::details::to_str(static_cast<int>(scalar_t(parameters[0])()));
       return T(0);
    }
 };
@@ -8508,10 +8508,10 @@ struct depth_to_str exprtk_test_final : public exprtk::igeneric_function<T>
 template <typename T>
 bool run_test19()
 {
-   typedef exprtk::symbol_table<T>         symbol_table_t;
-   typedef exprtk::expression<T>           expression_t;
-   typedef exprtk::parser<T>               parser_t;
-   typedef exprtk::function_compositor<T>  compositor_t;
+   typedef math_expr::symbol_table<T>         symbol_table_t;
+   typedef math_expr::expression<T>           expression_t;
+   typedef math_expr::parser<T>               parser_t;
+   typedef math_expr::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
    {
@@ -9868,9 +9868,9 @@ bool run_test19()
 }
 
 template <typename T>
-struct my_usr exprtk_test_final : public exprtk::parser<T>::unknown_symbol_resolver
+struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol_resolver
 {
-   typedef typename exprtk::parser<T>::unknown_symbol_resolver usr_t;
+   typedef typename math_expr::parser<T>::unknown_symbol_resolver usr_t;
    typedef typename usr_t::usr_symbol_type usr_symbol_type;
 
    using usr_t::process;
@@ -9878,7 +9878,7 @@ struct my_usr exprtk_test_final : public exprtk::parser<T>::unknown_symbol_resol
    bool process(const std::string& unknown_symbol,
                 usr_symbol_type& st,
                 T& default_value,
-                std::string& error_message) exprtk_test_override
+                std::string& error_message) math_expr_test_override
    {
       if (unknown_symbol[0] == 'v')
       {
@@ -9915,10 +9915,10 @@ struct my_usr exprtk_test_final : public exprtk::parser<T>::unknown_symbol_resol
 };
 
 template <typename T>
-struct my_usr_ext exprtk_test_final : public exprtk::parser<T>::unknown_symbol_resolver
+struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_symbol_resolver
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef typename exprtk::parser<T>::unknown_symbol_resolver usr_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef typename math_expr::parser<T>::unknown_symbol_resolver usr_t;
 
    using usr_t::process;
 
@@ -9928,7 +9928,7 @@ struct my_usr_ext exprtk_test_final : public exprtk::parser<T>::unknown_symbol_r
 
    bool process(const std::string& unknown_symbol,
                 symbol_table_t&    symbol_table,
-                std::string&       error_message) exprtk_test_override
+                std::string&       error_message) math_expr_test_override
    {
       bool result = false;
 
@@ -9992,8 +9992,8 @@ struct my_usr_ext exprtk_test_final : public exprtk::parser<T>::unknown_symbol_r
 template <typename T>
 bool run_test20()
 {
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
 
    {
 
@@ -10013,7 +10013,7 @@ bool run_test20()
          expression.register_symbol_table(symbol_table2);
          expression.register_symbol_table(symbol_table3);
 
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          my_usr<T> musr;
          musr.next_value(true);
@@ -10061,7 +10061,7 @@ bool run_test20()
          expression.register_symbol_table(symbol_table2);
          expression.register_symbol_table(symbol_table3);
 
-         exprtk::parser<T> parser;
+         math_expr::parser<T> parser;
 
          my_usr_ext<T> musr;
          parser.enable_unknown_symbol_resolver(&musr);
@@ -10290,9 +10290,9 @@ bool run_test20()
 }
 
 template <typename T>
-inline std::string results_to_string(const exprtk::results_context<T>& results)
+inline std::string results_to_string(const math_expr::results_context<T>& results)
 {
-   typedef exprtk::results_context<T> results_context_t;
+   typedef math_expr::results_context<T> results_context_t;
    typedef typename results_context_t::type_store_t type_t;
 
    std::string res_str;
@@ -10320,9 +10320,9 @@ inline std::string results_to_string(const exprtk::results_context<T>& results)
 }
 
 template <typename T>
-inline bool result_equal(const exprtk::results_context<T>& results, const T& value)
+inline bool result_equal(const math_expr::results_context<T>& results, const T& value)
 {
-   typedef exprtk::results_context<T> results_context_t;
+   typedef math_expr::results_context<T> results_context_t;
    typedef typename results_context_t::type_store_t type_t;
    typedef typename type_t::scalar_view scalar_t;
 
@@ -10335,22 +10335,22 @@ inline bool result_equal(const exprtk::results_context<T>& results, const T& val
 }
 
 template <typename T>
-class vv_size_handler_t : public exprtk::igeneric_function<T>
+class vv_size_handler_t : public math_expr::igeneric_function<T>
 {
 public:
 
-   typedef typename exprtk::igeneric_function<T> igfun_t;
+   typedef typename math_expr::igeneric_function<T> igfun_t;
    typedef typename igfun_t::parameter_list_t    parameter_list_t;
    typedef typename igfun_t::generic_type        generic_type;
    typedef typename generic_type::vector_view    vector_t;
    typedef typename generic_type::scalar_view    scalar_t;
-   typedef exprtk::vector_view<T>*               vv_ptr_t;
+   typedef math_expr::vector_view<T>*               vv_ptr_t;
    typedef std::map<void*,vv_ptr_t>              map_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    vv_size_handler_t()
-   : exprtk::igeneric_function<T>("VT")
+   : math_expr::igeneric_function<T>("VT")
    {}
 
    inline T operator()(parameter_list_t parameters)
@@ -10366,7 +10366,7 @@ public:
          return T(0);
       }
 
-      exprtk::vector_view<T>& vv = *itr->second;
+      math_expr::vector_view<T>& vv = *itr->second;
 
       if (vv.base_size() < new_size)
       {
@@ -10376,7 +10376,7 @@ public:
       return vv.set_size(new_size) ? T(1) : T(0);
    }
 
-   void register_vector_view(exprtk::vector_view<T>& vec_view)
+   void register_vector_view(math_expr::vector_view<T>& vec_view)
    {
       vector_map_[vec_view.data()] = &vec_view;
    }
@@ -10390,10 +10390,10 @@ private:
 template <typename T>
 bool run_test21()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
-   typedef exprtk::parser_error::type error_type;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
+   typedef math_expr::parser_error::type error_type;
 
    bool error_found = false;
 
@@ -10645,7 +10645,7 @@ bool run_test21()
 
       expression.value();
 
-      typedef exprtk::results_context<T> results_context_t;
+      typedef math_expr::results_context<T> results_context_t;
       const results_context_t& results = expression.results();
 
       if (results.count() != 4)
@@ -11328,14 +11328,14 @@ bool run_test21()
          T vs2[] = { 0, 1 };
          T vs1[] = { 0 };
 
-         exprtk::vector_view<T> vv1 = exprtk::make_vector_view(vs1, 1);
-         exprtk::vector_view<T> vv2 = exprtk::make_vector_view(vs2, 2);
-         exprtk::vector_view<T> vv3 = exprtk::make_vector_view(vs3, 3);
-         exprtk::vector_view<T> vv4 = exprtk::make_vector_view(vs4, 4);
-         exprtk::vector_view<T> vv5 = exprtk::make_vector_view(vs5, 5);
-         exprtk::vector_view<T> vv6 = exprtk::make_vector_view(vs6, 6);
-         exprtk::vector_view<T> vv7 = exprtk::make_vector_view(vs7, 7);
-         exprtk::vector_view<T> vv8 = exprtk::make_vector_view(vs8, 8);
+         math_expr::vector_view<T> vv1 = math_expr::make_vector_view(vs1, 1);
+         math_expr::vector_view<T> vv2 = math_expr::make_vector_view(vs2, 2);
+         math_expr::vector_view<T> vv3 = math_expr::make_vector_view(vs3, 3);
+         math_expr::vector_view<T> vv4 = math_expr::make_vector_view(vs4, 4);
+         math_expr::vector_view<T> vv5 = math_expr::make_vector_view(vs5, 5);
+         math_expr::vector_view<T> vv6 = math_expr::make_vector_view(vs6, 6);
+         math_expr::vector_view<T> vv7 = math_expr::make_vector_view(vs7, 7);
+         math_expr::vector_view<T> vv8 = math_expr::make_vector_view(vs8, 8);
 
          symbol_table_t symbol_table;
 
@@ -11362,7 +11362,7 @@ bool run_test21()
             for (std::size_t i = 0; i < parser.error_count(); ++i)
             {
                error_type error = parser.get_error(i);
-               exprtk::parser_error::update_error(error,expression_string);
+               math_expr::parser_error::update_error(error,expression_string);
 
                printf("run_test21() - Exp[%02d] Error[%02d] Position: %02d line: %d column: %d Type: [%14s] Msg: %s\n",
                       static_cast<unsigned int>(e),
@@ -11370,7 +11370,7 @@ bool run_test21()
                       static_cast<unsigned int>(error.token.position),
                       static_cast<unsigned int>(error.line_no),
                       static_cast<unsigned int>(error.column_no),
-                      exprtk::parser_error::to_str(error.mode).c_str(),
+                      math_expr::parser_error::to_str(error.mode).c_str(),
                       error.diagnostic.c_str());
             }
 
@@ -11446,10 +11446,10 @@ bool run_test21()
          const std::size_t vanilla_size = sizeof(vanilla) / sizeof(T);
 
          std::vector<T> v0(vanilla, vanilla + vanilla_size);
-         exprtk::vector_view<T> vv0 = exprtk::make_vector_view(v0, v0.size());
+         math_expr::vector_view<T> vv0 = math_expr::make_vector_view(v0, v0.size());
 
          std::vector<T> v1(vanilla, vanilla + vanilla_size);
-         exprtk::vector_view<T> vv1 = exprtk::make_vector_view(v1, v1.size());
+         math_expr::vector_view<T> vv1 = math_expr::make_vector_view(v1, v1.size());
 
          T vv0_size = T(0.0);
 
@@ -11458,8 +11458,8 @@ bool run_test21()
          symbol_table.add_vector  ("vv0"     , vv0     );
          symbol_table.add_vector  ("vv1"     , vv1     );
 
-         exprtk::rtl::vecops::package<T> vector_package;
-         exprtk::rtl::io::package<T>     io_package;
+         math_expr::rtl::vecops::package<T> vector_package;
+         math_expr::rtl::io::package<T>     io_package;
 
          symbol_table.add_package( vector_package );
          symbol_table.add_package( io_package     );
@@ -11479,7 +11479,7 @@ bool run_test21()
             for (std::size_t i = 0; i < parser.error_count(); ++i)
             {
                error_type error = parser.get_error(i);
-               exprtk::parser_error::update_error(error,expression_string);
+               math_expr::parser_error::update_error(error,expression_string);
 
                printf("run_test21() - Exp[%02d] Error[%02d] Position: %02d line: %d column: %d Type: [%14s] Msg: %s\n",
                       static_cast<unsigned int>(e),
@@ -11487,7 +11487,7 @@ bool run_test21()
                       static_cast<unsigned int>(error.token.position),
                       static_cast<unsigned int>(error.line_no),
                       static_cast<unsigned int>(error.column_no),
-                      exprtk::parser_error::to_str(error.mode).c_str(),
+                      math_expr::parser_error::to_str(error.mode).c_str(),
                       error.diagnostic.c_str());
             }
 
@@ -11542,7 +11542,7 @@ bool run_test21()
       std::vector<T> v0(vanilla, vanilla + vanilla_size);
       std::vector<T> v1(vanilla, vanilla + vanilla_size);
 
-      exprtk::vector_view<T> vv = exprtk::make_vector_view(v0, v0.size());
+      math_expr::vector_view<T> vv = math_expr::make_vector_view(v0, v0.size());
 
       vv_size_handler_t<T> vv_size_handler;
       vv_size_handler.register_vector_view(vv);
@@ -11550,8 +11550,8 @@ bool run_test21()
       symbol_table_t symbol_table;
       symbol_table.add_vector("v", vv);
 
-      exprtk::rtl::vecops::package<T> vector_package;
-      exprtk::rtl::io::package<T>     io_package;
+      math_expr::rtl::vecops::package<T> vector_package;
+      math_expr::rtl::io::package<T>     io_package;
 
       symbol_table.add_package( vector_package );
       symbol_table.add_package( io_package     );
@@ -11585,14 +11585,14 @@ bool run_test21()
          for (std::size_t i = 0; i < parser.error_count(); ++i)
          {
             error_type error = parser.get_error(i);
-            exprtk::parser_error::update_error(error,resize_expression);
+            math_expr::parser_error::update_error(error,resize_expression);
 
             printf("run_test21() - Error[%02d] Position: %02d line: %d column: %d Type: [%14s] Msg: %s\n",
                    static_cast<unsigned int>(i),
                    static_cast<unsigned int>(error.token.position),
                    static_cast<unsigned int>(error.line_no),
                    static_cast<unsigned int>(error.column_no),
-                   exprtk::parser_error::to_str(error.mode).c_str(),
+                   math_expr::parser_error::to_str(error.mode).c_str(),
                    error.diagnostic.c_str());
          }
 
@@ -11631,7 +11631,7 @@ bool run_test21()
       std::vector<T> v0(vanilla, vanilla + vanilla_size);
       std::vector<T> v1(vanilla, vanilla + vanilla_size);
 
-      exprtk::vector_view<T> vv = exprtk::make_vector_view(v0, v0.size());
+      math_expr::vector_view<T> vv = math_expr::make_vector_view(v0, v0.size());
 
       vv_size_handler_t<T> vv_size_handler;
       vv_size_handler.register_vector_view(vv);
@@ -11639,8 +11639,8 @@ bool run_test21()
       symbol_table_t symbol_table;
       symbol_table.add_vector("v", vv);
 
-      exprtk::rtl::vecops::package<T> vector_package;
-      exprtk::rtl::io::package<T>     io_package;
+      math_expr::rtl::vecops::package<T> vector_package;
+      math_expr::rtl::io::package<T>     io_package;
 
       symbol_table.add_package( vector_package );
       symbol_table.add_package( io_package     );
@@ -11674,14 +11674,14 @@ bool run_test21()
          for (std::size_t i = 0; i < parser.error_count(); ++i)
          {
             error_type error = parser.get_error(i);
-            exprtk::parser_error::update_error(error,resize_expression);
+            math_expr::parser_error::update_error(error,resize_expression);
 
             printf("run_test21() - Error[%02d] Position: %02d line: %d column: %d Type: [%14s] Msg: %s\n",
                    static_cast<unsigned int>(i),
                    static_cast<unsigned int>(error.token.position),
                    static_cast<unsigned int>(error.line_no),
                    static_cast<unsigned int>(error.column_no),
-                   exprtk::parser_error::to_str(error.mode).c_str(),
+                   math_expr::parser_error::to_str(error.mode).c_str(),
                    error.diagnostic.c_str());
          }
 
@@ -11794,7 +11794,7 @@ bool run_test21()
       {
          const std::string& expression_string = expressions[i];
 
-         exprtk::vector_view<T> x_view = exprtk::make_vector_view(vec1, vec1.size());
+         math_expr::vector_view<T> x_view = math_expr::make_vector_view(vec1, vec1.size());
 
          for (std::size_t vector_size = 1; vector_size <= 10; ++vector_size)
          {
@@ -11837,7 +11837,7 @@ bool run_test21()
                continue;
             }
 
-            const exprtk::results_context<T>& results = expression.results();
+            const math_expr::results_context<T>& results = expression.results();
 
             if (results.count() != 1)
             {
@@ -11850,7 +11850,7 @@ bool run_test21()
                continue;
             }
 
-            if (results[0].type != exprtk::results_context<T>::type_store_t::e_vector)
+            if (results[0].type != math_expr::results_context<T>::type_store_t::e_vector)
             {
                printf("run_test21() - Error: expected vector type for return value for expression: %s\n",
                       expression_string.c_str());
@@ -11860,7 +11860,7 @@ bool run_test21()
                continue;
             }
 
-            typename exprtk::type_store<T>::vector_view vector(results[0]);
+            typename math_expr::type_store<T>::vector_view vector(results[0]);
 
             if (vector.size() != vector_size)
             {
@@ -11998,7 +11998,7 @@ bool run_test21()
       {
          const std::string& expression_string = expressions[i];
 
-         exprtk::vector_view<T> x_view = exprtk::make_vector_view(vec1, vec1.size());
+         math_expr::vector_view<T> x_view = math_expr::make_vector_view(vec1, vec1.size());
 
          for (std::size_t vector_size = vec3.size() + 1; vector_size <= 10; ++vector_size)
          {
@@ -12038,7 +12038,7 @@ bool run_test21()
                continue;
             }
 
-            const exprtk::results_context<T>& results = expression.results();
+            const math_expr::results_context<T>& results = expression.results();
 
             if (results.count() != 1)
             {
@@ -12051,7 +12051,7 @@ bool run_test21()
                continue;
             }
 
-            if (results[0].type != exprtk::results_context<T>::type_store_t::e_vector)
+            if (results[0].type != math_expr::results_context<T>::type_store_t::e_vector)
             {
                printf("run_test21() - Error: expected vector type for return value for expression: %s\n",
                       expression_string.c_str());
@@ -12061,7 +12061,7 @@ bool run_test21()
                continue;
             }
 
-            typename exprtk::type_store<T>::vector_view vector(results[0]);
+            typename math_expr::type_store<T>::vector_view vector(results[0]);
 
             if (vector.size() != vec3.size())
             {
@@ -12100,10 +12100,10 @@ bool run_test21()
    return true;
 }
 
-struct assert_handler exprtk_test_final : public exprtk::assert_check
+struct assert_handler math_expr_test_final : public math_expr::assert_check
 {
    std::size_t assert_count;
-   void handle_assert(const assert_context& /*context*/) exprtk_test_override
+   void handle_assert(const assert_context& /*context*/) math_expr_test_override
    {
       ++assert_count;
    }
@@ -12112,9 +12112,9 @@ struct assert_handler exprtk_test_final : public exprtk::assert_check
 template <typename T>
 bool run_test22()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    bool result = true;
 
@@ -12144,7 +12144,7 @@ bool run_test22()
             result = false;
             continue;
          }
-         else if (!exprtk::expression_helper<T>::is_null(expression))
+         else if (!math_expr::expression_helper<T>::is_null(expression))
          {
             printf("run_test22() - Error: Expression is not null! expression: %s [1]\n",
                   expressions[i].c_str());
@@ -12182,7 +12182,7 @@ bool run_test22()
             result = false;
             continue;
          }
-         else if (!exprtk::expression_helper<T>::is_literal(expression))
+         else if (!math_expr::expression_helper<T>::is_literal(expression))
          {
             printf("run_test22() - Error: Expression is not constant! expression: %s [2]\n",
                    expressions[i].c_str());
@@ -12225,9 +12225,9 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
@@ -12235,7 +12235,7 @@ bool run_test22()
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [3]\n",
                    expressions[i].c_str());
@@ -12288,13 +12288,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_literal);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [4]\n",
                    expressions[i].c_str());
@@ -12347,13 +12347,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_literal);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [5]\n",
                    expressions[i].c_str());
@@ -12406,13 +12406,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_string);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [6]\n",
                    expressions[i].c_str());
@@ -12465,13 +12465,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_string);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [7]\n",
                    expressions[i].c_str());
@@ -12526,7 +12526,7 @@ bool run_test22()
             result = false;
             continue;
          }
-         else if (!exprtk::expression_helper<T>::is_null(expression))
+         else if (!math_expr::expression_helper<T>::is_null(expression))
          {
             printf("run_test22() - Error: Expression is not null! expression: %s [8]\n",
                   expressions[i].c_str());
@@ -12572,7 +12572,7 @@ bool run_test22()
             result = false;
             continue;
          }
-         else if (!exprtk::expression_helper<T>::is_literal(expression))
+         else if (!math_expr::expression_helper<T>::is_literal(expression))
          {
             printf("run_test22() - Error: Expression is not constant! expression: %s [9]\n",
                    expressions[i].c_str());
@@ -12623,9 +12623,9 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
@@ -12633,7 +12633,7 @@ bool run_test22()
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [10]\n",
                    expressions[i].c_str());
@@ -12694,13 +12694,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_literal);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [11]\n",
                    expressions[i].c_str());
@@ -12762,13 +12762,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_literal);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [12]\n",
                    expressions[i].c_str());
@@ -12829,13 +12829,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_string);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [13]\n",
                    expressions[i].c_str());
@@ -12896,13 +12896,13 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_string);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [14]\n",
                    expressions[i].c_str());
@@ -12955,9 +12955,9 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_assert );
@@ -12966,7 +12966,7 @@ bool run_test22()
          type_sequence.push_back(et_t::e_assert );
          type_sequence.push_back(et_t::e_literal);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [15]\n",
                    expressions[i].c_str());
@@ -13019,9 +13019,9 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
@@ -13030,7 +13030,7 @@ bool run_test22()
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_string);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [16]\n",
                    expressions[i].c_str());
@@ -13091,9 +13091,9 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
@@ -13102,7 +13102,7 @@ bool run_test22()
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_sf3ext);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [17]\n",
                    expressions[i].c_str());
@@ -13163,9 +13163,9 @@ bool run_test22()
             continue;
          }
 
-         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+         std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-         typedef typename exprtk::expression_helper<T> et_t;
+         typedef typename math_expr::expression_helper<T> et_t;
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_assert);
@@ -13174,7 +13174,7 @@ bool run_test22()
          type_sequence.push_back(et_t::e_assert);
          type_sequence.push_back(et_t::e_string);
 
-         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         if (!math_expr::expression_helper<T>::match_type_sequence(expression,type_sequence))
          {
             printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [18]\n",
                    expressions[i].c_str());
@@ -13388,7 +13388,7 @@ int main(int argc, char*argv[])
            test_set.find(test_name) != std::string::npos                          \
          )                                                                        \
       {                                                                           \
-         exprtk::timer timer;                                                     \
+         math_expr::timer timer;                                                     \
          timer.start();                                                           \
          if (!run_test##Number<Type>())                                           \
          {                                                                        \

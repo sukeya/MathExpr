@@ -2,7 +2,7 @@
  **************************************************************
  *         C++ Mathematical Expression Toolkit Library        *
  *                                                            *
- * ExprTk vs Native Benchmarks                                *
+ * MathExpr vs Native Benchmarks                              *
  * Author: Arash Partow (1999-2025)                           *
  * URL: https://www.partow.net/programming/exprtk/index.html  *
  *                                                            *
@@ -59,14 +59,14 @@ static const double global_delta         = 0.0111;
 template <typename T,
           typename Allocator,
           template <typename,typename> class Sequence>
-bool load_expression(exprtk::symbol_table<T>& symbol_table,
-                     Sequence<exprtk::expression<T>,Allocator>& expr_seq)
+bool load_expression(math_expr::symbol_table<T>& symbol_table,
+                     Sequence<math_expr::expression<T>,Allocator>& expr_seq)
 {
-   exprtk::parser<double> parser;
+   math_expr::parser<double> parser;
 
    for (std::size_t i = 0; i < global_expression_list_size; ++i)
    {
-      exprtk::expression<double> expression;
+      math_expr::expression<double> expression;
       expression.register_symbol_table(symbol_table);
 
       if (!parser.compile(global_expression_list[i],expression))
@@ -85,14 +85,14 @@ bool load_expression(exprtk::symbol_table<T>& symbol_table,
 }
 
 template <typename T>
-void run_exprtk_benchmark(T& x, T& y,
-                          exprtk::expression<T>& expression,
+void run_math_expr_benchmark(T& x, T& y,
+                          math_expr::expression<T>& expression,
                           const std::string& expr_string)
 {
    T total = T(0);
    unsigned int count = 0;
 
-   exprtk::timer timer;
+   math_expr::timer timer;
    timer.start();
 
    for (x = global_lower_bound_x; x <= global_upper_bound_x; x += global_delta)
@@ -107,12 +107,12 @@ void run_exprtk_benchmark(T& x, T& y,
    timer.stop();
 
    if (T(0) != total)
-      printf("[exprtk] Total Time:%12.8f  Rate:%14.3fevals/sec Expression: %s\n",
+      printf("[math_expr] Total Time:%12.8f  Rate:%14.3fevals/sec Expression: %s\n",
              timer.time(),
              count / timer.time(),
              expr_string.c_str());
    else
-      printf("run_exprtk_benchmark() - Error running benchmark for expression: %s\n",expr_string.c_str());
+      printf("run_math_expr_benchmark() - Error running benchmark for expression: %s\n",expr_string.c_str());
 }
 
 template <typename T> struct native;
@@ -123,7 +123,7 @@ void run_native_benchmark(T& x, T& y, NativeFunction f, const std::string& expr_
    T total = T(0);
    unsigned int count = 0;
 
-   exprtk::timer timer;
+   math_expr::timer timer;
    timer.start();
 
    for (x = global_lower_bound_x; x <= global_upper_bound_x; x += global_delta)
@@ -147,17 +147,17 @@ void run_native_benchmark(T& x, T& y, NativeFunction f, const std::string& expr_
 }
 
 template <typename T>
-bool run_parse_benchmark(exprtk::symbol_table<T>& symbol_table)
+bool run_parse_benchmark(math_expr::symbol_table<T>& symbol_table)
 {
    static const std::size_t rounds = 100000;
-   exprtk::parser<double>     parser;
-   exprtk::expression<double> expression;
+   math_expr::parser<double>     parser;
+   math_expr::expression<double> expression;
 
    expression.register_symbol_table(symbol_table);
 
    for (std::size_t i = 0; i < global_expression_list_size; ++i)
    {
-      exprtk::timer timer;
+      math_expr::timer timer;
       timer.start();
 
       for (std::size_t r = 0; r < rounds; ++r)
@@ -188,7 +188,7 @@ const double pi = 3.141592653589793238462643383279502;
 template <typename T>
 struct native
 {
-   typedef typename exprtk::details::functor_t<T> functor_t;
+   typedef typename math_expr::details::functor_t<T> functor_t;
    typedef typename functor_t::Type Type;
 
    static inline T avg(Type x, Type y)
@@ -310,12 +310,12 @@ int main(int argc, char* argv[])
    double x = 0;
    double y = 0;
 
-   exprtk::symbol_table<double> symbol_table;
+   math_expr::symbol_table<double> symbol_table;
    symbol_table.add_constants();
    symbol_table.add_variable("x",x);
    symbol_table.add_variable("y",y);
 
-   std::deque<exprtk::expression<double> > compiled_expr_list;
+   std::deque<math_expr::expression<double> > compiled_expr_list;
 
    if (!load_expression(symbol_table,compiled_expr_list))
    {
@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
       printf("--- EXPRTK ---\n");
       for (std::size_t i = 0; i < compiled_expr_list.size(); ++i)
       {
-         run_exprtk_benchmark(x,y,compiled_expr_list[i],global_expression_list[i]);
+         run_math_expr_benchmark(x,y,compiled_expr_list[i],global_expression_list[i]);
       }
    }
 
@@ -428,9 +428,9 @@ void perform_file_based_benchmark(const std::string& file_name, const std::size_
       return;
    }
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
 
    std::deque<expression_t> expression_list;
 
@@ -444,7 +444,7 @@ void perform_file_based_benchmark(const std::string& file_name, const std::size_
    double z = 4.123456;
    double w = 5.123456;
 
-   exprtk::rtl::vecops::package<double> vector_package;
+   math_expr::rtl::vecops::package<double> vector_package;
 
    symbol_table.add_variable("a", a);
    symbol_table.add_variable("b", b);
@@ -455,18 +455,18 @@ void perform_file_based_benchmark(const std::string& file_name, const std::size_
    symbol_table.add_variable("z", z);
    symbol_table.add_variable("w", w);
 
-   exprtk::polynomial<double, 1> poly01;
-   exprtk::polynomial<double, 2> poly02;
-   exprtk::polynomial<double, 3> poly03;
-   exprtk::polynomial<double, 4> poly04;
-   exprtk::polynomial<double, 5> poly05;
-   exprtk::polynomial<double, 6> poly06;
-   exprtk::polynomial<double, 7> poly07;
-   exprtk::polynomial<double, 8> poly08;
-   exprtk::polynomial<double, 9> poly09;
-   exprtk::polynomial<double,10> poly10;
-   exprtk::polynomial<double,11> poly11;
-   exprtk::polynomial<double,12> poly12;
+   math_expr::polynomial<double, 1> poly01;
+   math_expr::polynomial<double, 2> poly02;
+   math_expr::polynomial<double, 3> poly03;
+   math_expr::polynomial<double, 4> poly04;
+   math_expr::polynomial<double, 5> poly05;
+   math_expr::polynomial<double, 6> poly06;
+   math_expr::polynomial<double, 7> poly07;
+   math_expr::polynomial<double, 8> poly08;
+   math_expr::polynomial<double, 9> poly09;
+   math_expr::polynomial<double,10> poly10;
+   math_expr::polynomial<double,11> poly11;
+   math_expr::polynomial<double,12> poly12;
 
    symbol_table.add_function("poly01", poly01);
    symbol_table.add_function("poly02", poly02);
@@ -484,7 +484,7 @@ void perform_file_based_benchmark(const std::string& file_name, const std::size_
    symbol_table.add_package(vector_package);
 
 
-   static double e = exprtk::details::numeric::constant::e;
+   static double e = math_expr::details::numeric::constant::e;
    symbol_table.add_variable("e", e, true);
 
    symbol_table.add_constants();
@@ -510,8 +510,8 @@ void perform_file_based_benchmark(const std::string& file_name, const std::size_
       }
    }
 
-   exprtk::timer total_timer;
-   exprtk::timer timer;
+   math_expr::timer total_timer;
+   math_expr::timer timer;
 
    double single_eval_total_time = 0.0;
 

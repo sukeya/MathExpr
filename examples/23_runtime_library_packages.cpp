@@ -26,10 +26,10 @@
 template <typename T>
 void real_1d_discrete_fourier_transform()
 {
-   typedef exprtk::symbol_table<T>         symbol_table_t;
-   typedef exprtk::expression<T>           expression_t;
-   typedef exprtk::parser<T>               parser_t;
-   typedef exprtk::function_compositor<T>  compositor_t;
+   typedef math_expr::symbol_table<T>         symbol_table_t;
+   typedef math_expr::expression<T>           expression_t;
+   typedef math_expr::parser<T>               parser_t;
+   typedef math_expr::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
    const T sampling_rate = 1024.0;            // ~1KHz
@@ -38,7 +38,7 @@ void real_1d_discrete_fourier_transform()
    std::vector<T> input (static_cast<std::size_t>(N),0.0);
    std::vector<T> output(static_cast<std::size_t>(N),0.0);
 
-   exprtk::rtl::io::println<T> println;
+   math_expr::rtl::io::println<T> println;
 
    symbol_table_t symbol_table;
    symbol_table.add_vector   ("input"        , input        );

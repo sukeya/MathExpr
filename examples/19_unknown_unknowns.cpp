@@ -26,19 +26,19 @@
 
 
 template <typename T>
-class randu : public exprtk::igeneric_function<T>
+class randu : public math_expr::igeneric_function<T>
 {
 public:
 
-   typedef typename exprtk::igeneric_function<T> igfun_t;
+   typedef typename math_expr::igeneric_function<T> igfun_t;
    typedef typename igfun_t::parameter_list_t    parameter_list_t;
    typedef typename igfun_t::generic_type        generic_type;
    typedef typename generic_type::vector_view    vector_t;
 
-   using exprtk::igeneric_function<T>::operator();
+   using math_expr::igeneric_function<T>::operator();
 
    randu()
-   : exprtk::igeneric_function<T>("V|VTT")
+   : math_expr::igeneric_function<T>("V|VTT")
      /*
         Overloads:
         0. V   - vector
@@ -53,7 +53,7 @@ public:
       std::size_t r0 = 0;
       std::size_t r1 = v.size() - 1;
 
-      using namespace exprtk::rtl::vecops::helper;
+      using namespace math_expr::rtl::vecops::helper;
 
       if (
            (1 == ps_index) &&
@@ -82,9 +82,9 @@ private:
 template <typename T>
 void vector_randu()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string vecrandu_program =
       " var noise[6] := [0];                          "
@@ -107,7 +107,7 @@ void vector_randu()
 
    T signal[] = { T(1.1), T(2.2), T(3.3), T(4.4), T(5.5), T(6.6), T(7.7) };
 
-   exprtk::rtl::io::println<T> println;
+   math_expr::rtl::io::println<T> println;
    randu<T>                    randu;
 
    symbol_table_t symbol_table;

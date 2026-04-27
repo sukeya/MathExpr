@@ -25,7 +25,7 @@
 #include "math_expr.hpp"
 
 
-struct vector_access_rtc : public exprtk::vector_access_runtime_check
+struct vector_access_rtc : public math_expr::vector_access_runtime_check
 {
    typedef std::map<void*, std::string> map_t;
    map_t vector_map;
@@ -54,9 +54,9 @@ struct vector_access_rtc : public exprtk::vector_access_runtime_check
 template <typename T>
 void vector_overflow_example()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_str =
       " for (var i := 0; i < max(v0[],v1[]); i += 1) "

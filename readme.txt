@@ -691,9 +691,9 @@ There are three primary components, that are specialised upon a  given
 numeric type, which make up the core of ExprTk. The components are  as
 follows:
 
-   (1) Symbol Table  exprtk::symbol_table<NumericType>
-   (2) Expression    exprtk::expression<NumericType>
-   (3) Parser        exprtk::parser<NumericType>
+   (1) Symbol Table  math_expr::symbol_table<NumericType>
+   (2) Expression    math_expr::expression<NumericType>
+   (3) Parser        math_expr::parser<NumericType>
 
 
 (1) Symbol Table
@@ -726,9 +726,9 @@ symbol_table and expression. Note  the variables are modified  as they
 normally would in a program, and when the expression is  evaluated the
 current values assigned to the variables shall be used.
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
 
    double x = 0;
    double y = 0;
@@ -777,8 +777,8 @@ references to  variables can  be added  to the  symbol_table, and  how
 those  references are  subsequently invalidated  resulting in  various
 forms of undefined behaviour.
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
 
    symbol_table_t symbol_table;
    expression_t   expression;
@@ -824,8 +824,8 @@ A compiled expression that references variables from a symbol_table is
 said to be dependent on  that symbol_table instance and the  variables
 it holds being valid.
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
 
    symbol_table_t symbol_table;
    expression_t   expression;
@@ -879,8 +879,8 @@ above  example  violates  the requirement  that  the  lifetime of  any
 objects referenced by  expressions should exceed  the lifetime of  the
 expression instance.
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
 
    symbol_table_t symbol_table;
    expression_t   expression;
@@ -918,9 +918,9 @@ registration  of  the  symbol_tables to  the  expression.  For a  more
 expansive discussion please review section [17 - Hierarchies Of Symbol
 Tables]
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
 
    symbol_table_t symbol_table0;
    symbol_table_t symbol_table1;
@@ -964,7 +964,7 @@ can be any one of the following:
    1. std::vector<scalar_t>
    2. scalar_t(&v)[N]
    3. scalar_t* and array size
-   4. exprtk::vector_view<scalar_t>
+   4. math_expr::vector_view<scalar_t>
 
 
 When  registering  a variable,  vector,  string or  function  with  an
@@ -1178,7 +1178,7 @@ error status code,  with a more  detailed description of  the error(s)
 and  its  location  within  the  input  provided  by  the  'get_error'
 interface.
 
-Note06: The exprtk::expression and exprtk::symbol_table components are
+Note06: The math_expr::expression and math_expr::symbol_table components are
 reference counted entities. Copy constructing or assigning to or  from
 either component will result in  a shallow copy and a  reference count
 increment,  rather  than  a  complete  replication.  Furthermore   the
@@ -1194,8 +1194,8 @@ including  which  control  block each  expression references and their
 associated reference counts.
 
 
-    exprtk::expression e0; // constructed expression, eg: x + 1
-    exprtk::expression e1; // constructed expression, eg: 2z + y
+    math_expr::expression e0; // constructed expression, eg: x + 1
+    math_expr::expression e1; // constructed expression, eg: 2z + y
 
   +-----[ e0 cntrl block]----+     +-----[ e1 cntrl block]-----+
   | 1. Expression Node 'x+1' |     | 1. Expression Node '2z+y' |
@@ -1235,7 +1235,7 @@ The prescribed method for cloning an expression is to compile it  from
 its string  form. Doing so will allow the 'user' to  properly consider
 the exact source of user defined variables and functions.
 
-Note07: The exprtk::parser  is  a  non-copyable  and  non-thread  safe
+Note07: The math_expr::parser  is  a  non-copyable  and  non-thread  safe
 component, and should only be shared via either a reference, a  shared
 pointer  or  a  std::ref  mechanism,  and  considerations  relating to
 synchronisation  taken  into  account  where  appropriate.  The parser
@@ -1245,16 +1245,16 @@ compilation basis.
 
 The  following  diagram  and  example depicts  the  flow  of  data and
 operations  for  compiling  multiple expressions  via  the  parser and
-inserting  the  newly  minted  exprtk::expression  instances  into   a
+inserting  the  newly  minted  math_expr::expression  instances  into   a
 std::vector.
 
-                      +----[exprtk::parser]---+
+                      +----[math_expr::parser]---+
                       |   Expression Factory  |
                       | parser_t::compile(...)|
                     +--> ~.~.~.~.~.~.~.~.~.~ ->--+
                     | +-----------------------+  |
  Expressions in     |                            |  Expressions as
- string form        ^                            V  exprtk::expression
+ string form        ^                            V  math_expr::expression
                     |                            |  instances
  [s0:'x+1']--->--+  |                            |  +-[e0: x+1]
                  |  |                            |  |
@@ -1296,12 +1296,12 @@ std::vector.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [SECTION 11 - COMPILATION OPTIONS]
-The exprtk::parser  when being  instantiated takes  as input  a set of
+The math_expr::parser  when being  instantiated takes  as input  a set of
 options  to be  used during  the compilation  process of  expressions.
-An  example instantiation  of exprtk::parser  where only  the  joiner,
+An  example instantiation  of math_expr::parser  where only  the  joiner,
 commutative and strength reduction options are enabled is as  follows:
 
-   typedef exprtk::parser<NumericType>::settings_t settings_t;
+   typedef math_expr::parser<NumericType>::settings_t settings_t;
 
    const std::size_t compile_options =
                         settings_t::e_joiner            +
@@ -1481,8 +1481,8 @@ The maximum number of bytes an expression's locally defined  variables
 may use can  be set via  the parser settings  prior to compilation  as
 follows:
 
-   using expression_t = exprtk::expression<double>;
-   using parser_t     = exprtk::parser<double>;
+   using expression_t = math_expr::expression<double>;
+   using parser_t     = math_expr::parser<double>;
 
    expression_t expression;
    parser_t     parser;
@@ -2168,13 +2168,13 @@ inefficient.
 
 
 A  solution  to  the  above  'efficiency'  problem,  is  to  use   the
-exprtk::vector_view  object. The  vector_view is  instantiated with  a
+math_expr::vector_view  object. The  vector_view is  instantiated with  a
 size and backing based upon a vector. Upon evaluations if the  backing
 needs  to  be  'updated' to  either another  vector or  sub-range, the
 vector_view instance  can be  efficiently rebased,  and the expression
 evaluated as normal.
 
-   exprtk::vector_view<T> view = exprtk::make_vector_view(v,v.size());
+   math_expr::vector_view<T> view = math_expr::make_vector_view(v,v.size());
 
    symbol_table_t symbol_table;
    symbol_table.add_vector("v",view);
@@ -2190,12 +2190,12 @@ evaluated as normal.
    }
 
 
-Another useful feature of exprtk::vector_view is that all such vectors
+Another useful feature of math_expr::vector_view is that all such vectors
 can have  their sizes  modified (or  "resized"). The  resizing of  the
 associated vectors can happen either between or during evaluations.
 
    std::vector<T> v = { 1, 2, 3, 4, 5, 6, 7, 8 };
-   exprtk::vector_view<T> view = exprtk::make_vector_view(v,v.size());
+   math_expr::vector_view<T> view = math_expr::make_vector_view(v,v.size());
 
    symbol_table_t symbol_table;
    symbol_table.add_vector("v",view);
@@ -2272,9 +2272,9 @@ expects  to  handle.  The  following  example  defines  a  3 parameter
 function called 'foo':
 
    template <typename T>
-   struct foo final : public exprtk::ifunction<T>
+   struct foo final : public math_expr::ifunction<T>
    {
-      foo() : exprtk::ifunction<T>(3)
+      foo() : math_expr::ifunction<T>(3)
       {}
 
       T operator()(const T& v1, const T& v2, const T& v3) override
@@ -2291,7 +2291,7 @@ specialised upon type T to facilitate parameter passing. The following
 example defines a vararg function called 'boo':
 
    template <typename T>
-   struct boo final : public exprtk::ivararg_function<T>
+   struct boo final : public math_expr::ivararg_function<T>
    {
       inline T operator()(const std::vector<T>& arglist) override
       {
@@ -2330,9 +2330,9 @@ will  persist after  the function  call has  completed. The  following
 example defines a generic function called 'too':
 
    template <typename T>
-   struct too final : public exprtk::igeneric_function<T>
+   struct too final : public math_expr::igeneric_function<T>
    {
-      typedef typename exprtk::igeneric_function<T>::parameter_list_t
+      typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                      parameter_list_t;
 
       too()
@@ -2371,7 +2371,7 @@ A typical loop for processing the parameters is as follows:
 
    inline T operator()(parameter_list_t parameters)
    {
-      typedef typename exprtk::igeneric_function<T>::generic_type
+      typedef typename math_expr::igeneric_function<T>::generic_type
                                                      generic_type;
 
       typedef typename generic_type::scalar_view scalar_t;
@@ -2441,13 +2441,13 @@ The  following   example  demonstrates   a  simple   generic  function
 implementation with a user specified parameter sequence:
 
    template <typename T>
-   struct moo final : public exprtk::igeneric_function<T>
+   struct moo final : public math_expr::igeneric_function<T>
    {
-      typedef typename exprtk::igeneric_function<T>::parameter_list_t
+      typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                      parameter_list_t;
 
       moo()
-      : exprtk::igeneric_function<T>("SVTT")
+      : math_expr::igeneric_function<T>("SVTT")
       {}
 
       inline T operator()(parameter_list_t parameters) override
@@ -2487,15 +2487,15 @@ The following example defines a generic function  named 'toupper' with
 the string return type function operator being explicitly overridden:
 
    template <typename T>
-   struct toupper final : public exprtk::igeneric_function<T>
+   struct toupper final : public math_expr::igeneric_function<T>
    {
-      typedef exprtk::igeneric_function<T> igenfunct_t;
+      typedef math_expr::igeneric_function<T> igenfunct_t;
       typedef typename igenfunct_t::generic_type generic_t;
       typedef typename igenfunct_t::parameter_list_t parameter_list_t;
       typedef typename generic_t::string_view string_t;
 
       toupper()
-      : exprtk::igeneric_function<T>("S",igenfunct_t::e_rtrn_string)
+      : math_expr::igeneric_function<T>("S",igenfunct_t::e_rtrn_string)
       {}
 
       inline T operator()(std::string& result,
@@ -2535,7 +2535,7 @@ demonstrates how this can be done:
 
    toupper<T> tu;
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
 
    symbol_table.add_function("toupper",tu);
 
@@ -2548,13 +2548,13 @@ operator is  associated with  the previous  type in  the sequence  and
 implies one or more of that type.
 
    template <typename T>
-   struct zoo final : public exprtk::igeneric_function<T>
+   struct zoo final : public math_expr::igeneric_function<T>
    {
-      typedef typename exprtk::igeneric_function<T>::parameter_list_t
+      typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                      parameter_list_t;
 
       zoo()
-      : exprtk::igeneric_function<T>("SVT*V?")
+      : math_expr::igeneric_function<T>("SVT*V?")
       {}
 
       inline T operator()(parameter_list_t parameters) override
@@ -2607,13 +2607,13 @@ simple and efficient  dispatch to a  specific implementation for  that
 particular parameter sequence can be performed.
 
    template <typename T>
-   struct roo final : public exprtk::igeneric_function<T>
+   struct roo final : public math_expr::igeneric_function<T>
    {
-      typedef typename exprtk::igeneric_function<T>::parameter_list_t
+      typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                      parameter_list_t;
 
       roo()
-      : exprtk::igeneric_function<T>("SVTT|SS|TTV|S?V*S")
+      : math_expr::igeneric_function<T>("SVTT|SS|TTV|S?V*S")
       {}
 
       inline T operator()(const std::size_t& ps_index,
@@ -2645,13 +2645,13 @@ depending on the input parameter  sequence with which the function  is
 invoked.
 
    template <typename T>
-   struct foo final : public exprtk::igeneric_function<T>
+   struct foo final : public math_expr::igeneric_function<T>
    {
-      typedef typename exprtk::igeneric_function<T>::parameter_list_t
+      typedef typename math_expr::igeneric_function<T>::parameter_list_t
                                                      parameter_list_t;
 
       foo()
-      : exprtk::igeneric_function<T>
+      : math_expr::igeneric_function<T>
         (
           "T:T|S:TS",
           igfun_t::e_rtrn_overload
@@ -2704,8 +2704,8 @@ forwarding  that  occurs during  construction.  The following  example
 defines,  by using  two different  methods, composited  functions and
 implicitly registering the functions with the denoted symbol table.
 
-   typedef exprtk::symbol_table<T>         symbol_table_t;
-   typedef exprtk::function_compositor<T>  compositor_t;
+   typedef math_expr::symbol_table<T>         symbol_table_t;
+   typedef math_expr::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
    T avogadro = T(6.022e23);
@@ -2787,10 +2787,10 @@ expression, an instance of each function needs to be registered with a
 symbol_table that  has been  associated with  the expression instance.
 The following demonstrates how all the pieces are put together:
 
-   typedef exprtk::symbol_table<double>        symbol_table_t;
-   typedef exprtk::expression<double>          expression_t;
-   typedef exprtk::parser<double>              parser_t;
-   typedef exprtk::function_compositor<double> compositor_t;
+   typedef math_expr::symbol_table<double>        symbol_table_t;
+   typedef math_expr::expression<double>          expression_t;
+   typedef math_expr::parser<double>              parser_t;
+   typedef math_expr::function_compositor<double> compositor_t;
    typedef typename compositor_t::function     function_t;
 
    foo<double> f;
@@ -2845,11 +2845,11 @@ then during the construction of the function the side-effect trait  of
 the function can be disabled.
 
    template <typename T>
-   struct foo final : public exprtk::ifunction<T>
+   struct foo final : public math_expr::ifunction<T>
    {
-      foo() : exprtk::ifunction<T>(3)
+      foo() : math_expr::ifunction<T>(3)
       {
-         exprtk::disable_has_side_effects(*this);
+         math_expr::disable_has_side_effects(*this);
       }
 
       T operator()(const T& v1, const T& v2, const T& v3) override
@@ -2873,11 +2873,11 @@ it, a process similar to that of  enabling of the side-effect trait is
 carried out:
 
    template <typename T>
-   struct foo final : public exprtk::ivararg_function<T>
+   struct foo final : public math_expr::ivararg_function<T>
    {
       foo()
       {
-         exprtk::enable_zero_parameters(*this);
+         math_expr::enable_zero_parameters(*this);
       }
 
       inline T operator()(const std::vector<T>& arglist) override
@@ -2919,7 +2919,7 @@ registered with the given symbol_table instance:
    .
    .
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
 
    symbol_table_t symbol_table;
 
@@ -3205,8 +3205,8 @@ hierarchy  of  symbol  tables  are instantiated  and  initialised. An
 expression that makes use of various elements of each symbol table is
 then compiled and later on evaluated:
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
 
    // Setup global constants symbol table
    symbol_table_t glbl_const_symbol_table;
@@ -3366,9 +3366,9 @@ example  will  initially  look  at  solving  the  problem  of  unknown
 variables with the  latter method using  the 'unknown_symbol_resolver'
 component.
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    T x = T(123.456);
    T y = T(789.123);
@@ -3442,9 +3442,9 @@ an encountered unknown symbol should be treated as a variable or if it
 should raise a compilation error. The following example demonstrates a
 simple user defined USR:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    template <typename T>
    struct my_usr final : public parser_t::unknown_symbol_resolver
@@ -3909,22 +3909,22 @@ definition process.  In the  following example  the 'sin'  function is
 disabled then redefined as a function taking degree input.
 
    template <typename T>
-   struct sine_deg final : public exprtk::ifunction<T>
+   struct sine_deg final : public math_expr::ifunction<T>
    {
-      sine_deg() : exprtk::ifunction<T>(1) {}
+      sine_deg() : math_expr::ifunction<T>(1) {}
 
       inline T operator()(const T& v) override
       {
-         const T pi = exprtk::details::numeric::constant::pi;
+         const T pi = math_expr::details::numeric::constant::pi;
          return std::sin((v * T(pi)) / T(180));
       }
    };
 
     ...
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    typedef typename parser_t::settings_store settings_t;
 
@@ -3975,9 +3975,9 @@ expression will return normally.
       "    x + y;                                    "
       " return [x, y, x + y, x - y, 'return-call 3'] ";
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
 
    symbol_table_t symbol_table;
    expression_t   expression;
@@ -3997,7 +3997,7 @@ expression will return normally.
 
    if (expression.return_invoked())
    {
-      typedef exprtk::results_context<T> results_context_t;
+      typedef math_expr::results_context<T> results_context_t;
       typedef typename results_context_t::type_store_t type_t;
       typedef typename type_t::scalar_view scalar_t;
       typedef typename type_t::vector_view vector_t;
@@ -4038,9 +4038,9 @@ generic function call parameters.
 The results_context provides getter  methods for each of  the possible
 return types (scalar, vector and string) and can be used as follows:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_str =
       " if (x > y)                                  "
@@ -4062,7 +4062,7 @@ return types (scalar, vector and string) and can be used as follows:
 
    expression.value();
 
-   typedef exprtk::results_context<T> results_context_t;
+   typedef math_expr::results_context<T> results_context_t;
    const results_context_t& results = expression.results();
 
    if (results.count() == 4)
@@ -4089,9 +4089,9 @@ with an associated symbol_table  instance. Then within the  expression
 itself  to  have  the result  variables  be  assigned the  appropriate
 values.
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
 
    const std::string expression_string =
       " var x := 123.456;     "
@@ -4130,9 +4130,9 @@ where not all the paths will be return-statement based. The  following
 example builds upon the previous examples, but this time at least  one
 path is not return based.
 
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
 
    double x = 100.0;
    double y = 200.0;
@@ -4213,21 +4213,21 @@ A parser_error object will contain an error diagnostic, an error  mode
 string. The following example demonstrates the enumeration of error(s)
 in the event of a failed compilation.
 
-   typedef exprtk::parser<T>          parser_t;
-   typedef exprtk::parser_error::type error_t;
+   typedef math_expr::parser<T>          parser_t;
+   typedef math_expr::parser_error::type error_t;
 
    if (!parser.compile(expression_string,expression))
    {
       for (std::size_t i = 0; i < parser.error_count(); ++i)
       {
-         typedef exprtk::parser_error::type error_t;
+         typedef math_expr::parser_error::type error_t;
 
          error_t error = parser.get_error(i);
 
          printf("Error[%02d] Position: %02d Type: [%14s] Msg: %s\n",
                 i,
                 error.token.position,
-                exprtk::parser_error::to_str(error.mode).c_str(),
+                math_expr::parser_error::to_str(error.mode).c_str(),
                 error.diagnostic.c_str());
       }
 
@@ -4253,11 +4253,11 @@ demonstrated by the following example:
    {
       for (std::size_t i = 0; i < parser.error_count(); ++i)
       {
-         typedef exprtk::parser_error::type error_t;
+         typedef math_expr::parser_error::type error_t;
 
          error_t error = parser.get_error(i);
 
-         exprtk::parser_error::update_error(error,program_str);
+         math_expr::parser_error::update_error(error,program_str);
 
          printf("Error[%0lu] at line: %lu column: %lu\n",
                 i,
@@ -4314,7 +4314,7 @@ similar to how it is  done via the parser. The  following demonstrates
 how after a failed function  composition the associated errors can  be
 enumerated.
 
-   typedef exprtk::function_compositor<T>  compositor_t;
+   typedef math_expr::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
    compositor_t compositor;
@@ -4332,14 +4332,14 @@ enumerated.
 
       for (std::size_t i = 1; i < compositor.error_count(); ++i)
       {
-         typedef exprtk::parser_error::type error_t;
+         typedef math_expr::parser_error::type error_t;
 
          error_t error = compositor.get_error(i);
 
          printf("Err No.: %02d  Pos: %02d  Type: [%14s] Msg: %s\n",
                 static_cast<unsigned int>(i),
                 static_cast<unsigned int>(error.token.position),
-                exprtk::parser_error::to_str(error.mode).c_str(),
+                math_expr::parser_error::to_str(error.mode).c_str(),
                 error.diagnostic.c_str());
       }
    }
@@ -4355,9 +4355,9 @@ are:
   +---+--------------------+-----------------------------------+
   | # |    Package Name    |          Namespace/Type           |
   +---+--------------------+-----------------------------------+
-  | 1 | Basic I/O          | exprtk::rtl::io::package<T>       |
-  | 2 | File I/O           | exprtk::rtl::io::file::package<T> |
-  | 3 | Vector Operations  | exprtk::rtl::vecops::package<T>   |
+  | 1 | Basic I/O          | math_expr::rtl::io::package<T>       |
+  | 2 | File I/O           | math_expr::rtl::io::file::package<T> |
+  | 3 | Vector Operations  | math_expr::rtl::vecops::package<T>   |
   +---+--------------------+-----------------------------------+
 
 
@@ -4366,11 +4366,11 @@ an  expression,  an instance  of  the package  must  be added  to  the
 expression's associated  symbol table.  In the  following example, the
 file I/O package is made available for the given expression:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
-   exprtk::rtl::io::file::package<T> fileio_package;
+   math_expr::rtl::io::file::package<T> fileio_package;
 
    const std::string expression_string =
       " var file_name := 'file.txt';       "
@@ -4453,7 +4453,7 @@ follows:
 
    std::vector<std::string> variable_list;
 
-   if (exprtk::collect_variables(expression, variable_list))
+   if (math_expr::collect_variables(expression, variable_list))
    {
       for (const auto& var : variable_list)
       {
@@ -4477,7 +4477,7 @@ follows:
 
    std::deque<std::string> function_list;
 
-   if (exprtk::collect_functions(expression, function_list))
+   if (math_expr::collect_functions(expression, function_list))
    {
       for (const auto& func : function_list)
       {
@@ -4504,7 +4504,7 @@ either routine, and  will be incorporated  during the compilation  and
 Dependent Entity  Collection processes.  In the  following example,  a
 user  defined  free  function   named  'foo'  is  registered   with  a
 symbol_table.  Finally  the   symbol_table  instance  and   associated
-expression string are passed to the exprtk::collect_functions routine.
+expression string are passed to the math_expr::collect_functions routine.
 
    template <typename T>
    T foo(T v)
@@ -4514,7 +4514,7 @@ expression string are passed to the exprtk::collect_functions routine.
 
    ......
 
-   exprtk::symbol_table<T> sym_tab;
+   math_expr::symbol_table<T> sym_tab;
 
    symbol_table.add_function("foo",foo);
 
@@ -4522,7 +4522,7 @@ expression string are passed to the exprtk::collect_functions routine.
 
    std::deque<std::string> function_list;
 
-   if (exprtk::collect_functions(expression, sym_tab, function_list))
+   if (math_expr::collect_functions(expression, sym_tab, function_list))
    {
       for (const auto& func : function_list)
       {
@@ -4554,7 +4554,7 @@ are as follows:
    // No variables overload
    const std::string no_vars = "abs(1 - (3 / pi)) * 5";
 
-   if (!exprtk::compute(no_vars,result))
+   if (!math_expr::compute(no_vars,result))
       printf("Failed to compute: %s",no_vars.c_str());
    else
       printf("Result: %15.5f\n",result);
@@ -4564,7 +4564,7 @@ are as follows:
 
    const std::string one_var = "abs(x - (3 / pi)) * 5";
 
-   if (!exprtk::compute(one_var, x, result))
+   if (!math_expr::compute(one_var, x, result))
       printf("Failed to compute: %s",one_var.c_str());
    else
       printf("Result: %15.5f\n",result);
@@ -4574,7 +4574,7 @@ are as follows:
 
    const std::string two_var = "abs(x - (y / pi)) * 5";
 
-   if (!exprtk::compute(two_var, x, y, result))
+   if (!math_expr::compute(two_var, x, y, result))
       printf("Failed to compute: %s",two_var.c_str());
    else
       printf("Result: %15.5f\n",result);
@@ -4584,7 +4584,7 @@ are as follows:
 
    const std::string three_var = "abs(x - (y / pi)) * z";
 
-   if (!exprtk::compute(three_var, x, y, z, result))
+   if (!math_expr::compute(three_var, x, y, z, result))
       printf("Failed to compute: %s",three_var.c_str());
    else
       printf("Result: %15.5f\n",result);
@@ -4598,9 +4598,9 @@ Simpson's rule. The  integrate function has  two overloads, where  the
 variable of integration can  either be passed as  a reference or as  a
 name in string form. Example usage of the function is as follows:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_string = "sqrt(1 - (x^2))";
 
@@ -4618,10 +4618,10 @@ name in string form. Example usage of the function is as follows:
    ....
 
    // Integrate in domain [-1,1] using a reference to x variable
-   T area1 = exprtk::integrate(expression, x, T(-1), T(1));
+   T area1 = math_expr::integrate(expression, x, T(-1), T(1));
 
    // Integrate in domain [-1,1] using name of x variable
-   T area2 = exprtk::integrate(expression, "x", T(-1), T(1));
+   T area2 = math_expr::integrate(expression, "x", T(-1), T(1));
 
 
 (e) derivative
@@ -4633,9 +4633,9 @@ where  the  variable of  differentiation  can either  be  passed as  a
 reference or as a name in string form. Example usage of the derivative
 function is as follows:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_string = "sqrt(1 - (x^2))";
 
@@ -4655,12 +4655,12 @@ function is as follows:
    // Differentiate expression at value of x = 12.3 using a reference
    // to the x variable
    x = T(12.3);
-   T derivative1 = exprtk::derivative(expression, x);
+   T derivative1 = math_expr::derivative(expression, x);
 
    // Differentiate expression where value x = 45.6 using name
    // of the x variable
    x = T(45.6);
-   T derivative2 = exprtk::derivative(expression, "x");
+   T derivative2 = math_expr::derivative(expression, "x");
 
 
 (f) second_derivative
@@ -4672,9 +4672,9 @@ variable of differentiation can either be passed as a reference or  as
 a name in string form. Example usage of the second_derivative function
 is as follows:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_string = "sqrt(1 - (x^2))";
 
@@ -4694,12 +4694,12 @@ is as follows:
    // Second derivative of expression where value of x = 12.3 using a
    // reference to x variable
    x = T(12.3);
-   T derivative1 = exprtk::second_derivative(expression,x);
+   T derivative1 = math_expr::second_derivative(expression,x);
 
    // Second derivative of expression where value of x = 45.6 using
    // name of x variable
    x = T(45.6);
-   T derivative2 = exprtk::second_derivative(expression, "x");
+   T derivative2 = math_expr::second_derivative(expression, "x");
 
 
 (g) third_derivative
@@ -4711,9 +4711,9 @@ variable of differentiation can either be passed as a reference or  as
 a name in string form. Example  usage of the third_derivative function
 is as follows:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_string = "sqrt(1 - (x^2))";
 
@@ -4733,12 +4733,12 @@ is as follows:
    // Third derivative of expression where value of x = 12.3 using a
    // reference to the x variable
    x = T(12.3);
-   T derivative1 = exprtk::third_derivative(expression, x);
+   T derivative1 = math_expr::third_derivative(expression, x);
 
    // Third derivative of expression where value of x = 45.6 using
    // name of the x variable
    x = T(45.6);
-   T derivative2 = exprtk::third_derivative(expression, "x");
+   T derivative2 = math_expr::third_derivative(expression, "x");
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -4783,7 +4783,7 @@ implemented Vector Access Runtime  Check (VARTC) to the  parser before
 expression compilation. Initially a VARTC can be defined as follows:
 
    struct my_vector_access_rtc final :
-      public exprtk::vector_access_runtime_check
+      public math_expr::vector_access_runtime_check
    {
       bool handle_runtime_violation(violation_context& context)
       override
@@ -4799,7 +4799,7 @@ as follows:
 
    my_vector_access_rtc vartc;
 
-   exprtk::symbol_table<T> symbol_table;
+   math_expr::symbol_table<T> symbol_table;
 
    T i;
    T x;
@@ -4811,8 +4811,8 @@ as follows:
    symbol_table.add_variable("y"  , y  );
    symbol_table.add_vector  ("vec", vec);
 
-   exprtk::expression<T> expression;
-   exprtk::parser<T> parser;
+   math_expr::expression<T> expression;
+   math_expr::parser<T> parser;
 
    parser.register_vector_access_runtime_check(vartc);
 
@@ -4924,7 +4924,7 @@ To enable string access runtime checks all  one needs to  do is simply
 use the following  define before the  ExprTk header is  included or as
 part of the compilation define parameters:
 
-   exprtk_enable_range_runtime_checks
+   math_expr_enable_range_runtime_checks
 
 
 When  the above  define is used,  and a string  related runtime access
@@ -4959,13 +4959,13 @@ conditionals, and to  have the result  of the check  either signal the
 loop to continue or for the check to raise a loop violation error.
 
 The process involves instantiating a user defined   loop_runtime_check
-(LRTC), registering  the instance  with a  exprtk::parser instance and
+(LRTC), registering  the instance  with a  math_expr::parser instance and
 specifying  which  loop types  the  check is  to  performed upon.  The
 following code demonstrates a how custom LRTC can be instantiated  and
 registered with the associated parser:
 
-   typedef exprtk::parser<T> parser_t;
-   typedef exprtk::loop_runtime_check loop_runtime_check_t;
+   typedef math_expr::parser<T> parser_t;
+   typedef math_expr::loop_runtime_check loop_runtime_check_t;
 
    my_loop_rtc loop_runtime_check;
    loop_runtime_check.loop_set = loop_runtime_check_t::e_all_loops;
@@ -4979,7 +4979,7 @@ registered with the associated parser:
 The following is an example of how one could derive from and implement
 a custom loop_runtime_check:
 
-   struct my_loop_rtc final : exprtk::loop_runtime_check
+   struct my_loop_rtc final : math_expr::loop_runtime_check
    {
 
       bool check() override
@@ -5020,7 +5020,7 @@ exceed that of any LRTC instance that has been registered with it.
 The following is an  example implementation of an  LRTC that
 supports loop timeout violations:
 
-   struct timeout_loop_rtc final : exprtk::loop_runtime_check
+   struct timeout_loop_rtc final : math_expr::loop_runtime_check
    {
       using time_point_t =
          std::chrono::time_point<std::chrono::steady_clock>;
@@ -5040,7 +5040,7 @@ supports loop timeout violations:
       }
 
       void handle_runtime_violation
-         (const exprtk::violation_context&) override
+         (const math_expr::violation_context&) override
       {
          throw std::runtime_error("Loop timed out");
       }
@@ -5062,8 +5062,8 @@ The following code demonstrates how the above defined LRTC can be used
 to ensure that at the very least the loop portion(s) of an  expression
 will never exceed a given amount of execution time.
 
-   typedef exprtk::parser<T> parser_t;
-   typedef exprtk::loop_runtime_check loop_runtime_check_t;
+   typedef math_expr::parser<T> parser_t;
+   typedef math_expr::loop_runtime_check loop_runtime_check_t;
 
    my_loop_rtc loop_rtc;
    loop_rtc.loop_set = loop_runtime_check_t::e_all_loops;
@@ -5118,7 +5118,7 @@ check (CCK) to the parser  before expression  compilation. Initially a
 CCK can be defined as follows:
 
    struct compilation_timeout_check final :
-      public exprtk::compilation_check
+      public math_expr::compilation_check
    {
       bool continue_compilation(compilation_context& context)
       override
@@ -5135,7 +5135,7 @@ five seconds. The associated compilation check implementation could be
 as follows:
 
    struct my_compilation_timeout_check final :
-      public exprtk::compilation_check
+      public math_expr::compilation_check
    {
 
       bool continue_compilation(compilation_context& context)
@@ -5175,8 +5175,8 @@ the  check  with the  parser,  setting up  the  expiry time  and  then
 proceeding  to  compile the  expression.  The following  is  a general
 outline of what will be needed:
 
-   typedef exprtk::expression<T> expression_t;
-   typedef exprtk::parser<T>     parser_t;
+   typedef math_expr::expression<T> expression_t;
+   typedef math_expr::parser<T>     parser_t;
 
    expression_t expression;
 
@@ -5231,7 +5231,7 @@ are  placed  inside  assert_context that  is provided  as part  of the
 assert_check  handler.  A  user defined  assert_check  handler  can be
 defined as follows:
 
-   struct my_assert_handler final : public exprtk::assert_check
+   struct my_assert_handler final : public math_expr::assert_check
    {
       void handle_assert(const assert_context& ctxt) override
       {
@@ -5248,9 +5248,9 @@ Once the  assert_check handler  has been  registered with  the parser,
 expressions that  contain assert  statements will  have their  asserts
 compiled in as part final evaluable expression instance:
 
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string program =
       " var x := 4;                             "
@@ -5306,8 +5306,8 @@ affect the ability for  the next expression in  the list to either  be
 correctly  compiled or  evaluated due  to the  potential of  erroneous
 timeouts occurring.
 
-   typedef exprtk::expression<T> expression_t;
-   typedef exprtk::parser<T>     parser_t;
+   typedef math_expr::expression<T> expression_t;
+   typedef math_expr::parser<T>     parser_t;
 
    my_compilation_timeout_check compilation_timeout_check;
 
@@ -5375,7 +5375,7 @@ timeouts occurring.
 
 [SECTION 25 - BENCHMARKING]
 As part of the ExprTk package there is an expression benchmark utility
-named 'exprtk_benchmark'. The utility attempts to determine expression
+named 'math_expr_benchmark'. The utility attempts to determine expression
 evaluation  speed (or  rate of  evaluations -  evals  per  second), by
 evaluating each expression numerous times and mutating the  underlying
 variables  of  the  expression between  each  evaluation.  The utility
@@ -5390,7 +5390,7 @@ strings. There are two modes of operation:
 
 
 (1) Default
-The default mode is  enabled simply by executing  the exprtk_benchmark
+The default mode is  enabled simply by executing  the math_expr_benchmark
 binary with no command line parameters. In this mode a predefined  set
 of expressions will be evaluated in three phases:
 
@@ -5441,7 +5441,7 @@ line:
 An  example execution  of the  benchmark utility  in this  mode is  as
 follows:
 
-   ./exprtk_benchmark my_expressions.txt 1000000
+   ./math_expr_benchmark my_expressions.txt 1000000
 
 
 The  above  invocation  will  load  the  expressions  from  the   file
@@ -5483,7 +5483,7 @@ line to the file. An example breakdown may be as follows:
 The  benchmark with  the given  file, where  each expression  will be
 evaluated 100K times can be executed as follows:
 
-   ./exprtk_benchmark test.txt 100000
+   ./math_expr_benchmark test.txt 100000
    Expr 1 of 3 90.340 ns 9034000 ns (296417859.3) '1/sqrt(2x)*e^(3y)'
    Expr 2 of 3 11.100 ns 1109999 ns (    44267.3) '1/sqrt(2x)'
    Expr 3 of 3 77.830 ns 7783000 ns (615985286.6) 'e^(3y)'
@@ -5499,7 +5499,7 @@ transcendental mathematical constant e (2.71828182845904...) hence the
 sub-expression  should perhaps be  modified  to use the generally more
 efficient built-in 'exp' function.
 
-   ./exprtk_benchmark test.txt 1000000
+   ./math_expr_benchmark test.txt 1000000
    Expr 1 of 5 86.563 ns 8656300ns (296417859.6) '1/sqrt(2x)*e^(3y)'
    Expr 2 of 5 40.506 ns 4050600ns (296417859.6) '1/sqrt(2x)*exp(3y)'
    Expr 3 of 5 14.248 ns 1424799ns (    44267.2) '1/sqrt(2x)'
@@ -5605,7 +5605,7 @@ into account when using ExprTk:
 
  (18) String  processing capabilities  are available  by default.  To
       turn them  off, the  following needs  to be  defined at compile
-      time: exprtk_disable_string_capabilities
+      time: math_expr_disable_string_capabilities
 
  (19) Composited functions can call themselves or any other functions
       that have been defined prior to their own definition.
@@ -5782,9 +5782,9 @@ to stdout.
 #include "math_expr.hpp"
 
 template <typename T>
-struct myfunc final : public exprtk::ifunction<T>
+struct myfunc final : public math_expr::ifunction<T>
 {
-   myfunc() : exprtk::ifunction<T>(2) {}
+   myfunc() : math_expr::ifunction<T>(2) {}
 
    T operator()(const T& v1, const T& v2) override
    {
@@ -5794,10 +5794,10 @@ struct myfunc final : public exprtk::ifunction<T>
 
 int main()
 {
-   typedef exprtk::symbol_table<double> symbol_table_t;
-   typedef exprtk::expression<double>   expression_t;
-   typedef exprtk::parser<double>       parser_t;
-   typedef exprtk::parser_error::type   error_t;
+   typedef math_expr::symbol_table<double> symbol_table_t;
+   typedef math_expr::expression<double>   expression_t;
+   typedef math_expr::parser<double>       parser_t;
+   typedef math_expr::parser_error::type   error_t;
 
    const std::string expression_string =
       "z := 2 myfunc([4 + sin(x / pi)^3],y ^ 2)";
@@ -5842,7 +5842,7 @@ int main()
                 "Expression: %s\n",
                 static_cast<int>(i),
                 static_cast<int>(error.token.position),
-                exprtk::parser_error::to_str(error.mode).c_str(),
+                math_expr::parser_error::to_str(error.mode).c_str(),
                 error.diagnostic.c_str(),
                 expression_string.c_str());
       }
@@ -5868,59 +5868,59 @@ disable certain features and  capabilities. The defines can  either be
 part of a compiler command line switch or scoped around the include to
 the ExprTk header. The defines are as follows:
 
-   (01) exprtk_enable_debugging
-   (02) exprtk_disable_cardinal_pow_optimisation
-   (03) exprtk_disable_comments
-   (04) exprtk_disable_break_continue
-   (05) exprtk_disable_sc_andor
-   (06) exprtk_disable_return_statement
-   (07) exprtk_disable_enhanced_features
-   (08) exprtk_disable_string_capabilities
-   (09) exprtk_disable_superscalar_unroll
-   (10) exprtk_disable_rtl_io
-   (11) exprtk_disable_rtl_io_file
-   (12) exprtk_disable_rtl_vecops
-   (13) exprtk_disable_caseinsensitivity
-   (14) exprtk_enable_range_runtime_checks
+   (01) math_expr_enable_debugging
+   (02) math_expr_disable_cardinal_pow_optimisation
+   (03) math_expr_disable_comments
+   (04) math_expr_disable_break_continue
+   (05) math_expr_disable_sc_andor
+   (06) math_expr_disable_return_statement
+   (07) math_expr_disable_enhanced_features
+   (08) math_expr_disable_string_capabilities
+   (09) math_expr_disable_superscalar_unroll
+   (10) math_expr_disable_rtl_io
+   (11) math_expr_disable_rtl_io_file
+   (12) math_expr_disable_rtl_vecops
+   (13) math_expr_disable_caseinsensitivity
+   (14) math_expr_enable_range_runtime_checks
 
-(01) exprtk_enable_debugging
+(01) math_expr_enable_debugging
 This define will enable printing of debug information to stdout during
 the compilation process.
 
-(02) exprtk_disable_cardinal_pow_optimisation
+(02) math_expr_disable_cardinal_pow_optimisation
 This  define   will  disable  the optimisation  invoked when  constant
 integers are used as powers in exponentiation expressions (eg: x^7).
 
-(03) exprtk_disable_comments
+(03) math_expr_disable_comments
 This define will disable the ability for expressions to have comments.
 Expressions that have comments when parsed with a build that has  this
 option, will result in a compilation failure.
 
-(04) exprtk_disable_break_continue
+(04) math_expr_disable_break_continue
 This  define  will  disable  the  loop-wise  'break'  and   'continue'
 capabilities. Any expression that contains those keywords will  result
 in a compilation failure.
 
-(05) exprtk_disable_sc_andor
+(05) math_expr_disable_sc_andor
 This define  will disable  the short-circuit  '&' (and)  and '|'  (or)
 operators
 
-(06) exprtk_disable_return_statement
+(06) math_expr_disable_return_statement
 This define will disable use of return statements within expressions.
 
-(07) exprtk_disable_enhanced_features
+(07) math_expr_disable_enhanced_features
 This  define  will  disable all  enhanced  features  such as  strength
 reduction and special  function optimisations and  expression specific
 type instantiations.  This feature  will reduce  compilation times and
 binary sizes but will  also result in massive  performance degradation
 of expression evaluations.
 
-(08) exprtk_disable_string_capabilities
+(08) math_expr_disable_string_capabilities
 This  define  will  disable all  string  processing  capabilities. Any
 expression that contains a string or string related syntax will result
 in a compilation failure.
 
-(09) exprtk_disable_superscalar_unroll
+(09) math_expr_disable_superscalar_unroll
 This define will set  the loop unroll batch  size to 4 operations  per
 loop  instead of  the default  8 operations.  This define  is used  in
 operations that  involve vectors  and aggregations  over vectors. When
@@ -5928,28 +5928,28 @@ targeting  non-superscalar  architectures, it  may  be recommended  to
 build using this particular option if efficiency of evaluations is  of
 concern.
 
-(10) exprtk_disable_rtl_io
+(10) math_expr_disable_rtl_io
 This define will  disable all of  basic IO RTL  package features. When
 present, any attempt to register the basic IO RTL package with a given
 symbol table will fail causing a compilation error.
 
-(11) exprtk_disable_rtl_io_file
+(11) math_expr_disable_rtl_io_file
 This  define will  disable  the  file I/O  RTL package  features. When
 present, any  attempts to register  the file I/O package with  a given
 symbol table will fail causing a compilation error.
 
-(12) exprtk_disable_rtl_vecops
+(12) math_expr_disable_rtl_vecops
 This define will  disable the extended  vector operations RTL  package
 features. When present, any attempts to register the vector operations
 package with  a given  symbol table  will fail  causing a  compilation
 error.
 
-(13) exprtk_disable_caseinsensitivity
+(13) math_expr_disable_caseinsensitivity
 This define  will disable  case-insensitivity when  matching variables
 and  functions. Furthermore  all reserved  and keywords  will only  be
 acknowledged when in all lower-case.
 
-(14) exprtk_enable_range_runtime_checks
+(14) math_expr_enable_range_runtime_checks
 This define will enable run-time checks pertaining to vector  indexing
 operations used  in any  of the  vector-to-vector and vector-to-scalar
 operations.
@@ -5963,32 +5963,32 @@ files:
    (00) Makefile
    (01) readme.txt
    (02) math_expr.hpp
-   (03) exprtk_test.cpp
-   (04) exprtk_benchmark.cpp
-   (05) exprtk_simple_example_01.cpp
-   (06) exprtk_simple_example_02.cpp
-   (07) exprtk_simple_example_03.cpp
-   (08) exprtk_simple_example_04.cpp
-   (09) exprtk_simple_example_05.cpp
-   (10) exprtk_simple_example_06.cpp
-   (11) exprtk_simple_example_07.cpp
-   (12) exprtk_simple_example_08.cpp
-   (13) exprtk_simple_example_09.cpp
-   (14) exprtk_simple_example_10.cpp
-   (15) exprtk_simple_example_11.cpp
-   (16) exprtk_simple_example_12.cpp
-   (17) exprtk_simple_example_13.cpp
-   (18) exprtk_simple_example_14.cpp
-   (19) exprtk_simple_example_15.cpp
-   (20) exprtk_simple_example_16.cpp
-   (21) exprtk_simple_example_17.cpp
-   (22) exprtk_simple_example_18.cpp
-   (23) exprtk_simple_example_19.cpp
-   (24) exprtk_simple_example_20.cpp
-   (25) exprtk_simple_example_21.cpp
-   (26) exprtk_simple_example_22.cpp
-   (27) exprtk_simple_example_23.cpp
-   (28) exprtk_simple_example_24.cpp
+   (03) math_expr_test.cpp
+   (04) math_expr_benchmark.cpp
+   (05) math_expr_simple_example_01.cpp
+   (06) math_expr_simple_example_02.cpp
+   (07) math_expr_simple_example_03.cpp
+   (08) math_expr_simple_example_04.cpp
+   (09) math_expr_simple_example_05.cpp
+   (10) math_expr_simple_example_06.cpp
+   (11) math_expr_simple_example_07.cpp
+   (12) math_expr_simple_example_08.cpp
+   (13) math_expr_simple_example_09.cpp
+   (14) math_expr_simple_example_10.cpp
+   (15) math_expr_simple_example_11.cpp
+   (16) math_expr_simple_example_12.cpp
+   (17) math_expr_simple_example_13.cpp
+   (18) math_expr_simple_example_14.cpp
+   (19) math_expr_simple_example_15.cpp
+   (20) math_expr_simple_example_16.cpp
+   (21) math_expr_simple_example_17.cpp
+   (22) math_expr_simple_example_18.cpp
+   (23) math_expr_simple_example_19.cpp
+   (24) math_expr_simple_example_20.cpp
+   (25) math_expr_simple_example_21.cpp
+   (26) math_expr_simple_example_22.cpp
+   (27) math_expr_simple_example_23.cpp
+   (28) math_expr_simple_example_24.cpp
 
 
 Details for each of the above examples can be found here:
@@ -5999,71 +5999,71 @@ Details for each of the above examples can be found here:
 Various extended and advanced examples using ExprTk are available
 via the following:
 
-   (00) exprtk_american_option_binomial_model.cpp
-   (01) exprtk_archimedes_pi.cpp
-   (02) exprtk_arithmetic_evaluator.cpp
-   (03) exprtk_binomial_coefficient.cpp
-   (04) exprtk_bsm_benchmark.cpp
-   (05) exprtk_calc.cpp
-   (06) exprtk_chladni_contour.cpp
-   (07) exprtk_collatz.cpp
-   (08) exprtk_compilation_timeout.cpp
-   (09) exprtk_degree_trigonometry_example.cpp
-   (00) exprtk_exprgen.cpp
-   (11) exprtk_extract_dependents.cpp
-   (12) exprtk_e_10kdigits.cpp
-   (13) exprtk_factorize_fermat.cpp
-   (14) exprtk_factorize_pollard.cpp
-   (15) exprtk_fizzbuzz.cpp
-   (16) exprtk_funcall_benchmark.cpp
-   (17) exprtk_game_of_life.cpp
-   (18) exprtk_gcd.cpp
-   (19) exprtk_gnuplot.cpp
-   (10) exprtk_gnuplot_multi.cpp
-   (21) exprtk_groups_examples.cpp
-   (22) exprtk_immutable_symbol_table_example.cpp
-   (23) exprtk_import_packages.cpp
-   (24) exprtk_instruction_primer.cpp
-   (25) exprtk_julia_set_fractal.cpp
-   (26) exprtk_jump_diffusion_process.cpp
-   (27) exprtk_loop_timeout_rtc.cpp
-   (28) exprtk_magic_square.cpp
-   (29) exprtk_mandelbrot.cpp
-   (20) exprtk_max_subarray_sum.cpp
-   (31) exprtk_maze_generator.cpp
-   (32) exprtk_miller_rabin_primality_test.cpp
-   (33) exprtk_montecarlo_e.cpp
-   (34) exprtk_montecarlo_option_pricing_model.cpp
-   (35) exprtk_montecarlo_pi.cpp
-   (36) exprtk_naive_primes.cpp
-   (37) exprtk_normal_random_marsaglia_method.cpp
-   (38) exprtk_nqueens_problem.cpp
-   (39) exprtk_nthroot_bisection.cpp
-   (30) exprtk_ornstein_uhlenbeck_process.cpp
-   (41) exprtk_pascals_triangle.cpp
-   (42) exprtk_pi_10kdigits.cpp
-   (43) exprtk_prime_sieve.cpp
-   (44) exprtk_prime_sieve_vectorized.cpp
-   (45) exprtk_pyramid.cpp
-   (46) exprtk_pythagorean_triples.cpp
-   (47) exprtk_radial_contour.cpp
-   (48) exprtk_recursive_fibonacci.cpp
-   (49) exprtk_repl.cpp
-   (50) exprtk_riddle.cpp
-   (51) exprtk_rtc_overhead.cpp
-   (52) exprtk_sudoku_solver.cpp
-   (53) exprtk_sumofprimes.cpp
-   (54) exprtk_symtab_functions.cpp
-   (55) exprtk_testgen.cpp
-   (56) exprtk_tower_of_hanoi.cpp
-   (57) exprtk_truthtable_gen.cpp
-   (58) exprtk_vectorized_binomial_model.cpp
-   (59) exprtk_vectornorm.cpp
-   (60) exprtk_vector_benchmark.cpp
-   (61) exprtk_vector_benchmark_multithreaded.cpp
-   (62) exprtk_vector_resize_example.cpp
-   (63) exprtk_vector_resize_inline_example.cpp
-   (64) exprtk_wiener_process_pi.cpp
+   (00) math_expr_american_option_binomial_model.cpp
+   (01) math_expr_archimedes_pi.cpp
+   (02) math_expr_arithmetic_evaluator.cpp
+   (03) math_expr_binomial_coefficient.cpp
+   (04) math_expr_bsm_benchmark.cpp
+   (05) math_expr_calc.cpp
+   (06) math_expr_chladni_contour.cpp
+   (07) math_expr_collatz.cpp
+   (08) math_expr_compilation_timeout.cpp
+   (09) math_expr_degree_trigonometry_example.cpp
+   (00) math_expr_exprgen.cpp
+   (11) math_expr_extract_dependents.cpp
+   (12) math_expr_e_10kdigits.cpp
+   (13) math_expr_factorize_fermat.cpp
+   (14) math_expr_factorize_pollard.cpp
+   (15) math_expr_fizzbuzz.cpp
+   (16) math_expr_funcall_benchmark.cpp
+   (17) math_expr_game_of_life.cpp
+   (18) math_expr_gcd.cpp
+   (19) math_expr_gnuplot.cpp
+   (10) math_expr_gnuplot_multi.cpp
+   (21) math_expr_groups_examples.cpp
+   (22) math_expr_immutable_symbol_table_example.cpp
+   (23) math_expr_import_packages.cpp
+   (24) math_expr_instruction_primer.cpp
+   (25) math_expr_julia_set_fractal.cpp
+   (26) math_expr_jump_diffusion_process.cpp
+   (27) math_expr_loop_timeout_rtc.cpp
+   (28) math_expr_magic_square.cpp
+   (29) math_expr_mandelbrot.cpp
+   (20) math_expr_max_subarray_sum.cpp
+   (31) math_expr_maze_generator.cpp
+   (32) math_expr_miller_rabin_primality_test.cpp
+   (33) math_expr_montecarlo_e.cpp
+   (34) math_expr_montecarlo_option_pricing_model.cpp
+   (35) math_expr_montecarlo_pi.cpp
+   (36) math_expr_naive_primes.cpp
+   (37) math_expr_normal_random_marsaglia_method.cpp
+   (38) math_expr_nqueens_problem.cpp
+   (39) math_expr_nthroot_bisection.cpp
+   (30) math_expr_ornstein_uhlenbeck_process.cpp
+   (41) math_expr_pascals_triangle.cpp
+   (42) math_expr_pi_10kdigits.cpp
+   (43) math_expr_prime_sieve.cpp
+   (44) math_expr_prime_sieve_vectorized.cpp
+   (45) math_expr_pyramid.cpp
+   (46) math_expr_pythagorean_triples.cpp
+   (47) math_expr_radial_contour.cpp
+   (48) math_expr_recursive_fibonacci.cpp
+   (49) math_expr_repl.cpp
+   (50) math_expr_riddle.cpp
+   (51) math_expr_rtc_overhead.cpp
+   (52) math_expr_sudoku_solver.cpp
+   (53) math_expr_sumofprimes.cpp
+   (54) math_expr_symtab_functions.cpp
+   (55) math_expr_testgen.cpp
+   (56) math_expr_tower_of_hanoi.cpp
+   (57) math_expr_truthtable_gen.cpp
+   (58) math_expr_vectorized_binomial_model.cpp
+   (59) math_expr_vectornorm.cpp
+   (60) math_expr_vector_benchmark.cpp
+   (61) math_expr_vector_benchmark_multithreaded.cpp
+   (62) math_expr_vector_resize_example.cpp
+   (63) math_expr_vector_resize_inline_example.cpp
+   (64) math_expr_wiener_process_pi.cpp
 
 Details for each of the above examples can be found here:
 

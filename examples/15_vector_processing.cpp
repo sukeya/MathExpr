@@ -26,9 +26,9 @@
 template <typename T>
 void black_scholes_merton_model()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string bsm_model_program =
       " var d1 := (log(s / k) + (r + v^2 / 2) * t) / (v * sqrt(t)); "
@@ -48,7 +48,7 @@ void black_scholes_merton_model()
 
    std::string callput_flag;
 
-   static const T e = exprtk::details::numeric::constant::e;
+   static const T e = math_expr::details::numeric::constant::e;
 
    symbol_table_t symbol_table;
    symbol_table.add_variable("s",s);

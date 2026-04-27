@@ -24,13 +24,13 @@
 
 
 template <typename T>
-struct myfunc : public exprtk::ifunction<T>
+struct myfunc : public math_expr::ifunction<T>
 {
-   using exprtk::ifunction<T>::operator();
+   using math_expr::ifunction<T>::operator();
 
    myfunc()
-   : exprtk::ifunction<T>(2)
-   { exprtk::disable_has_side_effects(*this); }
+   : math_expr::ifunction<T>(2)
+   { math_expr::disable_has_side_effects(*this); }
 
    T operator()(const T& v1, const T& v2)
    {
@@ -47,9 +47,9 @@ T myotherfunc(T v0, T v1, T v2)
 template <typename T>
 void custom_function()
 {
-   typedef exprtk::symbol_table<T> symbol_table_t;
-   typedef exprtk::expression<T>   expression_t;
-   typedef exprtk::parser<T>       parser_t;
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T>   expression_t;
+   typedef math_expr::parser<T>       parser_t;
 
    const std::string expression_string =
       "myfunc(sin(x / pi), otherfunc(3 * y, x / 2, x * y))";
