@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_INFORMATION_METADATA_HPP
 #define MATH_EXPR_INFORMATION_METADATA_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/types.hpp"
+
 namespace math_expr
 {
    namespace information

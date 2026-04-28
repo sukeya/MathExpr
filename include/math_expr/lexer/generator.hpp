@@ -34,6 +34,10 @@ limitations under the License.
 #ifndef MATH_EXPR_LEXER_GENERATOR_HPP
 #define MATH_EXPR_LEXER_GENERATOR_HPP
 
+#include "math_expr/core/types.hpp"
+#include "math_expr/core/string_utils.hpp"
+#include "math_expr/lexer/token.hpp"
+
 namespace math_expr::lexer
 {
       class generator
@@ -353,7 +357,7 @@ namespace math_expr::lexer
                scan_special_function();
                return;
             }
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if ('\'' == c)
             {
                scan_string();
@@ -622,7 +626,7 @@ namespace math_expr::lexer
             return;
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline void scan_string()
          {
             details::char_cptr initial_itr = s_itr_ + 1;

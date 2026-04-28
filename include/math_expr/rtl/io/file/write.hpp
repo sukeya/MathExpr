@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_FILE_WRITE_HPP
 #define MATH_EXPR_RTL_IO_FILE_WRITE_HPP
 
+#include "math_expr/rtl/io/file/helper.hpp"
+
 namespace math_expr::rtl::io::file
 {
    template <typename T>

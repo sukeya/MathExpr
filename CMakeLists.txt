@@ -30,7 +30,9 @@ cmake_minimum_required(VERSION 4.3.1)
 
 project(MathExpr VERSION 0.1.0 LANGUAGES CXX)
 
+option(MATHEXPR_BUILD_HEADER_SELF_CHECKS "Build MathExpr header self-check targets" OFF)
 option(MATHEXPR_BUILD_TESTS "Build MathExpr tests" OFF)
+option(MATH_EXPR_DISABLE_STRING_CAPABILITIES "Disable MathExpr string capabilities" OFF)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
@@ -41,6 +43,9 @@ include(CMakePackageConfigHelpers)
 add_library(MathExpr INTERFACE)
 
 target_compile_features(MathExpr INTERFACE cxx_std_20)
+target_compile_definitions(MathExpr INTERFACE
+  $<$<BOOL:${MATH_EXPR_DISABLE_STRING_CAPABILITIES}>:MATH_EXPR_DISABLE_STRING_CAPABILITIES>
+)
 target_include_directories(MathExpr INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/MathExpr>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -89,6 +94,33 @@ export(EXPORT MathExprTargets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/MathExprTargets.cmake"
   NAMESPACE MathExpr::
 )
+
+if(MATHEXPR_BUILD_HEADER_SELF_CHECKS)
+  file(GLOB_RECURSE math_expr_installed_headers
+    RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+  )
+
+  set(math_expr_header_self_check_dir "${CMAKE_CURRENT_BINARY_DIR}/header_self_checks")
+  file(MAKE_DIRECTORY "${math_expr_header_self_check_dir}")
+
+  add_custom_target(math_expr_header_self_checks)
+
+  foreach(header_rel_path IN LISTS math_expr_installed_headers)
+    string(MAKE_C_IDENTIFIER "${header_rel_path}" header_target_suffix)
+    set(header_self_check_target "math_expr_header_self_check_${header_target_suffix}")
+    set(header_self_check_source "${math_expr_header_self_check_dir}/${header_target_suffix}.cpp")
+
+    file(WRITE "${header_self_check_source}"
+      "#include \"${header_rel_path}\"\n"
+      "int main() { return 0; }\n"
+    )
+
+    add_executable("${header_self_check_target}" "${header_self_check_source}")
+    target_link_libraries("${header_self_check_target}" PRIVATE MathExpr)
+    add_dependencies(math_expr_header_self_checks "${header_self_check_target}")
+  endforeach()
+endif()
 
 if(MATHEXPR_BUILD_EXAMPLES)
   add_subdirectory(examples)

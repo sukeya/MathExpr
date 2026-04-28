@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_NTHELEMENT_HPP
 #define MATH_EXPR_RTL_VECOPS_NTHELEMENT_HPP
 
+#include "math_expr/rtl/vecops/details/helper.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -69,7 +71,7 @@ namespace math_expr::rtl::vecops
          if (!scalar_t(parameters[1]).to_uint(n))
             return T(0);
 
-         if ((1 == ps_index) && !helper::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
+         if ((1 == ps_index) && !details::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
          {
             return std::numeric_limits<T>::quiet_NaN();
          }

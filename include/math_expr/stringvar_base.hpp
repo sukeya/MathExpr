@@ -34,15 +34,20 @@ limitations under the License.
 #ifndef MATH_EXPR_STRINGVAR_BASE_HPP
 #define MATH_EXPR_STRINGVAR_BASE_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+#include "math_expr/details/string_nodes.hpp"
+#endif
+
 namespace math_expr
 {
-   #ifndef math_expr_disable_string_capabilities
+   #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
    template <typename T>
    class stringvar_base
    {
    public:
 
-      typedef typename details::stringvar_node<T> stringvar_node_t;
+      typedef typename details::string_nodes::stringvar_node<T> stringvar_node_t;
 
       stringvar_base(const std::string& name, stringvar_node_t* svn)
       : name_(name)

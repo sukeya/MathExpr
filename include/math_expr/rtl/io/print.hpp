@@ -34,10 +34,15 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_PRINT_HPP
 #define MATH_EXPR_RTL_IO_PRINT_HPP
 
-#ifndef math_expr_disable_rtl_io
-namespace math_expr
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/macros.hpp"
+#include "math_expr/core/numeric.hpp"
+#include "math_expr/igeneric_function.hpp"
+#include "math_expr/symbol_table.hpp"
+
+namespace math_expr::rtl::io
 {
-   namespace rtl { namespace io { namespace details
+   namespace details
    {
       template <typename T>
       inline void print_type(const std::string& fmt,
@@ -117,7 +122,7 @@ namespace math_expr
          }
       };
 
-   } // namespace math_expr::rtl::io::details
+   } // namespace details
 
    template <typename T>
    struct print final : public math_expr::igeneric_function<T>
@@ -141,57 +146,5 @@ namespace math_expr
       std::string scalar_format_;
    };
 
-   template <typename T>
-   struct println final : public math_expr::igeneric_function<T>
-   {
-      typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
-
-      using math_expr::igeneric_function<T>::operator();
-
-      explicit println(const std::string& scalar_format = "%10.5f")
-      : scalar_format_(scalar_format)
-      {
-         math_expr::enable_zero_parameters(*this);
-      }
-
-      inline T operator() (parameter_list_t parameters) override
-      {
-         details::print_impl<T>::process(scalar_format_,parameters);
-         printf("\n");
-         return T(0);
-      }
-
-      std::string scalar_format_;
-   };
-
-   template <typename T>
-   struct package
-   {
-      print  <T> p;
-      println<T> pl;
-
-      bool register_package(math_expr::symbol_table<T>& symtab)
-      {
-         #define math_expr_register_function(FunctionName, FunctionType)             \
-         if (!symtab.add_function(FunctionName,FunctionType))                     \
-         {                                                                        \
-            math_expr_debug((                                                        \
-              "math_expr::rtl::io::register_package - Failed to add function: %s\n", \
-              FunctionName));                                                     \
-            return false;                                                         \
-         }                                                                        \
-
-         math_expr_register_function("print"  , p )
-         math_expr_register_function("println", pl)
-         #undef math_expr_register_function
-
-         return true;
-      }
-   };
-
-   } // namespace math_expr::rtl::io
-   } // namespace math_expr::rtl
-}    // namespace math_expr
-#endif
-
+} // namespace math_expr::rtl::io
 #endif

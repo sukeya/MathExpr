@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_COPY_HPP
 #define MATH_EXPR_RTL_VECOPS_COPY_HPP
 
+#include "math_expr/rtl/vecops/details/helper.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -72,8 +74,8 @@ namespace math_expr::rtl::vecops
          if (1 == ps_index)
          {
             if (
-                 !helper::load_vector_range<T>::process(parameters, xr0, xr1, 1, 2, 0) ||
-                 !helper::load_vector_range<T>::process(parameters, yr0, yr1, 4, 5, 3)
+                 !details::load_vector_range<T>::process(parameters, xr0, xr1, 1, 2, 0) ||
+                 !details::load_vector_range<T>::process(parameters, yr0, yr1, 4, 5, 3)
                )
                return T(0);
          }

@@ -34,6 +34,10 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 #define MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/fwd.hpp"
+#include "math_expr/core/operator_types.hpp"
+
 namespace math_expr::details
 {
       template <typename T>

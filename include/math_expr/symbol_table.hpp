@@ -34,6 +34,16 @@ limitations under the License.
 #ifndef MATH_EXPR_SYMBOL_TABLE_HPP
 #define MATH_EXPR_SYMBOL_TABLE_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/macros.hpp"
+#include "math_expr/core/string_utils.hpp"
+#include "math_expr/ifunction.hpp"
+#include "math_expr/igeneric_function.hpp"
+#include "math_expr/ivararg_function.hpp"
+#include "math_expr/stringvar_base.hpp"
+#include "math_expr/vector_view.hpp"
+#include "math_expr/details/vector_nodes.hpp"
+
 namespace math_expr
 {
    template <typename T>
@@ -249,8 +259,8 @@ namespace math_expr
          typedef ivararg_function<T>                 ivararg_function_t;
          typedef igeneric_function<T>                igeneric_function_t;
          typedef details::vector_holder<T>           vector_t;
-         #ifndef math_expr_disable_string_capabilities
-         typedef typename details::stringvar_node<T> stringvar_node_t;
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+         typedef typename details::string_nodes::stringvar_node<T> stringvar_node_t;
          #endif
 
          typedef Type type_t;
@@ -279,7 +289,7 @@ namespace math_expr
 
             math_expr_define_process(variable_node_t )
             math_expr_define_process(vector_t        )
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             math_expr_define_process(stringvar_node_t)
             #endif
 
@@ -437,7 +447,7 @@ namespace math_expr
                   return std::make_pair(is_constant, new variable_node_t(t));
                }
 
-               #ifndef math_expr_disable_string_capabilities
+               #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                static inline std::pair<bool,stringvar_node_t*> make(std::string& t, const bool is_constant = false)
                {
                   return std::make_pair(is_constant, new stringvar_node_t(t));
@@ -630,8 +640,8 @@ namespace math_expr
       typedef typename details::variable_node<T>  variable_t;
       typedef typename details::vector_holder<T>  vector_holder_t;
       typedef variable_t*                         variable_ptr;
-      #ifndef math_expr_disable_string_capabilities
-      typedef typename details::stringvar_node<T> stringvar_t;
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+      typedef typename details::string_nodes::stringvar_node<T> stringvar_t;
       typedef stringvar_t*                        stringvar_ptr;
       #endif
       typedef ifunction        <T>                function_t;
@@ -655,7 +665,7 @@ namespace math_expr
             type_store<generic_function_t, generic_function_t> string_function_store;
             type_store<generic_function_t, generic_function_t> overload_function_store;
             type_store<vector_holder_t   , vector_holder_t   > vector_store;
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             type_store<stringvar_t       , std::string       > stringvar_store;
             #endif
 
@@ -813,7 +823,7 @@ namespace math_expr
 
       inline void clear_strings()
       {
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          local_data().stringvar_store.clear();
          #endif
       }
@@ -846,7 +856,7 @@ namespace math_expr
             return 0;
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline std::size_t stringvar_count() const
       {
          if (valid())
@@ -891,7 +901,7 @@ namespace math_expr
                                                   reinterpret_cast<const void*>(&var_ref));
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline stringvar_ptr get_stringvar(const std::string& string_name) const
       {
          if (!valid())
@@ -994,7 +1004,7 @@ namespace math_expr
             return local_data().variable_store.type_ref(symbol_name);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline std::string& stringvar_ref(const std::string& symbol_name)
       {
          static std::string null_stringvar;
@@ -1017,7 +1027,7 @@ namespace math_expr
             return local_data().variable_store.is_constant(symbol_name);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline bool is_constant_string(const std::string& symbol_name) const
       {
          if (!valid())
@@ -1046,7 +1056,7 @@ namespace math_expr
          return add_variable(variable_name,t);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline bool create_stringvar(const std::string& stringvar_name, const std::string& value = std::string(""))
       {
          if (!valid())
@@ -1090,7 +1100,7 @@ namespace math_expr
          return add_variable(constant_name, t, true);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline bool add_stringvar(const std::string& stringvar_name, std::string& s, const bool is_constant = false)
       {
          if (!valid())
@@ -1330,7 +1340,7 @@ namespace math_expr
             return local_data().variable_store.remove(variable_name, delete_node);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline bool remove_stringvar(const std::string& string_name)
       {
          if (!valid())
@@ -1416,7 +1426,7 @@ namespace math_expr
             return local_data().variable_store.get_list(vlist);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       template <typename Allocator,
                 template <typename, typename> class Sequence>
       inline std::size_t get_stringvar_list(Sequence<std::pair<std::string,std::string>,Allocator>& svlist) const
@@ -1495,7 +1505,7 @@ namespace math_expr
             return false;
          else if (local_data().variable_store.symbol_exists(symbol_name))
             return true;
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          else if (local_data().stringvar_store.symbol_exists(symbol_name))
             return true;
          #endif
@@ -1517,7 +1527,7 @@ namespace math_expr
             return local_data().variable_store.symbol_exists(variable_name);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline bool is_stringvar(const std::string& stringvar_name) const
       {
          if (!valid())
@@ -1576,7 +1586,7 @@ namespace math_expr
          return local_data().vector_store.entity_name(ptr);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline std::string get_stringvar_name(const expression_ptr& ptr) const
       {
          return local_data().stringvar_store.entity_name(ptr);

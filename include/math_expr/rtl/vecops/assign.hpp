@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_ASSIGN_HPP
 #define MATH_EXPR_RTL_VECOPS_ASSIGN_HPP
 
+#include "math_expr/rtl/vecops/details/helper.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -73,7 +75,7 @@ namespace math_expr::rtl::vecops
 
          if (
               ((ps_index == 1) || (ps_index == 2)) &&
-              !helper::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0)
+              !details::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0)
             )
          {
             return T(0);

@@ -34,6 +34,10 @@ limitations under the License.
 #ifndef MATH_EXPR_CORE_OPERATOR_TYPES_HPP
 #define MATH_EXPR_CORE_OPERATOR_TYPES_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/macros.hpp"
+#include "math_expr/core/numeric.hpp"
+
 namespace math_expr::details
 {
       enum operator_type

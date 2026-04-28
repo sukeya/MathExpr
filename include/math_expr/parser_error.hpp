@@ -34,6 +34,11 @@ limitations under the License.
 #ifndef MATH_EXPR_PARSER_ERROR_HPP
 #define MATH_EXPR_PARSER_ERROR_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/macros.hpp"
+#include "math_expr/core/types.hpp"
+#include "math_expr/lexer/token.hpp"
+
 namespace math_expr
 {
    namespace parser_error

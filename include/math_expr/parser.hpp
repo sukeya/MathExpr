@@ -34,6 +34,31 @@ limitations under the License.
 #ifndef MATH_EXPR_PARSER_HPP
 #define MATH_EXPR_PARSER_HPP
 
+#include "math_expr/assert_check.hpp"
+#include "math_expr/compilation_check.hpp"
+#include "math_expr/core/numeric.hpp"
+#include "math_expr/core/operator_types.hpp"
+#include "math_expr/function_traits.hpp"
+#include "math_expr/ifunction.hpp"
+#include "math_expr/igeneric_function.hpp"
+#include "math_expr/ivararg_function.hpp"
+#include "math_expr/lexer/helper.hpp"
+#include "math_expr/lexer/parser_helper.hpp"
+#include "math_expr/parser_error.hpp"
+#include "math_expr/results_context.hpp"
+#include "math_expr/stringvar_base.hpp"
+#include "math_expr/symbol_table.hpp"
+#include "math_expr/type_store.hpp"
+#include "math_expr/vector_view.hpp"
+#include "math_expr/expression.hpp"
+#include "math_expr/details/conditional_nodes.hpp"
+#include "math_expr/details/function_nodes.hpp"
+#include "math_expr/details/loop_nodes.hpp"
+#include "math_expr/details/node_utils.hpp"
+#include "math_expr/details/operator_nodes.hpp"
+#include "math_expr/details/return_nodes.hpp"
+#include "math_expr/details/vector_nodes.hpp"
+
 namespace math_expr
 {
 
@@ -92,17 +117,17 @@ namespace math_expr
       typedef details::vector_node<T>                        vector_node_t;
       typedef details::vector_size_node<T>                   vector_size_node_t;
       typedef details::range_pack<T>                         range_t;
-      #ifndef math_expr_disable_string_capabilities
-      typedef details::stringvar_node<T>                     stringvar_node_t;
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+      typedef details::string_nodes::stringvar_node<T>       stringvar_node_t;
       typedef details::string_literal_node<T>                string_literal_node_t;
-      typedef details::string_range_node<T>                  string_range_node_t;
-      typedef details::const_string_range_node<T>            const_string_range_node_t;
-      typedef details::generic_string_range_node<T>          generic_string_range_node_t;
-      typedef details::string_concat_node<T>                 string_concat_node_t;
-      typedef details::assignment_string_node<T>             assignment_string_node_t;
-      typedef details::assignment_string_range_node<T>       assignment_string_range_node_t;
-      typedef details::conditional_string_node<T>            conditional_string_node_t;
-      typedef details::cons_conditional_str_node<T>          cons_conditional_str_node_t;
+      typedef details::string_nodes::string_range_node<T>    string_range_node_t;
+      typedef details::string_nodes::const_string_range_node<T> const_string_range_node_t;
+      typedef details::string_nodes::generic_string_range_node<T> generic_string_range_node_t;
+      typedef details::string_nodes::string_concat_node<T>   string_concat_node_t;
+      typedef details::string_nodes::assignment_string_node<T> assignment_string_node_t;
+      typedef details::string_nodes::assignment_string_range_node<T> assignment_string_range_node_t;
+      typedef details::string_nodes::conditional_string_node<T> conditional_string_node_t;
+      typedef details::string_nodes::cons_conditional_str_node<T> cons_conditional_str_node_t;
       #endif
       typedef details::assignment_node<T>                    assignment_node_t;
       typedef details::assignment_vec_elem_node<T>           assignment_vec_elem_node_t;
@@ -186,7 +211,7 @@ namespace math_expr
          typedef variable_node_t*          variable_node_ptr;
          typedef vector_holder_t*          vector_holder_ptr;
          typedef expression_node_t*        expression_node_ptr;
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          typedef stringvar_node_t*         stringvar_node_ptr;
          #endif
 
@@ -202,7 +227,7 @@ namespace math_expr
          , data     (0)
          , var_node (0)
          , vec_node (0)
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          , str_node(0)
          #endif
          {}
@@ -238,7 +263,7 @@ namespace math_expr
             data      = 0;
             var_node  = 0;
             vec_node  = 0;
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             str_node  = 0;
             #endif
          }
@@ -254,7 +279,7 @@ namespace math_expr
          void*        data;
          expression_node_ptr var_node;
          vector_holder_ptr   vec_node;
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          stringvar_node_ptr str_node;
          #endif
       };
@@ -412,7 +437,7 @@ namespace math_expr
                case scope_element::e_vecelem    : delete se.var_node;
                                                   break;
 
-               #ifndef math_expr_disable_string_capabilities
+               #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                case scope_element::e_string     : delete reinterpret_cast<std::string*>(se.data);
                                                   delete se.str_node;
                                                   break;
@@ -712,7 +737,7 @@ namespace math_expr
          typedef typename symbol_table_t::local_data_t local_data_t;
          typedef typename symbol_table_t::variable_ptr variable_ptr;
          typedef typename symbol_table_t::function_ptr function_ptr;
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          typedef typename symbol_table_t::stringvar_ptr stringvar_ptr;
          #endif
          typedef typename symbol_table_t::vector_holder_ptr    vector_holder_ptr;
@@ -741,7 +766,7 @@ namespace math_expr
             vector_holder_ptr vector_holder;
          };
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          struct string_context
          {
             string_context()
@@ -859,7 +884,7 @@ namespace math_expr
             return result;
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline string_context get_string_context(const std::string& string_name) const
          {
             string_context result;
@@ -1084,7 +1109,7 @@ namespace math_expr
             return false;
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline bool is_constant_string(const std::string& symbol_name) const
          {
             if (!valid_symbol(symbol_name))
@@ -1138,7 +1163,7 @@ namespace math_expr
             return false;
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline bool is_stringvar(const std::string& stringvar_name) const
          {
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
@@ -1236,7 +1261,7 @@ namespace math_expr
             return local_data().vector_store.entity_name(ptr);
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline std::string get_stringvar_name(const expression_node_ptr& ptr) const
          {
             return local_data().stringvar_store.entity_name(ptr);
@@ -3914,7 +3939,7 @@ namespace math_expr
             result = false;
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          if (result)
          {
             const bool consq_is_str = is_generally_string_node(consequent );
@@ -4135,7 +4160,7 @@ namespace math_expr
             }
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          if (result)
          {
             const bool consq_is_str = is_generally_string_node(consequent );
@@ -4318,7 +4343,7 @@ namespace math_expr
             result = false;
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          if (result)
          {
             const bool consq_is_str = is_generally_string_node(consequent );
@@ -5277,7 +5302,7 @@ namespace math_expr
          return result;
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline expression_node_ptr parse_string_range_statement(expression_node_ptr& expression)
       {
          if (!token_is(token_t::e_lsqrbracket))
@@ -5294,7 +5319,7 @@ namespace math_expr
          }
          else if (token_is(token_t::e_rsqrbracket))
          {
-            return node_allocator_.allocate<details::string_size_node<T> >(expression);
+            return node_allocator_.allocate<details::string_nodes::string_size_node<T> >(expression);
          }
 
          range_t rp;
@@ -5776,12 +5801,12 @@ namespace math_expr
          dec_.add_symbol(symbol,st);
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline expression_node_ptr parse_string()
       {
          const std::string symbol = current_token().value;
 
-         typedef details::stringvar_node<T>* strvar_node_t;
+         typedef details::string_nodes::stringvar_node<T>* strvar_node_t;
 
          expression_node_ptr result   = error_node();
          strvar_node_t const_str_node = static_cast<strvar_node_t>(0);
@@ -5846,8 +5871,8 @@ namespace math_expr
                   return expression_generator_(T(const_str_node->size()));
                }
                else
-                  return node_allocator_.allocate<details::stringvar_size_node<T> >
-                            (static_cast<details::stringvar_node<T>*>(result)->ref());
+                  return node_allocator_.allocate<details::string_nodes::stringvar_size_node<T> >
+                            (static_cast<details::string_nodes::stringvar_node<T>*>(result)->ref());
             }
 
             range_t rp;
@@ -5864,7 +5889,7 @@ namespace math_expr
                result = expression_generator_(const_str_node->ref(),rp);
             }
             else
-               result = expression_generator_(static_cast<details::stringvar_node<T>*>
+               result = expression_generator_(static_cast<details::string_nodes::stringvar_node<T>*>
                            (result)->ref(), rp);
 
             if (result)
@@ -5882,7 +5907,7 @@ namespace math_expr
       }
       #endif
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline expression_node_ptr parse_const_string()
       {
          const std::string   const_str = current_token().value;
@@ -6630,7 +6655,7 @@ namespace math_expr
             return false;
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function, const std::string& function_name)
       {
          // Move pass the function name
@@ -7450,7 +7475,7 @@ namespace math_expr
          return error_node();
       }
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       inline expression_node_ptr parse_define_string_statement(const std::string& str_name, expression_node_ptr initialisation_expression)
       {
          stringvar_node_t* str_node = reinterpret_cast<stringvar_node_t*>(0);
@@ -8528,7 +8553,7 @@ namespace math_expr
             return new details::null_node<T>();
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          if (assert_message && details::is_const_string_node(assert_message))
          {
             context.message = dynamic_cast<details::string_base_node<T>*>(assert_message)->str();
@@ -8749,7 +8774,7 @@ namespace math_expr
                {
                   return parse_vector();
                }
-               #ifndef math_expr_disable_string_capabilities
+               #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                else if (scope_element::e_string == se.type)
                {
                   return parse_string();
@@ -8758,7 +8783,7 @@ namespace math_expr
             }
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          // Are we dealing with a string variable?
          if (symtab_store_.is_stringvar(symbol))
          {
@@ -8844,7 +8869,7 @@ namespace math_expr
             }
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          {
             // Are we dealing with a vararg string returning function?
             igeneric_function<T>* string_function = symtab_store_.get_string_function(symbol);
@@ -9216,7 +9241,7 @@ namespace math_expr
          {
             branch = parse_symbol();
          }
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          else if (token_t::e_string == current_token().type)
          {
             branch = parse_const_string();
@@ -9535,7 +9560,7 @@ namespace math_expr
             return node_allocator_->allocate<literal_node_t>(v);
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline expression_node_ptr operator() (const std::string& s) const
          {
             return node_allocator_->allocate<string_literal_node_t>(s);
@@ -9678,7 +9703,7 @@ namespace math_expr
                    parser_->settings_.assignment_enabled(operation);
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline bool valid_string_operation(const details::operator_type& operation) const
          {
             return (details::e_add    == operation) ||
@@ -10366,7 +10391,7 @@ namespace math_expr
             return error_node();
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline expression_node_ptr conditional_string(expression_node_ptr condition,
                                                        expression_node_ptr consequent,
                                                        expression_node_ptr alternative) const
@@ -11393,11 +11418,11 @@ namespace math_expr
             else if (all_nodes_variables(arg_list))
                return varnode_optimise_varargfunc(operation,arg_list);
 
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             if (details::e_smulti == operation)
             {
                expression_node_ptr result = node_allocator_->
-                 allocate<details::str_vararg_node<Type,details::vararg_multi_op<Type> > >(arg_list);
+                 allocate<details::string_nodes::str_vararg_node<Type,details::vararg_multi_op<Type> > >(arg_list);
                if (result && result->valid())
                {
                   return result;
@@ -11628,7 +11653,7 @@ namespace math_expr
             }
          }
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline expression_node_ptr string_function_call(igeneric_function_t* gf,
                                                          std::vector<expression_node_ptr>& arg_list,
                                                          const std::size_t& param_seq_index = std::numeric_limits<std::size_t>::max())
@@ -11983,7 +12008,7 @@ namespace math_expr
                                                      .get_variable_name(node);
                                     break;
 
-               #ifndef math_expr_disable_string_capabilities
+               #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                case e_st_string   : symbol_name = parser_->symtab_store_
                                                      .get_stringvar_name(node);
                                     break;
@@ -12054,7 +12079,7 @@ namespace math_expr
                   case details::expression_node<T>::e_vector:
                      return reinterpret_cast<const void*>(static_cast<vector_node_t*>(node)->vec_holder().data());
 
-                  #ifndef math_expr_disable_string_capabilities
+                  #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                   case details::expression_node<T>::e_stringvar:
                      return reinterpret_cast<const void*>((static_cast<stringvar_node_t*>(node)->base()));
 
@@ -12133,7 +12158,7 @@ namespace math_expr
                lodge_assignment(e_st_vecelem,branch[0]);
                return synthesize_expression<assignment_rebasevec_celem_node_t, 2>(operation, branch);
             }
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (details::is_string_node(branch[0]))
             {
                lodge_assignment(e_st_string,branch[0]);
@@ -12408,18 +12433,18 @@ namespace math_expr
                   }
                }
             }
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (
                       (details::e_addass == operation) &&
                       details::is_string_node(branch[0])
                     )
             {
-               typedef details::assignment_string_node<T,details::asn_addassignment> addass_t;
+               typedef details::string_nodes::assignment_string_node<T,details::string_nodes::asn_addassignment> addass_t;
 
                lodge_assignment(e_st_string,branch[0]);
 
                result = synthesize_expression<addass_t,2>(operation,branch);
-               node_name = "assignment_string_node<T,details::asn_addassignment>";
+               node_name = "assignment_string_node<T,details::string_nodes::asn_addassignment>";
             }
             #endif
             else
@@ -12634,7 +12659,7 @@ namespace math_expr
             const bool v0_is_ivec = details::is_ivector_node  (branch[0]);
             const bool v1_is_ivec = details::is_ivector_node  (branch[1]);
 
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             const bool v0_is_str = details::is_generally_string_node(branch[0]);
             const bool v1_is_str = details::is_generally_string_node(branch[1]);
             #endif
@@ -12668,18 +12693,18 @@ namespace math_expr
                result    = node_allocator_->allocate<details::swap_vecvec_node<T> >(branch[0],branch[1]);
                node_name = "swap_vecvec_node";
             }
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (v0_is_str && v1_is_str)
             {
                if (is_string_node(branch[0]) && is_string_node(branch[1]))
                {
-                  result = node_allocator_->allocate<details::swap_string_node<T> >
+                  result = node_allocator_->allocate<details::string_nodes::swap_string_node<T> >
                                                (branch[0], branch[1]);
                   node_name = "swap_string_node";
                }
                else
                {
-                  result = node_allocator_->allocate<details::swap_genstrings_node<T> >
+                  result = node_allocator_->allocate<details::string_nodes::swap_genstrings_node<T> >
                                                (branch[0], branch[1]);
                   node_name = "swap_genstrings_node";
                }
@@ -18676,7 +18701,7 @@ namespace math_expr
          #undef extended_opr_switch_statements
          #undef unary_opr_switch_statements
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
          #define string_opr_switch_statements            \
          case_stmt(details::e_lt    , details::lt_op   ) \
@@ -18760,19 +18785,19 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_sos_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string& s0 = static_cast<details::stringvar_node<Type>*>(branch[0])->ref();
-            std::string& s1 = static_cast<details::stringvar_node<Type>*>(branch[1])->ref();
+            std::string& s0 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
+            std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
 
             return synthesize_sos_expression_impl<std::string&,std::string&>(opr, s0, s1);
          }
 
          inline expression_node_ptr synthesize_sros_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string&  s0 = static_cast<details::string_range_node<Type>*>(branch[0])->ref  ();
-            std::string&  s1 = static_cast<details::stringvar_node<Type>*>   (branch[1])->ref  ();
-            range_t      rp0 = static_cast<details::string_range_node<Type>*>(branch[0])->range();
+            std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref  ();
+            std::string&  s1 = static_cast<details::string_nodes::stringvar_node<Type>*>   (branch[1])->ref  ();
+            range_t      rp0 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range();
 
-            static_cast<details::string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
 
@@ -18781,11 +18806,11 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_sosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string&  s0 = static_cast<details::stringvar_node<Type>*>   (branch[0])->ref  ();
-            std::string&  s1 = static_cast<details::string_range_node<Type>*>(branch[1])->ref  ();
-            range_t      rp1 = static_cast<details::string_range_node<Type>*>(branch[1])->range();
+            std::string&  s0 = static_cast<details::string_nodes::stringvar_node<Type>*>   (branch[0])->ref  ();
+            std::string&  s1 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref  ();
+            range_t      rp1 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range();
 
-            static_cast<details::string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[1]);
 
@@ -18794,11 +18819,11 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_socsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string&  s0 = static_cast<details::stringvar_node<Type>*>         (branch[0])->ref  ();
-            std::string   s1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->str  ();
-            range_t      rp1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->range();
+            std::string&  s0 = static_cast<details::string_nodes::stringvar_node<Type>*>         (branch[0])->ref  ();
+            std::string   s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
+            range_t      rp1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range();
 
-            static_cast<details::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[1]);
 
@@ -18807,13 +18832,13 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_srosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string&  s0 = static_cast<details::string_range_node<Type>*>(branch[0])->ref  ();
-            std::string&  s1 = static_cast<details::string_range_node<Type>*>(branch[1])->ref  ();
-            range_t      rp0 = static_cast<details::string_range_node<Type>*>(branch[0])->range();
-            range_t      rp1 = static_cast<details::string_range_node<Type>*>(branch[1])->range();
+            std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref  ();
+            std::string&  s1 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref  ();
+            range_t      rp0 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range();
+            range_t      rp1 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range();
 
-            static_cast<details::string_range_node<Type>*>(branch[0])->range_ref().clear();
-            static_cast<details::string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
             details::free_node(*node_allocator_,branch[1]);
@@ -18823,7 +18848,7 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_socs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string& s0 = static_cast<     details::stringvar_node<Type>*>(branch[0])->ref();
+            std::string& s0 = static_cast<     details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
             std::string  s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
 
             details::free_node(*node_allocator_,branch[1]);
@@ -18834,7 +18859,7 @@ namespace math_expr
          inline expression_node_ptr synthesize_csos_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string  s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-            std::string& s1 = static_cast<details::stringvar_node<Type>*     >(branch[1])->ref();
+            std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[1])->ref();
 
             details::free_node(*node_allocator_,branch[0]);
 
@@ -18844,10 +18869,10 @@ namespace math_expr
          inline expression_node_ptr synthesize_csosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string  s0  = static_cast<details::string_literal_node<Type>*>(branch[0])->str  ();
-            std::string& s1  = static_cast<details::string_range_node<Type>*  >(branch[1])->ref  ();
-            range_t      rp1 = static_cast<details::string_range_node<Type>*  >(branch[1])->range();
+            std::string& s1  = static_cast<details::string_nodes::string_range_node<Type>*  >(branch[1])->ref  ();
+            range_t      rp1 = static_cast<details::string_nodes::string_range_node<Type>*  >(branch[1])->range();
 
-            static_cast<details::string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
             details::free_node(*node_allocator_,branch[1]);
@@ -18857,11 +18882,11 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_srocs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string&  s0 = static_cast<details::string_range_node<Type>*  >(branch[0])->ref  ();
+            std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*  >(branch[0])->ref  ();
             std::string   s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str  ();
-            range_t      rp0 = static_cast<details::string_range_node<Type>*  >(branch[0])->range();
+            range_t      rp0 = static_cast<details::string_nodes::string_range_node<Type>*  >(branch[0])->range();
 
-            static_cast<details::string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
             details::free_node(*node_allocator_,branch[1]);
@@ -18871,13 +18896,13 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_srocsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string&  s0 = static_cast<details::string_range_node<Type>*      >(branch[0])->ref  ();
-            std::string   s1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->str  ();
-            range_t      rp0 = static_cast<details::string_range_node<Type>*      >(branch[0])->range();
-            range_t      rp1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->range();
+            std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*      >(branch[0])->ref  ();
+            std::string   s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
+            range_t      rp0 = static_cast<details::string_nodes::string_range_node<Type>*      >(branch[0])->range();
+            range_t      rp1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range();
 
-            static_cast<details::string_range_node<Type>*>      (branch[0])->range_ref().clear();
-            static_cast<details::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>      (branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
             details::free_node(*node_allocator_,branch[1]);
@@ -18919,10 +18944,10 @@ namespace math_expr
          inline expression_node_ptr synthesize_csocsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             const std::string s0 = static_cast<details::string_literal_node<Type>*    >(branch[0])->str  ();
-                  std::string s1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->str  ();
-            range_t          rp1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->range();
+                  std::string s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
+            range_t          rp1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range();
 
-            static_cast<details::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
             details::free_node(*node_allocator_,branch[1]);
@@ -18932,11 +18957,11 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_csros_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            std::string   s0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->str  ();
-            std::string&  s1 = static_cast<details::stringvar_node<Type>*         >(branch[1])->ref  ();
-            range_t      rp0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->range();
+            std::string   s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
+            std::string&  s1 = static_cast<details::string_nodes::stringvar_node<Type>*         >(branch[1])->ref  ();
+            range_t      rp0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range();
 
-            static_cast<details::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
 
@@ -18945,13 +18970,13 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_csrosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            const std::string  s0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->str  ();
-                  std::string& s1 = static_cast<details::string_range_node<Type>*      >(branch[1])->ref  ();
-            const range_t     rp0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->range();
-            const range_t     rp1 = static_cast<details::string_range_node<Type>*      >(branch[1])->range();
+            const std::string  s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
+                  std::string& s1 = static_cast<details::string_nodes::string_range_node<Type>*      >(branch[1])->ref  ();
+            const range_t     rp0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range();
+            const range_t     rp1 = static_cast<details::string_nodes::string_range_node<Type>*      >(branch[1])->range();
 
-            static_cast<details::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
-            static_cast<details::string_range_node<Type>*>      (branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::string_range_node<Type>*>      (branch[1])->range_ref().clear();
 
             details::free_node(*node_allocator_,branch[0]);
             details::free_node(*node_allocator_,branch[1]);
@@ -18961,11 +18986,11 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_csrocs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            const std::string s0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->str  ();
+            const std::string s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
             const std::string s1 = static_cast<details::string_literal_node<Type>*    >(branch[1])->str  ();
-            const range_t    rp0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->range();
+            const range_t    rp0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range();
 
-            static_cast<details::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
 
             details::free_all_nodes(*node_allocator_,branch);
 
@@ -18974,13 +18999,13 @@ namespace math_expr
 
          inline expression_node_ptr synthesize_csrocsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
-            const std::string s0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->str  ();
-            const std::string s1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->str  ();
-            const range_t    rp0 = static_cast<details::const_string_range_node<Type>*>(branch[0])->range();
-            const range_t    rp1 = static_cast<details::const_string_range_node<Type>*>(branch[1])->range();
+            const std::string s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
+            const std::string s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
+            const range_t    rp0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range();
+            const range_t    rp1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range();
 
-            static_cast<details::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
-            static_cast<details::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->range_ref().clear();
+            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->range_ref().clear();
 
             details::free_all_nodes(*node_allocator_,branch);
 
@@ -19005,7 +19030,7 @@ namespace math_expr
          #undef string_opr_switch_statements
          #endif
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline expression_node_ptr synthesize_string_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             if ((0 == branch[0]) || (0 == branch[1]))
@@ -19092,7 +19117,7 @@ namespace math_expr
          }
          #endif
 
-         #ifndef math_expr_disable_string_capabilities
+         #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline expression_node_ptr synthesize_string_expression(const details::operator_type& opr, expression_node_ptr (&branch)[3])
          {
             if (details::e_inrange != opr)
@@ -19125,9 +19150,9 @@ namespace math_expr
                       details::is_string_node(branch[2])
                     )
             {
-               std::string& s0 = static_cast<details::stringvar_node<Type>*>(branch[0])->ref();
-               std::string& s1 = static_cast<details::stringvar_node<Type>*>(branch[1])->ref();
-               std::string& s2 = static_cast<details::stringvar_node<Type>*>(branch[2])->ref();
+               std::string& s0 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
+               std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
+               std::string& s2 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
 
                typedef typename details::sosos_node<Type, std::string&, std::string&, std::string&, details::inrange_op<Type> > inrange_t;
 
@@ -19140,7 +19165,7 @@ namespace math_expr
                     )
             {
                std::string  s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-               std::string& s1 = static_cast<details::stringvar_node<Type>*     >(branch[1])->ref();
+               std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[1])->ref();
                std::string  s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
 
                typedef typename details::sosos_node<Type, std::string, std::string&, std::string, details::inrange_op<Type> > inrange_t;
@@ -19156,9 +19181,9 @@ namespace math_expr
                             details::is_string_node(branch[2])
                     )
             {
-               std::string&  s0 = static_cast<details::stringvar_node<Type>*     >(branch[0])->ref();
+               std::string&  s0 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[0])->ref();
                std::string   s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-               std::string&  s2 = static_cast<details::stringvar_node<Type>*     >(branch[2])->ref();
+               std::string&  s2 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[2])->ref();
 
                typedef typename details::sosos_node<Type, std::string&, std::string, std::string&, details::inrange_op<Type> > inrange_t;
 
@@ -19172,8 +19197,8 @@ namespace math_expr
                       details::is_const_string_node(branch[2])
                     )
             {
-               std::string& s0 = static_cast<details::stringvar_node<Type>*     >(branch[0])->ref();
-               std::string& s1 = static_cast<details::stringvar_node<Type>*     >(branch[1])->ref();
+               std::string& s0 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[0])->ref();
+               std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[1])->ref();
                std::string  s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
 
                typedef typename details::sosos_node<Type, std::string&, std::string&, std::string, details::inrange_op<Type> > inrange_t;
@@ -19189,8 +19214,8 @@ namespace math_expr
                     )
             {
                std::string  s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-               std::string& s1 = static_cast<details::stringvar_node<Type>*     >(branch[1])->ref();
-               std::string& s2 = static_cast<details::stringvar_node<Type>*     >(branch[2])->ref();
+               std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[1])->ref();
+               std::string& s2 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[2])->ref();
 
                typedef typename details::sosos_node<Type, std::string, std::string&, std::string&, details::inrange_op<Type> > inrange_t;
 
@@ -19461,7 +19486,7 @@ namespace math_expr
                   e.register_local_data(se.data, se.size, 1);
                }
             }
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (scope_element::e_string == se.type)
             {
                if (se.str_node)
@@ -19478,7 +19503,7 @@ namespace math_expr
 
             se.var_node  = 0;
             se.vec_node  = 0;
-            #ifndef math_expr_disable_string_capabilities
+            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             se.str_node  = 0;
             #endif
             se.data      = 0;

@@ -4018,7 +4018,7 @@ bool run_test10()
 
       static inline bool string(math_expr::symbol_table<T>& symbol_table, const std::string& string_name, const std::string& str)
       {
-         math_expr::details::stringvar_node<T>* str_node = symbol_table.get_stringvar(string_name);
+         math_expr::details::string_nodes::stringvar_node<T>* str_node = symbol_table.get_stringvar(string_name);
 
          if (str_node)
             return (str_node->ref() == str);

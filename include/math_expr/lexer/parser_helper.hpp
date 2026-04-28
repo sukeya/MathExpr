@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_LEXER_PARSER_HELPER_HPP
 #define MATH_EXPR_LEXER_PARSER_HELPER_HPP
 
+#include "math_expr/core/string_utils.hpp"
+#include "math_expr/lexer/generator.hpp"
+
 namespace math_expr::lexer
 {
       class parser_helper

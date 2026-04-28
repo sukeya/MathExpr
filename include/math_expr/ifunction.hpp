@@ -34,6 +34,10 @@ limitations under the License.
 #ifndef MATH_EXPR_IFUNCTION_HPP
 #define MATH_EXPR_IFUNCTION_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/macros.hpp"
+#include "math_expr/function_traits.hpp"
+
 namespace math_expr
 {
    template <typename T>

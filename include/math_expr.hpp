@@ -48,28 +48,7 @@ limitations under the License.
 #ifndef INCLUDE_MATH_EXPR_HPP
 #define INCLUDE_MATH_EXPR_HPP
 
-#include <algorithm>
-#include <cassert>
-#include <cctype>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <deque>
-#include <fstream>
-#include <functional>
-#include <iterator>
-#include <limits>
-#include <list>
-#include <map>
-#include <set>
-#include <stack>
-#include <stdexcept>
-#include <string>
-#include <utility>
-#include <vector>
-
+#include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/fwd.hpp"
 #include "math_expr/core/macros.hpp"
 #include "math_expr/core/types.hpp"
@@ -96,6 +75,7 @@ limitations under the License.
 #include "math_expr/details/conditional_nodes.hpp"
 #include "math_expr/details/loop_nodes.hpp"
 #include "math_expr/details/vector_nodes.hpp"
+#include "math_expr/details/string_nodes.hpp"
 #include "math_expr/details/function_nodes.hpp"
 #include "math_expr/details/return_nodes.hpp"
 #include "math_expr/details/node_utils.hpp"
@@ -113,9 +93,9 @@ limitations under the License.
 #include "math_expr/function_compositor.hpp"
 #include "math_expr/timer.hpp"
 #include "math_expr/type_defs.hpp"
-#include "math_expr/rtl/io/print.hpp"
-#include "math_expr/rtl/io/file/open.hpp"
-#include "math_expr/rtl/vecops/helper.hpp"
+#include "math_expr/rtl/io/package.hpp"
+#include "math_expr/rtl/io/file/package.hpp"
+#include "math_expr/rtl/vecops/package.hpp"
 #include "math_expr/information/metadata.hpp"
 #include "math_expr/core/cleanup.hpp"
 

@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_LOOP_NODES_HPP
 #define MATH_EXPR_DETAILS_LOOP_NODES_HPP
 
+#include "math_expr/loop_runtime_check.hpp"
+#include "math_expr/details/literal_nodes.hpp"
+
 namespace math_expr::details
 {
       #ifndef math_expr_disable_break_continue

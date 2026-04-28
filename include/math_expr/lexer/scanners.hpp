@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_LEXER_SCANNERS_HPP
 #define MATH_EXPR_LEXER_SCANNERS_HPP
 
+#include "math_expr/lexer/generator.hpp"
+
 namespace math_expr::lexer
 {
       class helper_interface

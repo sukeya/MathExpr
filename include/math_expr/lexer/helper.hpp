@@ -34,6 +34,11 @@ limitations under the License.
 #ifndef MATH_EXPR_LEXER_HELPER_HPP
 #define MATH_EXPR_LEXER_HELPER_HPP
 
+#include "math_expr/core/string_utils.hpp"
+#include "math_expr/core/numeric.hpp"
+#include "math_expr/lexer/modifiers.hpp"
+#include "math_expr/lexer/joiners.hpp"
+
 namespace math_expr::lexer
 {
       namespace helper

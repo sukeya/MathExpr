@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_SELECT_HPP
 #define MATH_EXPR_RTL_VECOPS_SELECT_HPP
 
+#include "math_expr/rtl/vecops/details/helper.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -72,15 +74,15 @@ namespace math_expr::rtl::vecops
             std::size_t rng_idx0 = 4;
             std::size_t rng_idx1 = 5;
 
-            if (!helper::load_vector_range<T>::process(parameters, r0, r1, rng_idx0, rng_idx1, 0))
+            if (!details::load_vector_range<T>::process(parameters, r0, r1, rng_idx0, rng_idx1, 0))
             {
                return T(0);
             }
 
-            if (helper::invalid_range(out , r0, r1)) return T(0);
-            if (helper::invalid_range(mask, r0, r1)) return T(0);
-            if (helper::invalid_range(vec0, r0, r1)) return T(0);
-            if (helper::invalid_range(vec1, r0, r1)) return T(0);
+            if (details::invalid_range(out , r0, r1)) return T(0);
+            if (details::invalid_range(mask, r0, r1)) return T(0);
+            if (details::invalid_range(vec0, r0, r1)) return T(0);
+            if (details::invalid_range(vec1, r0, r1)) return T(0);
          }
 
          for (std::size_t i = r0; i <= r1; ++i)

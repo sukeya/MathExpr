@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_LEXER_TOKEN_HPP
 #define MATH_EXPR_LEXER_TOKEN_HPP
 
+#include "math_expr/core/std_includes.hpp"
+
 namespace math_expr::lexer
 {
       struct token

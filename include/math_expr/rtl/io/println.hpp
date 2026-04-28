@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_PRINTLN_HPP
 #define MATH_EXPR_RTL_IO_PRINTLN_HPP
 
+#include "math_expr/rtl/io/print.hpp"
+
 namespace math_expr::rtl::io
 {
    template <typename T>

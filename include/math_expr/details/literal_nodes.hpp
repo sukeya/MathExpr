@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_LITERAL_NODES_HPP
 #define MATH_EXPR_DETAILS_LITERAL_NODES_HPP
 
+#include "math_expr/details/expression_node.hpp"
+
 namespace math_expr::details
 {
       template <typename T>
@@ -207,7 +209,7 @@ namespace math_expr::details
          virtual const range_t& range_ref() const = 0;
       };
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       template <typename T>
       class string_base_node
       {

@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_TIMER_HPP
 #define MATH_EXPR_TIMER_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/types.hpp"
+
 #if defined(_MSC_VER) || defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #   ifndef NOMINMAX
 #      define NOMINMAX

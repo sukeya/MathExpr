@@ -34,6 +34,41 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_PACKAGE_HPP
 #define MATH_EXPR_RTL_VECOPS_PACKAGE_HPP
 
+#ifndef math_expr_disable_rtl_vecops
+
+#include "math_expr/symbol_table.hpp"
+#include "math_expr/rtl/vecops/all_false.hpp"
+#include "math_expr/rtl/vecops/all_true.hpp"
+#include "math_expr/rtl/vecops/any_false.hpp"
+#include "math_expr/rtl/vecops/any_true.hpp"
+#include "math_expr/rtl/vecops/assign.hpp"
+#include "math_expr/rtl/vecops/axpbsy.hpp"
+#include "math_expr/rtl/vecops/axpbsyz.hpp"
+#include "math_expr/rtl/vecops/axpby.hpp"
+#include "math_expr/rtl/vecops/axpbyz.hpp"
+#include "math_expr/rtl/vecops/axpbz.hpp"
+#include "math_expr/rtl/vecops/axpy.hpp"
+#include "math_expr/rtl/vecops/axpyz.hpp"
+#include "math_expr/rtl/vecops/copy.hpp"
+#include "math_expr/rtl/vecops/count.hpp"
+#include "math_expr/rtl/vecops/diff.hpp"
+#include "math_expr/rtl/vecops/dot.hpp"
+#include "math_expr/rtl/vecops/dotk.hpp"
+#include "math_expr/rtl/vecops/iota.hpp"
+#include "math_expr/rtl/vecops/max_elemwise.hpp"
+#include "math_expr/rtl/vecops/min_elemwise.hpp"
+#include "math_expr/rtl/vecops/nthelement.hpp"
+#include "math_expr/rtl/vecops/reverse.hpp"
+#include "math_expr/rtl/vecops/rol.hpp"
+#include "math_expr/rtl/vecops/ror.hpp"
+#include "math_expr/rtl/vecops/select.hpp"
+#include "math_expr/rtl/vecops/shift_left.hpp"
+#include "math_expr/rtl/vecops/shift_right.hpp"
+#include "math_expr/rtl/vecops/sort.hpp"
+#include "math_expr/rtl/vecops/sumk.hpp"
+#include "math_expr/rtl/vecops/threshold_above.hpp"
+#include "math_expr/rtl/vecops/threshold_below.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -123,5 +158,7 @@ namespace math_expr::rtl::vecops
    };
 
 } // math_expr::rtl::vecops
+
+#endif
 
 #endif

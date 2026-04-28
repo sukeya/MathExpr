@@ -5605,7 +5605,7 @@ into account when using ExprTk:
 
  (18) String  processing capabilities  are available  by default.  To
       turn them  off, the  following needs  to be  defined at compile
-      time: math_expr_disable_string_capabilities
+      time: MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
  (19) Composited functions can call themselves or any other functions
       that have been defined prior to their own definition.
@@ -5875,7 +5875,7 @@ the ExprTk header. The defines are as follows:
    (05) math_expr_disable_sc_andor
    (06) math_expr_disable_return_statement
    (07) math_expr_disable_enhanced_features
-   (08) math_expr_disable_string_capabilities
+   (08) MATH_EXPR_DISABLE_STRING_CAPABILITIES
    (09) math_expr_disable_superscalar_unroll
    (10) math_expr_disable_rtl_io
    (11) math_expr_disable_rtl_io_file
@@ -5915,7 +5915,7 @@ type instantiations.  This feature  will reduce  compilation times and
 binary sizes but will  also result in massive  performance degradation
 of expression evaluations.
 
-(08) math_expr_disable_string_capabilities
+(08) MATH_EXPR_DISABLE_STRING_CAPABILITIES
 This  define  will  disable all  string  processing  capabilities. Any
 expression that contains a string or string related syntax will result
 in a compilation failure.

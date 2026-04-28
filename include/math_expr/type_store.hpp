@@ -34,6 +34,10 @@ limitations under the License.
 #ifndef MATH_EXPR_TYPE_STORE_HPP
 #define MATH_EXPR_TYPE_STORE_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/fwd.hpp"
+#include "math_expr/core/numeric.hpp"
+
 namespace math_expr
 {
    template <typename T>

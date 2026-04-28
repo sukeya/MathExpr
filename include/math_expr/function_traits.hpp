@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_FUNCTION_TRAITS_HPP
 #define MATH_EXPR_FUNCTION_TRAITS_HPP
 
+#include "math_expr/core/std_includes.hpp"
+
 namespace math_expr
 {
    class function_traits

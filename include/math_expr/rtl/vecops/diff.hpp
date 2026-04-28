@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_DIFF_HPP
 #define MATH_EXPR_RTL_VECOPS_DIFF_HPP
 
+#include "math_expr/rtl/vecops/details/helper.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>

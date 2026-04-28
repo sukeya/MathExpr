@@ -34,6 +34,16 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_FILE_PACKAGE_HPP
 #define MATH_EXPR_RTL_IO_FILE_PACKAGE_HPP
 
+#ifndef math_expr_disable_rtl_io_file
+
+#include "math_expr/symbol_table.hpp"
+#include "math_expr/rtl/io/file/close.hpp"
+#include "math_expr/rtl/io/file/eof.hpp"
+#include "math_expr/rtl/io/file/getline.hpp"
+#include "math_expr/rtl/io/file/open.hpp"
+#include "math_expr/rtl/io/file/read.hpp"
+#include "math_expr/rtl/io/file/write.hpp"
+
 namespace math_expr::rtl::io::file
 {
    template <typename T>
@@ -70,4 +80,5 @@ namespace math_expr::rtl::io::file
    };
 } // math_expr::rtl::io::file
 
+#endif
 #endif

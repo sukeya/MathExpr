@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_CORE_STRING_UTILS_HPP
 #define MATH_EXPR_CORE_STRING_UTILS_HPP
 
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/types.hpp"
+
 namespace math_expr::details
 {
       #ifndef math_expr_disable_caseinsensitivity

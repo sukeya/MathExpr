@@ -34,6 +34,12 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_FUNCTION_NODES_HPP
 #define MATH_EXPR_DETAILS_FUNCTION_NODES_HPP
 
+#include "math_expr/ifunction.hpp"
+#include "math_expr/ivararg_function.hpp"
+#include "math_expr/igeneric_function.hpp"
+#include "math_expr/details/operator_nodes.hpp"
+#include "math_expr/details/vector_nodes.hpp"
+
 namespace math_expr::details
 {
       template <typename T, typename SpecialFunction>
@@ -2948,7 +2954,7 @@ namespace math_expr::details
                      }
                   }
                }
-               #ifndef math_expr_disable_string_capabilities
+               #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                else if (is_generally_string_node(arg_list_[i]))
                {
                   string_base_node<T>* sbn = reinterpret_cast<string_base_node<T>*>(0);
@@ -3064,7 +3070,7 @@ namespace math_expr::details
                   std::size_t r1    = 0;
 
                   const std::size_t data_size =
-                  #ifndef math_expr_disable_string_capabilities
+                  #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                      rdt.str_node ? rdt.str_node->size() : rdt.size;
                   #else
                      rdt.size;
@@ -3078,7 +3084,7 @@ namespace math_expr::details
                   type_store_t& ts = typestore_list_[index];
 
                   ts.size = rp.cache_size();
-                  #ifndef math_expr_disable_string_capabilities
+                  #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                   if (ts.type == type_store_t::e_string)
                      ts.data = const_cast<char_ptr>(rdt.str_node->base()) + rp.cache.first;
                   else
@@ -3103,7 +3109,7 @@ namespace math_expr::details
          std::vector<std::size_t>    range_param_list_;
       };
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       template <typename T, typename StringFunction>
       class string_function_node : public generic_function_node<T,StringFunction>
                                  , public string_base_node<T>
@@ -3238,7 +3244,7 @@ namespace math_expr::details
          std::size_t param_seq_index_;
       };
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       template <typename T, typename StringFunction>
       class multimode_strfunction_node final : public string_function_node<T,StringFunction>
       {

@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_LEXER_JOINERS_HPP
 #define MATH_EXPR_LEXER_JOINERS_HPP
 
+#include "math_expr/lexer/scanners.hpp"
+
 namespace math_expr::lexer
 {
       class token_joiner : public helper_interface

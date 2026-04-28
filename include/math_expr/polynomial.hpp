@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_POLYNOMIAL_HPP
 #define MATH_EXPR_POLYNOMIAL_HPP
 
+#include "math_expr/parser.hpp"
+
 namespace math_expr
 {
    namespace details

@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_RETURN_NODES_HPP
 #define MATH_EXPR_DETAILS_RETURN_NODES_HPP
 
+#include "math_expr/results_context.hpp"
+#include "math_expr/details/function_nodes.hpp"
+
 namespace math_expr::details
 {
       class return_exception {};

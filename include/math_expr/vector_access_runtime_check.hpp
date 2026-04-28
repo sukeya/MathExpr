@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_VECTOR_ACCESS_RUNTIME_CHECK_HPP
 #define MATH_EXPR_VECTOR_ACCESS_RUNTIME_CHECK_HPP
 
+#include "math_expr/core/std_includes.hpp"
+
 namespace math_expr
 {
    struct vector_access_runtime_check

@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_EXPRESSION_HELPER_HPP
 #define MATH_EXPR_EXPRESSION_HELPER_HPP
 
+#include "math_expr/expression.hpp"
+
 namespace math_expr
 {
    template <typename T>

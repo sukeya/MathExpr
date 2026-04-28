@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_NODE_UTILS_HPP
 #define MATH_EXPR_DETAILS_NODE_UTILS_HPP
 
+#include "math_expr/core/string_utils.hpp"
+#include "math_expr/details/return_nodes.hpp"
+
 namespace math_expr::details
 {
       template <typename T>
@@ -2837,7 +2840,7 @@ namespace math_expr::details
          branch_t branch_;
       };
 
-      #ifndef math_expr_disable_string_capabilities
+      #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
       template <typename T, typename SType0, typename SType1, typename Operation>
       class sos_node final : public sos_base_node<T>
       {

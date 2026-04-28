@@ -34,6 +34,8 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_DOTK_HPP
 #define MATH_EXPR_RTL_VECOPS_DOTK_HPP
 
+#include "math_expr/rtl/vecops/details/helper.hpp"
+
 namespace math_expr::rtl::vecops
 {
    template <typename T>
@@ -66,9 +68,9 @@ namespace math_expr::rtl::vecops
          std::size_t r0 = 0;
          std::size_t r1 = std::min(x.size(),y.size()) - 1;
 
-         if ((1 == ps_index) && !helper::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
+         if ((1 == ps_index) && !details::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
             return std::numeric_limits<T>::quiet_NaN();
-         else if (helper::invalid_range(y, r0, r1))
+         else if (details::invalid_range(y, r0, r1))
             return std::numeric_limits<T>::quiet_NaN();
 
          T result = T(0);

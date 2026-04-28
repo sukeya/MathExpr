@@ -34,6 +34,9 @@ limitations under the License.
 #ifndef MATH_EXPR_FUNCTION_COMPOSITOR_HPP
 #define MATH_EXPR_FUNCTION_COMPOSITOR_HPP
 
+#include "math_expr/expression.hpp"
+#include "math_expr/parser.hpp"
+
 namespace math_expr
 {
    template <typename T>
