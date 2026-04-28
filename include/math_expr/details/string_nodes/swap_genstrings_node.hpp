@@ -135,7 +135,7 @@ namespace math_expr::details::string_nodes
 
                   math_expr_loop( 0) math_expr_loop( 1)
                   math_expr_loop( 2) math_expr_loop( 3)
-                  #ifndef math_expr_disable_superscalar_unroll
+                  #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
                   math_expr_loop( 8) math_expr_loop( 9)
@@ -156,7 +156,7 @@ namespace math_expr::details::string_nodes
                   case N : { std::swap(s0[i], s1[i]); ++i; }  \
                   [[fallthrough]];                             \
 
-                  #ifndef math_expr_disable_superscalar_unroll
+                  #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                   case_stmt(15) case_stmt(14)
                   case_stmt(13) case_stmt(12)
                   case_stmt(11) case_stmt(10)

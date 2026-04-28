@@ -34,7 +34,7 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_FILE_PACKAGE_HPP
 #define MATH_EXPR_RTL_IO_FILE_PACKAGE_HPP
 
-#ifndef math_expr_disable_rtl_io_file
+#ifndef MATH_EXPR_DISABLE_RTL_IO_FILE
 
 #include "math_expr/symbol_table.hpp"
 #include "math_expr/rtl/io/file/close.hpp"

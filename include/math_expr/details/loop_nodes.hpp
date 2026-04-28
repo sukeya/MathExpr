@@ -39,7 +39,7 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      #ifndef math_expr_disable_break_continue
+      #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
       template <typename T>
       class break_exception
       {
@@ -506,7 +506,7 @@ namespace math_expr::details
          }
       };
 
-      #ifndef math_expr_disable_break_continue
+      #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
       template <typename T>
       class while_loop_bc_node : public while_loop_node<T>
       {

@@ -34,7 +34,7 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_PACKAGE_HPP
 #define MATH_EXPR_RTL_IO_PACKAGE_HPP
 
-#ifndef math_expr_disable_rtl_io
+#ifndef MATH_EXPR_DISABLE_RTL_IO
 
 #include "math_expr/rtl/io/print.hpp"
 #include "math_expr/rtl/io/println.hpp"

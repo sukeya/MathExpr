@@ -96,7 +96,7 @@ namespace math_expr
       typedef details::while_loop_rtc_node<T>                while_loop_rtc_node_t;
       typedef details::repeat_until_loop_rtc_node<T>         repeat_until_loop_rtc_node_t;
       typedef details::for_loop_rtc_node<T>                  for_loop_rtc_node_t;
-      #ifndef math_expr_disable_break_continue
+      #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
       typedef details::while_loop_bc_node<T>                 while_loop_bc_node_t;
       typedef details::repeat_until_loop_bc_node<T>          repeat_until_loop_bc_node_t;
       typedef details::for_loop_bc_node<T>                   for_loop_bc_node_t;
@@ -537,7 +537,7 @@ namespace math_expr
          : parser_(p)
          {
             parser_.state_.scope_depth++;
-            #ifdef math_expr_enable_debugging
+            #ifdef MATH_EXPR_ENABLE_DEBUGGING
             const std::string depth(2 * parser_.state_.scope_depth,'-');
             math_expr_debug(("%s> Scope Depth: %02d\n",
                           depth.c_str(),
@@ -549,7 +549,7 @@ namespace math_expr
          {
             parser_.sem_.deactivate(parser_.state_.scope_depth);
             parser_.state_.scope_depth--;
-            #ifdef math_expr_enable_debugging
+            #ifdef MATH_EXPR_ENABLE_DEBUGGING
             const std::string depth(2 * parser_.state_.scope_depth,'-');
             math_expr_debug(("<%s Scope Depth: %02d\n",
                           depth.c_str(),
@@ -1309,7 +1309,7 @@ namespace math_expr
             parsing_loop_stmt_count = 0;
          }
 
-         #ifndef math_expr_enable_debugging
+         #ifndef MATH_EXPR_ENABLE_DEBUGGING
          void activate_side_effect(const std::string&)
          #else
          void activate_side_effect(const std::string& source)
@@ -2822,7 +2822,7 @@ namespace math_expr
          return settings_.inequality_disabled(operation);
       }
 
-      #ifdef math_expr_enable_debugging
+      #ifdef MATH_EXPR_ENABLE_DEBUGGING
       inline void next_token()
       {
          const std::string ct_str = current_token().value;
@@ -3098,7 +3098,7 @@ namespace math_expr
                      }
                      else if (details::imatch(current_token().value,s_and1))
                      {
-                        #ifndef math_expr_disable_sc_andor
+                        #ifndef MATH_EXPR_DISABLE_SC_ANDOR
                         current_state.set(e_level03, e_level04, details::e_scand, current_token());
                         #else
                         current_state.set(e_level03, e_level04, details::e_and, current_token());
@@ -3117,7 +3117,7 @@ namespace math_expr
                      }
                      else if (details::imatch(current_token().value,s_or1))
                      {
-                        #ifndef math_expr_disable_sc_andor
+                        #ifndef MATH_EXPR_DISABLE_SC_ANDOR
                         current_state.set(e_level01, e_level02, details::e_scor, current_token());
                         #else
                         current_state.set(e_level01, e_level02, details::e_or, current_token());
@@ -6896,7 +6896,7 @@ namespace math_expr
          return node_allocator_.allocate<details::null_node<T> >();
       }
 
-      #ifndef math_expr_disable_break_continue
+      #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
       inline expression_node_ptr parse_break_statement()
       {
          if (state_.parsing_break_stmt)
@@ -8295,7 +8295,7 @@ namespace math_expr
          return result;
       }
 
-      #ifndef math_expr_disable_return_statement
+      #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
       inline expression_node_ptr parse_return_statement()
       {
          if (state_.parsing_return_stmt)
@@ -9141,7 +9141,7 @@ namespace math_expr
          {
             return parse_null_statement();
          }
-         #ifndef math_expr_disable_break_continue
+         #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
          else if (details::imatch(symbol, symbol_break))
          {
             return parse_break_statement();
@@ -9163,7 +9163,7 @@ namespace math_expr
          {
             return parse_swap_statement();
          }
-         #ifndef math_expr_disable_return_statement
+         #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
          else if (
                    details::imatch(symbol, symbol_return) &&
                    settings_.control_struct_enabled(symbol)
@@ -9408,7 +9408,7 @@ namespace math_expr
 
          inline void init_synthesize_map()
          {
-            #ifndef math_expr_disable_enhanced_features
+            #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
             synthesize_map_["(v)o(v)"] = synthesize_vov_expression::process;
             synthesize_map_["(c)o(v)"] = synthesize_cov_expression::process;
             synthesize_map_["(v)o(c)"] = synthesize_voc_expression::process;
@@ -10047,7 +10047,7 @@ namespace math_expr
             return (b0_string && b1_string && b2_string && (details::e_inrange == operation));
          }
 
-         #ifndef math_expr_disable_sc_andor
+         #ifndef MATH_EXPR_DISABLE_SC_ANDOR
          inline bool is_shortcircuit_expression(const details::operator_type& operation) const
          {
             return (
@@ -10180,7 +10180,7 @@ namespace math_expr
             {
                return synthesize_null_expression(operation, branch);
             }
-            #ifndef math_expr_disable_cardinal_pow_optimisation
+            #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
             else if (is_constpow_operation(operation, branch))
             {
                return cardinal_pow_optimisation(branch);
@@ -10189,7 +10189,7 @@ namespace math_expr
 
             expression_node_ptr result = error_node();
 
-            #ifndef math_expr_disable_enhanced_features
+            #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
             if (synthesize_expression(operation, branch, result))
             {
                return result;
@@ -10240,7 +10240,7 @@ namespace math_expr
             {
                return synthesize_boc_expression::process((*this), operation, branch);
             }
-            #ifndef math_expr_disable_enhanced_features
+            #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
             else if (cov_optimisable(operation, branch))
             {
                return synthesize_cov_expression::process((*this), operation, branch);
@@ -10590,7 +10590,7 @@ namespace math_expr
                   return node_allocator_->allocate<while_loop_node_t>
                            (condition, branch);
             }
-            #ifndef math_expr_disable_break_continue
+            #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
             else
             {
                if (rtc)
@@ -10644,7 +10644,7 @@ namespace math_expr
                   return node_allocator_->allocate<repeat_until_loop_node_t>
                            (condition, branch);
             }
-            #ifndef math_expr_disable_break_continue
+            #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
             else
             {
                if (rtc)
@@ -10726,7 +10726,7 @@ namespace math_expr
                                              loop_body
                                           );
             }
-            #ifndef math_expr_disable_break_continue
+            #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
             else
             {
                if (rtc)
@@ -11728,7 +11728,7 @@ namespace math_expr
          }
          #endif
 
-         #ifndef math_expr_disable_return_statement
+         #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
          inline expression_node_ptr return_call(std::vector<expression_node_ptr>& arg_list)
          {
             if (!all_nodes_valid(arg_list))
@@ -12732,7 +12732,7 @@ namespace math_expr
             return error_node();
          }
 
-         #ifndef math_expr_disable_sc_andor
+         #ifndef MATH_EXPR_DISABLE_SC_ANDOR
          inline expression_node_ptr synthesize_shortcircuit_expression(const details::operator_type& operation, expression_node_ptr (&branch)[2])
          {
             expression_node_ptr result = error_node();
@@ -12812,7 +12812,7 @@ namespace math_expr
          case_stmt(details::e_xor  , details::xor_op ) \
          case_stmt(details::e_xnor , details::xnor_op) \
 
-         #ifndef math_expr_disable_cardinal_pow_optimisation
+         #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
          template <typename TType, template <typename, typename> class IPowNode>
          inline expression_node_ptr cardinal_pow_optimisation_impl(const TType& v, const unsigned int& p)
          {
@@ -13062,7 +13062,7 @@ namespace math_expr
             {
                const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref();
 
-               #ifndef math_expr_disable_enhanced_features
+               #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
                if (details::is_sf3ext_node(branch[1]))
                {
                   expression_node_ptr result = error_node();
@@ -13137,7 +13137,7 @@ namespace math_expr
             {
                const Type& v = static_cast<details::variable_node<Type>*>(branch[1])->ref();
 
-               #ifndef math_expr_disable_enhanced_features
+               #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
                if (details::is_sf3ext_node(branch[0]))
                {
                   expression_node_ptr result = error_node();
@@ -13320,7 +13320,7 @@ namespace math_expr
                      }
                   }
                }
-               #ifndef math_expr_disable_enhanced_features
+               #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
                else if (details::is_sf3ext_node(branch[1]))
                {
                   expression_node_ptr result = error_node();
@@ -13439,7 +13439,7 @@ namespace math_expr
                   }
                }
 
-               #ifndef math_expr_disable_enhanced_features
+               #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
                if (details::is_sf3ext_node(branch[0]))
                {
                   expression_node_ptr result = error_node();
@@ -13833,7 +13833,7 @@ namespace math_expr
             }
          };
 
-         #ifndef math_expr_disable_enhanced_features
+         #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
          inline bool synthesize_expression(const details::operator_type& operation,
                                            expression_node_ptr (&branch)[2],
                                            expression_node_ptr& result)
@@ -19697,7 +19697,7 @@ namespace math_expr
 
       inline void return_cleanup()
       {
-         #ifndef math_expr_disable_return_statement
+         #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
          if (results_context_)
          {
             delete results_context_;

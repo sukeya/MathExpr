@@ -39,7 +39,7 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      #ifndef math_expr_disable_caseinsensitivity
+      #ifndef MATH_EXPR_DISABLE_CASEINSENSITIVITY
       inline void case_normalise(std::string& s)
       {
          for (std::size_t i = 0; i < s.size(); ++i)

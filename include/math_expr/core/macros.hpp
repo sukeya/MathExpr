@@ -34,7 +34,7 @@ limitations under the License.
 #ifndef MATH_EXPR_CORE_MACROS_HPP
 #define MATH_EXPR_CORE_MACROS_HPP
 
-   #ifdef math_expr_enable_debugging
+   #ifdef MATH_EXPR_ENABLE_DEBUGGING
      #define math_expr_debug(params) printf params
    #else
      #define math_expr_debug(params) (void)0

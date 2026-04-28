@@ -4922,9 +4922,10 @@ as follows:
 
 To enable string access runtime checks all  one needs to  do is simply
 use the following  define before the  ExprTk header is  included or as
-part of the compilation define parameters:
+part of the compilation define parameters, or enable the same-named
+CMake cache variable:
 
-   math_expr_enable_range_runtime_checks
+   MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
 
 
 When  the above  define is used,  and a string  related runtime access
@@ -5866,49 +5867,50 @@ int main()
 When building ExprTk there are a number of defines that will enable or
 disable certain features and  capabilities. The defines can  either be
 part of a compiler command line switch or scoped around the include to
-the ExprTk header. The defines are as follows:
+the ExprTk header, or enabled via the same-named CMake cache variable.
+The defines are as follows:
 
-   (01) math_expr_enable_debugging
-   (02) math_expr_disable_cardinal_pow_optimisation
-   (03) math_expr_disable_comments
-   (04) math_expr_disable_break_continue
-   (05) math_expr_disable_sc_andor
-   (06) math_expr_disable_return_statement
-   (07) math_expr_disable_enhanced_features
+   (01) MATH_EXPR_ENABLE_DEBUGGING
+   (02) MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
+   (03) MATH_EXPR_DISABLE_COMMENTS
+   (04) MATH_EXPR_DISABLE_BREAK_CONTINUE
+   (05) MATH_EXPR_DISABLE_SC_ANDOR
+   (06) MATH_EXPR_DISABLE_RETURN_STATEMENT
+   (07) MATH_EXPR_DISABLE_ENHANCED_FEATURES
    (08) MATH_EXPR_DISABLE_STRING_CAPABILITIES
-   (09) math_expr_disable_superscalar_unroll
-   (10) math_expr_disable_rtl_io
-   (11) math_expr_disable_rtl_io_file
-   (12) math_expr_disable_rtl_vecops
-   (13) math_expr_disable_caseinsensitivity
-   (14) math_expr_enable_range_runtime_checks
+   (09) MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
+   (10) MATH_EXPR_DISABLE_RTL_IO
+   (11) MATH_EXPR_DISABLE_RTL_IO_FILE
+   (12) MATH_EXPR_DISABLE_RTL_VECOPS
+   (13) MATH_EXPR_DISABLE_CASEINSENSITIVITY
+   (14) MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
 
-(01) math_expr_enable_debugging
+(01) MATH_EXPR_ENABLE_DEBUGGING
 This define will enable printing of debug information to stdout during
 the compilation process.
 
-(02) math_expr_disable_cardinal_pow_optimisation
+(02) MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
 This  define   will  disable  the optimisation  invoked when  constant
 integers are used as powers in exponentiation expressions (eg: x^7).
 
-(03) math_expr_disable_comments
+(03) MATH_EXPR_DISABLE_COMMENTS
 This define will disable the ability for expressions to have comments.
 Expressions that have comments when parsed with a build that has  this
 option, will result in a compilation failure.
 
-(04) math_expr_disable_break_continue
+(04) MATH_EXPR_DISABLE_BREAK_CONTINUE
 This  define  will  disable  the  loop-wise  'break'  and   'continue'
 capabilities. Any expression that contains those keywords will  result
 in a compilation failure.
 
-(05) math_expr_disable_sc_andor
+(05) MATH_EXPR_DISABLE_SC_ANDOR
 This define  will disable  the short-circuit  '&' (and)  and '|'  (or)
 operators
 
-(06) math_expr_disable_return_statement
+(06) MATH_EXPR_DISABLE_RETURN_STATEMENT
 This define will disable use of return statements within expressions.
 
-(07) math_expr_disable_enhanced_features
+(07) MATH_EXPR_DISABLE_ENHANCED_FEATURES
 This  define  will  disable all  enhanced  features  such as  strength
 reduction and special  function optimisations and  expression specific
 type instantiations.  This feature  will reduce  compilation times and
@@ -5920,7 +5922,7 @@ This  define  will  disable all  string  processing  capabilities. Any
 expression that contains a string or string related syntax will result
 in a compilation failure.
 
-(09) math_expr_disable_superscalar_unroll
+(09) MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
 This define will set  the loop unroll batch  size to 4 operations  per
 loop  instead of  the default  8 operations.  This define  is used  in
 operations that  involve vectors  and aggregations  over vectors. When
@@ -5928,28 +5930,28 @@ targeting  non-superscalar  architectures, it  may  be recommended  to
 build using this particular option if efficiency of evaluations is  of
 concern.
 
-(10) math_expr_disable_rtl_io
+(10) MATH_EXPR_DISABLE_RTL_IO
 This define will  disable all of  basic IO RTL  package features. When
 present, any attempt to register the basic IO RTL package with a given
 symbol table will fail causing a compilation error.
 
-(11) math_expr_disable_rtl_io_file
+(11) MATH_EXPR_DISABLE_RTL_IO_FILE
 This  define will  disable  the  file I/O  RTL package  features. When
 present, any  attempts to register  the file I/O package with  a given
 symbol table will fail causing a compilation error.
 
-(12) math_expr_disable_rtl_vecops
+(12) MATH_EXPR_DISABLE_RTL_VECOPS
 This define will  disable the extended  vector operations RTL  package
 features. When present, any attempts to register the vector operations
 package with  a given  symbol table  will fail  causing a  compilation
 error.
 
-(13) math_expr_disable_caseinsensitivity
+(13) MATH_EXPR_DISABLE_CASEINSENSITIVITY
 This define  will disable  case-insensitivity when  matching variables
 and  functions. Furthermore  all reserved  and keywords  will only  be
 acknowledged when in all lower-case.
 
-(14) math_expr_enable_range_runtime_checks
+(14) MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
 This define will enable run-time checks pertaining to vector  indexing
 operations used  in any  of the  vector-to-vector and vector-to-scalar
 operations.

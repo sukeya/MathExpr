@@ -34,7 +34,7 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_VECOPS_PACKAGE_HPP
 #define MATH_EXPR_RTL_VECOPS_PACKAGE_HPP
 
-#ifndef math_expr_disable_rtl_vecops
+#ifndef MATH_EXPR_DISABLE_RTL_VECOPS
 
 #include "math_expr/symbol_table.hpp"
 #include "math_expr/rtl/vecops/all_false.hpp"

@@ -197,7 +197,7 @@ namespace math_expr::lexer
             return (s_end_ == itr);
          }
 
-         #ifndef math_expr_disable_comments
+         #ifndef MATH_EXPR_DISABLE_COMMENTS
          inline bool is_comment_start(details::char_cptr itr) const
          {
             const char_t c0 = *(itr + 0);
@@ -229,7 +229,7 @@ namespace math_expr::lexer
 
          inline void skip_comments()
          {
-            #ifndef math_expr_disable_comments
+            #ifndef MATH_EXPR_DISABLE_COMMENTS
             // The following comment styles are supported:
             // 1. // .... \n
             // 2. #  .... \n

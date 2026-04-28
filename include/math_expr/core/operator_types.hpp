@@ -160,7 +160,7 @@ namespace math_expr::details
       namespace loop_unroll
       {
          const unsigned int global_loop_batch_size =
-         #ifndef math_expr_disable_superscalar_unroll
+         #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
          16;
          #else
           4;
@@ -181,7 +181,7 @@ namespace math_expr::details
          };
       }
 
-      #ifdef math_expr_enable_debugging
+      #ifdef MATH_EXPR_ENABLE_DEBUGGING
       inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t size = 0)
       {
          if (size)
@@ -373,7 +373,7 @@ namespace math_expr::details
 
          inline void dump() const
          {
-            #ifdef math_expr_enable_debugging
+            #ifdef MATH_EXPR_ENABLE_DEBUGGING
             math_expr_debug(("size: %d\taddress:%p\tdestruct:%c\n",
                           size(),
                           data(),

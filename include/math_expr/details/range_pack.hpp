@@ -134,7 +134,7 @@ namespace math_expr::details
             cache.first  = r0;
             cache.second = r1;
 
-            #ifndef math_expr_enable_range_runtime_checks
+            #ifndef MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
             return (r0 <= r1);
             #else
             return range_runtime_check(r0, r1, size);
@@ -157,7 +157,7 @@ namespace math_expr::details
          std::pair<bool,std::size_t        > n1_c;
          mutable cached_range_t             cache;
 
-         #ifdef math_expr_enable_range_runtime_checks
+         #ifdef MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
          bool range_runtime_check(const std::size_t r0,
                                   const std::size_t r1,
                                   const std::size_t size) const

@@ -569,7 +569,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -587,7 +587,7 @@ namespace math_expr::details
                case N : *vec++ = v; \
                [[fallthrough]];   \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15) case_stmt(14)
                case_stmt(13) case_stmt(12)
                case_stmt(11) case_stmt(10)
@@ -735,7 +735,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -754,7 +754,7 @@ namespace math_expr::details
                case N : *vec0++ = *vec1++;       \
                fall_through                      \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
                case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
                case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
@@ -1189,7 +1189,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -1207,7 +1207,7 @@ namespace math_expr::details
                case N : Operation::assign(*vec++,v); \
                fall_through                          \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
                case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
                case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
@@ -1351,7 +1351,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -1372,7 +1372,7 @@ namespace math_expr::details
                case N : { vec0[i] = Operation::process(vec0[i], vec1[i]); ++i; } \
                fall_through                                                      \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
                case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
                case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
@@ -1618,7 +1618,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -1640,7 +1640,7 @@ namespace math_expr::details
                case N : { vec2[i] = Operation::process(vec0[i], vec1[i]); ++i; } \
                [[fallthrough]];                                                \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15) case_stmt(14)
                case_stmt(13) case_stmt(12)
                case_stmt(11) case_stmt(10)
@@ -1787,7 +1787,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -1808,7 +1808,7 @@ namespace math_expr::details
                case N : { vec1[i] = Operation::process(vec0[i], v); ++i; } \
                fall_through                                                \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
                case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
                case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
@@ -1951,7 +1951,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -1972,7 +1972,7 @@ namespace math_expr::details
                case N : { vec0[i] = Operation::process(v, vec1[i]); ++i; } \
                fall_through                                                \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
                case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
                case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
@@ -2113,7 +2113,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                math_expr_loop( 4) math_expr_loop( 5)
                math_expr_loop( 6) math_expr_loop( 7)
                math_expr_loop( 8) math_expr_loop( 9)
@@ -2134,7 +2134,7 @@ namespace math_expr::details
                case N : { vec1[i] = Operation::process(vec0[i]); ++i; } \
                [[fallthrough]];                                       \
 
-               #ifndef math_expr_disable_superscalar_unroll
+               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
                case_stmt(15) case_stmt(14)
                case_stmt(13) case_stmt(12)
                case_stmt(11) case_stmt(10)

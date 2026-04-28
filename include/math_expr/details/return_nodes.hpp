@@ -58,7 +58,7 @@ namespace math_expr::details
          }
       };
 
-      #ifndef math_expr_disable_return_statement
+      #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
       template <typename T>
       class return_node final : public generic_function_node<T,null_igenfunc<T> >
       {

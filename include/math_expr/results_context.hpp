@@ -39,7 +39,7 @@ limitations under the License.
 
 namespace math_expr
 {
-   #ifndef math_expr_disable_return_statement
+   #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
    namespace details
    {
       template <typename T> class return_node;
@@ -153,7 +153,7 @@ namespace math_expr
       bool results_available_;
       ts_list_t parameter_list_;
 
-      #ifndef math_expr_disable_return_statement
+      #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
       friend class details::return_node<T>;
       friend class details::return_envelope_node<T>;
       #endif
