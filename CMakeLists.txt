@@ -26,7 +26,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 4.3.1)
+cmake_minimum_required(VERSION 3.31.6)
 
 project(MathExpr VERSION 0.1.0 LANGUAGES CXX)
 
