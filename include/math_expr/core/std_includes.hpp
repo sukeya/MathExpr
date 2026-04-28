@@ -56,4 +56,6 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+#include "math_expr/core/config.hpp"
+
 #endif

@@ -135,14 +135,15 @@ namespace math_expr::details::string_nodes
 
                   math_expr_loop( 0) math_expr_loop( 1)
                   math_expr_loop( 2) math_expr_loop( 3)
-                  #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-                  math_expr_loop( 4) math_expr_loop( 5)
-                  math_expr_loop( 6) math_expr_loop( 7)
-                  math_expr_loop( 8) math_expr_loop( 9)
-                  math_expr_loop(10) math_expr_loop(11)
-                  math_expr_loop(12) math_expr_loop(13)
-                  math_expr_loop(14) math_expr_loop(15)
-                  #endif
+                  if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+                  {
+                     math_expr_loop( 4) math_expr_loop( 5)
+                     math_expr_loop( 6) math_expr_loop( 7)
+                     math_expr_loop( 8) math_expr_loop( 9)
+                     math_expr_loop(10) math_expr_loop(11)
+                     math_expr_loop(12) math_expr_loop(13)
+                     math_expr_loop(14) math_expr_loop(15)
+                  }
 
                   s0 += lud.batch_size;
                   s1 += lud.batch_size;
@@ -156,14 +157,15 @@ namespace math_expr::details::string_nodes
                   case N : { std::swap(s0[i], s1[i]); ++i; }  \
                   [[fallthrough]];                             \
 
-                  #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-                  case_stmt(15) case_stmt(14)
-                  case_stmt(13) case_stmt(12)
-                  case_stmt(11) case_stmt(10)
-                  case_stmt( 9) case_stmt( 8)
-                  case_stmt( 7) case_stmt( 6)
-                  case_stmt( 5) case_stmt( 4)
-                  #endif
+                  if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+                  {
+                     case_stmt(15) case_stmt(14)
+                     case_stmt(13) case_stmt(12)
+                     case_stmt(11) case_stmt(10)
+                     case_stmt( 9) case_stmt( 8)
+                     case_stmt( 7) case_stmt( 6)
+                     case_stmt( 5) case_stmt( 4)
+                  }
                   case_stmt( 3) case_stmt( 2)
                   case_stmt( 1)
                   default: break;

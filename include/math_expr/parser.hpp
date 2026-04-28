@@ -537,24 +537,26 @@ namespace math_expr
          : parser_(p)
          {
             parser_.state_.scope_depth++;
-            #ifdef MATH_EXPR_ENABLE_DEBUGGING
-            const std::string depth(2 * parser_.state_.scope_depth,'-');
-            math_expr_debug(("%s> Scope Depth: %02d\n",
-                          depth.c_str(),
-                          static_cast<int>(parser_.state_.scope_depth)));
-            #endif
+            if constexpr (::math_expr::config::build_options::kEnableDebugging)
+            {
+               const std::string depth(2 * parser_.state_.scope_depth,'-');
+               math_expr_debug(("%s> Scope Depth: %02d\n",
+                             depth.c_str(),
+                             static_cast<int>(parser_.state_.scope_depth)));
+            }
          }
 
         ~scope_handler()
          {
             parser_.sem_.deactivate(parser_.state_.scope_depth);
             parser_.state_.scope_depth--;
-            #ifdef MATH_EXPR_ENABLE_DEBUGGING
-            const std::string depth(2 * parser_.state_.scope_depth,'-');
-            math_expr_debug(("<%s Scope Depth: %02d\n",
-                          depth.c_str(),
-                          static_cast<int>(parser_.state_.scope_depth)));
-            #endif
+            if constexpr (::math_expr::config::build_options::kEnableDebugging)
+            {
+               const std::string depth(2 * parser_.state_.scope_depth,'-');
+               math_expr_debug(("<%s Scope Depth: %02d\n",
+                             depth.c_str(),
+                             static_cast<int>(parser_.state_.scope_depth)));
+            }
          }
 
       private:
@@ -1309,17 +1311,16 @@ namespace math_expr
             parsing_loop_stmt_count = 0;
          }
 
-         #ifndef MATH_EXPR_ENABLE_DEBUGGING
-         void activate_side_effect(const std::string&)
-         #else
          void activate_side_effect(const std::string& source)
-         #endif
          {
             if (!side_effect_present)
             {
                side_effect_present = true;
 
-               math_expr_debug(("activate_side_effect() - caller: %s\n", source.c_str()));
+               if constexpr (::math_expr::config::build_options::kEnableDebugging)
+               {
+                  math_expr_debug(("activate_side_effect() - caller: %s\n", source.c_str()));
+               }
             }
          }
 
@@ -2822,23 +2823,31 @@ namespace math_expr
          return settings_.inequality_disabled(operation);
       }
 
-      #ifdef MATH_EXPR_ENABLE_DEBUGGING
       inline void next_token()
       {
-         const std::string ct_str = current_token().value;
-         const std::size_t ct_pos = current_token().position;
+         std::string ct_str;
+         std::size_t ct_pos = 0;
+
+         if constexpr (::math_expr::config::build_options::kEnableDebugging)
+         {
+            ct_str = current_token().value;
+            ct_pos = current_token().position;
+         }
+
          parser_helper::next_token();
-         const std::string depth(2 * state_.scope_depth,' ');
-         math_expr_debug(("%s"
-                       "prev[%s | %04d] --> curr[%s | %04d]  stack_level: %3d\n",
-                       depth.c_str(),
-                       ct_str.c_str(),
-                       static_cast<unsigned int>(ct_pos),
-                       current_token().value.c_str(),
-                       static_cast<unsigned int>(current_token().position),
-                       static_cast<unsigned int>(state_.stack_depth)));
+         if constexpr (::math_expr::config::build_options::kEnableDebugging)
+         {
+            const std::string depth(2 * state_.scope_depth,' ');
+            math_expr_debug(("%s"
+                          "prev[%s | %04d] --> curr[%s | %04d]  stack_level: %3d\n",
+                          depth.c_str(),
+                          ct_str.c_str(),
+                          static_cast<unsigned int>(ct_pos),
+                          current_token().value.c_str(),
+                          static_cast<unsigned int>(current_token().position),
+                          static_cast<unsigned int>(state_.stack_depth)));
+         }
       }
-      #endif
 
       inline expression_node_ptr parse_corpus()
       {
@@ -3098,11 +3107,12 @@ namespace math_expr
                      }
                      else if (details::imatch(current_token().value,s_and1))
                      {
-                        #ifndef MATH_EXPR_DISABLE_SC_ANDOR
-                        current_state.set(e_level03, e_level04, details::e_scand, current_token());
-                        #else
-                        current_state.set(e_level03, e_level04, details::e_and, current_token());
-                        #endif
+                        current_state.set(
+                           e_level03,
+                           e_level04,
+                           ::math_expr::config::build_options::kDisableScAndOr ?
+                              details::e_and : details::e_scand,
+                           current_token());
                         break;
                      }
                      else if (details::imatch(current_token().value,s_nand))
@@ -3117,11 +3127,12 @@ namespace math_expr
                      }
                      else if (details::imatch(current_token().value,s_or1))
                      {
-                        #ifndef MATH_EXPR_DISABLE_SC_ANDOR
-                        current_state.set(e_level01, e_level02, details::e_scor, current_token());
-                        #else
-                        current_state.set(e_level01, e_level02, details::e_or, current_token());
-                        #endif
+                        current_state.set(
+                           e_level01,
+                           e_level02,
+                           ::math_expr::config::build_options::kDisableScAndOr ?
+                              details::e_or : details::e_scor,
+                           current_token());
                         break;
                      }
                      else if (details::imatch(current_token().value,s_nor))
@@ -10047,20 +10058,20 @@ namespace math_expr
             return (b0_string && b1_string && b2_string && (details::e_inrange == operation));
          }
 
-         #ifndef MATH_EXPR_DISABLE_SC_ANDOR
          inline bool is_shortcircuit_expression(const details::operator_type& operation) const
          {
-            return (
-                     (details::e_scand == operation) ||
-                     (details::e_scor  == operation)
-                   );
+            if constexpr (::math_expr::config::build_options::kDisableScAndOr)
+            {
+               return false;
+            }
+            else
+            {
+               return (
+                        (details::e_scand == operation) ||
+                        (details::e_scor  == operation)
+                      );
+            }
          }
-         #else
-         inline bool is_shortcircuit_expression(const details::operator_type&) const
-         {
-            return false;
-         }
-         #endif
 
          inline bool is_null_present(expression_node_ptr (&branch)[2]) const
          {
@@ -10180,12 +10191,13 @@ namespace math_expr
             {
                return synthesize_null_expression(operation, branch);
             }
-            #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
             else if (is_constpow_operation(operation, branch))
             {
-               return cardinal_pow_optimisation(branch);
+               if constexpr (!::math_expr::config::build_options::kDisableCardinalPowOptimisation)
+               {
+                  return cardinal_pow_optimisation(branch);
+               }
             }
-            #endif
 
             expression_node_ptr result = error_node();
 
@@ -10194,31 +10206,28 @@ namespace math_expr
             {
                return result;
             }
-            else
             #endif
 
+            /*
+               Possible reductions:
+               1. c o cob -> cob
+               2. cob o c -> cob
+               3. c o boc -> boc
+               4. boc o c -> boc
+            */
+            result = error_node();
+
+            if (cocob_optimisable(operation, branch))
             {
-               /*
-                  Possible reductions:
-                  1. c o cob -> cob
-                  2. cob o c -> cob
-                  3. c o boc -> boc
-                  4. boc o c -> boc
-               */
-               result = error_node();
-
-               if (cocob_optimisable(operation, branch))
-               {
-                  result = synthesize_cocob_expression::process((*this), operation, branch);
-               }
-               else if (coboc_optimisable(operation, branch) && (0 == result))
-               {
-                  result = synthesize_coboc_expression::process((*this), operation, branch);
-               }
-
-               if (result)
-                  return result;
+               result = synthesize_cocob_expression::process((*this), operation, branch);
             }
+            else if (coboc_optimisable(operation, branch) && (0 == result))
+            {
+               result = synthesize_coboc_expression::process((*this), operation, branch);
+            }
+
+            if (result)
+               return result;
 
             if (uvouv_optimisable(operation, branch))
             {
@@ -12732,9 +12741,13 @@ namespace math_expr
             return error_node();
          }
 
-         #ifndef MATH_EXPR_DISABLE_SC_ANDOR
          inline expression_node_ptr synthesize_shortcircuit_expression(const details::operator_type& operation, expression_node_ptr (&branch)[2])
          {
+            if constexpr (::math_expr::config::build_options::kDisableScAndOr)
+            {
+               return error_node();
+            }
+
             expression_node_ptr result = error_node();
 
             if (details::is_constant_node(branch[0]))
@@ -12783,12 +12796,6 @@ namespace math_expr
             else
                return error_node();
          }
-         #else
-         inline expression_node_ptr synthesize_shortcircuit_expression(const details::operator_type&, expression_node_ptr (&)[2])
-         {
-            return error_node();
-         }
-         #endif
 
          #define basic_opr_switch_statements         \
          case_stmt(details::e_add , details::add_op) \

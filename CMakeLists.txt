@@ -57,6 +57,53 @@ set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+function(math_expr_set_bool_literal option_name output_var)
+  if(${option_name})
+    set(${output_var} true PARENT_SCOPE)
+  else()
+    set(${output_var} false PARENT_SCOPE)
+  endif()
+endfunction()
+
+math_expr_set_bool_literal(MATH_EXPR_ENABLE_DEBUGGING
+  MATH_EXPR_ENABLE_DEBUGGING_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
+  MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_COMMENTS
+  MATH_EXPR_DISABLE_COMMENTS_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_BREAK_CONTINUE
+  MATH_EXPR_DISABLE_BREAK_CONTINUE_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_SC_ANDOR
+  MATH_EXPR_DISABLE_SC_ANDOR_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_RETURN_STATEMENT
+  MATH_EXPR_DISABLE_RETURN_STATEMENT_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_ENHANCED_FEATURES
+  MATH_EXPR_DISABLE_ENHANCED_FEATURES_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_STRING_CAPABILITIES
+  MATH_EXPR_DISABLE_STRING_CAPABILITIES_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
+  MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_RTL_IO
+  MATH_EXPR_DISABLE_RTL_IO_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_RTL_IO_FILE
+  MATH_EXPR_DISABLE_RTL_IO_FILE_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_RTL_VECOPS
+  MATH_EXPR_DISABLE_RTL_VECOPS_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_DISABLE_CASEINSENSITIVITY
+  MATH_EXPR_DISABLE_CASEINSENSITIVITY_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
+  MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS_BOOL)
+
+set(math_expr_generated_include_dir
+  "${CMAKE_CURRENT_BINARY_DIR}/generated_include")
+set(math_expr_generated_config_header
+  "${math_expr_generated_include_dir}/math_expr/core/config.hpp")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/math_expr/core/config.hpp.in"
+  "${math_expr_generated_config_header}"
+  @ONLY
+)
+
 add_library(MathExpr INTERFACE)
 
 target_compile_features(MathExpr INTERFACE cxx_std_20)
@@ -79,6 +126,7 @@ target_compile_definitions(MathExpr INTERFACE
 )
 target_include_directories(MathExpr INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/MathExpr>
+  $<BUILD_INTERFACE:${math_expr_generated_include_dir}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
@@ -92,6 +140,15 @@ install(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/MathExpr
+  FILES_MATCHING
+  PATTERN "*.hpp"
+)
+
+install(
+  FILES
+    ${math_expr_generated_config_header}
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}/MathExpr/math_expr/core
 )
 
 install(EXPORT MathExprTargets

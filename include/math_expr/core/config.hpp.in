@@ -1,0 +1,140 @@
+/*
+ **************************************************************
+ *         C++ Mathematical Expression Toolkit Library        *
+ *                                                            *
+ * Simple Example 02                                          *
+ * Author: Arash Partow (1999-2025)                           *
+ * URL: https://www.partow.net/programming/exprtk/index.html  *
+ *                                                            *
+ * Copyright notice:                                          *
+ * Free use of the Mathematical Expression Toolkit Library is *
+ * permitted under the guidelines and in accordance with the  *
+ * most current version of the MIT License.                   *
+ * https://www.opensource.org/licenses/MIT                    *
+ * SPDX-License-Identifier: MIT                               *
+ *                                                            *
+ **************************************************************
+
+
+Copyright 2026 Yuya Asano <my_favorite_theory@yahoo.co.jp>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+#ifndef MATH_EXPR_CORE_CONFIG_HPP
+#define MATH_EXPR_CORE_CONFIG_HPP
+
+// Compatibility switches for existing `#ifdef`-based integrations.
+#cmakedefine01 MATH_EXPR_ENABLE_DEBUGGING_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_COMMENTS_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_BREAK_CONTINUE_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_SC_ANDOR_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_RETURN_STATEMENT_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_ENHANCED_FEATURES_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_STRING_CAPABILITIES_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_RTL_IO_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_RTL_IO_FILE_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_RTL_VECOPS_CONFIGURED
+#cmakedefine01 MATH_EXPR_DISABLE_CASEINSENSITIVITY_CONFIGURED
+#cmakedefine01 MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS_CONFIGURED
+
+#if MATH_EXPR_ENABLE_DEBUGGING_CONFIGURED && !defined(MATH_EXPR_ENABLE_DEBUGGING)
+#define MATH_EXPR_ENABLE_DEBUGGING
+#endif
+#if MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION)
+#define MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
+#endif
+#if MATH_EXPR_DISABLE_COMMENTS_CONFIGURED && !defined(MATH_EXPR_DISABLE_COMMENTS)
+#define MATH_EXPR_DISABLE_COMMENTS
+#endif
+#if MATH_EXPR_DISABLE_BREAK_CONTINUE_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_BREAK_CONTINUE)
+#define MATH_EXPR_DISABLE_BREAK_CONTINUE
+#endif
+#if MATH_EXPR_DISABLE_SC_ANDOR_CONFIGURED && !defined(MATH_EXPR_DISABLE_SC_ANDOR)
+#define MATH_EXPR_DISABLE_SC_ANDOR
+#endif
+#if MATH_EXPR_DISABLE_RETURN_STATEMENT_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_RETURN_STATEMENT)
+#define MATH_EXPR_DISABLE_RETURN_STATEMENT
+#endif
+#if MATH_EXPR_DISABLE_ENHANCED_FEATURES_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_ENHANCED_FEATURES)
+#define MATH_EXPR_DISABLE_ENHANCED_FEATURES
+#endif
+#if MATH_EXPR_DISABLE_STRING_CAPABILITIES_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_STRING_CAPABILITIES)
+#define MATH_EXPR_DISABLE_STRING_CAPABILITIES
+#endif
+#if MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL)
+#define MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
+#endif
+#if MATH_EXPR_DISABLE_RTL_IO_CONFIGURED && !defined(MATH_EXPR_DISABLE_RTL_IO)
+#define MATH_EXPR_DISABLE_RTL_IO
+#endif
+#if MATH_EXPR_DISABLE_RTL_IO_FILE_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_RTL_IO_FILE)
+#define MATH_EXPR_DISABLE_RTL_IO_FILE
+#endif
+#if MATH_EXPR_DISABLE_RTL_VECOPS_CONFIGURED && !defined(MATH_EXPR_DISABLE_RTL_VECOPS)
+#define MATH_EXPR_DISABLE_RTL_VECOPS
+#endif
+#if MATH_EXPR_DISABLE_CASEINSENSITIVITY_CONFIGURED && \
+    !defined(MATH_EXPR_DISABLE_CASEINSENSITIVITY)
+#define MATH_EXPR_DISABLE_CASEINSENSITIVITY
+#endif
+#if MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS_CONFIGURED && \
+    !defined(MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS)
+#define MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
+#endif
+
+namespace math_expr::config
+{
+   struct build_options final
+   {
+      static constexpr bool kEnableDebugging =
+         @MATH_EXPR_ENABLE_DEBUGGING_BOOL@;
+      static constexpr bool kDisableCardinalPowOptimisation =
+         @MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION_BOOL@;
+      static constexpr bool kDisableComments =
+         @MATH_EXPR_DISABLE_COMMENTS_BOOL@;
+      static constexpr bool kDisableBreakContinue =
+         @MATH_EXPR_DISABLE_BREAK_CONTINUE_BOOL@;
+      static constexpr bool kDisableScAndOr =
+         @MATH_EXPR_DISABLE_SC_ANDOR_BOOL@;
+      static constexpr bool kDisableReturnStatement =
+         @MATH_EXPR_DISABLE_RETURN_STATEMENT_BOOL@;
+      static constexpr bool kDisableEnhancedFeatures =
+         @MATH_EXPR_DISABLE_ENHANCED_FEATURES_BOOL@;
+      static constexpr bool kDisableStringCapabilities =
+         @MATH_EXPR_DISABLE_STRING_CAPABILITIES_BOOL@;
+      static constexpr bool kDisableSuperscalarUnroll =
+         @MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL_BOOL@;
+      static constexpr bool kDisableRtlIo =
+         @MATH_EXPR_DISABLE_RTL_IO_BOOL@;
+      static constexpr bool kDisableRtlIoFile =
+         @MATH_EXPR_DISABLE_RTL_IO_FILE_BOOL@;
+      static constexpr bool kDisableRtlVecops =
+         @MATH_EXPR_DISABLE_RTL_VECOPS_BOOL@;
+      static constexpr bool kDisableCaseInsensitivity =
+         @MATH_EXPR_DISABLE_CASEINSENSITIVITY_BOOL@;
+      static constexpr bool kEnableRangeRuntimeChecks =
+         @MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS_BOOL@;
+   };
+} // namespace math_expr::config
+
+#endif

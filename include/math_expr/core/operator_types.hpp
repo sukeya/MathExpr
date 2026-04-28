@@ -159,12 +159,9 @@ namespace math_expr::details
 
       namespace loop_unroll
       {
-         const unsigned int global_loop_batch_size =
-         #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-         16;
-         #else
-          4;
-         #endif
+         static constexpr unsigned int global_loop_batch_size =
+            ::math_expr::config::build_options::kDisableSuperscalarUnroll ?
+            4u : 16u;
 
          struct details
          {
@@ -181,38 +178,37 @@ namespace math_expr::details
          };
       }
 
-      #ifdef MATH_EXPR_ENABLE_DEBUGGING
       inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t size = 0)
       {
-         if (size)
-            math_expr_debug(("%s - addr: %p size: %d\n",
-                          s.c_str(),
-                          ptr,
-                          static_cast<unsigned int>(size)));
-         else
-            math_expr_debug(("%s - addr: %p\n", s.c_str(), ptr));
+         if constexpr (::math_expr::config::build_options::kEnableDebugging)
+         {
+            if (size)
+               math_expr_debug(("%s - addr: %p size: %d\n",
+                             s.c_str(),
+                             ptr,
+                             static_cast<unsigned int>(size)));
+            else
+               math_expr_debug(("%s - addr: %p\n", s.c_str(), ptr));
+         }
       }
 
       template <typename T>
       inline void dump_vector(const std::string& vec_name, const T* data, const std::size_t size)
       {
-         printf("----- %s (%p) -----\n",
-                vec_name.c_str(),
-                static_cast<const void*>(data));
-         printf("[ ");
-         for (std::size_t i = 0; i <  size; ++i)
+         if constexpr (::math_expr::config::build_options::kEnableDebugging)
          {
-            printf("%8.3f\t", data[i]);
+            std::printf("----- %s (%p) -----\n",
+                        vec_name.c_str(),
+                        static_cast<const void*>(data));
+            std::printf("[ ");
+            for (std::size_t i = 0; i <  size; ++i)
+            {
+               std::printf("%8.3f\t", data[i]);
+            }
+            std::printf(" ]\n");
+            std::printf("---------------------\n");
          }
-         printf(" ]\n");
-         printf("---------------------\n");
       }
-      #else
-      inline void dump_ptr(const std::string&, const void*) {}
-      inline void dump_ptr(const std::string&, const void*, const std::size_t) {}
-      template <typename T>
-      inline void dump_vector(const std::string&, const T*, const std::size_t) {}
-      #endif
 
       template <typename T>
       class vec_data_store
@@ -373,21 +369,22 @@ namespace math_expr::details
 
          inline void dump() const
          {
-            #ifdef MATH_EXPR_ENABLE_DEBUGGING
-            math_expr_debug(("size: %d\taddress:%p\tdestruct:%c\n",
-                          size(),
-                          data(),
-                          (control_block_->destruct ? 'T' : 'F')));
-
-            for (std::size_t i = 0; i < size(); ++i)
+            if constexpr (::math_expr::config::build_options::kEnableDebugging)
             {
-               if (5 == i)
-                  math_expr_debug(("\n"));
+               math_expr_debug(("size: %d\taddress:%p\tdestruct:%c\n",
+                             size(),
+                             data(),
+                             (control_block_->destruct ? 'T' : 'F')));
 
-               math_expr_debug(("%15.10f ", data()[i]));
+               for (std::size_t i = 0; i < size(); ++i)
+               {
+                  if (5 == i)
+                     math_expr_debug(("\n"));
+
+                  math_expr_debug(("%15.10f ", data()[i]));
+               }
+               math_expr_debug(("\n"));
             }
-            math_expr_debug(("\n"));
-            #endif
          }
 
          static inline void match_sizes(type& vds0, type& vds1)

@@ -134,11 +134,14 @@ namespace math_expr::details
             cache.first  = r0;
             cache.second = r1;
 
-            #ifndef MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
-            return (r0 <= r1);
-            #else
-            return range_runtime_check(r0, r1, size);
-            #endif
+            if constexpr (::math_expr::config::build_options::kEnableRangeRuntimeChecks)
+            {
+               return range_runtime_check(r0, r1, size);
+            }
+            else
+            {
+               return (r0 <= r1);
+            }
          }
 
          inline std::size_t const_size() const
@@ -157,7 +160,6 @@ namespace math_expr::details
          std::pair<bool,std::size_t        > n1_c;
          mutable cached_range_t             cache;
 
-         #ifdef MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
          bool range_runtime_check(const std::size_t r0,
                                   const std::size_t r1,
                                   const std::size_t size) const
@@ -180,7 +182,6 @@ namespace math_expr::details
 
             return (r0 <= r1);
          }
-         #endif
       };
 }
 

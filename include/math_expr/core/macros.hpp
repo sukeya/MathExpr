@@ -34,11 +34,14 @@ limitations under the License.
 #ifndef MATH_EXPR_CORE_MACROS_HPP
 #define MATH_EXPR_CORE_MACROS_HPP
 
-   #ifdef MATH_EXPR_ENABLE_DEBUGGING
-     #define math_expr_debug(params) printf params
-   #else
-     #define math_expr_debug(params) (void)0
-   #endif
+   #define math_expr_debug(params)                                              \
+   do                                                                           \
+   {                                                                            \
+      if constexpr (::math_expr::config::build_options::kEnableDebugging)       \
+      {                                                                         \
+         std::printf params;                                                    \
+      }                                                                         \
+   } while (false)
 
    #define math_expr_error_location \
    std::string(__FILE__) + ":" + details::to_str(__LINE__)

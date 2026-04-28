@@ -39,9 +39,13 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      #ifndef MATH_EXPR_DISABLE_CASEINSENSITIVITY
       inline void case_normalise(std::string& s)
       {
+         if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+         {
+            return;
+         }
+
          for (std::size_t i = 0; i < s.size(); ++i)
          {
             s[i] = static_cast<std::string::value_type>(std::tolower(s[i]));
@@ -50,12 +54,23 @@ namespace math_expr::details
 
       inline bool imatch(const char_t c1, const char_t c2)
       {
-         return std::tolower(c1) == std::tolower(c2);
+         if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+         {
+            return c1 == c2;
+         }
+         else
+         {
+            return std::tolower(c1) == std::tolower(c2);
+         }
       }
 
       inline bool imatch(const std::string& s1, const std::string& s2)
       {
-         if (s1.size() == s2.size())
+         if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+         {
+            return s1 == s2;
+         }
+         else if (s1.size() == s2.size())
          {
             for (std::size_t i = 0; i < s1.size(); ++i)
             {
@@ -75,6 +90,11 @@ namespace math_expr::details
       {
          inline bool operator() (const std::string& s1, const std::string& s2) const
          {
+            if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+            {
+               return s1 < s2;
+            }
+
             const std::size_t length = std::min(s1.size(),s2.size());
 
             for (std::size_t i = 0; i < length; ++i)
@@ -91,29 +111,6 @@ namespace math_expr::details
             return s1.size() < s2.size();
          }
       };
-
-      #else
-      inline void case_normalise(std::string&)
-      {}
-
-      inline bool imatch(const char_t c1, const char_t c2)
-      {
-         return c1 == c2;
-      }
-
-      inline bool imatch(const std::string& s1, const std::string& s2)
-      {
-         return s1 == s2;
-      }
-
-      struct ilesscompare
-      {
-         inline bool operator() (const std::string& s1, const std::string& s2) const
-         {
-            return s1 < s2;
-         }
-      };
-      #endif
 
       inline bool is_valid_sf_symbol(const std::string& symbol)
       {

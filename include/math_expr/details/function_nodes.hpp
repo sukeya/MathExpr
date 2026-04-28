@@ -569,14 +569,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec += lud.batch_size;
             }
@@ -587,14 +588,15 @@ namespace math_expr::details
                case N : *vec++ = v; \
                [[fallthrough]];   \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15) case_stmt(14)
-               case_stmt(13) case_stmt(12)
-               case_stmt(11) case_stmt(10)
-               case_stmt( 9) case_stmt( 8)
-               case_stmt( 7) case_stmt( 6)
-               case_stmt( 5) case_stmt( 4)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15) case_stmt(14)
+                  case_stmt(13) case_stmt(12)
+                  case_stmt(11) case_stmt(10)
+                  case_stmt( 9) case_stmt( 8)
+                  case_stmt( 7) case_stmt( 6)
+                  case_stmt( 5) case_stmt( 4)
+               }
                case_stmt( 3) case_stmt( 2)
                case 1 : *vec++ = v;
             }
@@ -735,14 +737,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec0 += lud.batch_size;
                vec1 += lud.batch_size;
@@ -754,14 +757,15 @@ namespace math_expr::details
                case N : *vec0++ = *vec1++;       \
                fall_through                      \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
+               }
                case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
@@ -1189,14 +1193,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec += lud.batch_size;
             }
@@ -1207,14 +1212,15 @@ namespace math_expr::details
                case N : Operation::assign(*vec++,v); \
                fall_through                          \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
+               }
                case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
@@ -1351,14 +1357,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec0 += lud.batch_size;
                vec1 += lud.batch_size;
@@ -1372,14 +1379,15 @@ namespace math_expr::details
                case N : { vec0[i] = Operation::process(vec0[i], vec1[i]); ++i; } \
                fall_through                                                      \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
+               }
                case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
@@ -1618,14 +1626,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec0 += lud.batch_size;
                vec1 += lud.batch_size;
@@ -1640,14 +1649,15 @@ namespace math_expr::details
                case N : { vec2[i] = Operation::process(vec0[i], vec1[i]); ++i; } \
                [[fallthrough]];                                                \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15) case_stmt(14)
-               case_stmt(13) case_stmt(12)
-               case_stmt(11) case_stmt(10)
-               case_stmt( 9) case_stmt( 8)
-               case_stmt( 7) case_stmt( 6)
-               case_stmt( 5) case_stmt( 4)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15) case_stmt(14)
+                  case_stmt(13) case_stmt(12)
+                  case_stmt(11) case_stmt(10)
+                  case_stmt( 9) case_stmt( 8)
+                  case_stmt( 7) case_stmt( 6)
+                  case_stmt( 5) case_stmt( 4)
+               }
                case_stmt( 3) case_stmt( 2)
                case_stmt( 1)
                default: break;
@@ -1787,14 +1797,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec0 += lud.batch_size;
                vec1 += lud.batch_size;
@@ -1808,14 +1819,15 @@ namespace math_expr::details
                case N : { vec1[i] = Operation::process(vec0[i], v); ++i; } \
                fall_through                                                \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
+               }
                case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
@@ -1951,14 +1963,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec0 += lud.batch_size;
                vec1 += lud.batch_size;
@@ -1972,14 +1985,15 @@ namespace math_expr::details
                case N : { vec0[i] = Operation::process(v, vec1[i]); ++i; } \
                fall_through                                                \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-               case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-               case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-               case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-               case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-               case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
+                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
+                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
+                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
+                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
+                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
+               }
                case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
                case_stmt( 1, (void)0;)
             }
@@ -2113,14 +2127,15 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               math_expr_loop( 4) math_expr_loop( 5)
-               math_expr_loop( 6) math_expr_loop( 7)
-               math_expr_loop( 8) math_expr_loop( 9)
-               math_expr_loop(10) math_expr_loop(11)
-               math_expr_loop(12) math_expr_loop(13)
-               math_expr_loop(14) math_expr_loop(15)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  math_expr_loop( 4) math_expr_loop( 5)
+                  math_expr_loop( 6) math_expr_loop( 7)
+                  math_expr_loop( 8) math_expr_loop( 9)
+                  math_expr_loop(10) math_expr_loop(11)
+                  math_expr_loop(12) math_expr_loop(13)
+                  math_expr_loop(14) math_expr_loop(15)
+               }
 
                vec0 += lud.batch_size;
                vec1 += lud.batch_size;
@@ -2134,14 +2149,15 @@ namespace math_expr::details
                case N : { vec1[i] = Operation::process(vec0[i]); ++i; } \
                [[fallthrough]];                                       \
 
-               #ifndef MATH_EXPR_DISABLE_SUPERSCALAR_UNROLL
-               case_stmt(15) case_stmt(14)
-               case_stmt(13) case_stmt(12)
-               case_stmt(11) case_stmt(10)
-               case_stmt( 9) case_stmt( 8)
-               case_stmt( 7) case_stmt( 6)
-               case_stmt( 5) case_stmt( 4)
-               #endif
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  case_stmt(15) case_stmt(14)
+                  case_stmt(13) case_stmt(12)
+                  case_stmt(11) case_stmt(10)
+                  case_stmt( 9) case_stmt( 8)
+                  case_stmt( 7) case_stmt( 6)
+                  case_stmt( 5) case_stmt( 4)
+               }
                case_stmt( 3) case_stmt( 2)
                case_stmt( 1)
                default: break;

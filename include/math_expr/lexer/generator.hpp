@@ -197,9 +197,13 @@ namespace math_expr::lexer
             return (s_end_ == itr);
          }
 
-         #ifndef MATH_EXPR_DISABLE_COMMENTS
          inline bool is_comment_start(details::char_cptr itr) const
          {
+            if constexpr (::math_expr::config::build_options::kDisableComments)
+            {
+               return false;
+            }
+
             const char_t c0 = *(itr + 0);
             const char_t c1 = *(itr + 1);
 
@@ -212,12 +216,6 @@ namespace math_expr::lexer
             }
             return false;
          }
-         #else
-         inline bool is_comment_start(details::char_cptr) const
-         {
-            return false;
-         }
-         #endif
 
          inline void skip_whitespace()
          {
@@ -229,7 +227,11 @@ namespace math_expr::lexer
 
          inline void skip_comments()
          {
-            #ifndef MATH_EXPR_DISABLE_COMMENTS
+            if constexpr (::math_expr::config::build_options::kDisableComments)
+            {
+               return;
+            }
+
             // The following comment styles are supported:
             // 1. // .... \n
             // 2. #  .... \n
@@ -309,7 +311,6 @@ namespace math_expr::lexer
                t.set_error(token::e_error, cmt_start, cmt_start + mode, base_itr_);
                token_list_.push_back(t);
             }
-            #endif
          }
 
          inline bool next_is_digit(const details::char_cptr itr) const
