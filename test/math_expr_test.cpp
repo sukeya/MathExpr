@@ -141,6 +141,13 @@ void expect_near(const T& actual, const T& expected, const T& epsilon = default_
 
 } // namespace test_support
 
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<double>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<int>);
+static_assert(math_expr::core::numeric::details::is_supported_real_type_v<double>);
+static_assert(math_expr::core::numeric::details::is_supported_integral_type_v<int>);
+static_assert(!math_expr::core::numeric::details::is_supported_numeric_type_v<bool>);
+static_assert(!math_expr::core::numeric::details::is_supported_numeric_type_v<char>);
+
 static const test_t global_test_list[] = {
     // Note: Each of following tests must compile down
     // to a single literal node.
@@ -13771,5 +13778,76 @@ TEST_CASE("Numerical algorithms match their C++ reference implementations",
     SECTION("polynomial helper matches manual Horner evaluation")
     {
         check_randomized_polynomial_algorithm<numeric_type>();
+    }
+}
+
+TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[numeric][direct]")
+{
+    SECTION("floating-point helpers keep the expected semantics")
+    {
+        using float_type = double;
+
+        test_support::expect_near(math_expr::core::numeric::equal(float_type(1.0),
+                                                                  float_type(1.0 + 5.0e-11)),
+                                  float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::nequal(float_type(1.0),
+                                                                   float_type(1.25)),
+                                  float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::modulus(float_type(5.5), float_type(2)),
+                                  float_type(1.5));
+        test_support::expect_near(math_expr::core::numeric::pow(float_type(3), float_type(2)),
+                                  float_type(9.0));
+        test_support::expect_near(math_expr::core::numeric::logn(float_type(8), float_type(2)),
+                                  float_type(3.0));
+        test_support::expect_near(math_expr::core::numeric::root(float_type(27), float_type(3)),
+                                  float_type(3.0));
+        test_support::expect_near(math_expr::core::numeric::round(float_type(2.6)),
+                                  float_type(3.0));
+        test_support::expect_near(math_expr::core::numeric::roundn(float_type(12.345),
+                                                                   float_type(2.0)),
+                                  float_type(12.35));
+        test_support::expect_near(math_expr::core::numeric::hypot(float_type(3), float_type(4)),
+                                  float_type(5.0));
+        test_support::expect_near(math_expr::core::numeric::atan2(float_type(1), float_type(0)),
+                                  float_type(math_expr::core::numeric::pi / 2.0));
+        test_support::expect_near(math_expr::core::numeric::shr(float_type(8), float_type(1)),
+                                  float_type(4.0));
+        test_support::expect_near(math_expr::core::numeric::shl(float_type(3), float_type(2)),
+                                  float_type(12.0));
+        test_support::expect_near(math_expr::core::numeric::and_opr(float_type(1), float_type(0)),
+                                  float_type(0.0));
+        test_support::expect_near(math_expr::core::numeric::or_opr(float_type(1), float_type(0)),
+                                  float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::xor_opr(float_type(0), float_type(1)),
+                                  float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::xnor_opr(float_type(2), float_type(3)),
+                                  float_type(1.0));
+        CHECK_FALSE(math_expr::core::numeric::is_integer(float_type(2.5)));
+        CHECK(math_expr::core::numeric::is_integer(float_type(2.0)));
+    }
+
+    SECTION("integral helpers keep the expected semantics")
+    {
+        using int_type = int;
+
+        CHECK(math_expr::core::numeric::equal(int_type(7), int_type(7)) == int_type(1));
+        CHECK(math_expr::core::numeric::nequal(int_type(7), int_type(8)) == int_type(1));
+        CHECK(math_expr::core::numeric::modulus(int_type(17), int_type(5)) == int_type(2));
+        CHECK(math_expr::core::numeric::pow(int_type(3), int_type(3)) == int_type(27));
+        CHECK(math_expr::core::numeric::logn(int_type(8), int_type(2)) == int_type(3));
+        CHECK(math_expr::core::numeric::root(int_type(81), int_type(4)) == int_type(3));
+        CHECK(math_expr::core::numeric::round(int_type(9)) == int_type(9));
+        CHECK(math_expr::core::numeric::roundn(int_type(19), int_type(3)) == int_type(19));
+        CHECK(math_expr::core::numeric::hypot(int_type(3), int_type(4)) == int_type(5));
+        CHECK(math_expr::core::numeric::atan2(int_type(3), int_type(4)) == int_type(0));
+        CHECK(math_expr::core::numeric::shr(int_type(16), int_type(2)) == int_type(4));
+        CHECK(math_expr::core::numeric::shl(int_type(3), int_type(3)) == int_type(24));
+        CHECK(math_expr::core::numeric::and_opr(int_type(2), int_type(4)) == int_type(1));
+        CHECK(math_expr::core::numeric::or_opr(int_type(0), int_type(4)) == int_type(1));
+        CHECK(math_expr::core::numeric::xor_opr(int_type(6), int_type(3)) == int_type(5));
+        CHECK(math_expr::core::numeric::xnor_opr(int_type(0), int_type(0)) == int_type(1));
+        CHECK(math_expr::core::numeric::is_integer(int_type(42)));
+        CHECK(math_expr::core::numeric::acos(int_type(1)) ==
+              std::numeric_limits<int_type>::quiet_NaN());
     }
 }

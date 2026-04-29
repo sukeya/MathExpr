@@ -44,10 +44,11 @@ namespace math_expr::rtl::io
 {
 namespace details
 {
-template <typename T>
-inline void print_type(const std::string& fmt, const T v,
-                       math_expr::core::numeric::details::real_type_tag)
+template <typename T> inline void print_type(const std::string& fmt, const T v)
 {
+    static_assert(math_expr::core::numeric::details::is_supported_real_type_v<T>,
+                  "math_expr::rtl::io::print supports float, double, and long double only.");
+
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
@@ -74,7 +75,6 @@ template <typename T> struct print_impl
     typedef typename generic_type::scalar_view scalar_t;
     typedef typename generic_type::vector_view vector_t;
     typedef typename generic_type::string_view string_t;
-    typedef typename math_expr::core::numeric::details::number_type<T>::type num_type;
 
     static void process(const std::string& scalar_format, parameter_list_t parameters)
     {
@@ -104,14 +104,14 @@ template <typename T> struct print_impl
 
     static inline void print(const std::string& scalar_format, const scalar_t& s)
     {
-        print_type(scalar_format, s(), num_type());
+        print_type(scalar_format, s());
     }
 
     static inline void print(const std::string& scalar_format, const vector_t& v)
     {
         for (std::size_t i = 0; i < v.size(); ++i)
         {
-            print_type(scalar_format, v[i], num_type());
+            print_type(scalar_format, v[i]);
 
             if ((i + 1) < v.size())
                 printf(" ");

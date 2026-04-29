@@ -132,146 +132,122 @@ template <> struct numeric_info<long double>
 
 template <typename T> inline int to_int32(const T v)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return to_int32_impl(v, num_type);
+    return details::to_int32_impl(v);
 }
 
 template <typename T> inline ::math_expr::core::_int64_t to_int64(const T v)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return to_int64_impl(v, num_type);
+    return details::to_int64_impl(v);
 }
 
 template <typename T> inline ::math_expr::core::_uint64_t to_uint64(const T v)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return to_uint64_impl(v, num_type);
+    return details::to_uint64_impl(v);
 }
 
 template <typename T> inline bool is_nan(const T v)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return is_nan_impl(v, num_type);
+    return details::is_nan_impl(v);
 }
 
 template <typename T> inline T min(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return min_impl(v0, v1, num_type);
+    return details::min_impl(v0, v1);
 }
 
 template <typename T> inline T max(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return max_impl(v0, v1, num_type);
+    return details::max_impl(v0, v1);
 }
 
 template <typename T> inline T equal(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return equal_impl(v0, v1, num_type);
+    return details::equal_impl(v0, v1);
 }
 
 template <typename T> inline T nequal(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return nequal_impl(v0, v1, num_type);
+    return details::nequal_impl(v0, v1);
 }
 
 template <typename T> inline T modulus(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return modulus_impl(v0, v1, num_type);
+    return details::modulus_impl(v0, v1);
 }
 
 template <typename T> inline T pow(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return pow_impl(v0, v1, num_type);
+    return details::pow_impl(v0, v1);
 }
 
 template <typename T> inline T logn(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return logn_impl(v0, v1, num_type);
+    return details::logn_impl(v0, v1);
 }
 
 template <typename T> inline T root(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return root_impl(v0, v1, num_type);
+    return details::root_impl(v0, v1);
 }
 
 template <typename T> inline T roundn(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return roundn_impl(v0, v1, num_type);
+    return details::roundn_impl(v0, v1);
 }
 
 template <typename T> inline T hypot(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return hypot_impl(v0, v1, num_type);
+    return details::hypot_impl(v0, v1);
 }
 
 template <typename T> inline T atan2(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return atan2_impl(v0, v1, num_type);
+    return details::atan2_impl(v0, v1);
 }
 
 template <typename T> inline T shr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return shr_impl(v0, v1, num_type);
+    return details::shr_impl(v0, v1);
 }
 
 template <typename T> inline T shl(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return shl_impl(v0, v1, num_type);
+    return details::shl_impl(v0, v1);
 }
 
 template <typename T> inline T and_opr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return and_impl(v0, v1, num_type);
+    return details::and_impl(v0, v1);
 }
 
 template <typename T> inline T nand_opr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return nand_impl(v0, v1, num_type);
+    return details::nand_impl(v0, v1);
 }
 
 template <typename T> inline T or_opr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return or_impl(v0, v1, num_type);
+    return details::or_impl(v0, v1);
 }
 
 template <typename T> inline T nor_opr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return nor_impl(v0, v1, num_type);
+    return details::nor_impl(v0, v1);
 }
 
 template <typename T> inline T xor_opr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return xor_impl(v0, v1, num_type);
+    return details::xor_impl(v0, v1);
 }
 
 template <typename T> inline T xnor_opr(const T v0, const T v1)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return xnor_impl(v0, v1, num_type);
+    return details::xnor_impl(v0, v1);
 }
 
 template <typename T> inline bool is_integer(const T v)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-    return is_integer_impl(v, num_type);
+    return details::is_integer_impl(v);
 }
 
 template <typename T, unsigned int N> struct fast_exp
@@ -382,8 +358,7 @@ template <typename T> struct fast_exp<T, 0>
 #define math_expr_define_unary_function(FunctionName)                                              \
     template <typename T> inline T FunctionName(const T v)                                         \
     {                                                                                              \
-        const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;         \
-        return FunctionName##_impl(v, num_type);                                                   \
+        return details::FunctionName##_impl(v);                                                    \
     }
 
 math_expr_define_unary_function(abs) math_expr_define_unary_function(
@@ -618,16 +593,17 @@ static inline bool parse_inf(Iterator& itr, const Iterator end, T& t, const bool
     return true;
 }
 
-template <typename T>
-inline bool valid_exponent(const int exponent, ::math_expr::core::numeric::details::real_type_tag)
+template <typename T> inline bool valid_exponent(const int exponent)
 {
+    ::math_expr::core::numeric::details::validate_supported_real_type<T>();
     return (numeric_info<T>::min_exp <= exponent) && (exponent <= numeric_info<T>::max_exp);
 }
 
 template <typename Iterator, typename T>
-inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t,
-                           ::math_expr::core::numeric::details::real_type_tag)
+inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 {
+    ::math_expr::core::numeric::details::validate_supported_real_type<T>();
+
     if (end == itr_external)
         return false;
 
@@ -708,8 +684,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t,
 
                 const int frac_exponent = static_cast<int>(-std::distance(curr, itr));
 
-                if (!valid_exponent<T>(frac_exponent,
-                                       ::math_expr::core::numeric::details::real_type_tag()))
+                if (!valid_exponent<T>(frac_exponent))
                     return false;
 
                 d += compute_pow10(tmp_d, frac_exponent);
@@ -784,7 +759,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t,
 
     if ((end != itr) || (!instate))
         return false;
-    else if (!valid_exponent<T>(exponent, ::math_expr::core::numeric::details::real_type_tag()))
+    else if (!valid_exponent<T>(exponent))
         return false;
     else if (exponent)
         d = compute_pow10(d, exponent);
@@ -795,12 +770,10 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t,
 
 template <typename T> inline bool string_to_real(const std::string& s, T& t)
 {
-    const typename ::math_expr::core::numeric::details::number_type<T>::type num_type;
-
     ::math_expr::core::char_cptr begin = s.data();
     ::math_expr::core::char_cptr end = s.data() + s.size();
 
-    return string_to_real(begin, end, t, num_type);
+    return string_to_real(begin, end, t);
 }
 
 template <typename T> struct functor_t
