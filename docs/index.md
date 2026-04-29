@@ -1,0 +1,37 @@
+# MathExpr Documentation
+
+This directory contains the Markdown version of the original `readme.txt`, split by section for easier navigation.
+
+## Sections
+
+1. [Section 00: Introduction](00-introduction.md)
+1. [Section 01: Capabilities](01-capabilities.md)
+1. [Section 02: Example Expressions](02-example-expressions.md)
+1. [Section 03: Copyright Notice](03-copyright-notice.md)
+1. [Section 04: Downloads & Updates](04-downloads-and-updates.md)
+1. [Section 05: Installation](05-installation.md)
+1. [Section 06: Compilation](06-compilation.md)
+1. [Section 07: Compiler Compatibility](07-compiler-compatibility.md)
+1. [Section 08: Built-In Operations & Functions](08-built-in-operations-and-functions.md)
+1. [Section 09: Fundamental Types](09-fundamental-types.md)
+1. [Section 10: Components](10-components.md)
+1. [Section 11: Compilation Options](11-compilation-options.md)
+1. [Section 12: Expression Structures](12-expression-structures.md)
+1. [Section 13: Variable, Vector & String Definition](13-variable-vector-and-string-definition.md)
+1. [Section 14: Vector Processing](14-vector-processing.md)
+1. [Section 15: User Defined Functions](15-user-defined-functions.md)
+1. [Section 16: Expression Dependents](16-expression-dependents.md)
+1. [Section 17: Hierarchies Of Symbol Tables](17-hierarchies-of-symbol-tables.md)
+1. [Section 18: Unknown Unknowns](18-unknown-unknowns.md)
+1. [Section 19: Enabling & Disabling Features](19-enabling-and-disabling-features.md)
+1. [Section 20: Expression Return Values](20-expression-return-values.md)
+1. [Section 21: Compilation Errors](21-compilation-errors.md)
+1. [Section 22: Runtime Library Packages](22-runtime-library-packages.md)
+1. [Section 23: Helpers & Utils](23-helpers-and-utils.md)
+1. [Section 24: Runtime Checks](24-runtime-checks.md)
+1. [Section 25: Benchmarking](25-benchmarking.md)
+1. [Section 26: Exprtk Notes](26-exprtk-notes.md)
+1. [Section 27: Simple Exprtk Example](27-simple-exprtk-example.md)
+1. [Section 28: Build Options](28-build-options.md)
+1. [Section 29: Files](29-files.md)
+1. [Section 30: Language Structure](30-language-structure.md)
