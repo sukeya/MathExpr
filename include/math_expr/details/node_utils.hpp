@@ -945,7 +945,7 @@ namespace math_expr::details
             const T* vec = v->vec()->vds().data();
             const std::size_t vec_size = v->size();
 
-            loop_unroll::details lud(vec_size);
+            loop_unroll lud(vec_size);
 
             if (vec_size <= static_cast<std::size_t>(lud.batch_size))
             {
@@ -1017,7 +1017,7 @@ namespace math_expr::details
             const T* vec = v->vec()->vds().data();
             const std::size_t vec_size = v->vec()->size();
 
-            loop_unroll::details lud(vec_size);
+            loop_unroll lud(vec_size);
 
             if (vec_size <= static_cast<std::size_t>(lud.batch_size))
             {

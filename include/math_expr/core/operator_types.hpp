@@ -160,84 +160,82 @@ namespace math_expr::details
          unsigned int num_params;
       };
 
-      namespace loop_unroll
+      struct loop_unroll
       {
          static constexpr unsigned int global_loop_batch_size =
             ::math_expr::config::build_options::kDisableSuperscalarUnroll ?
             4u : 16u;
 
-         struct details
-         {
-            explicit details(const std::size_t& vsize,
-                             const unsigned int loop_batch_size = global_loop_batch_size)
-            : batch_size(loop_batch_size   )
-            , remainder (vsize % batch_size)
-            , upper_bound(static_cast<int>(vsize - remainder))
-            {}
+         explicit loop_unroll(const std::size_t& vsize,
+                           const unsigned int loop_batch_size = global_loop_batch_size)
+         : batch_size(loop_batch_size   )
+         , remainder (vsize % batch_size)
+         , upper_bound(static_cast<int>(vsize - remainder))
+         {}
 
-            template <class F>
-            void foreach_remainder(F&& f) {
-               if (remainder < 0) {
-                  throw std::runtime_error("loop_unroll::details::foreach() - Invalid remainder");
-               }
-
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
-               {
-                  switch (remainder)
-                  {
-                     case 15: f();
-                     [[fallthrough]];
-                     case 14: f();
-                     [[fallthrough]];
-                     case 13: f();
-                     [[fallthrough]];
-                     case 12: f();
-                     [[fallthrough]];
-                     case 11: f();
-                     [[fallthrough]];
-                     case 10: f();
-                     [[fallthrough]];
-                     case 9: f();
-                     [[fallthrough]];
-                     case 8: f();
-                     [[fallthrough]];
-                     case 7: f();
-                     [[fallthrough]];
-                     case 6: f();
-                     [[fallthrough]];
-                     case 5: f();
-                     [[fallthrough]];
-                     case 4: f();
-                     [[fallthrough]];
-                     case 3: f();
-                     [[fallthrough]];
-                     case 2: f();
-                     [[fallthrough]];
-                     case 1: f();
-                        break;
-                     case 0:
-                        break;
-                  }
-               } else {
-                  switch (remainder)
-                  {
-                     case 3: f();
-                     [[fallthrough]];
-                     case 2: f();
-                     [[fallthrough]];
-                     case 1: f();
-                        break;
-                     case 0:
-                        break;
-                  }
-               }
+         template <class F>
+         void foreach_remainder(F&& f) {
+            if (remainder < 0) {
+               throw std::runtime_error("loop_unroll::foreach() - Invalid remainder");
             }
 
-            unsigned int batch_size;
-            int remainder;
-            int upper_bound;
-         };
-      }
+            if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+            {
+               switch (remainder)
+               {
+                  case 15: f();
+                  [[fallthrough]];
+                  case 14: f();
+                  [[fallthrough]];
+                  case 13: f();
+                  [[fallthrough]];
+                  case 12: f();
+                  [[fallthrough]];
+                  case 11: f();
+                  [[fallthrough]];
+                  case 10: f();
+                  [[fallthrough]];
+                  case 9: f();
+                  [[fallthrough]];
+                  case 8: f();
+                  [[fallthrough]];
+                  case 7: f();
+                  [[fallthrough]];
+                  case 6: f();
+                  [[fallthrough]];
+                  case 5: f();
+                  [[fallthrough]];
+                  case 4: f();
+                  [[fallthrough]];
+                  case 3: f();
+                  [[fallthrough]];
+                  case 2: f();
+                  [[fallthrough]];
+                  case 1: f();
+                     break;
+                  case 0:
+                     break;
+               }
+            } else {
+               switch (remainder)
+               {
+                  case 3: f();
+                  [[fallthrough]];
+                  case 2: f();
+                  [[fallthrough]];
+                  case 1: f();
+                     break;
+                  case 0:
+                     break;
+               }
+            }
+         }
+
+         unsigned int batch_size;
+         int remainder;
+         int upper_bound;
+      };
+      
 
       inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t size = 0)
       {

@@ -569,7 +569,7 @@ namespace math_expr::details
 
             T* vec = vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec + lud.upper_bound;
 
             #define math_expr_loop(N) \
@@ -721,7 +721,7 @@ namespace math_expr::details
             T* vec0 = vec0_node_ptr_->vds().data();
             T* vec1 = vec1_node_ptr_->vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N) \
@@ -1172,7 +1172,7 @@ namespace math_expr::details
 
             T* vec = vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec + lud.upper_bound;
 
             #define math_expr_loop(N)       \
@@ -1320,7 +1320,7 @@ namespace math_expr::details
                   T* vec0 = vec0_node_ptr_->vds().data();
             const T* vec1 = vec1_node_ptr_->vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             while (vec0 < upper_bound)
@@ -1574,7 +1574,7 @@ namespace math_expr::details
             const T* vec1 = vec1_node_ptr_->vds().data();
                   T* vec2 = vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec2 + lud.upper_bound;
 
             #define math_expr_loop(N)                          \
@@ -1729,7 +1729,7 @@ namespace math_expr::details
             const T* vec0 = vec0_node_ptr_->vds().data();
                   T* vec1 = vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N)                    \
@@ -1880,7 +1880,7 @@ namespace math_expr::details
                   T* vec0 = vds().data();
             const T* vec1 = vec1_node_ptr_->vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N)                    \
@@ -2029,7 +2029,7 @@ namespace math_expr::details
             const T* vec0 = vec0_node_ptr_->vds().data();
                   T* vec1 = vds().data();
 
-            loop_unroll::details lud(size());
+            loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N)                 \

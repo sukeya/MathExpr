@@ -125,7 +125,7 @@ namespace math_expr::details::string_nodes
                char_ptr s0 = const_cast<char_ptr>(str0_base_ptr_->base() + str0_r0);
                char_ptr s1 = const_cast<char_ptr>(str1_base_ptr_->base() + str1_r0);
 
-               loop_unroll::details lud(max_size);
+               loop_unroll lud(max_size);
                char_cptr upper_bound = s0 + lud.upper_bound;
 
                #define math_expr_loop(N) \
