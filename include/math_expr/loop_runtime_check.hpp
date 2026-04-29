@@ -64,13 +64,13 @@ namespace math_expr
       , max_loop_iterations(0)
       {}
 
-      details::_uint64_t max_loop_iterations;
+      core::_uint64_t max_loop_iterations;
 
       struct violation_context
       {
          loop_types loop;
          violation_type violation;
-         details::_uint64_t iteration_count;
+         core::_uint64_t iteration_count;
       };
 
       virtual bool check()

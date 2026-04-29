@@ -31,24 +31,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef MATH_EXPR_DETAILS_STRING_ASSIGNMENT_PROCESS_HPP
-#define MATH_EXPR_DETAILS_STRING_ASSIGNMENT_PROCESS_HPP
 
-#include "math_expr/core/types.hpp"
+#ifndef MATH_EXPR_CORE_OPERATORS_PROCESS_HPP
+#define MATH_EXPR_CORE_OPERATORS_PROCESS_HPP
 
-namespace math_expr::details::string_nodes
+#include "math_expr/core/operators/details/process.hpp"
+
+namespace math_expr::core::operators
 {
-      struct asn_assignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.assign(data,size); }
-      };
+         template <typename T>
+         inline T process(const operator_type operation, const T arg)
+         {
+            return details::process_impl(operation,arg);
+         }
 
-      struct asn_addassignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.append(data,size); }
-      };
-}
+         template <typename T>
+         inline T process(const operator_type operation, const T arg0, const T arg1)
+         {
+            return details::process_impl(operation, arg0, arg1);
+         }
+
+} // namespace math_expr::core::operators
 
 #endif

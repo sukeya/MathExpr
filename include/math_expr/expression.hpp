@@ -248,7 +248,7 @@ namespace math_expr
 
       inline expression<T>& release()
       {
-         math_expr::details::dump_ptr("expression::release", this);
+         math_expr::core::dump_ptr("expression::release", this);
          control_block::destroy(control_block_);
 
          return (*this);

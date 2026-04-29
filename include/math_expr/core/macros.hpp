@@ -37,13 +37,13 @@ limitations under the License.
    #define math_expr_debug(params)                                              \
    do                                                                           \
    {                                                                            \
-      if constexpr (::math_expr::config::build_options::kEnableDebugging)       \
+      if constexpr (::math_expr::core::build_options::kEnableDebugging)       \
       {                                                                         \
          std::printf params;                                                    \
       }                                                                         \
    } while (false)
 
    #define math_expr_error_location \
-   std::string(__FILE__) + ":" + details::to_str(__LINE__)
+   std::string(__FILE__) + ":" + core::to_str(__LINE__)
 
 #endif

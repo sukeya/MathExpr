@@ -41,7 +41,7 @@ namespace math_expr
 {
    namespace information
    {
-      using ::math_expr::details::char_cptr;
+      using ::math_expr::core::char_cptr;
 
       static char_cptr library = "Mathematical Expression Toolkit";
       static char_cptr version = "2.71828182845904523536028747135266249775724"

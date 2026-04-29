@@ -81,7 +81,7 @@ namespace math_expr::details::string_nodes
             return ref();
          }
 
-         char_cptr base() const override
+         core::char_cptr base() const override
          {
             return &(*value_)[0];
          }

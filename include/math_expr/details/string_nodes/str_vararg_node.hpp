@@ -121,7 +121,7 @@ namespace math_expr::details::string_nodes
             return str_base_ptr_->str();
          }
 
-         char_cptr base() const override
+         core::char_cptr base() const override
          {
             return str_base_ptr_->base();
          }

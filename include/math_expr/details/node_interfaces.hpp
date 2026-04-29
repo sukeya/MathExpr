@@ -31,24 +31,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef MATH_EXPR_DETAILS_STRING_ASSIGNMENT_PROCESS_HPP
-#define MATH_EXPR_DETAILS_STRING_ASSIGNMENT_PROCESS_HPP
 
-#include "math_expr/core/types.hpp"
+#ifndef MATH_EXPR_DETAILS_NODE_INTERFACES_HPP
+#define MATH_EXPR_DETAILS_NODE_INTERFACES_HPP
 
-namespace math_expr::details::string_nodes
+#include "math_expr/core/std_includes.hpp"
+
+namespace math_expr::details
 {
-      struct asn_assignment
+      template <typename Node>
+      struct node_collector_interface
       {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.assign(data,size); }
+         typedef Node* node_ptr_t;
+         typedef Node** node_pp_t;
+         typedef std::vector<node_pp_t> noderef_list_t;
+
+         virtual ~node_collector_interface()
+         {}
+
+         virtual void collect_nodes(noderef_list_t&)
+         {}
       };
 
-      struct asn_addassignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.append(data,size); }
-      };
-}
+      template <typename Node>
+      struct node_depth_base;
+
+} // namespace math_expr::details
 
 #endif

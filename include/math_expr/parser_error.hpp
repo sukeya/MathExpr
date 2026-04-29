@@ -131,7 +131,7 @@ namespace math_expr
 
          for (std::size_t i = error.token.position; i > 0; --i)
          {
-            const details::char_t c = expression[i];
+            const core::char_t c = expression[i];
 
             if (('\n' == c) || ('\r' == c))
             {

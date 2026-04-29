@@ -114,14 +114,14 @@ namespace math_expr
          {
             if (stop_time_.tv_sec >= start_time_.tv_sec)
             {
-               return 1000000LLU * static_cast<details::_uint64_t>(stop_time_.tv_sec  - start_time_.tv_sec ) +
-                                   static_cast<details::_uint64_t>(stop_time_.tv_usec - start_time_.tv_usec) ;
+               return 1000000LLU * static_cast<core::_uint64_t>(stop_time_.tv_sec  - start_time_.tv_sec ) +
+                                   static_cast<core::_uint64_t>(stop_time_.tv_usec - start_time_.tv_usec) ;
             }
             else
-               return std::numeric_limits<details::_uint64_t>::max();
+               return std::numeric_limits<core::_uint64_t>::max();
          }
          else
-            return std::numeric_limits<details::_uint64_t>::max();
+            return std::numeric_limits<core::_uint64_t>::max();
       }
 
       inline double time() const

@@ -35,7 +35,8 @@ limitations under the License.
 #define MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 
 #include "math_expr/core/std_includes.hpp"
-#include "math_expr/core/fwd.hpp"
+#include "math_expr/fwd.hpp"
+#include "math_expr/details/fwd.hpp"
 #include "math_expr/core/operator_types.hpp"
 
 namespace math_expr::details
@@ -364,7 +365,7 @@ namespace math_expr::details
       {
          if (node && is_unary_node(node))
          {
-            return (details::operator_type::neg == static_cast<const unary_node<T>*>(node)->operation());
+            return (core::operators::operator_type::neg == static_cast<const unary_node<T>*>(node)->operation());
          }
          else
             return false;
@@ -1047,7 +1048,7 @@ namespace math_expr::details
 
       public:
 
-         typedef typename details::vec_data_store<Type> vds_t;
+         typedef typename core::vec_data_store<Type> vds_t;
 
          vector_holder(Type* vec, const std::size_t& vec_size)
          : vector_holder_base_(new(buffer)array_vector_impl(vec,vec_size))
@@ -1138,7 +1139,7 @@ namespace math_expr::details
          vector_holder<Type>& operator=(const vector_holder<Type>&) = delete;
 
          mutable vector_holder_base* vector_holder_base_;
-         uchar_t buffer[64];
+         core::uchar_t buffer[64];
       };
 
 

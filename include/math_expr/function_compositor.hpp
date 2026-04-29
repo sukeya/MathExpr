@@ -870,8 +870,8 @@ namespace math_expr
          }
 
          if (
-              ('{' == details::front(expression)) &&
-              ('}' == details::back (expression))
+              ('{' == core::front(expression)) &&
+              ('}' == core::back(expression))
             )
             mod_expression += "~" + expression + ";";
          else

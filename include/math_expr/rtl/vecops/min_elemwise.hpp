@@ -95,7 +95,7 @@ namespace math_expr::rtl::vecops
 
          for (std::size_t i = r0; i <= r1; ++i)
          {
-            out_vec[i] = math_expr::details::numeric::min(in_vec[i], s);
+            out_vec[i] = math_expr::core::numeric::min(in_vec[i], s);
          }
 
          return T(1);

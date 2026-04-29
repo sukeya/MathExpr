@@ -47,7 +47,7 @@ namespace math_expr::lexer
          typedef token token_t;
          typedef std::vector<token_t> token_list_t;
          typedef token_list_t::iterator token_list_itr_t;
-         typedef details::char_t char_t;
+         typedef core::char_t char_t;
 
          generator()
          : base_itr_(0)
@@ -174,8 +174,8 @@ namespace math_expr::lexer
 
          inline std::string substr(const std::size_t& begin, const std::size_t& end) const
          {
-            const details::char_cptr begin_itr = ((base_itr_ + begin) < s_end_) ? (base_itr_ + begin) : s_end_;
-            const details::char_cptr end_itr   = ((base_itr_ + end  ) < s_end_) ? (base_itr_ + end  ) : s_end_;
+            const core::char_cptr begin_itr = ((base_itr_ + begin) < s_end_) ? (base_itr_ + begin) : s_end_;
+            const core::char_cptr end_itr   = ((base_itr_ + end  ) < s_end_) ? (base_itr_ + end  ) : s_end_;
 
             return std::string(begin_itr,end_itr);
          }
@@ -192,14 +192,14 @@ namespace math_expr::lexer
 
       private:
 
-         inline bool is_end(details::char_cptr itr) const
+         inline bool is_end(core::char_cptr itr) const
          {
             return (s_end_ == itr);
          }
 
-         inline bool is_comment_start(details::char_cptr itr) const
+         inline bool is_comment_start(core::char_cptr itr) const
          {
-            if constexpr (::math_expr::config::build_options::kDisableComments)
+            if constexpr (::math_expr::core::build_options::kDisableComments)
             {
                return false;
             }
@@ -219,7 +219,7 @@ namespace math_expr::lexer
 
          inline void skip_whitespace()
          {
-            while (!is_end(s_itr_) && details::is_whitespace(*s_itr_))
+            while (!is_end(s_itr_) && core::is_whitespace(*s_itr_))
             {
                ++s_itr_;
             }
@@ -227,7 +227,7 @@ namespace math_expr::lexer
 
          inline void skip_comments()
          {
-            if constexpr (::math_expr::config::build_options::kDisableComments)
+            if constexpr (::math_expr::core::build_options::kDisableComments)
             {
                return;
             }
@@ -273,13 +273,13 @@ namespace math_expr::lexer
             else if (!test::comment_start(*s_itr_, *(s_itr_ + 1), mode, increment))
                return;
 
-            details::char_cptr cmt_start = s_itr_;
+            core::char_cptr cmt_start = s_itr_;
 
             s_itr_ += increment;
 
             while (!is_end(s_itr_))
             {
-               if (details::is_invalid(*s_itr_))
+               if (core::is_invalid(*s_itr_))
                {
                   token_t t;
                   t.set_error(token::e_error, s_itr_, s_itr_ + 1, base_itr_);
@@ -313,17 +313,17 @@ namespace math_expr::lexer
             }
          }
 
-         inline bool next_is_digit(const details::char_cptr itr) const
+         inline bool next_is_digit(const core::char_cptr itr) const
          {
             return ((itr + 1) != s_end_) &&
-                   details::is_digit(*(itr + 1));
+                   core::is_digit(*(itr + 1));
          }
 
          inline void scan_token()
          {
             const char_t c = *s_itr_;
 
-            if (details::is_whitespace(c))
+            if (core::is_whitespace(c))
             {
                skip_whitespace();
                return;
@@ -333,12 +333,12 @@ namespace math_expr::lexer
                skip_comments();
                return;
             }
-            else if (details::is_operator_char(c))
+            else if (core::is_operator_char(c))
             {
                scan_operator();
                return;
             }
-            else if (details::is_letter(c))
+            else if (core::is_letter(c))
             {
                scan_symbol();
                return;
@@ -348,7 +348,7 @@ namespace math_expr::lexer
                scan_operator();
                return;
             }
-            else if (details::is_digit(c) || ('.' == c))
+            else if (core::is_digit(c) || ('.' == c))
             {
                scan_number();
                return;
@@ -449,11 +449,11 @@ namespace math_expr::lexer
 
          inline void scan_symbol()
          {
-            details::char_cptr initial_itr = s_itr_;
+            core::char_cptr initial_itr = s_itr_;
 
             while (!is_end(s_itr_))
             {
-               if (!details::is_letter_or_digit(*s_itr_) && ('_' != (*s_itr_)))
+               if (!core::is_letter_or_digit(*s_itr_) && ('_' != (*s_itr_)))
                {
                   if ('.' != (*s_itr_))
                      break;
@@ -465,7 +465,7 @@ namespace math_expr::lexer
                   if (
                        (s_itr_ != initial_itr)                     &&
                        !is_end(s_itr_ + 1)                         &&
-                       !details::is_letter_or_digit(*(s_itr_ + 1)) &&
+                       !core::is_letter_or_digit(*(s_itr_ + 1)) &&
                        ('_' != (*(s_itr_ + 1)))
                      )
                      break;
@@ -500,7 +500,7 @@ namespace math_expr::lexer
                (15) .1234e-3
             */
 
-            details::char_cptr initial_itr = s_itr_;
+            core::char_cptr initial_itr = s_itr_;
             bool dot_found                 = false;
             bool e_found                   = false;
             bool post_e_sign_found         = false;
@@ -538,7 +538,7 @@ namespace math_expr::lexer
                   else if (
                             ('+' != c) &&
                             ('-' != c) &&
-                            !details::is_digit(c)
+                            !core::is_digit(c)
                           )
                   {
                      t.set_error(token::e_err_number, initial_itr, s_itr_, base_itr_);
@@ -552,7 +552,7 @@ namespace math_expr::lexer
 
                   continue;
                }
-               else if (e_found && details::is_sign(*s_itr_) && !post_e_digit_found)
+               else if (e_found && core::is_sign(*s_itr_) && !post_e_digit_found)
                {
                   if (post_e_sign_found)
                   {
@@ -567,14 +567,14 @@ namespace math_expr::lexer
 
                   continue;
                }
-               else if (e_found && details::is_digit(*s_itr_))
+               else if (e_found && core::is_digit(*s_itr_))
                {
                   post_e_digit_found = true;
                   ++s_itr_;
 
                   continue;
                }
-               else if (('.' != (*s_itr_)) && !details::is_digit(*s_itr_))
+               else if (('.' != (*s_itr_)) && !core::is_digit(*s_itr_))
                   break;
                else
                   ++s_itr_;
@@ -588,7 +588,7 @@ namespace math_expr::lexer
 
          inline void scan_special_function()
          {
-            details::char_cptr initial_itr = s_itr_;
+            core::char_cptr initial_itr = s_itr_;
             token_t t;
 
             // $fdd(x,x,x) = at least 11 chars
@@ -605,9 +605,9 @@ namespace math_expr::lexer
 
             if (
                  !(('$' == *s_itr_)                       &&
-                   (details::imatch  ('f',*(s_itr_ + 1))) &&
-                   (details::is_digit(*(s_itr_ + 2)))     &&
-                   (details::is_digit(*(s_itr_ + 3))))
+                   (core::imatch  ('f',*(s_itr_ + 1))) &&
+                   (core::is_digit(*(s_itr_ + 2)))     &&
+                   (core::is_digit(*(s_itr_ + 3))))
                )
             {
                t.set_error(
@@ -630,7 +630,7 @@ namespace math_expr::lexer
          #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
          inline void scan_string()
          {
-            details::char_cptr initial_itr = s_itr_ + 1;
+            core::char_cptr initial_itr = s_itr_ + 1;
             token_t t;
 
             if (std::distance(s_itr_,s_end_) < 2)
@@ -648,7 +648,7 @@ namespace math_expr::lexer
 
             while (!is_end(s_itr_))
             {
-               if (!details::is_valid_string_char(*s_itr_))
+               if (!core::is_valid_string_char(*s_itr_))
                {
                   t.set_error(token::e_err_string, initial_itr, s_itr_, base_itr_);
                   token_list_.push_back(t);
@@ -677,8 +677,8 @@ namespace math_expr::lexer
                   {
                      const bool x_separator = ('X' == std::toupper(*(s_itr_ + 1)));
 
-                     const bool both_digits = details::is_hex_digit(*(s_itr_ + 2)) &&
-                                              details::is_hex_digit(*(s_itr_ + 3)) ;
+                     const bool both_digits = core::is_hex_digit(*(s_itr_ + 2)) &&
+                                              core::is_hex_digit(*(s_itr_ + 3)) ;
 
                      if (!(x_separator && both_digits))
                      {
@@ -711,7 +711,7 @@ namespace math_expr::lexer
             {
                std::string parsed_string(initial_itr,s_itr_);
 
-               if (!details::cleanup_escapes(parsed_string))
+               if (!core::cleanup_escapes(parsed_string))
                {
                   t.set_error(token::e_err_string, initial_itr, s_itr_, base_itr_);
                   token_list_.push_back(t);
@@ -737,9 +737,9 @@ namespace math_expr::lexer
          token_list_itr_t   token_itr_;
          token_list_itr_t   store_token_itr_;
          token_t            eof_token_;
-         details::char_cptr base_itr_;
-         details::char_cptr s_itr_;
-         details::char_cptr s_end_;
+         core::char_cptr base_itr_;
+         core::char_cptr s_itr_;
+         core::char_cptr s_end_;
 
          friend class token_scanner;
          friend class token_modifier;

@@ -484,7 +484,7 @@ void perform_file_based_benchmark(const std::string& file_name, const std::size_
    symbol_table.add_package(vector_package);
 
 
-   static double e = math_expr::details::numeric::constant::e;
+   static double e = math_expr::core::numeric::e;
    symbol_table.add_variable("e", e, true);
 
    symbol_table.add_constants();

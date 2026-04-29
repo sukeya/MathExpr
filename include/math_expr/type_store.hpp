@@ -35,7 +35,8 @@ limitations under the License.
 #define MATH_EXPR_TYPE_STORE_HPP
 
 #include "math_expr/core/std_includes.hpp"
-#include "math_expr/core/fwd.hpp"
+#include "math_expr/fwd.hpp"
+#include "math_expr/details/fwd.hpp"
 #include "math_expr/core/numeric.hpp"
 
 namespace math_expr
@@ -232,7 +233,7 @@ namespace math_expr
          template <typename IntType>
          inline bool to_int(IntType& i) const
          {
-            if (!math_expr::details::numeric::is_integer(v_))
+            if (!math_expr::core::numeric::is_integer(v_))
                return false;
 
             i = static_cast<IntType>(v_);
@@ -245,7 +246,7 @@ namespace math_expr
          {
             if (v_ < T(0))
                return false;
-            else if (!math_expr::details::numeric::is_integer(v_))
+            else if (!math_expr::core::numeric::is_integer(v_))
                return false;
 
             u = static_cast<UIntType>(v_);

@@ -295,7 +295,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_node(const operator_type& opr,
+         assignment_node(const core::operators::operator_type& opr,
                          expression_ptr branch0,
                          expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -333,7 +333,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_vec_elem_node(const operator_type& opr,
+         assignment_vec_elem_node(const core::operators::operator_type& opr,
                                   expression_ptr branch0,
                                   expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -373,7 +373,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_vec_elem_rtc_node(const operator_type& opr,
+         assignment_vec_elem_rtc_node(const core::operators::operator_type& opr,
                                       expression_ptr branch0,
                                       expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -413,7 +413,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using expression_node<T>::branch;
 
-         assignment_rebasevec_elem_node(const operator_type& opr,
+         assignment_rebasevec_elem_node(const core::operators::operator_type& opr,
                                         expression_ptr branch0,
                                         expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -453,7 +453,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using expression_node<T>::branch;
 
-         assignment_rebasevec_elem_rtc_node(const operator_type& opr,
+         assignment_rebasevec_elem_rtc_node(const core::operators::operator_type& opr,
                                             expression_ptr branch0,
                                             expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -493,7 +493,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_rebasevec_celem_node(const operator_type& opr,
+         assignment_rebasevec_celem_node(const core::operators::operator_type& opr,
                                          expression_ptr branch0,
                                          expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -544,11 +544,11 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
          typedef vector_node<T>*     vector_node_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
 
          using binary_node<T>::branch;
 
-         assignment_vec_node(const operator_type& opr,
+         assignment_vec_node(const core::operators::operator_type& opr,
                              expression_ptr branch0,
                              expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -569,7 +569,7 @@ namespace math_expr::details
 
             T* vec = vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec + lud.upper_bound;
 
             #define math_expr_loop(N) \
@@ -579,7 +579,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -659,11 +659,11 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
          typedef vector_node<T>*     vector_node_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
 
          using binary_node<T>::branch;
 
-         assignment_vecvec_node(const operator_type& opr,
+         assignment_vecvec_node(const core::operators::operator_type& opr,
                                 expression_ptr branch0,
                                 expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -721,7 +721,7 @@ namespace math_expr::details
             T* vec0 = vec0_node_ptr_->vds().data();
             T* vec1 = vec1_node_ptr_->vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N) \
@@ -731,7 +731,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -815,7 +815,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_op_node(const operator_type& opr,
+         assignment_op_node(const core::operators::operator_type& opr,
                             expression_ptr branch0,
                             expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -855,7 +855,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_vec_elem_op_node(const operator_type& opr,
+         assignment_vec_elem_op_node(const core::operators::operator_type& opr,
                                      expression_ptr branch0,
                                      expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -895,7 +895,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_vec_elem_op_rtc_node(const operator_type& opr,
+         assignment_vec_elem_op_rtc_node(const core::operators::operator_type& opr,
                                          expression_ptr branch0,
                                          expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -935,7 +935,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_vec_celem_op_rtc_node(const operator_type& opr,
+         assignment_vec_celem_op_rtc_node(const core::operators::operator_type& opr,
                                           expression_ptr branch0,
                                           expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -975,7 +975,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_rebasevec_elem_op_node(const operator_type& opr,
+         assignment_rebasevec_elem_op_node(const core::operators::operator_type& opr,
                                            expression_ptr branch0,
                                            expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1015,7 +1015,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_rebasevec_celem_op_node(const operator_type& opr,
+         assignment_rebasevec_celem_op_node(const core::operators::operator_type& opr,
                                             expression_ptr branch0,
                                             expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1055,7 +1055,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_rebasevec_elem_op_rtc_node(const operator_type& opr,
+         assignment_rebasevec_elem_op_rtc_node(const core::operators::operator_type& opr,
                                                expression_ptr branch0,
                                                expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1095,7 +1095,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         assignment_rebasevec_celem_op_rtc_node(const operator_type& opr,
+         assignment_rebasevec_celem_op_rtc_node(const core::operators::operator_type& opr,
                                                 expression_ptr branch0,
                                                 expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1147,11 +1147,11 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
          typedef vector_node<T>*     vector_node_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
 
          using binary_node<T>::branch;
 
-         assignment_vec_op_node(const operator_type& opr,
+         assignment_vec_op_node(const core::operators::operator_type& opr,
                                 expression_ptr branch0,
                                 expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1172,7 +1172,7 @@ namespace math_expr::details
 
             T* vec = vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec + lud.upper_bound;
 
             #define math_expr_loop(N)       \
@@ -1182,7 +1182,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -1267,11 +1267,11 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
          typedef vector_node<T>*     vector_node_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
 
          using binary_node<T>::branch;
 
-         assignment_vecvec_op_node(const operator_type& opr,
+         assignment_vecvec_op_node(const core::operators::operator_type& opr,
                                    expression_ptr branch0,
                                    expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1320,7 +1320,7 @@ namespace math_expr::details
                   T* vec0 = vec0_node_ptr_->vds().data();
             const T* vec1 = vec1_node_ptr_->vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             while (vec0 < upper_bound)
@@ -1330,7 +1330,7 @@ namespace math_expr::details
 
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -1437,7 +1437,7 @@ namespace math_expr::details
 
       template <typename T>
       inline memory_context_t<T> make_memory_context(vector_holder<T>& vec_holder,
-                                                     vec_data_store<T>& vds)
+                                                     core::vec_data_store<T>& vds)
       {
          memory_context_t<T> result_ctxt;
 
@@ -1453,7 +1453,7 @@ namespace math_expr::details
       template <typename T>
       inline memory_context_t<T> make_memory_context(vector_holder<T>& vec_holder0,
                                                      vector_holder<T>& vec_holder1,
-                                                     vec_data_store<T>& vds)
+                                                     core::vec_data_store<T>& vds)
       {
          memory_context_t<T> result_ctxt;
 
@@ -1486,12 +1486,12 @@ namespace math_expr::details
          typedef vector_node<T>*     vector_node_ptr;
          typedef vector_holder<T>    vector_holder_t;
          typedef vector_holder_t*    vector_holder_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
          typedef memory_context_t<T> memory_context;
 
          using binary_node<T>::branch;
 
-         vec_binop_vecvec_node(const operator_type& opr,
+         vec_binop_vecvec_node(const core::operators::operator_type& opr,
                                expression_ptr branch0,
                                expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1574,7 +1574,7 @@ namespace math_expr::details
             const T* vec1 = vec1_node_ptr_->vds().data();
                   T* vec2 = vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec2 + lud.upper_bound;
 
             #define math_expr_loop(N)                          \
@@ -1584,7 +1584,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -1675,12 +1675,12 @@ namespace math_expr::details
          typedef vector_node<T>*     vector_node_ptr;
          typedef vector_holder<T>    vector_holder_t;
          typedef vector_holder_t*    vector_holder_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
          typedef memory_context_t<T> memory_context;
 
          using binary_node<T>::branch;
 
-         vec_binop_vecval_node(const operator_type& opr,
+         vec_binop_vecval_node(const core::operators::operator_type& opr,
                                expression_ptr branch0,
                                expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1729,7 +1729,7 @@ namespace math_expr::details
             const T* vec0 = vec0_node_ptr_->vds().data();
                   T* vec1 = vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N)                    \
@@ -1739,7 +1739,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -1826,12 +1826,12 @@ namespace math_expr::details
          typedef vector_node<T>*     vector_node_ptr;
          typedef vector_holder<T>    vector_holder_t;
          typedef vector_holder_t*    vector_holder_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
          typedef memory_context_t<T> memory_context;
 
          using binary_node<T>::branch;
 
-         vec_binop_valvec_node(const operator_type& opr,
+         vec_binop_valvec_node(const core::operators::operator_type& opr,
                                expression_ptr branch0,
                                expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -1880,7 +1880,7 @@ namespace math_expr::details
                   T* vec0 = vds().data();
             const T* vec1 = vec1_node_ptr_->vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N)                    \
@@ -1890,7 +1890,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -1978,12 +1978,12 @@ namespace math_expr::details
          typedef vector_node<T>*     vector_node_ptr;
          typedef vector_holder<T>    vector_holder_t;
          typedef vector_holder_t*    vector_holder_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
          typedef memory_context_t<T> memory_context;
 
          using expression_node<T>::branch;
 
-         unary_vector_node(const operator_type& opr, expression_ptr branch0)
+         unary_vector_node(const core::operators::operator_type& opr, expression_ptr branch0)
          : unary_node<T>(opr, branch0)
          , vec0_node_ptr_(0)
          {
@@ -2029,7 +2029,7 @@ namespace math_expr::details
             const T* vec0 = vec0_node_ptr_->vds().data();
                   T* vec1 = vds().data();
 
-            loop_unroll lud(size());
+            core::operators::loop_unroll lud(size());
             const T* upper_bound = vec0 + lud.upper_bound;
 
             #define math_expr_loop(N)                 \
@@ -2039,7 +2039,7 @@ namespace math_expr::details
             {
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                {
                   math_expr_loop( 4) math_expr_loop( 5)
                   math_expr_loop( 6) math_expr_loop( 7)
@@ -2124,7 +2124,7 @@ namespace math_expr::details
          typedef vector_holder   <T>  vector_holder_t;
          typedef vector_holder_t*     vector_holder_ptr;
          typedef math_expr::vector_view<T> vector_view_t;
-         typedef vec_data_store  <T>  vds_t;
+         typedef core::vec_data_store  <T>  vds_t;
          typedef std::pair<expression_ptr,bool> branch_t;
 
          conditional_vector_node(expression_ptr condition,
@@ -2306,7 +2306,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         scand_node(const operator_type& opr,
+         scand_node(const core::operators::operator_type& opr,
                     expression_ptr branch0,
                     expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -2333,7 +2333,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          using binary_node<T>::branch;
 
-         scor_node(const operator_type& opr,
+         scor_node(const core::operators::operator_type& opr,
                    expression_ptr branch0,
                    expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -2886,7 +2886,7 @@ namespace math_expr::details
                      return false;
 
                   ts.size = sbn->size();
-                  ts.data = reinterpret_cast<void*>(const_cast<char_ptr>(sbn->base()));
+                  ts.data = reinterpret_cast<void*>(const_cast<core::char_ptr>(sbn->base()));
                   ts.type = type_store_t::e_string;
 
                   range_list_[i].data      = ts.data;
@@ -2907,7 +2907,7 @@ namespace math_expr::details
                      )
                   {
                      ts.size = rp.const_size();
-                     ts.data = static_cast<char_ptr>(ts.data) + rp.n0_c.second;
+                     ts.data = static_cast<core::char_ptr>(ts.data) + rp.n0_c.second;
                      range_list_[i].range = reinterpret_cast<range_t*>(0);
                   }
                   else
@@ -3009,10 +3009,10 @@ namespace math_expr::details
                   ts.size = rp.cache_size();
                   #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                   if (ts.type == type_store_t::e_string)
-                     ts.data = const_cast<char_ptr>(rdt.str_node->base()) + rp.cache.first;
+                     ts.data = const_cast<core::char_ptr>(rdt.str_node->base()) + rp.cache.first;
                   else
                   #endif
-                     ts.data = static_cast<char_ptr>(rdt.data) + (rp.cache.first * rdt.type_size);
+                     ts.data = static_cast<core::char_ptr>(rdt.data) + (rp.cache.first * rdt.type_size);
                }
             }
 
@@ -3096,7 +3096,7 @@ namespace math_expr::details
             return ret_string_;
          }
 
-         char_cptr base() const override
+         core::char_cptr base() const override
          {
            return &ret_string_[0];
          }

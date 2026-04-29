@@ -35,6 +35,8 @@ limitations under the License.
 #define MATH_EXPR_DETAILS_VECTOR_NODES_HPP
 
 #include "math_expr/assert_check.hpp"
+#include "math_expr/core/numeric.hpp"
+#include "math_expr/core/vec_data_store.hpp"
 #include "math_expr/vector_access_runtime_check.hpp"
 #include "math_expr/details/range_pack.hpp"
 #include "math_expr/details/loop_nodes.hpp"
@@ -126,7 +128,7 @@ namespace math_expr::details
       public:
 
          typedef vector_node<T>*   vector_node_ptr;
-         typedef vec_data_store<T> vds_t;
+         typedef core::vec_data_store<T> vds_t;
 
          virtual ~vector_interface()
          {}
@@ -156,7 +158,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          typedef vector_holder<T>    vector_holder_t;
          typedef vector_node<T>*     vector_node_ptr;
-         typedef vec_data_store<T>   vds_t;
+         typedef core::vec_data_store<T>   vds_t;
 
          explicit vector_node(vector_holder_t* vh)
          : vector_holder_(vh)
@@ -356,7 +358,7 @@ namespace math_expr::details
          inline T* access_vector() const
          {
             vector_node_.first->value();
-            return (vector_base_ + details::numeric::to_uint64(index_.first->value()));
+            return (vector_base_ + core::numeric::to_uint64(index_.first->value()));
          }
 
          vector_holder_ptr vector_holder_;
@@ -522,7 +524,7 @@ namespace math_expr::details
 
          inline T* access_vector() const
          {
-            const _uint64_t index = details::numeric::to_uint64(index_.first->value());
+            const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
             vector_node_.first->value();
 
             if (index <= max_vector_index_)
@@ -662,7 +664,7 @@ namespace math_expr::details
          typedef expression_node<T>*            expression_ptr;
          typedef vector_holder<T>               vector_holder_t;
          typedef vector_holder_t*               vector_holder_ptr;
-         typedef vec_data_store<T>              vds_t;
+         typedef core::vec_data_store<T>              vds_t;
          typedef std::pair<expression_ptr,bool> branch_t;
 
          rebasevector_elem_node(expression_ptr vec_node,
@@ -727,7 +729,7 @@ namespace math_expr::details
          inline T* access_vector() const
          {
             vector_node_.first->value();
-            return (vector_holder_->data() + details::numeric::to_uint64(index_.first->value()));
+            return (vector_holder_->data() + core::numeric::to_uint64(index_.first->value()));
          }
 
          vector_holder_ptr vector_holder_;
@@ -884,7 +886,7 @@ namespace math_expr::details
          inline T* access_vector() const
          {
             vector_node_.first->value();
-            const _uint64_t index = details::numeric::to_uint64(index_.first->value());
+            const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
 
             if (index <= (vector_holder_->size() - 1))
             {
@@ -1060,7 +1062,7 @@ namespace math_expr::details
             {
                if (zero_value_initialse_)
                {
-                  details::set_zero_value(vector_base_, size_);
+                  core::numeric::set_zero_value(vector_base_, size_);
                }
                else if (const_nonzero_literal_value_initialse_)
                {
@@ -1088,7 +1090,7 @@ namespace math_expr::details
 
                if (initialiser_list_size < size_)
                {
-                  details::set_zero_value(
+                  core::numeric::set_zero_value(
                      vector_base_ + initialiser_list_size,
                      (size_ - initialiser_list_size));
                }
@@ -1148,7 +1150,7 @@ namespace math_expr::details
 
          inline T value() const override
          {
-            details::set_zero_value(vector_base_, size_);
+            core::numeric::set_zero_value(vector_base_, size_);
             return *(vector_base_);
          }
 
@@ -1602,7 +1604,7 @@ namespace math_expr::details
          typedef ivariable<T>*       ivariable_ptr;
 
          swap_generic_node(expression_ptr var0, expression_ptr var1)
-         : binary_node<T>(details::operator_type::swap, var0, var1)
+         : binary_node<T>(core::operators::operator_type::swap, var0, var1)
          , var0_(dynamic_cast<ivariable_ptr>(var0))
          , var1_(dynamic_cast<ivariable_ptr>(var1))
          {}
@@ -1633,13 +1635,13 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
          typedef vector_node    <T>* vector_node_ptr;
-         typedef vec_data_store <T>  vds_t;
+         typedef core::vec_data_store <T>  vds_t;
 
          using binary_node<T>::branch;
 
          swap_vecvec_node(expression_ptr branch0,
                           expression_ptr branch1)
-         : binary_node<T>(details::operator_type::swap, branch0, branch1)
+         : binary_node<T>(core::operators::operator_type::swap, branch0, branch1)
          , vec0_node_ptr_(0)
          , vec1_node_ptr_(0)
          , initialised_  (false)
@@ -1846,21 +1848,21 @@ namespace math_expr::details
       inline T axn(const T a, const T x)
       {
          // a*x^n
-         return a * math_expr::details::numeric::fast_exp<T,N>::result(x);
+         return a * math_expr::core::numeric::fast_exp<T,N>::result(x);
       }
 
       template <typename T, std::size_t N>
       inline T axnb(const T a, const T x, const T b)
       {
          // a*x^n+b
-         return a * math_expr::details::numeric::fast_exp<T,N>::result(x) + b;
+         return a * math_expr::core::numeric::fast_exp<T,N>::result(x) + b;
       }
 
       template <typename T>
       struct sf_base
       {
-         typedef typename details::functor_t<T>::Type Type;
-         typedef typename details::functor_t<T> functor_t;
+         typedef typename core::numeric::functor_t<T>::Type Type;
+         typedef typename core::numeric::functor_t<T> functor_t;
          typedef typename functor_t::qfunc_t quaternary_functor_t;
          typedef typename functor_t::tfunc_t trinary_functor_t;
          typedef typename functor_t::bfunc_t binary_functor_t;
@@ -1921,14 +1923,14 @@ namespace math_expr::details
       define_sfop3(36,(axnb<T,7>(x,y,z)),"       ")
       define_sfop3(37,(axnb<T,8>(x,y,z)),"       ")
       define_sfop3(38,(axnb<T,9>(x,y,z)),"       ")
-      define_sfop3(39,x * numeric::log(y)   + z,"")
-      define_sfop3(40,x * numeric::log(y)   - z,"")
-      define_sfop3(41,x * numeric::log10(y) + z,"")
-      define_sfop3(42,x * numeric::log10(y) - z,"")
-      define_sfop3(43,x * numeric::sin(y) + z  ,"")
-      define_sfop3(44,x * numeric::sin(y) - z  ,"")
-      define_sfop3(45,x * numeric::cos(y) + z  ,"")
-      define_sfop3(46,x * numeric::cos(y) - z  ,"")
+      define_sfop3(39,x * core::numeric::log(y)   + z,"")
+      define_sfop3(40,x * core::numeric::log(y)   - z,"")
+      define_sfop3(41,x * core::numeric::log10(y) + z,"")
+      define_sfop3(42,x * core::numeric::log10(y) - z,"")
+      define_sfop3(43,x * core::numeric::sin(y) + z  ,"")
+      define_sfop3(44,x * core::numeric::sin(y) - z  ,"")
+      define_sfop3(45,x * core::numeric::cos(y) + z  ,"")
+      define_sfop3(46,x * core::numeric::cos(y) - z  ,"")
       define_sfop3(47,details::is_true(x) ? y : z,"")
 
       #define define_sfop4(NN, OP0, OP1)                         \
@@ -1997,8 +1999,8 @@ namespace math_expr::details
       define_sfop4(95,((x <= y) ? z : w),"")
       define_sfop4(96,((x >  y) ? z : w),"")
       define_sfop4(97,((x >= y) ? z : w),"")
-      define_sfop4(98,(details::is_true(numeric::equal(x,y)) ? z : w),"")
-      define_sfop4(99,(x * numeric::sin(y) + z * numeric::cos(w)),"")
+      define_sfop4(98,(details::is_true(core::numeric::equal(x,y)) ? z : w),"")
+      define_sfop4(99,(x * core::numeric::sin(y) + z * core::numeric::cos(w)),"")
 
       define_sfop4(ext00,((x + y) - (z * w)),"(t+t)-(t*t)")
       define_sfop4(ext01,((x + y) - (z / w)),"(t+t)-(t/t)")
@@ -2073,7 +2075,7 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
 
-         sf3_node(const operator_type& opr,
+         sf3_node(const core::operators::operator_type& opr,
                   expression_ptr branch0,
                   expression_ptr branch1,
                   expression_ptr branch2)
@@ -2097,7 +2099,7 @@ namespace math_expr::details
 
          typedef expression_node<T>* expression_ptr;
 
-         sf4_node(const operator_type& opr,
+         sf4_node(const core::operators::operator_type& opr,
                   expression_ptr branch0,
                   expression_ptr branch1,
                   expression_ptr branch2,

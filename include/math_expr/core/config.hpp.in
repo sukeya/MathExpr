@@ -102,7 +102,7 @@ limitations under the License.
 #define MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
 #endif
 
-namespace math_expr::config
+namespace math_expr::core
 {
    struct build_options final
    {
@@ -135,6 +135,6 @@ namespace math_expr::config
       static constexpr bool kEnableRangeRuntimeChecks =
          @MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS_BOOL@;
    };
-} // namespace math_expr::config
+} // namespace math_expr::core
 
 #endif

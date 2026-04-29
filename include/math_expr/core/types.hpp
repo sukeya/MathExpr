@@ -36,7 +36,7 @@ limitations under the License.
 
 #include "math_expr/core/std_includes.hpp"
 
-namespace math_expr::details
+namespace math_expr::core
 {
       typedef char                   char_t;
       typedef char_t*                char_ptr;
@@ -125,6 +125,6 @@ namespace math_expr::details
                 is_whitespace(c);
       }
 
-} // namespace math_expr::details
+} // namespace math_expr::core
 
 #endif

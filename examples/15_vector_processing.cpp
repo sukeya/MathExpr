@@ -48,7 +48,7 @@ void black_scholes_merton_model()
 
    std::string callput_flag;
 
-   static const T e = math_expr::details::numeric::constant::e;
+   static const T e = math_expr::core::numeric::e;
 
    symbol_table_t symbol_table;
    symbol_table.add_variable("s",s);

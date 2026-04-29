@@ -31,24 +31,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef MATH_EXPR_DETAILS_STRING_ASSIGNMENT_PROCESS_HPP
-#define MATH_EXPR_DETAILS_STRING_ASSIGNMENT_PROCESS_HPP
+#ifndef MATH_EXPR_DETAILS_FWD_HPP
+#define MATH_EXPR_DETAILS_FWD_HPP
 
-#include "math_expr/core/types.hpp"
-
-namespace math_expr::details::string_nodes
+namespace math_expr::details
 {
-      struct asn_assignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.assign(data,size); }
-      };
-
-      struct asn_addassignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.append(data,size); }
-      };
+   template <typename T> class expression_node;
+   template <typename T> class variable_node;
+   template <typename T> class stringvar_node;
+   template <typename T> class vector_holder;
+   template <typename T> class vector_interface;
+   template <typename T> class null_node;
+   template <typename T> class literal_node;
+   template <typename T> class unary_node;
+   template <typename T> class binary_node;
+   template <typename T> class trinary_node;
+   template <typename T> class quaternary_node;
+   template <typename T> class conditional_node;
+   template <typename T> class cons_conditional_node;
+   template <typename T> class while_loop_node;
+   template <typename T> class while_loop_rtc_node;
+   template <typename T> class repeat_until_loop_node;
+   template <typename T> class repeat_until_loop_rtc_node;
+   template <typename T> class for_loop_node;
+   template <typename T> class for_loop_rtc_node;
+   template <typename T> class vector_elem_node;
+   template <typename T> class vector_celem_node;
+   template <typename T> class return_node;
+   template <typename T> class return_envelope_node;
 }
 
 #endif

@@ -46,7 +46,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          typedef std::pair<expression_ptr,bool> branch_t;
 
-         unary_node(const operator_type& opr, expression_ptr branch)
+         unary_node(const core::operators::operator_type& opr, expression_ptr branch)
          : operation_(opr)
          {
             construct_branch_pair(branch_,branch);
@@ -55,7 +55,7 @@ namespace math_expr::details
 
          inline T value() const override
          {
-            return numeric::process<T>
+            return core::operators::process<T>
                      (operation_,branch_.first->value());
          }
 
@@ -64,7 +64,7 @@ namespace math_expr::details
             return expression_node<T>::e_unary;
          }
 
-         inline operator_type operation()
+         inline core::operators::operator_type operation()
          {
             return operation_;
          }
@@ -96,7 +96,7 @@ namespace math_expr::details
 
       private:
 
-         operator_type operation_;
+         core::operators::operator_type operation_;
          branch_t branch_;
       };
 
@@ -108,7 +108,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          typedef std::pair<expression_ptr,bool> branch_t;
 
-         binary_node(const operator_type& opr,
+         binary_node(const core::operators::operator_type& opr,
                      expression_ptr branch0,
                      expression_ptr branch1)
          : operation_(opr)
@@ -119,7 +119,7 @@ namespace math_expr::details
 
          inline T value() const override
          {
-            return numeric::process<T>
+            return core::operators::process<T>
                    (
                       operation_,
                       branch_[0].first->value(),
@@ -132,7 +132,7 @@ namespace math_expr::details
             return expression_node<T>::e_binary;
          }
 
-         inline operator_type operation()
+         inline core::operators::operator_type operation()
          {
             return operation_;
          }
@@ -162,7 +162,7 @@ namespace math_expr::details
 
       private:
 
-         operator_type operation_;
+         core::operators::operator_type operation_;
          branch_t branch_[2];
       };
 
@@ -192,7 +192,7 @@ namespace math_expr::details
             return expression_node<T>::e_binary_ext;
          }
 
-         inline operator_type operation()
+         inline core::operators::operator_type operation()
          {
             return Operation::operation();
          }
@@ -233,7 +233,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          typedef std::pair<expression_ptr,bool> branch_t;
 
-         trinary_node(const operator_type& opr,
+         trinary_node(const core::operators::operator_type& opr,
                       expression_ptr branch0,
                       expression_ptr branch1,
                       expression_ptr branch2)
@@ -251,11 +251,11 @@ namespace math_expr::details
 
             switch (operation_)
             {
-               case operator_type::inrange : return (arg1 < arg0) ? T(0) : ((arg1 > arg2) ? T(0) : T(1));
+               case core::operators::operator_type::inrange : return (arg1 < arg0) ? T(0) : ((arg1 > arg2) ? T(0) : T(1));
 
-               case operator_type::clamp   : return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
+               case core::operators::operator_type::clamp   : return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
 
-               case operator_type::iclamp  : if ((arg1 <= arg0) || (arg1 >= arg2))
+               case core::operators::operator_type::iclamp  : if ((arg1 <= arg0) || (arg1 >= arg2))
                                    return arg1;
                                 else
                                    return ((T(2) * arg1  <= (arg2 + arg0)) ? arg0 : arg2);
@@ -290,7 +290,7 @@ namespace math_expr::details
 
       protected:
 
-         operator_type operation_;
+         core::operators::operator_type operation_;
          branch_t branch_[3];
       };
 
@@ -302,7 +302,7 @@ namespace math_expr::details
          typedef expression_node<T>* expression_ptr;
          typedef std::pair<expression_ptr,bool> branch_t;
 
-         quaternary_node(const operator_type& opr,
+         quaternary_node(const core::operators::operator_type& opr,
                          expression_ptr branch0,
                          expression_ptr branch1,
                          expression_ptr branch2,
@@ -343,7 +343,7 @@ namespace math_expr::details
 
       protected:
 
-         operator_type operation_;
+         core::operators::operator_type operation_;
          branch_t branch_[4];
       };
 

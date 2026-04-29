@@ -117,7 +117,7 @@ namespace math_expr::details
          inline T value() const override
          {
             const T v = branch_.first->value();
-            const bool result = details::numeric::is_nan(v);
+            const bool result = core::numeric::is_nan(v);
 
             if (result)
                return equality_ ? T(1) : T(0);
@@ -222,7 +222,7 @@ namespace math_expr::details
 
          virtual std::string str () const = 0;
 
-         virtual char_cptr   base() const = 0;
+         virtual core::char_cptr   base() const = 0;
 
          virtual std::size_t size() const = 0;
       };
@@ -266,7 +266,7 @@ namespace math_expr::details
             return value_;
          }
 
-         char_cptr base() const override
+         core::char_cptr base() const override
          {
             return value_.data();
          }

@@ -44,8 +44,8 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file::details
 {
-   using ::math_expr::details::char_cptr;
-   using ::math_expr::details::char_ptr;
+   using ::math_expr::core::char_cptr;
+   using ::math_expr::core::char_ptr;
 
    enum class file_mode : int
    {

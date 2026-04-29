@@ -59,7 +59,7 @@ namespace math_expr::details::string_nodes
 
          using binary_node<T>::branch;
 
-         assignment_string_range_node(const operator_type& opr,
+         assignment_string_range_node(const core::operators::operator_type& opr,
                                       expression_ptr branch0,
                                       expression_ptr branch1)
          : binary_node<T>(opr, branch0, branch1)
@@ -130,7 +130,7 @@ namespace math_expr::details::string_nodes
                std::copy(
                   str1_base_ptr_->base() + s1_r0,
                   str1_base_ptr_->base() + s1_r0 + size,
-                  const_cast<char_ptr>(base() + s0_r0));
+                  const_cast<core::char_ptr>(base() + s0_r0));
             }
 
             return std::numeric_limits<T>::quiet_NaN();
@@ -141,7 +141,7 @@ namespace math_expr::details::string_nodes
             return str0_base_ptr_->str();
          }
 
-         char_cptr base() const override
+         core::char_cptr base() const override
          {
             return str0_base_ptr_->base();
          }

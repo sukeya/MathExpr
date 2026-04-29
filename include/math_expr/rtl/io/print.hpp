@@ -47,7 +47,7 @@ namespace math_expr::rtl::io
       template <typename T>
       inline void print_type(const std::string& fmt,
                              const T v,
-                             math_expr::details::numeric::details::real_type_tag)
+                             math_expr::core::numeric::details::real_type_tag)
       {
          #if defined(__clang__)
             #pragma clang diagnostic push
@@ -76,7 +76,7 @@ namespace math_expr::rtl::io
          typedef typename generic_type::scalar_view scalar_t;
          typedef typename generic_type::vector_view vector_t;
          typedef typename generic_type::string_view string_t;
-         typedef typename math_expr::details::numeric::details::number_type<T>::type num_type;
+         typedef typename math_expr::core::numeric::details::number_type<T>::type num_type;
 
          static void process(const std::string& scalar_format, parameter_list_t parameters)
          {

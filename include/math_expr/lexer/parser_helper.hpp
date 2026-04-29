@@ -129,7 +129,7 @@ namespace math_expr::lexer
          {
             if (
                  (current_token().type != ttype) ||
-                 !math_expr::details::imatch(value,current_token().value)
+                 !math_expr::core::imatch(value,current_token().value)
                )
             {
                return false;
@@ -143,7 +143,7 @@ namespace math_expr::lexer
          inline bool token_is(const std::string& value,
                               const token_advance_mode mode = e_advance)
          {
-            if (!math_expr::details::imatch(value,current_token().value))
+            if (!math_expr::core::imatch(value,current_token().value))
             {
                return false;
             }
@@ -251,7 +251,7 @@ namespace math_expr::lexer
 
          inline bool peek_token_is(const std::string& s)
          {
-            return (math_expr::details::imatch(lexer_.peek_next_token().value,s));
+            return (math_expr::core::imatch(lexer_.peek_next_token().value,s));
          }
 
       private:

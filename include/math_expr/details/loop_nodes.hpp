@@ -132,7 +132,7 @@ namespace math_expr::details
             assert(loop_runtime_check_);
          }
 
-         inline void reset(const _uint64_t initial_value = 0) const
+         inline void reset(const core::_uint64_t initial_value = 0) const
          {
             iteration_count_ = initial_value;
          }
@@ -163,9 +163,9 @@ namespace math_expr::details
             return 0 != loop_runtime_check_;
          }
 
-         mutable _uint64_t iteration_count_;
+         mutable core::_uint64_t iteration_count_;
          mutable loop_runtime_check_ptr loop_runtime_check_;
-         const details::_uint64_t& max_loop_iterations_;
+         const core::_uint64_t& max_loop_iterations_;
          loop_runtime_check::loop_types loop_type_;
       };
 

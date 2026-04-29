@@ -54,7 +54,7 @@ namespace math_expr::details::string_nodes
 
          swap_genstrings_node(expression_ptr branch0,
                               expression_ptr branch1)
-         : binary_node<T>(details::operator_type::default_op, branch0, branch1)
+         : binary_node<T>(core::operators::operator_type::default_op, branch0, branch1)
          , str0_base_ptr_ (0)
          , str1_base_ptr_ (0)
          , str0_range_ptr_(0)
@@ -122,11 +122,11 @@ namespace math_expr::details::string_nodes
                const std::size_t size1    = range1.cache_size();
                const std::size_t max_size = std::min(size0,size1);
 
-               char_ptr s0 = const_cast<char_ptr>(str0_base_ptr_->base() + str0_r0);
-               char_ptr s1 = const_cast<char_ptr>(str1_base_ptr_->base() + str1_r0);
+               core::char_ptr s0 = const_cast<core::char_ptr>(str0_base_ptr_->base() + str0_r0);
+               core::char_ptr s1 = const_cast<core::char_ptr>(str1_base_ptr_->base() + str1_r0);
 
-               loop_unroll lud(max_size);
-               char_cptr upper_bound = s0 + lud.upper_bound;
+               core::operators::loop_unroll lud(max_size);
+               core::char_cptr upper_bound = s0 + lud.upper_bound;
 
                #define math_expr_loop(N) \
                std::swap(s0[N], s1[N]);  \
@@ -135,7 +135,7 @@ namespace math_expr::details::string_nodes
                {
                   math_expr_loop( 0) math_expr_loop( 1)
                   math_expr_loop( 2) math_expr_loop( 3)
-                  if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+                  if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                   {
                      math_expr_loop( 4) math_expr_loop( 5)
                      math_expr_loop( 6) math_expr_loop( 7)

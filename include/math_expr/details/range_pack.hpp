@@ -109,7 +109,7 @@ namespace math_expr::details
                r0 = n0_c.second;
             else if (n0_e.first)
             {
-               r0 = static_cast<std::size_t>(details::numeric::to_int64(n0_e.second->value()));
+               r0 = static_cast<std::size_t>(core::numeric::to_int64(n0_e.second->value()));
             }
             else
                return false;
@@ -118,7 +118,7 @@ namespace math_expr::details
                r1 = n1_c.second;
             else if (n1_e.first)
             {
-               r1 = static_cast<std::size_t>(details::numeric::to_int64(n1_e.second->value()));
+               r1 = static_cast<std::size_t>(core::numeric::to_int64(n1_e.second->value()));
             }
             else
                return false;
@@ -134,7 +134,7 @@ namespace math_expr::details
             cache.first  = r0;
             cache.second = r1;
 
-            if constexpr (::math_expr::config::build_options::kEnableRangeRuntimeChecks)
+            if constexpr (::math_expr::core::build_options::kEnableRangeRuntimeChecks)
             {
                return range_runtime_check(r0, r1, size);
             }

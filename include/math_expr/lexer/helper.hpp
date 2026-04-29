@@ -116,7 +116,7 @@ namespace math_expr::lexer
 
          private:
 
-            std::set<std::string,details::ilesscompare> ignore_set_;
+            std::set<std::string,core::ilesscompare> ignore_set_;
          };
 
          class operator_joiner final : public token_joiner
@@ -211,7 +211,7 @@ namespace math_expr::lexer
                   return true;
                }
                // '! =' --> '!='
-               else if ((static_cast<details::char_t>(t0.type) == '!') && (t1.type == lexer::token::e_eq))
+               else if ((static_cast<core::char_t>(t0.type) == '!') && (t1.type == lexer::token::e_eq))
                {
                   t.type     = lexer::token::e_ne;
                   t.value    = "!=";
@@ -341,15 +341,15 @@ namespace math_expr::lexer
                     !t.value.empty()                       &&
                     (lexer::token::e_string != t.type)     &&
                     (lexer::token::e_symbol != t.type)     &&
-                    math_expr::details::is_bracket(t.value[0])
+                    math_expr::core::is_bracket(t.value[0])
                   )
                {
-                  details::char_t c = t.value[0];
+                  core::char_t c = t.value[0];
 
                   if      (t.type == lexer::token::e_lbracket   ) stack_.push(std::make_pair(')',t.position));
                   else if (t.type == lexer::token::e_lcrlbracket) stack_.push(std::make_pair('}',t.position));
                   else if (t.type == lexer::token::e_lsqrbracket) stack_.push(std::make_pair(']',t.position));
-                  else if (math_expr::details::is_right_bracket(c))
+                  else if (math_expr::core::is_right_bracket(c))
                   {
                      if (stack_.empty())
                      {
@@ -409,7 +409,7 @@ namespace math_expr::lexer
                {
                   T v;
 
-                  if (!math_expr::details::string_to_real(t.value,v))
+                  if (!math_expr::core::numeric::string_to_real(t.value,v))
                   {
                      error_list_.push_back(current_index_);
                   }
@@ -448,7 +448,7 @@ namespace math_expr::lexer
          {
          private:
 
-            typedef std::map<std::string,std::pair<std::string,token::token_type>,details::ilesscompare> replace_map_t;
+            typedef std::map<std::string,std::pair<std::string,token::token_type>,core::ilesscompare> replace_map_t;
 
          public:
 
@@ -622,7 +622,7 @@ namespace math_expr::lexer
 
             bool invalid_bracket_check(const lexer::token::token_type base, const lexer::token::token_type t)
             {
-               if (details::is_right_bracket(static_cast<details::char_t>(base)))
+               if (core::is_right_bracket(static_cast<core::char_t>(base)))
                {
                   switch (t)
                   {
@@ -631,11 +631,11 @@ namespace math_expr::lexer
                      default                     : return false;
                   }
                }
-               else if (details::is_left_bracket(static_cast<details::char_t>(base)))
+               else if (core::is_left_bracket(static_cast<core::char_t>(base)))
                {
-                  if (details::is_right_bracket(static_cast<details::char_t>(t)))
+                  if (core::is_right_bracket(static_cast<core::char_t>(t)))
                      return false;
-                  else if (details::is_left_bracket(static_cast<details::char_t>(t)))
+                  else if (core::is_left_bracket(static_cast<core::char_t>(t)))
                      return false;
                   else
                   {
@@ -652,7 +652,7 @@ namespace math_expr::lexer
                      }
                   }
                }
-               else if (details::is_right_bracket(static_cast<details::char_t>(t)))
+               else if (core::is_right_bracket(static_cast<core::char_t>(t)))
                {
                   switch (base)
                   {
@@ -665,7 +665,7 @@ namespace math_expr::lexer
                      default                      : return true ;
                   }
                }
-               else if (details::is_left_bracket(static_cast<details::char_t>(t)))
+               else if (core::is_left_bracket(static_cast<core::char_t>(t)))
                {
                   switch (base)
                   {

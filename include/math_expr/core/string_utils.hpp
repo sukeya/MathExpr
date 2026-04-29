@@ -37,11 +37,11 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
 
-namespace math_expr::details
+namespace math_expr::core
 {
       inline void case_normalise(std::string& s)
       {
-         if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+         if constexpr (::math_expr::core::build_options::kDisableCaseInsensitivity)
          {
             return;
          }
@@ -54,7 +54,7 @@ namespace math_expr::details
 
       inline bool imatch(const char_t c1, const char_t c2)
       {
-         if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+         if constexpr (::math_expr::core::build_options::kDisableCaseInsensitivity)
          {
             return c1 == c2;
          }
@@ -66,7 +66,7 @@ namespace math_expr::details
 
       inline bool imatch(const std::string& s1, const std::string& s2)
       {
-         if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+         if constexpr (::math_expr::core::build_options::kDisableCaseInsensitivity)
          {
             return s1 == s2;
          }
@@ -90,7 +90,7 @@ namespace math_expr::details
       {
          inline bool operator() (const std::string& s1, const std::string& s2) const
          {
-            if constexpr (::math_expr::config::build_options::kDisableCaseInsensitivity)
+            if constexpr (::math_expr::core::build_options::kDisableCaseInsensitivity)
             {
                return s1 < s2;
             }
@@ -618,6 +618,6 @@ namespace math_expr::details
                 );
       }
 
-} // namespace math_expr::details
+} // namespace math_expr::core
 
 #endif

@@ -193,12 +193,12 @@ namespace math_expr::details
       template <typename T>                                     \
       struct OpName##_op                                        \
       {                                                         \
-         typedef typename functor_t<T>::Type Type;              \
+         typedef typename core::numeric::functor_t<T>::Type Type; \
          typedef typename expression_node<T>::node_type node_t; \
                                                                 \
          static inline T process(Type v)                        \
          {                                                      \
-            return numeric::OpName(v);                          \
+            return core::numeric::OpName(v);                          \
          }                                                      \
                                                                 \
          static inline node_t type()                            \
@@ -206,9 +206,9 @@ namespace math_expr::details
             return expression_node<T>::e_##OpName;              \
          }                                                      \
                                                                 \
-         static inline details::operator_type operation()       \
+         static inline core::operators::operator_type operation()       \
          {                                                      \
-            return details::operator_type::OpName;              \
+            return core::operators::operator_type::OpName;              \
          }                                                      \
       };                                                        \
 

@@ -160,13 +160,13 @@ namespace math_expr
       typedef details::vector_holder<T>                      vector_holder_t;
       typedef vector_holder_t*                               vector_holder_ptr;
 
-      typedef typename details::functor_t<T> functor_t;
+      typedef typename core::numeric::functor_t<T> functor_t;
       typedef typename functor_t::qfunc_t    quaternary_functor_t;
       typedef typename functor_t::tfunc_t    trinary_functor_t;
       typedef typename functor_t::bfunc_t    binary_functor_t;
       typedef typename functor_t::ufunc_t    unary_functor_t;
 
-      typedef details::operator_type operator_t;
+      typedef core::operators::operator_type operator_t;
 
       typedef std::map<operator_t, unary_functor_t  > unary_op_map_t;
       typedef std::map<operator_t, binary_functor_t > binary_op_map_t;
@@ -176,8 +176,8 @@ namespace math_expr
       typedef std::map<std::string,std::pair<quaternary_functor_t,operator_t> > sf4_map_t;
 
       typedef std::map<binary_functor_t,operator_t> inv_binary_op_map_t;
-      typedef std::multimap<std::string,details::base_operation_t,details::ilesscompare> base_ops_map_t;
-      typedef std::set<std::string,details::ilesscompare> disabled_func_set_t;
+      typedef std::multimap<std::string,core::operators::base_operation_t,core::ilesscompare> base_ops_map_t;
+      typedef std::set<std::string,core::ilesscompare> disabled_func_set_t;
 
       typedef details::T0oT1_define<T, cref_t , cref_t > vov_t;
       typedef details::T0oT1_define<T, const_t, cref_t > cov_t;
@@ -340,7 +340,7 @@ namespace math_expr
                if (se.depth > current_depth)
                   continue;
                else if (
-                         details::imatch(se.name, var_name) &&
+                         core::imatch(se.name, var_name) &&
                          (se.index == index)
                        )
                   return se;
@@ -361,7 +361,7 @@ namespace math_expr
                if (se.depth > current_depth)
                   continue;
                else if (
-                         details::imatch(se.name, var_name) &&
+                         core::imatch(se.name, var_name) &&
                          (se.index == index)                &&
                          (se.active)
                        )
@@ -378,7 +378,7 @@ namespace math_expr
                scope_element& cse = element_[i];
 
                if (
-                    details::imatch(cse.name, se.name) &&
+                    core::imatch(cse.name, se.name) &&
                     (cse.depth <= se.depth)            &&
                     (cse.index == se.index)            &&
                     (cse.size  == se.size )            &&
@@ -549,7 +549,7 @@ namespace math_expr
          : parser_(p)
          {
             parser_.state_.scope_depth++;
-            if constexpr (::math_expr::config::build_options::kEnableDebugging)
+            if constexpr (::math_expr::core::build_options::kEnableDebugging)
             {
                const std::string depth(2 * parser_.state_.scope_depth,'-');
                math_expr_debug(("%s> Scope Depth: %02d\n",
@@ -562,7 +562,7 @@ namespace math_expr
          {
             parser_.sem_.deactivate(parser_.state_.scope_depth);
             parser_.state_.scope_depth--;
-            if constexpr (::math_expr::config::build_options::kEnableDebugging)
+            if constexpr (::math_expr::core::build_options::kEnableDebugging)
             {
                const std::string depth(2 * parser_.state_.scope_depth,'-');
                math_expr_debug(("<%s Scope Depth: %02d\n",
@@ -718,8 +718,8 @@ namespace math_expr
                limit_exceeded_ = true;
                parser_.set_error(make_error(
                   parser_error::e_parser,
-                  "ERR000 - Current stack depth " + details::to_str(parser_.state_.stack_depth) +
-                  " exceeds maximum allowed stack depth of " + details::to_str(parser_.settings_.max_stack_depth_),
+                  "ERR000 - Current stack depth " + core::to_str(parser_.state_.stack_depth) +
+                  " exceeds maximum allowed stack depth of " + core::to_str(parser_.settings_.max_stack_depth_),
                   math_expr_error_location));
             }
          }
@@ -1329,7 +1329,7 @@ namespace math_expr
             {
                side_effect_present = true;
 
-               if constexpr (::math_expr::config::build_options::kEnableDebugging)
+               if constexpr (::math_expr::core::build_options::kEnableDebugging)
                {
                   math_expr_debug(("activate_side_effect() - caller: %s\n", source.c_str()));
                }
@@ -1445,7 +1445,7 @@ namespace math_expr
 
             for (std::size_t i = 0; i < symbol_name_list_.size(); ++i)
             {
-               details::case_normalise(symbol_name_list_[i].first);
+               core::case_normalise(symbol_name_list_[i].first);
             }
 
             std::sort(symbol_name_list_.begin(), symbol_name_list_.end());
@@ -1471,7 +1471,7 @@ namespace math_expr
 
             for (std::size_t i = 0; i < assignment_name_list_.size(); ++i)
             {
-               details::case_normalise(assignment_name_list_[i].first);
+               core::case_normalise(assignment_name_list_[i].first);
             }
 
             std::sort(assignment_name_list_.begin(),assignment_name_list_.end());
@@ -1584,7 +1584,7 @@ namespace math_expr
       {
       private:
 
-         typedef std::set<std::string,details::ilesscompare> disabled_entity_set_t;
+         typedef std::set<std::string,core::ilesscompare> disabled_entity_set_t;
          typedef disabled_entity_set_t::iterator des_itr_t;
 
       public:
@@ -1742,8 +1742,8 @@ namespace math_expr
 
          settings_store& disable_all_base_functions()
          {
-            std::copy(details::base_function_list,
-                      details::base_function_list + details::base_function_list_size,
+            std::copy(core::base_function_list,
+                      core::base_function_list + core::base_function_list_size,
                       std::insert_iterator<disabled_entity_set_t>
                          (disabled_func_set_, disabled_func_set_.begin()));
             return (*this);
@@ -1751,8 +1751,8 @@ namespace math_expr
 
          settings_store& disable_all_control_structures()
          {
-            std::copy(details::cntrl_struct_list,
-                      details::cntrl_struct_list + details::cntrl_struct_list_size,
+            std::copy(core::cntrl_struct_list,
+                      core::cntrl_struct_list + core::cntrl_struct_list_size,
                       std::insert_iterator<disabled_entity_set_t>
                          (disabled_ctrl_set_, disabled_ctrl_set_.begin()));
             return (*this);
@@ -1760,8 +1760,8 @@ namespace math_expr
 
          settings_store& disable_all_logic_ops()
          {
-            std::copy(details::logic_ops_list,
-                      details::logic_ops_list + details::logic_ops_list_size,
+            std::copy(core::logic_ops_list,
+                      core::logic_ops_list + core::logic_ops_list_size,
                       std::insert_iterator<disabled_entity_set_t>
                         (disabled_logic_set_, disabled_logic_set_.begin()));
             return (*this);
@@ -1769,8 +1769,8 @@ namespace math_expr
 
          settings_store& disable_all_arithmetic_ops()
          {
-            std::copy(details::arithmetic_ops_list,
-                      details::arithmetic_ops_list + details::arithmetic_ops_list_size,
+            std::copy(core::arithmetic_ops_list,
+                      core::arithmetic_ops_list + core::arithmetic_ops_list_size,
                       std::insert_iterator<disabled_entity_set_t>
                          (disabled_arithmetic_set_, disabled_arithmetic_set_.begin()));
             return (*this);
@@ -1778,8 +1778,8 @@ namespace math_expr
 
          settings_store& disable_all_assignment_ops()
          {
-            std::copy(details::assignment_ops_list,
-                      details::assignment_ops_list + details::assignment_ops_list_size,
+            std::copy(core::assignment_ops_list,
+                      core::assignment_ops_list + core::assignment_ops_list_size,
                       std::insert_iterator<disabled_entity_set_t>
                          (disabled_assignment_set_, disabled_assignment_set_.begin()));
             return (*this);
@@ -1787,8 +1787,8 @@ namespace math_expr
 
          settings_store& disable_all_inequality_ops()
          {
-            std::copy(details::inequality_ops_list,
-                      details::inequality_ops_list + details::inequality_ops_list_size,
+            std::copy(core::inequality_ops_list,
+                      core::inequality_ops_list + core::inequality_ops_list_size,
                       std::insert_iterator<disabled_entity_set_t>
                          (disabled_inequality_set_, disabled_inequality_set_.begin()));
             return (*this);
@@ -1850,7 +1850,7 @@ namespace math_expr
                return (disabled_logic_set_.end() == disabled_logic_set_.find(logic_operation));
          }
 
-         bool arithmetic_enabled(const details::operator_type& arithmetic_operation) const
+         bool arithmetic_enabled(const core::operators::operator_type& arithmetic_operation) const
          {
             if (disabled_logic_set_.empty())
                return true;
@@ -1859,7 +1859,7 @@ namespace math_expr
                                                             .find(arith_opr_to_string(arithmetic_operation));
          }
 
-         bool assignment_enabled(const details::operator_type& assignment) const
+         bool assignment_enabled(const core::operators::operator_type& assignment) const
          {
             if (disabled_assignment_set_.empty())
                return true;
@@ -1868,7 +1868,7 @@ namespace math_expr
                                                            .find(assign_opr_to_string(assignment));
          }
 
-         bool inequality_enabled(const details::operator_type& inequality) const
+         bool inequality_enabled(const core::operators::operator_type& inequality) const
          {
             if (disabled_inequality_set_.empty())
                return true;
@@ -1901,7 +1901,7 @@ namespace math_expr
                return (disabled_logic_set_.end() != disabled_logic_set_.find(logic_operation));
          }
 
-         bool assignment_disabled(const details::operator_type assignment_operation) const
+         bool assignment_disabled(const core::operators::operator_type assignment_operation) const
          {
             if (disabled_assignment_set_.empty())
                return false;
@@ -1910,7 +1910,7 @@ namespace math_expr
                                                            .find(assign_opr_to_string(assignment_operation));
          }
 
-         bool logic_disabled(const details::operator_type logic_operation) const
+         bool logic_disabled(const core::operators::operator_type logic_operation) const
          {
             if (disabled_logic_set_.empty())
                return false;
@@ -1919,7 +1919,7 @@ namespace math_expr
                                                            .find(logic_opr_to_string(logic_operation));
          }
 
-         bool arithmetic_disabled(const details::operator_type arithmetic_operation) const
+         bool arithmetic_disabled(const core::operators::operator_type arithmetic_operation) const
          {
             if (disabled_arithmetic_set_.empty())
                return false;
@@ -1928,7 +1928,7 @@ namespace math_expr
                                                            .find(arith_opr_to_string(arithmetic_operation));
          }
 
-         bool inequality_disabled(const details::operator_type& inequality) const
+         bool inequality_disabled(const core::operators::operator_type& inequality) const
          {
             if (disabled_inequality_set_.empty())
                return false;
@@ -1941,10 +1941,10 @@ namespace math_expr
          {
             if (
                  (e_bf_unknown != bf) &&
-                 (static_cast<std::size_t>(bf) < (details::base_function_list_size + 1))
+                 (static_cast<std::size_t>(bf) < (core::base_function_list_size + 1))
                )
             {
-               disabled_func_set_.insert(details::base_function_list[bf - 1]);
+               disabled_func_set_.insert(core::base_function_list[bf - 1]);
             }
 
             return (*this);
@@ -1954,10 +1954,10 @@ namespace math_expr
          {
             if (
                  (e_ctrl_unknown != ctrl_struct) &&
-                 (static_cast<std::size_t>(ctrl_struct) < (details::cntrl_struct_list_size + 1))
+                 (static_cast<std::size_t>(ctrl_struct) < (core::cntrl_struct_list_size + 1))
                )
             {
-               disabled_ctrl_set_.insert(details::cntrl_struct_list[ctrl_struct - 1]);
+               disabled_ctrl_set_.insert(core::cntrl_struct_list[ctrl_struct - 1]);
             }
 
             return (*this);
@@ -1967,10 +1967,10 @@ namespace math_expr
          {
             if (
                  (e_logic_unknown != logic) &&
-                 (static_cast<std::size_t>(logic) < (details::logic_ops_list_size + 1))
+                 (static_cast<std::size_t>(logic) < (core::logic_ops_list_size + 1))
                )
             {
-               disabled_logic_set_.insert(details::logic_ops_list[logic - 1]);
+               disabled_logic_set_.insert(core::logic_ops_list[logic - 1]);
             }
 
             return (*this);
@@ -1980,10 +1980,10 @@ namespace math_expr
          {
             if (
                  (e_arith_unknown != arithmetic) &&
-                 (static_cast<std::size_t>(arithmetic) < (details::arithmetic_ops_list_size + 1))
+                 (static_cast<std::size_t>(arithmetic) < (core::arithmetic_ops_list_size + 1))
                )
             {
-               disabled_arithmetic_set_.insert(details::arithmetic_ops_list[arithmetic - 1]);
+               disabled_arithmetic_set_.insert(core::arithmetic_ops_list[arithmetic - 1]);
             }
 
             return (*this);
@@ -1993,10 +1993,10 @@ namespace math_expr
          {
             if (
                  (e_assign_unknown != assignment) &&
-                 (static_cast<std::size_t>(assignment) < (details::assignment_ops_list_size + 1))
+                 (static_cast<std::size_t>(assignment) < (core::assignment_ops_list_size + 1))
                )
             {
-               disabled_assignment_set_.insert(details::assignment_ops_list[assignment - 1]);
+               disabled_assignment_set_.insert(core::assignment_ops_list[assignment - 1]);
             }
 
             return (*this);
@@ -2006,10 +2006,10 @@ namespace math_expr
          {
             if (
                  (e_ineq_unknown != inequality) &&
-                 (static_cast<std::size_t>(inequality) < (details::inequality_ops_list_size + 1))
+                 (static_cast<std::size_t>(inequality) < (core::inequality_ops_list_size + 1))
                )
             {
-               disabled_inequality_set_.insert(details::inequality_ops_list[inequality - 1]);
+               disabled_inequality_set_.insert(core::inequality_ops_list[inequality - 1]);
             }
 
             return (*this);
@@ -2019,10 +2019,10 @@ namespace math_expr
          {
             if (
                  (e_bf_unknown != bf) &&
-                 (static_cast<std::size_t>(bf) < (details::base_function_list_size + 1))
+                 (static_cast<std::size_t>(bf) < (core::base_function_list_size + 1))
                )
             {
-               const des_itr_t itr = disabled_func_set_.find(details::base_function_list[bf - 1]);
+               const des_itr_t itr = disabled_func_set_.find(core::base_function_list[bf - 1]);
 
                if (disabled_func_set_.end() != itr)
                {
@@ -2037,10 +2037,10 @@ namespace math_expr
          {
             if (
                  (e_ctrl_unknown != ctrl_struct) &&
-                 (static_cast<std::size_t>(ctrl_struct) < (details::cntrl_struct_list_size + 1))
+                 (static_cast<std::size_t>(ctrl_struct) < (core::cntrl_struct_list_size + 1))
                )
             {
-               const des_itr_t itr = disabled_ctrl_set_.find(details::cntrl_struct_list[ctrl_struct - 1]);
+               const des_itr_t itr = disabled_ctrl_set_.find(core::cntrl_struct_list[ctrl_struct - 1]);
 
                if (disabled_ctrl_set_.end() != itr)
                {
@@ -2055,10 +2055,10 @@ namespace math_expr
          {
             if (
                  (e_logic_unknown != logic) &&
-                 (static_cast<std::size_t>(logic) < (details::logic_ops_list_size + 1))
+                 (static_cast<std::size_t>(logic) < (core::logic_ops_list_size + 1))
                )
             {
-               const des_itr_t itr = disabled_logic_set_.find(details::logic_ops_list[logic - 1]);
+               const des_itr_t itr = disabled_logic_set_.find(core::logic_ops_list[logic - 1]);
 
                if (disabled_logic_set_.end() != itr)
                {
@@ -2073,10 +2073,10 @@ namespace math_expr
          {
             if (
                  (e_arith_unknown != arithmetic) &&
-                 (static_cast<std::size_t>(arithmetic) < (details::arithmetic_ops_list_size + 1))
+                 (static_cast<std::size_t>(arithmetic) < (core::arithmetic_ops_list_size + 1))
                )
             {
-               const des_itr_t itr = disabled_arithmetic_set_.find(details::arithmetic_ops_list[arithmetic - 1]);
+               const des_itr_t itr = disabled_arithmetic_set_.find(core::arithmetic_ops_list[arithmetic - 1]);
 
                if (disabled_arithmetic_set_.end() != itr)
                {
@@ -2091,10 +2091,10 @@ namespace math_expr
          {
             if (
                  (e_assign_unknown != assignment) &&
-                 (static_cast<std::size_t>(assignment) < (details::assignment_ops_list_size + 1))
+                 (static_cast<std::size_t>(assignment) < (core::assignment_ops_list_size + 1))
                )
             {
-               const des_itr_t itr = disabled_assignment_set_.find(details::assignment_ops_list[assignment - 1]);
+               const des_itr_t itr = disabled_assignment_set_.find(core::assignment_ops_list[assignment - 1]);
 
                if (disabled_assignment_set_.end() != itr)
                {
@@ -2109,10 +2109,10 @@ namespace math_expr
          {
             if (
                  (e_ineq_unknown != inequality) &&
-                 (static_cast<std::size_t>(inequality) < (details::inequality_ops_list_size + 1))
+                 (static_cast<std::size_t>(inequality) < (core::inequality_ops_list_size + 1))
                )
             {
-               const des_itr_t itr = disabled_inequality_set_.find(details::inequality_ops_list[inequality - 1]);
+               const des_itr_t itr = disabled_inequality_set_.find(core::inequality_ops_list[inequality - 1]);
 
                if (disabled_inequality_set_.end() != itr)
                {
@@ -2182,61 +2182,61 @@ namespace math_expr
             disable_zero_return_       = (compile_options & e_disable_zero_return ) == e_disable_zero_return;
          }
 
-         std::string assign_opr_to_string(details::operator_type opr) const
+         std::string assign_opr_to_string(core::operators::operator_type opr) const
          {
             switch (opr)
             {
-               case details::operator_type::assign : return ":=";
-               case details::operator_type::addass : return "+=";
-               case details::operator_type::subass : return "-=";
-               case details::operator_type::mulass : return "*=";
-               case details::operator_type::divass : return "/=";
-               case details::operator_type::modass : return "%=";
+               case core::operators::operator_type::assign : return ":=";
+               case core::operators::operator_type::addass : return "+=";
+               case core::operators::operator_type::subass : return "-=";
+               case core::operators::operator_type::mulass : return "*=";
+               case core::operators::operator_type::divass : return "/=";
+               case core::operators::operator_type::modass : return "%=";
                default                : return ""  ;
             }
          }
 
-         std::string arith_opr_to_string(details::operator_type opr) const
+         std::string arith_opr_to_string(core::operators::operator_type opr) const
          {
             switch (opr)
             {
-               case details::operator_type::add : return "+";
-               case details::operator_type::sub : return "-";
-               case details::operator_type::mul : return "*";
-               case details::operator_type::div : return "/";
-               case details::operator_type::mod : return "%";
-               case details::operator_type::pow : return "^";
+               case core::operators::operator_type::add : return "+";
+               case core::operators::operator_type::sub : return "-";
+               case core::operators::operator_type::mul : return "*";
+               case core::operators::operator_type::div : return "/";
+               case core::operators::operator_type::mod : return "%";
+               case core::operators::operator_type::pow : return "^";
                default             : return "" ;
             }
          }
 
-         std::string inequality_opr_to_string(details::operator_type opr) const
+         std::string inequality_opr_to_string(core::operators::operator_type opr) const
          {
             switch (opr)
             {
-               case details::operator_type::lt    : return "<" ;
-               case details::operator_type::lte   : return "<=";
-               case details::operator_type::eq    : return "==";
-               case details::operator_type::equal : return "=" ;
-               case details::operator_type::ne    : return "!=";
-               case details::operator_type::nequal: return "<>";
-               case details::operator_type::gte   : return ">=";
-               case details::operator_type::gt    : return ">" ;
+               case core::operators::operator_type::lt    : return "<" ;
+               case core::operators::operator_type::lte   : return "<=";
+               case core::operators::operator_type::eq    : return "==";
+               case core::operators::operator_type::equal : return "=" ;
+               case core::operators::operator_type::ne    : return "!=";
+               case core::operators::operator_type::nequal: return "<>";
+               case core::operators::operator_type::gte   : return ">=";
+               case core::operators::operator_type::gt    : return ">" ;
                default               : return ""  ;
             }
          }
 
-         std::string logic_opr_to_string(details::operator_type opr) const
+         std::string logic_opr_to_string(core::operators::operator_type opr) const
          {
             switch (opr)
             {
-               case details::operator_type::logical_and  : return "and" ;
-               case details::operator_type::logical_or   : return "or"  ;
-               case details::operator_type::logical_xor  : return "xor" ;
-               case details::operator_type::nand : return "nand";
-               case details::operator_type::nor  : return "nor" ;
-               case details::operator_type::xnor : return "xnor";
-               case details::operator_type::notl : return "not" ;
+               case core::operators::operator_type::logical_and  : return "and" ;
+               case core::operators::operator_type::logical_or   : return "or"  ;
+               case core::operators::operator_type::logical_xor  : return "xor" ;
+               case core::operators::operator_type::nand : return "nand";
+               case core::operators::operator_type::nor  : return "nor" ;
+               case core::operators::operator_type::xnor : return "xnor";
+               case core::operators::operator_type::notl : return "not" ;
                default              : return ""    ;
             }
          }
@@ -2294,7 +2294,7 @@ namespace math_expr
       {
          init_precompilation();
 
-         load_operations_map           (base_ops_map_     );
+         details::load_operations_map(base_ops_map_     );
          load_unary_operations_map     (unary_op_map_     );
          load_binary_operations_map    (binary_op_map_    );
          load_inv_binary_operations_map(inv_binary_op_map_);
@@ -2336,9 +2336,9 @@ namespace math_expr
 
          if (settings_.commutative_check_enabled())
          {
-            for (std::size_t i = 0; i < details::reserved_words_size; ++i)
+            for (std::size_t i = 0; i < core::reserved_words_size; ++i)
             {
-               commutative_inserter_.ignore_symbol(details::reserved_words[i]);
+               commutative_inserter_.ignore_symbol(core::reserved_words[i]);
             }
 
             helper_assembly_.token_inserter_list.clear();
@@ -2695,7 +2695,7 @@ namespace math_expr
       {
          if (!settings_.replacer_enabled())
             return false;
-         else if (details::is_reserved_word(old_symbol))
+         else if (core::is_reserved_word(old_symbol))
             return false;
          else
             return symbol_replacer_.add_replace(old_symbol,new_symbol,lexer::token::e_symbol);
@@ -2705,7 +2705,7 @@ namespace math_expr
       {
          if (!settings_.replacer_enabled())
             return false;
-         else if (details::is_reserved_word(symbol))
+         else if (core::is_reserved_word(symbol))
             return false;
          else
             return symbol_replacer_.remove(symbol);
@@ -2802,35 +2802,35 @@ namespace math_expr
 
          return
                (
-                  details::imatch(symbol,s_sum    ) ||
-                  details::imatch(symbol,s_mul    ) ||
-                  details::imatch(symbol,s_avg    ) ||
-                  details::imatch(symbol,s_min    ) ||
-                  details::imatch(symbol,s_max    ) ||
-                  details::imatch(symbol,s_mand   ) ||
-                  details::imatch(symbol,s_mor    ) ||
-                  details::imatch(symbol,s_multi  ) ||
-                  details::imatch(symbol,s_mswitch)
+                  core::imatch(symbol,s_sum    ) ||
+                  core::imatch(symbol,s_mul    ) ||
+                  core::imatch(symbol,s_avg    ) ||
+                  core::imatch(symbol,s_min    ) ||
+                  core::imatch(symbol,s_max    ) ||
+                  core::imatch(symbol,s_mand   ) ||
+                  core::imatch(symbol,s_mor    ) ||
+                  core::imatch(symbol,s_multi  ) ||
+                  core::imatch(symbol,s_mswitch)
                ) &&
                settings_.function_enabled(symbol);
       }
 
-      bool is_invalid_logic_operation(const details::operator_type operation) const
+      bool is_invalid_logic_operation(const core::operators::operator_type operation) const
       {
          return settings_.logic_disabled(operation);
       }
 
-      bool is_invalid_arithmetic_operation(const details::operator_type operation) const
+      bool is_invalid_arithmetic_operation(const core::operators::operator_type operation) const
       {
          return settings_.arithmetic_disabled(operation);
       }
 
-      bool is_invalid_assignment_operation(const details::operator_type operation) const
+      bool is_invalid_assignment_operation(const core::operators::operator_type operation) const
       {
          return settings_.assignment_disabled(operation);
       }
 
-      bool is_invalid_inequality_operation(const details::operator_type operation) const
+      bool is_invalid_inequality_operation(const core::operators::operator_type operation) const
       {
          return settings_.inequality_disabled(operation);
       }
@@ -2840,14 +2840,14 @@ namespace math_expr
          std::string ct_str;
          std::size_t ct_pos = 0;
 
-         if constexpr (::math_expr::config::build_options::kEnableDebugging)
+         if constexpr (::math_expr::core::build_options::kEnableDebugging)
          {
             ct_str = current_token().value;
             ct_pos = current_token().position;
          }
 
          parser_helper::next_token();
-         if constexpr (::math_expr::config::build_options::kEnableDebugging)
+         if constexpr (::math_expr::core::build_options::kEnableDebugging)
          {
             const std::string depth(2 * state_.scope_depth,' ');
             math_expr_debug(("%s"
@@ -2964,7 +2964,7 @@ namespace math_expr
          {
             for (std::size_t i = 0; i < result.size(); ++i)
             {
-               if (details::is_whitespace(result[i])) result[i] = ' ';
+               if (core::is_whitespace(result[i])) result[i] = ' ';
             }
          }
 
@@ -2977,7 +2977,7 @@ namespace math_expr
       {
          inline void set(const precedence_level& l,
                          const precedence_level& r,
-                         const details::operator_type& o,
+                         const core::operators::operator_type& o,
                          const token_t& tkn = token_t())
          {
             left      = l;
@@ -2990,12 +2990,12 @@ namespace math_expr
          {
             left      = e_level00;
             right     = e_level00;
-            operation = details::operator_type::default_op;
+            operation = core::operators::operator_type::default_op;
          }
 
          precedence_level left;
          precedence_level right;
-         details::operator_type operation;
+         core::operators::operator_type operation;
          token_t token;
       };
 
@@ -3077,25 +3077,25 @@ namespace math_expr
 
             switch (current_token().type)
             {
-               case token_t::e_assign : current_state.set(e_level00, e_level00, details::operator_type::assign, current_token()); break;
-               case token_t::e_addass : current_state.set(e_level00, e_level00, details::operator_type::addass, current_token()); break;
-               case token_t::e_subass : current_state.set(e_level00, e_level00, details::operator_type::subass, current_token()); break;
-               case token_t::e_mulass : current_state.set(e_level00, e_level00, details::operator_type::mulass, current_token()); break;
-               case token_t::e_divass : current_state.set(e_level00, e_level00, details::operator_type::divass, current_token()); break;
-               case token_t::e_modass : current_state.set(e_level00, e_level00, details::operator_type::modass, current_token()); break;
-               case token_t::e_swap   : current_state.set(e_level00, e_level00, details::operator_type::swap  , current_token()); break;
-               case token_t::e_lt     : current_state.set(e_level05, e_level06, details::operator_type::lt    , current_token()); break;
-               case token_t::e_lte    : current_state.set(e_level05, e_level06, details::operator_type::lte   , current_token()); break;
-               case token_t::e_eq     : current_state.set(e_level05, e_level06, details::operator_type::eq    , current_token()); break;
-               case token_t::e_ne     : current_state.set(e_level05, e_level06, details::operator_type::ne    , current_token()); break;
-               case token_t::e_gte    : current_state.set(e_level05, e_level06, details::operator_type::gte   , current_token()); break;
-               case token_t::e_gt     : current_state.set(e_level05, e_level06, details::operator_type::gt    , current_token()); break;
-               case token_t::e_add    : current_state.set(e_level07, e_level08, details::operator_type::add   , current_token()); break;
-               case token_t::e_sub    : current_state.set(e_level07, e_level08, details::operator_type::sub   , current_token()); break;
-               case token_t::e_div    : current_state.set(e_level10, e_level11, details::operator_type::div   , current_token()); break;
-               case token_t::e_mul    : current_state.set(e_level10, e_level11, details::operator_type::mul   , current_token()); break;
-               case token_t::e_mod    : current_state.set(e_level10, e_level11, details::operator_type::mod   , current_token()); break;
-               case token_t::e_pow    : current_state.set(e_level12, e_level12, details::operator_type::pow   , current_token()); break;
+               case token_t::e_assign : current_state.set(e_level00, e_level00, core::operators::operator_type::assign, current_token()); break;
+               case token_t::e_addass : current_state.set(e_level00, e_level00, core::operators::operator_type::addass, current_token()); break;
+               case token_t::e_subass : current_state.set(e_level00, e_level00, core::operators::operator_type::subass, current_token()); break;
+               case token_t::e_mulass : current_state.set(e_level00, e_level00, core::operators::operator_type::mulass, current_token()); break;
+               case token_t::e_divass : current_state.set(e_level00, e_level00, core::operators::operator_type::divass, current_token()); break;
+               case token_t::e_modass : current_state.set(e_level00, e_level00, core::operators::operator_type::modass, current_token()); break;
+               case token_t::e_swap   : current_state.set(e_level00, e_level00, core::operators::operator_type::swap  , current_token()); break;
+               case token_t::e_lt     : current_state.set(e_level05, e_level06, core::operators::operator_type::lt    , current_token()); break;
+               case token_t::e_lte    : current_state.set(e_level05, e_level06, core::operators::operator_type::lte   , current_token()); break;
+               case token_t::e_eq     : current_state.set(e_level05, e_level06, core::operators::operator_type::eq    , current_token()); break;
+               case token_t::e_ne     : current_state.set(e_level05, e_level06, core::operators::operator_type::ne    , current_token()); break;
+               case token_t::e_gte    : current_state.set(e_level05, e_level06, core::operators::operator_type::gte   , current_token()); break;
+               case token_t::e_gt     : current_state.set(e_level05, e_level06, core::operators::operator_type::gt    , current_token()); break;
+               case token_t::e_add    : current_state.set(e_level07, e_level08, core::operators::operator_type::add   , current_token()); break;
+               case token_t::e_sub    : current_state.set(e_level07, e_level08, core::operators::operator_type::sub   , current_token()); break;
+               case token_t::e_div    : current_state.set(e_level10, e_level11, core::operators::operator_type::div   , current_token()); break;
+               case token_t::e_mul    : current_state.set(e_level10, e_level11, core::operators::operator_type::mul   , current_token()); break;
+               case token_t::e_mod    : current_state.set(e_level10, e_level11, core::operators::operator_type::mod   , current_token()); break;
+               case token_t::e_pow    : current_state.set(e_level12, e_level12, core::operators::operator_type::pow   , current_token()); break;
                default                :
                   if (token_t::e_symbol == current_token().type)
                   {
@@ -3112,72 +3112,72 @@ namespace math_expr
                      static const std::string s_or1   = "|"    ;
                      static const std::string s_not   = "not"  ;
 
-                     if (details::imatch(current_token().value,s_and))
+                     if (core::imatch(current_token().value,s_and))
                      {
-                        current_state.set(e_level03, e_level04, details::operator_type::logical_and, current_token());
+                        current_state.set(e_level03, e_level04, core::operators::operator_type::logical_and, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_and1))
+                     else if (core::imatch(current_token().value,s_and1))
                      {
                         current_state.set(
                            e_level03,
                            e_level04,
-                           ::math_expr::config::build_options::kDisableScAndOr ?
-                              details::operator_type::logical_and : details::operator_type::scand,
+                           ::math_expr::core::build_options::kDisableScAndOr ?
+                              core::operators::operator_type::logical_and : core::operators::operator_type::scand,
                            current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_nand))
+                     else if (core::imatch(current_token().value,s_nand))
                      {
-                        current_state.set(e_level03, e_level04, details::operator_type::nand, current_token());
+                        current_state.set(e_level03, e_level04, core::operators::operator_type::nand, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_or))
+                     else if (core::imatch(current_token().value,s_or))
                      {
-                        current_state.set(e_level01, e_level02, details::operator_type::logical_or, current_token());
+                        current_state.set(e_level01, e_level02, core::operators::operator_type::logical_or, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_or1))
+                     else if (core::imatch(current_token().value,s_or1))
                      {
                         current_state.set(
                            e_level01,
                            e_level02,
-                           ::math_expr::config::build_options::kDisableScAndOr ?
-                              details::operator_type::logical_or : details::operator_type::scor,
+                           ::math_expr::core::build_options::kDisableScAndOr ?
+                              core::operators::operator_type::logical_or : core::operators::operator_type::scor,
                            current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_nor))
+                     else if (core::imatch(current_token().value,s_nor))
                      {
-                        current_state.set(e_level01, e_level02, details::operator_type::nor, current_token());
+                        current_state.set(e_level01, e_level02, core::operators::operator_type::nor, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_xor))
+                     else if (core::imatch(current_token().value,s_xor))
                      {
-                        current_state.set(e_level01, e_level02, details::operator_type::logical_xor, current_token());
+                        current_state.set(e_level01, e_level02, core::operators::operator_type::logical_xor, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_xnor))
+                     else if (core::imatch(current_token().value,s_xnor))
                      {
-                        current_state.set(e_level01, e_level02, details::operator_type::xnor, current_token());
+                        current_state.set(e_level01, e_level02, core::operators::operator_type::xnor, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_in))
+                     else if (core::imatch(current_token().value,s_in))
                      {
-                        current_state.set(e_level04, e_level04, details::operator_type::in, current_token());
+                        current_state.set(e_level04, e_level04, core::operators::operator_type::in, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_like))
+                     else if (core::imatch(current_token().value,s_like))
                      {
-                        current_state.set(e_level04, e_level04, details::operator_type::like, current_token());
+                        current_state.set(e_level04, e_level04, core::operators::operator_type::like, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_ilike))
+                     else if (core::imatch(current_token().value,s_ilike))
                      {
-                        current_state.set(e_level04, e_level04, details::operator_type::ilike, current_token());
+                        current_state.set(e_level04, e_level04, core::operators::operator_type::ilike, current_token());
                         break;
                      }
-                     else if (details::imatch(current_token().value,s_not))
+                     else if (core::imatch(current_token().value,s_not))
                      {
                         break;
                      }
@@ -3208,7 +3208,7 @@ namespace math_expr
                set_error(make_error(
                   parser_error::e_syntax,
                   prev_token,
-                  "ERR012 - Invalid or disabled logic operation '" + details::to_str(current_state.operation) + "'",
+                  "ERR012 - Invalid or disabled logic operation '" + core::operators::to_str(current_state.operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -3220,7 +3220,7 @@ namespace math_expr
                set_error(make_error(
                   parser_error::e_syntax,
                   prev_token,
-                  "ERR013 - Invalid or disabled arithmetic operation '" + details::to_str(current_state.operation) + "'",
+                  "ERR013 - Invalid or disabled arithmetic operation '" + core::operators::to_str(current_state.operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -3232,7 +3232,7 @@ namespace math_expr
                set_error(make_error(
                   parser_error::e_syntax,
                   prev_token,
-                  "ERR014 - Invalid inequality operation '" + details::to_str(current_state.operation) + "'",
+                  "ERR014 - Invalid inequality operation '" + core::operators::to_str(current_state.operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -3244,7 +3244,7 @@ namespace math_expr
                set_error(make_error(
                   parser_error::e_syntax,
                   prev_token,
-                  "ERR015 - Invalid or disabled assignment operation '" + details::to_str(current_state.operation) + "'",
+                  "ERR015 - Invalid or disabled assignment operation '" + core::operators::to_str(current_state.operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -3320,8 +3320,8 @@ namespace math_expr
             set_error(make_error(
                parser_error::e_syntax,
                current_token(),
-               "ERR018 - Expression depth of " + details::to_str(static_cast<int>(expression->node_depth())) +
-               " exceeds maximum allowed expression depth of " + details::to_str(static_cast<int>(settings_.max_node_depth_)),
+               "ERR018 - Expression depth of " + core::to_str(static_cast<int>(expression->node_depth())) +
+               " exceeds maximum allowed expression depth of " + core::to_str(static_cast<int>(settings_.max_node_depth_)),
                math_expr_error_location));
 
             free_node(node_allocator_, expression);
@@ -3330,8 +3330,8 @@ namespace math_expr
          }
          else if (
                    !settings_.commutative_check_enabled()          &&
-                   !details::is_logic_opr(current_token().value)   &&
-                   (current_state.operation == details::operator_type::default_op) &&
+                   !core::is_logic_opr(current_token().value)   &&
+                   (current_state.operation == core::operators::operator_type::default_op) &&
                    (
                      current_token().type == token_t::e_symbol ||
                      current_token().type == token_t::e_number ||
@@ -3725,7 +3725,7 @@ namespace math_expr
                set_error(make_error(
                   parser_error::e_syntax,
                   current_token(),
-                  "ERR025 - Failed to parse argument " + details::to_str(i) + " for function: '" + function_name + "'",
+                  "ERR025 - Failed to parse argument " + core::to_str(i) + " for function: '" + function_name + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -3892,7 +3892,7 @@ namespace math_expr
          {
             for (base_ops_map_t::iterator itr = itr_range.first; itr != itr_range.second; ++itr)
             {
-               const details::base_operation_t& operation = itr->second;
+               const core::operators::base_operation_t& operation = itr->second;
 
                if (operation.num_params == parameter_count)
                {
@@ -4144,13 +4144,13 @@ namespace math_expr
          if (result)
          {
             if (
-                 details::imatch(current_token().value,"else") ||
+                 core::imatch(current_token().value,"else") ||
                  (token_is(token_t::e_eof, prsrhlpr_t::e_hold) && peek_token_is("else"))
                )
             {
                next_token();
 
-               if (details::imatch(current_token().value,"else"))
+               if (core::imatch(current_token().value,"else"))
                {
                   next_token();
                }
@@ -4168,7 +4168,7 @@ namespace math_expr
                      result = false;
                   }
                }
-               else if (details::imatch(current_token().value,"if"))
+               else if (core::imatch(current_token().value,"if"))
                {
                   if (0 == (alternative = parse_conditional_statement()))
                   {
@@ -4588,7 +4588,7 @@ namespace math_expr
 
          brkcnt_list_.push_front(false);
 
-         if (details::imatch(current_token().value,"until"))
+         if (core::imatch(current_token().value,"until"))
          {
             next_token();
             branch = node_allocator_.allocate<details::null_node<T> >();
@@ -4617,7 +4617,7 @@ namespace math_expr
                   side_effect_list.push_back(state_.side_effect_present);
                }
 
-               if (details::imatch(current_token().value,"until"))
+               if (core::imatch(current_token().value,"until"))
                {
                   next_token();
                   break;
@@ -4637,7 +4637,7 @@ namespace math_expr
                   return error_node();
                }
 
-               if (details::imatch(current_token().value,"until"))
+               if (core::imatch(current_token().value,"until"))
                {
                   next_token();
                   break;
@@ -4763,7 +4763,7 @@ namespace math_expr
          {
             if (
                  !token_is(token_t::e_symbol,prsrhlpr_t::e_hold) &&
-                 details::imatch(current_token().value,"var")
+                 core::imatch(current_token().value,"var")
                )
             {
                next_token();
@@ -4977,7 +4977,7 @@ namespace math_expr
       {
          std::vector<expression_node_ptr> arg_list;
 
-         if (!details::imatch(current_token().value,"switch"))
+         if (!core::imatch(current_token().value,"switch"))
          {
             set_error(make_error(
                parser_error::e_syntax,
@@ -5009,7 +5009,7 @@ namespace math_expr
 
          for ( ; ; )
          {
-            if (details::imatch("case",current_token().value))
+            if (core::imatch("case",current_token().value))
             {
                next_token();
 
@@ -5068,7 +5068,7 @@ namespace math_expr
                }
 
             }
-            else if (details::imatch("default",current_token().value))
+            else if (core::imatch("default",current_token().value))
             {
                if (0 != default_statement)
                {
@@ -5149,7 +5149,7 @@ namespace math_expr
       {
          std::vector<expression_node_ptr> arg_list;
 
-         if (!details::imatch(current_token().value,"[*]"))
+         if (!core::imatch(current_token().value,"[*]"))
          {
             set_error(make_error(
                parser_error::e_syntax,
@@ -5177,7 +5177,7 @@ namespace math_expr
 
          for ( ; ; )
          {
-            if (!details::imatch("case",current_token().value))
+            if (!core::imatch("case",current_token().value))
             {
                set_error(make_error(
                   parser_error::e_syntax,
@@ -5265,25 +5265,25 @@ namespace math_expr
       {
          std::vector<expression_node_ptr> arg_list;
 
-         details::operator_type opt_type = details::operator_type::default_op;
+         core::operators::operator_type opt_type = core::operators::operator_type::default_op;
          const std::string symbol = current_token().value;
 
-         if (details::imatch(symbol,"~"))
+         if (core::imatch(symbol,"~"))
          {
             next_token();
             return check_block_statement_closure(parse_multi_sequence());
          }
-         else if (details::imatch(symbol,"[*]"))
+         else if (core::imatch(symbol,"[*]"))
          {
             return check_block_statement_closure(parse_multi_switch_statement());
          }
-         else if (details::imatch(symbol, "avg" )) opt_type = details::operator_type::avg ;
-         else if (details::imatch(symbol, "mand")) opt_type = details::operator_type::mand;
-         else if (details::imatch(symbol, "max" )) opt_type = details::operator_type::max ;
-         else if (details::imatch(symbol, "min" )) opt_type = details::operator_type::min ;
-         else if (details::imatch(symbol, "mor" )) opt_type = details::operator_type::mor ;
-         else if (details::imatch(symbol, "mul" )) opt_type = details::operator_type::prod;
-         else if (details::imatch(symbol, "sum" )) opt_type = details::operator_type::sum ;
+         else if (core::imatch(symbol, "avg" )) opt_type = core::operators::operator_type::avg ;
+         else if (core::imatch(symbol, "mand")) opt_type = core::operators::operator_type::mand;
+         else if (core::imatch(symbol, "max" )) opt_type = core::operators::operator_type::max ;
+         else if (core::imatch(symbol, "min" )) opt_type = core::operators::operator_type::min ;
+         else if (core::imatch(symbol, "mor" )) opt_type = core::operators::operator_type::mor ;
+         else if (core::imatch(symbol, "mul" )) opt_type = core::operators::operator_type::prod;
+         else if (core::imatch(symbol, "sum" )) opt_type = core::operators::operator_type::sum ;
          else
          {
             set_error(make_error(
@@ -5576,9 +5576,9 @@ namespace math_expr
          if (1 == expression_list.size())
             return expression_list[0];
          else if (specialise_on_final_type && is_generally_string_node(expression_list.back()))
-            return expression_generator_.vararg_function(details::operator_type::smulti,expression_list);
+            return expression_generator_.vararg_function(core::operators::operator_type::smulti,expression_list);
          else
-            return expression_generator_.vararg_function(details::operator_type::multi,expression_list);
+            return expression_generator_.vararg_function(core::operators::operator_type::multi,expression_list);
       }
 
       inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
@@ -5713,7 +5713,7 @@ namespace math_expr
                if (r0_value >= T(0))
                {
                   rp.n0_c.first  = true;
-                  rp.n0_c.second = static_cast<std::size_t>(details::numeric::to_int64(r0_value));
+                  rp.n0_c.second = static_cast<std::size_t>(core::numeric::to_int64(r0_value));
                   rp.cache.first = rp.n0_c.second;
                }
 
@@ -5778,7 +5778,7 @@ namespace math_expr
                if (r1_value >= T(0))
                {
                   rp.n1_c.first   = true;
-                  rp.n1_c.second  = static_cast<std::size_t>(details::numeric::to_int64(r1_value));
+                  rp.n1_c.second  = static_cast<std::size_t>(core::numeric::to_int64(r1_value));
                   rp.cache.second = rp.n1_c.second;
                }
 
@@ -6005,8 +6005,8 @@ namespace math_expr
                   parser_error::e_syntax,
                   current_token(),
                   "ERR122 - Overflow in range for string: '" + const_str + "'[" +
-                  (rp.n0_c.first ? details::to_str(static_cast<int>(rp.n0_c.second)) : "?") + ":" +
-                  (rp.n1_c.first ? details::to_str(static_cast<int>(rp.n1_c.second)) : "?") + "]",
+                  (rp.n0_c.first ? core::to_str(static_cast<int>(rp.n0_c.second)) : "?") + ":" +
+                  (rp.n1_c.first ? core::to_str(static_cast<int>(rp.n1_c.second)) : "?") + "]",
                   math_expr_error_location));
 
                rp.free();
@@ -6070,7 +6070,7 @@ namespace math_expr
          const scope_element& se = sem_.get_active_element(vector_name);
 
          if (
-              !details::imatch(se.name, vector_name) ||
+              !core::imatch(se.name, vector_name) ||
               (se.depth > state_.scope_depth)   ||
               (scope_element::e_vector != se.type)
             )
@@ -6141,7 +6141,7 @@ namespace math_expr
          // Perform compile-time range check
          if (details::is_constant_node(index_expr))
          {
-            const std::size_t index    = static_cast<std::size_t>(details::numeric::to_int32(index_expr->value()));
+            const std::size_t index    = static_cast<std::size_t>(core::numeric::to_int32(index_expr->value()));
             const std::size_t vec_size = vec->size();
 
             if (index >= vec_size)
@@ -6149,8 +6149,8 @@ namespace math_expr
                set_error(make_error(
                   parser_error::e_syntax,
                   current_token(),
-                  "ERR126 - Index of " + details::to_str(index) + " out of range for "
-                  "vector '" + vector_name + "' of size " + details::to_str(vec_size),
+                  "ERR126 - Index of " + core::to_str(index) + " out of range for "
+                  "vector '" + vector_name + "' of size " + core::to_str(vec_size),
                   math_expr_error_location));
 
                free_node(node_allocator_, vec_node  );
@@ -6233,7 +6233,7 @@ namespace math_expr
                current_token(),
                "ERR130 - Invalid number of parameters to call to vararg function: "
                + vararg_function_name + ", require at least "
-               + details::to_str(static_cast<int>(vararg_function->min_num_args())) + " parameters",
+               + core::to_str(static_cast<int>(vararg_function->min_num_args())) + " parameters",
                math_expr_error_location));
 
             return error_node();
@@ -6245,7 +6245,7 @@ namespace math_expr
                current_token(),
                "ERR131 - Invalid number of parameters to call to vararg function: "
                + vararg_function_name + ", require no more than "
-               + details::to_str(static_cast<int>(vararg_function->max_num_args())) + " parameters",
+               + core::to_str(static_cast<int>(vararg_function->max_num_args())) + " parameters",
                math_expr_error_location));
 
             return error_node();
@@ -6299,10 +6299,10 @@ namespace math_expr
 
             for (std::size_t i = 0; i < function_definition_list_.size(); ++i)
             {
-               details::char_t diff_value = 0;
+               core::char_t diff_value = 0;
                std::size_t     diff_index = 0;
 
-               const bool result = details::sequence_match(function_definition_list_[i].param_seq,
+               const bool result = core::sequence_match(function_definition_list_[i].param_seq,
                                                            param_seq,
                                                            diff_index, diff_value);
 
@@ -6386,7 +6386,7 @@ namespace math_expr
 
       private:
 
-         std::vector<std::string> split_param_seq(const std::string& param_seq, const details::char_t delimiter = '|') const
+         std::vector<std::string> split_param_seq(const std::string& param_seq, const core::char_t delimiter = '|') const
          {
              std::string::const_iterator current_begin = param_seq.begin();
              std::string::const_iterator iter          = param_seq.begin();
@@ -6498,8 +6498,8 @@ namespace math_expr
                      parser_error::e_syntax,
                      parser_.current_token(),
                      "ERR135 - Function '" + function_name_ + "' has a parameter sequence conflict between " +
-                     "pseq_idx[" + details::to_str(seq_itr->second) + "] and" +
-                     "pseq_idx[" + details::to_str(i) + "] " +
+                     "pseq_idx[" + core::to_str(seq_itr->second) + "] and" +
+                     "pseq_idx[" + core::to_str(i) + "] " +
                      "param seq: " + param_seq_list[i],
                      math_expr_error_location));
                   return;
@@ -6832,7 +6832,7 @@ namespace math_expr
       template <typename Type, std::size_t NumberOfParameters>
       struct parse_special_function_impl
       {
-         static inline expression_node_ptr process(parser<Type>& p, const details::operator_type opt_type, const std::string& sf_name)
+         static inline expression_node_ptr process(parser<Type>& p, const core::operators::operator_type opt_type, const std::string& sf_name)
          {
             expression_node_ptr branch[NumberOfParameters];
             expression_node_ptr result = error_node();
@@ -6902,8 +6902,8 @@ namespace math_expr
 
          // Expect: $fDD(expr0,expr1,expr2) or $fDD(expr0,expr1,expr2,expr3)
          if (
-              !details::is_digit(sf_name[2]) ||
-              !details::is_digit(sf_name[3])
+              !core::is_digit(sf_name[2]) ||
+              !core::is_digit(sf_name[3])
             )
          {
             set_error(make_error(
@@ -6918,7 +6918,7 @@ namespace math_expr
          const int id = (sf_name[2] - '0') * 10 +
                         (sf_name[3] - '0');
 
-         if (id >= static_cast<int>(details::operator_type::sffinal))
+         if (id >= static_cast<int>(core::operators::operator_type::sffinal))
          {
             set_error(make_error(
                parser_error::e_token,
@@ -6929,8 +6929,8 @@ namespace math_expr
             return error_node();
          }
 
-         const int sf_3_to_4                   = static_cast<int>(details::operator_type::sf48);
-         const details::operator_type opt_type = static_cast<details::operator_type>(id + 1000);
+         const int sf_3_to_4                   = static_cast<int>(core::operators::operator_type::sf48);
+         const core::operators::operator_type opt_type = static_cast<core::operators::operator_type>(id + 1000);
          const std::size_t NumberOfParameters  = (id < (sf_3_to_4 - 1000)) ? 3U : 4U;
 
          switch (NumberOfParameters)
@@ -7100,7 +7100,7 @@ namespace math_expr
          if (
               (vector_size <= T(0)) ||
               std::not_equal_to<T>()
-              (T(0),vector_size - details::numeric::trunc(vector_size)) ||
+              (T(0),vector_size - core::numeric::trunc(vector_size)) ||
               (static_cast<std::size_t>(vector_size) > max_vector_size)
             )
          {
@@ -7108,8 +7108,8 @@ namespace math_expr
                parser_error::e_syntax,
                current_token(),
                "ERR160 - Invalid vector size. Must be an integer in the "
-               "range [0," + details::to_str(static_cast<std::size_t>(max_vector_size)) + "], size: " +
-               details::to_str(details::numeric::to_int32(vector_size)),
+               "range [0," + core::to_str(static_cast<std::size_t>(max_vector_size)) + "], size: " +
+               core::to_str(core::numeric::to_int32(vector_size)),
                math_expr_error_location));
 
             return error_node();
@@ -7117,7 +7117,7 @@ namespace math_expr
 
          typename symbol_table_t::vector_holder_ptr vec_holder = typename symbol_table_t::vector_holder_ptr(0);
 
-         const std::size_t vec_size = static_cast<std::size_t>(details::numeric::to_int32(vector_size));
+         const std::size_t vec_size = static_cast<std::size_t>(core::numeric::to_int32(vector_size));
          const std::size_t predicted_total_lclsymb_size = sizeof(T) * vec_size + sem_.total_local_symb_size_bytes();
 
          if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
@@ -7125,9 +7125,9 @@ namespace math_expr
             set_error(make_error(
                parser_error::e_syntax,
                current_token(),
-               "ERR161 - Adding vector '" + vec_name + "' of size " + details::to_str(vec_size) + " bytes "
-               "will exceed max total local symbol size of: " + details::to_str(settings().max_total_local_symbol_size_bytes())  + " bytes, "
-               "current total size: " + details::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
+               "ERR161 - Adding vector '" + vec_name + "' of size " + core::to_str(vec_size) + " bytes "
+               "will exceed max total local symbol size of: " + core::to_str(settings().max_total_local_symbol_size_bytes())  + " bytes, "
+               "current total size: " + core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
                math_expr_error_location));
 
             return error_node();
@@ -7171,7 +7171,7 @@ namespace math_expr
             nse.data      = new T[vec_size];
             nse.vec_node  = new typename scope_element::vector_holder_t(reinterpret_cast<T*>(nse.data),nse.size);
 
-            details::set_zero_value(reinterpret_cast<T*>(nse.data),vec_size);
+            core::numeric::set_zero_value(reinterpret_cast<T*>(nse.data),vec_size);
 
             if (!sem_.add_element(nse))
             {
@@ -7494,7 +7494,7 @@ namespace math_expr
             expression_node_ptr vec_node = node_allocator_.allocate<vector_node_t>(vec_holder);
 
             result = expression_generator_(
-                        details::operator_type::assign,
+                        core::operators::operator_type::assign,
                         vec_node,
                         vec_initilizer_list[0]);
          }
@@ -7598,7 +7598,7 @@ namespace math_expr
          branch[0] = str_node;
          branch[1] = initialisation_expression;
 
-         return expression_generator_(details::operator_type::assign,branch);
+         return expression_generator_(core::operators::operator_type::assign,branch);
       }
       #else
       inline expression_node_ptr parse_define_string_statement(const std::string&, expression_node_ptr)
@@ -7625,7 +7625,7 @@ namespace math_expr
 
             return error_node();
          }
-         else if (!details::imatch(current_token().value,"var"))
+         else if (!core::imatch(current_token().value,"var"))
          {
             return error_node();
          }
@@ -7646,7 +7646,7 @@ namespace math_expr
 
             return error_node();
          }
-         else if (details::is_reserved_symbol(var_name))
+         else if (core::is_reserved_symbol(var_name))
          {
             set_error(make_error(
                parser_error::e_syntax,
@@ -7763,8 +7763,8 @@ namespace math_expr
                   parser_error::e_syntax,
                   current_token(),
                   "ERR185 - Adding variable '" + var_name + "' "
-                  "will exceed max total local symbol size of: " + details::to_str(settings().max_total_local_symbol_size_bytes()) + " bytes, "
-                  "current total size: " + details::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
+                  "will exceed max total local symbol size of: " + core::to_str(settings().max_total_local_symbol_size_bytes()) + " bytes, "
+                  "current total size: " + core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
                   math_expr_error_location));
 
                free_node(node_allocator_, initialisation_expression);
@@ -7812,7 +7812,7 @@ namespace math_expr
          branch[0] = var_node;
          branch[1] = initialisation_expression ? initialisation_expression : expression_generator_(T(0));
 
-         return expression_generator_(details::operator_type::assign,branch);
+         return expression_generator_(core::operators::operator_type::assign,branch);
       }
 
       inline expression_node_ptr parse_define_constvar_statement()
@@ -7862,7 +7862,7 @@ namespace math_expr
 
             return error_node();
          }
-         else if (details::is_reserved_symbol(var_name))
+         else if (core::is_reserved_symbol(var_name))
          {
             set_error(make_error(
                parser_error::e_syntax,
@@ -7967,8 +7967,8 @@ namespace math_expr
                   parser_error::e_syntax,
                   current_token(),
                   "ERR198 - Adding variable '" + var_name + "' "
-                  "will exceed max total local symbol size of: " + details::to_str(settings().max_total_local_symbol_size_bytes()) + " bytes, "
-                  "current total size: " + details::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
+                  "will exceed max total local symbol size of: " + core::to_str(settings().max_total_local_symbol_size_bytes()) + " bytes, "
+                  "current total size: " + core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
                   math_expr_error_location));
 
                return error_node();
@@ -8070,8 +8070,8 @@ namespace math_expr
                   parser_error::e_syntax,
                   current_token(),
                   "ERR203 - Adding variable '" + var_name + "' "
-                  "will exceed max total local symbol size of: " + details::to_str(settings().max_total_local_symbol_size_bytes()) + " bytes, "
-                  "current total size: " + details::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
+                  "will exceed max total local symbol size of: " + core::to_str(settings().max_total_local_symbol_size_bytes()) + " bytes, "
+                  "current total size: " + core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
                   math_expr_error_location));
 
                return error_node();
@@ -8115,7 +8115,7 @@ namespace math_expr
 
       inline expression_node_ptr parse_swap_statement()
       {
-         if (!details::imatch(current_token().value,"swap"))
+         if (!core::imatch(current_token().value,"swap"))
          {
             return error_node();
          }
@@ -8366,7 +8366,7 @@ namespace math_expr
 
          scoped_vec_delete<expression_node_t> svd((*this), arg_list);
 
-         if (!details::imatch(current_token().value,"return"))
+         if (!core::imatch(current_token().value,"return"))
          {
             return error_node();
          }
@@ -8470,7 +8470,7 @@ namespace math_expr
 
       inline expression_node_ptr parse_assert_statement()
       {
-         assert(details::imatch(current_token().value, "assert"));
+         assert(core::imatch(current_token().value, "assert"));
 
          if (state_.parsing_assert_stmt)
          {
@@ -8752,7 +8752,7 @@ namespace math_expr
          return interval_t(begin, begin + size);
       }
 
-      inline interval_t make_memory_range(details::char_cptr begin, const std::size_t size)
+      inline interval_t make_memory_range(core::char_cptr begin, const std::size_t size)
       {
          return interval_t(begin, begin + size);
       }
@@ -8802,7 +8802,7 @@ namespace math_expr
          {
             scope_element& se = sem_.get_active_element(symbol);
 
-            if (se.active && details::imatch(se.name, symbol))
+            if (se.active && core::imatch(se.name, symbol))
             {
                if (
                     (scope_element::e_variable == se.type) ||
@@ -8981,11 +8981,11 @@ namespace math_expr
             return parse_vector();
          }
 
-         if (details::is_reserved_symbol(symbol))
+         if (core::is_reserved_symbol(symbol))
          {
                if (
                     settings_.function_enabled(symbol) ||
-                    !details::is_base_function(symbol)
+                    !core::is_base_function(symbol)
                   )
                {
                   set_error(make_error(
@@ -9001,7 +9001,7 @@ namespace math_expr
          // Should we handle unknown symbols?
          if (resolve_unknown_symbol_ && unknown_symbol_resolver_)
          {
-            if (!(settings_.rsrvd_sym_usr_disabled() && details::is_reserved_symbol(symbol)))
+            if (!(settings_.rsrvd_sym_usr_disabled() && core::is_reserved_symbol(symbol)))
             {
                symbol_table_t& symtab = symtab_store_.get_symbol_table();
 
@@ -9141,7 +9141,7 @@ namespace math_expr
          {
             return parse_vararg_function();
          }
-         else if (details::imatch(symbol, symbol_not))
+         else if (core::imatch(symbol, symbol_not))
          {
             return parse_not_statement();
          }
@@ -9150,80 +9150,80 @@ namespace math_expr
             return parse_base_operation();
          }
          else if (
-                   details::imatch(symbol, symbol_if) &&
+                   core::imatch(symbol, symbol_if) &&
                    settings_.control_struct_enabled(symbol)
                  )
          {
             return parse_conditional_statement();
          }
          else if (
-                   details::imatch(symbol, symbol_while) &&
+                   core::imatch(symbol, symbol_while) &&
                    settings_.control_struct_enabled(symbol)
                  )
          {
             return check_block_statement_closure(parse_while_loop());
          }
          else if (
-                   details::imatch(symbol, symbol_repeat) &&
+                   core::imatch(symbol, symbol_repeat) &&
                    settings_.control_struct_enabled(symbol)
                  )
          {
             return check_block_statement_closure(parse_repeat_until_loop());
          }
          else if (
-                   details::imatch(symbol, symbol_for) &&
+                   core::imatch(symbol, symbol_for) &&
                    settings_.control_struct_enabled(symbol)
                  )
          {
             return check_block_statement_closure(parse_for_loop());
          }
          else if (
-                   details::imatch(symbol, symbol_switch) &&
+                   core::imatch(symbol, symbol_switch) &&
                    settings_.control_struct_enabled(symbol)
                  )
          {
             return check_block_statement_closure(parse_switch_statement());
          }
-         else if (details::is_valid_sf_symbol(symbol))
+         else if (core::is_valid_sf_symbol(symbol))
          {
             return parse_special_function();
          }
-         else if (details::imatch(symbol, symbol_null))
+         else if (core::imatch(symbol, symbol_null))
          {
             return parse_null_statement();
          }
          #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
-         else if (details::imatch(symbol, symbol_break))
+         else if (core::imatch(symbol, symbol_break))
          {
             return parse_break_statement();
          }
-         else if (details::imatch(symbol, symbol_continue))
+         else if (core::imatch(symbol, symbol_continue))
          {
             return parse_continue_statement();
          }
          #endif
-         else if (details::imatch(symbol, symbol_var))
+         else if (core::imatch(symbol, symbol_var))
          {
             return parse_define_var_statement();
          }
-         else if (details::imatch(symbol, symbol_const))
+         else if (core::imatch(symbol, symbol_const))
          {
             return parse_define_constvar_statement();
          }
-         else if (details::imatch(symbol, symbol_swap))
+         else if (core::imatch(symbol, symbol_swap))
          {
             return parse_swap_statement();
          }
          #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
          else if (
-                   details::imatch(symbol, symbol_return) &&
+                   core::imatch(symbol, symbol_return) &&
                    settings_.control_struct_enabled(symbol)
                  )
          {
             return check_block_statement_closure(parse_return_statement());
          }
          #endif
-         else if (details::imatch(symbol, symbol_assert))
+         else if (core::imatch(symbol, symbol_assert))
          {
             return parse_assert_statement();
          }
@@ -9259,7 +9259,7 @@ namespace math_expr
          {
             T numeric_value = T(0);
 
-            if (details::string_to_real(current_token().value, numeric_value))
+            if (core::numeric::string_to_real(current_token().value, numeric_value))
             {
                expression_node_ptr literal_exp = expression_generator_(numeric_value);
 
@@ -9393,7 +9393,7 @@ namespace math_expr
                   )
                )
             {
-               expression_node_ptr result = expression_generator_(details::operator_type::neg,branch);
+               expression_node_ptr result = expression_generator_(core::operators::operator_type::neg,branch);
 
                if (0 == result)
                {
@@ -9460,7 +9460,7 @@ namespace math_expr
       public:
 
          typedef details::expression_node<Type>* expression_node_ptr;
-         typedef expression_node_ptr (*synthesize_functor_t)(expression_generator<T>&, const details::operator_type& operation, expression_node_ptr (&branch)[2]);
+         typedef expression_node_ptr (*synthesize_functor_t)(expression_generator<T>&, const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]);
          typedef std::map<std::string,synthesize_functor_t> synthesize_map_t;
          typedef typename math_expr::parser<Type> parser_t;
          typedef const Type& vtype;
@@ -9586,7 +9586,7 @@ namespace math_expr
             return strength_reduction_enabled_;
          }
 
-         inline bool valid_operator(const details::operator_type& operation, binary_functor_t& bop)
+         inline bool valid_operator(const core::operators::operator_type& operation, binary_functor_t& bop)
          {
             typename binary_op_map_t::iterator bop_itr = binary_op_map_->find(operation);
 
@@ -9598,7 +9598,7 @@ namespace math_expr
             return true;
          }
 
-         inline bool valid_operator(const details::operator_type& operation, unary_functor_t& uop)
+         inline bool valid_operator(const core::operators::operator_type& operation, unary_functor_t& uop)
          {
             typename unary_op_map_t::iterator uop_itr = unary_op_map_->find(operation);
 
@@ -9610,7 +9610,7 @@ namespace math_expr
             return true;
          }
 
-         inline details::operator_type get_operator(const binary_functor_t& bop) const
+         inline core::operators::operator_type get_operator(const binary_functor_t& bop) const
          {
             return (*inv_binary_op_map_).find(bop)->second;
          }
@@ -9645,28 +9645,28 @@ namespace math_expr
          }
          #endif
 
-         inline bool unary_optimisable(const details::operator_type& operation) const
+         inline bool unary_optimisable(const core::operators::operator_type& operation) const
          {
-            return (details::operator_type::abs   == operation) || (details::operator_type::acos  == operation) ||
-                   (details::operator_type::acosh == operation) || (details::operator_type::asin  == operation) ||
-                   (details::operator_type::asinh == operation) || (details::operator_type::atan  == operation) ||
-                   (details::operator_type::atanh == operation) || (details::operator_type::ceil  == operation) ||
-                   (details::operator_type::cos   == operation) || (details::operator_type::cosh  == operation) ||
-                   (details::operator_type::exp   == operation) || (details::operator_type::expm1 == operation) ||
-                   (details::operator_type::floor == operation) || (details::operator_type::log   == operation) ||
-                   (details::operator_type::log10 == operation) || (details::operator_type::log2  == operation) ||
-                   (details::operator_type::log1p == operation) || (details::operator_type::neg   == operation) ||
-                   (details::operator_type::pos   == operation) || (details::operator_type::round == operation) ||
-                   (details::operator_type::sin   == operation) || (details::operator_type::sinc  == operation) ||
-                   (details::operator_type::sinh  == operation) || (details::operator_type::sqrt  == operation) ||
-                   (details::operator_type::tan   == operation) || (details::operator_type::tanh  == operation) ||
-                   (details::operator_type::cot   == operation) || (details::operator_type::sec   == operation) ||
-                   (details::operator_type::csc   == operation) || (details::operator_type::r2d   == operation) ||
-                   (details::operator_type::d2r   == operation) || (details::operator_type::d2g   == operation) ||
-                   (details::operator_type::g2d   == operation) || (details::operator_type::notl  == operation) ||
-                   (details::operator_type::sgn   == operation) || (details::operator_type::erf   == operation) ||
-                   (details::operator_type::erfc  == operation) || (details::operator_type::ncdf  == operation) ||
-                   (details::operator_type::frac  == operation) || (details::operator_type::trunc == operation) ;
+            return (core::operators::operator_type::abs   == operation) || (core::operators::operator_type::acos  == operation) ||
+                   (core::operators::operator_type::acosh == operation) || (core::operators::operator_type::asin  == operation) ||
+                   (core::operators::operator_type::asinh == operation) || (core::operators::operator_type::atan  == operation) ||
+                   (core::operators::operator_type::atanh == operation) || (core::operators::operator_type::ceil  == operation) ||
+                   (core::operators::operator_type::cos   == operation) || (core::operators::operator_type::cosh  == operation) ||
+                   (core::operators::operator_type::exp   == operation) || (core::operators::operator_type::expm1 == operation) ||
+                   (core::operators::operator_type::floor == operation) || (core::operators::operator_type::log   == operation) ||
+                   (core::operators::operator_type::log10 == operation) || (core::operators::operator_type::log2  == operation) ||
+                   (core::operators::operator_type::log1p == operation) || (core::operators::operator_type::neg   == operation) ||
+                   (core::operators::operator_type::pos   == operation) || (core::operators::operator_type::round == operation) ||
+                   (core::operators::operator_type::sin   == operation) || (core::operators::operator_type::sinc  == operation) ||
+                   (core::operators::operator_type::sinh  == operation) || (core::operators::operator_type::sqrt  == operation) ||
+                   (core::operators::operator_type::tan   == operation) || (core::operators::operator_type::tanh  == operation) ||
+                   (core::operators::operator_type::cot   == operation) || (core::operators::operator_type::sec   == operation) ||
+                   (core::operators::operator_type::csc   == operation) || (core::operators::operator_type::r2d   == operation) ||
+                   (core::operators::operator_type::d2r   == operation) || (core::operators::operator_type::d2g   == operation) ||
+                   (core::operators::operator_type::g2d   == operation) || (core::operators::operator_type::notl  == operation) ||
+                   (core::operators::operator_type::sgn   == operation) || (core::operators::operator_type::erf   == operation) ||
+                   (core::operators::operator_type::erfc  == operation) || (core::operators::operator_type::ncdf  == operation) ||
+                   (core::operators::operator_type::frac  == operation) || (core::operators::operator_type::trunc == operation) ;
          }
 
          inline bool sf3_optimisable(const std::string& sf3id, trinary_functor_t& tfunc) const
@@ -9693,7 +9693,7 @@ namespace math_expr
             return true;
          }
 
-         inline bool sf3_optimisable(const std::string& sf3id, details::operator_type& operation) const
+         inline bool sf3_optimisable(const std::string& sf3id, core::operators::operator_type& operation) const
          {
             typename sf3_map_t::const_iterator itr = sf3_map_->find(sf3id);
 
@@ -9705,7 +9705,7 @@ namespace math_expr
             return true;
          }
 
-         inline bool sf4_optimisable(const std::string& sf4id, details::operator_type& operation) const
+         inline bool sf4_optimisable(const std::string& sf4id, core::operators::operator_type& operation) const
          {
             typename sf4_map_t::const_iterator itr = sf4_map_->find(sf4id);
 
@@ -9717,7 +9717,7 @@ namespace math_expr
             return true;
          }
 
-         inline expression_node_ptr operator() (const details::operator_type& operation, expression_node_ptr (&branch)[1])
+         inline expression_node_ptr operator() (const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
          {
             if (0 == branch[0])
             {
@@ -9751,88 +9751,88 @@ namespace math_expr
                return synthesize_unary_expression(operation,branch);
          }
 
-         inline bool is_assignment_operation(const details::operator_type& operation) const
+         inline bool is_assignment_operation(const core::operators::operator_type& operation) const
          {
             return (
-                     (details::operator_type::addass == operation) ||
-                     (details::operator_type::subass == operation) ||
-                     (details::operator_type::mulass == operation) ||
-                     (details::operator_type::divass == operation) ||
-                     (details::operator_type::modass == operation)
+                     (core::operators::operator_type::addass == operation) ||
+                     (core::operators::operator_type::subass == operation) ||
+                     (core::operators::operator_type::mulass == operation) ||
+                     (core::operators::operator_type::divass == operation) ||
+                     (core::operators::operator_type::modass == operation)
                    ) &&
                    parser_->settings_.assignment_enabled(operation);
          }
 
          #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-         inline bool valid_string_operation(const details::operator_type& operation) const
+         inline bool valid_string_operation(const core::operators::operator_type& operation) const
          {
-            return (details::operator_type::add    == operation) ||
-                   (details::operator_type::lt     == operation) ||
-                   (details::operator_type::lte    == operation) ||
-                   (details::operator_type::gt     == operation) ||
-                   (details::operator_type::gte    == operation) ||
-                   (details::operator_type::eq     == operation) ||
-                   (details::operator_type::ne     == operation) ||
-                   (details::operator_type::in     == operation) ||
-                   (details::operator_type::like   == operation) ||
-                   (details::operator_type::ilike  == operation) ||
-                   (details::operator_type::assign == operation) ||
-                   (details::operator_type::addass == operation) ||
-                   (details::operator_type::swap   == operation) ;
+            return (core::operators::operator_type::add    == operation) ||
+                   (core::operators::operator_type::lt     == operation) ||
+                   (core::operators::operator_type::lte    == operation) ||
+                   (core::operators::operator_type::gt     == operation) ||
+                   (core::operators::operator_type::gte    == operation) ||
+                   (core::operators::operator_type::eq     == operation) ||
+                   (core::operators::operator_type::ne     == operation) ||
+                   (core::operators::operator_type::in     == operation) ||
+                   (core::operators::operator_type::like   == operation) ||
+                   (core::operators::operator_type::ilike  == operation) ||
+                   (core::operators::operator_type::assign == operation) ||
+                   (core::operators::operator_type::addass == operation) ||
+                   (core::operators::operator_type::swap   == operation) ;
          }
          #else
-         inline bool valid_string_operation(const details::operator_type&) const
+         inline bool valid_string_operation(const core::operators::operator_type&) const
          {
             return false;
          }
          #endif
 
-         inline std::string to_str(const details::operator_type& operation) const
+         inline std::string to_str(const core::operators::operator_type& operation) const
          {
             switch (operation)
             {
-               case details::operator_type::add  : return "+"      ;
-               case details::operator_type::sub  : return "-"      ;
-               case details::operator_type::mul  : return "*"      ;
-               case details::operator_type::div  : return "/"      ;
-               case details::operator_type::mod  : return "%"      ;
-               case details::operator_type::pow  : return "^"      ;
-               case details::operator_type::lt   : return "<"      ;
-               case details::operator_type::lte  : return "<="     ;
-               case details::operator_type::gt   : return ">"      ;
-               case details::operator_type::gte  : return ">="     ;
-               case details::operator_type::eq   : return "=="     ;
-               case details::operator_type::ne   : return "!="     ;
-               case details::operator_type::logical_and  : return "and"    ;
-               case details::operator_type::nand : return "nand"   ;
-               case details::operator_type::logical_or   : return "or"     ;
-               case details::operator_type::nor  : return "nor"    ;
-               case details::operator_type::logical_xor  : return "xor"    ;
-               case details::operator_type::xnor : return "xnor"   ;
+               case core::operators::operator_type::add  : return "+"      ;
+               case core::operators::operator_type::sub  : return "-"      ;
+               case core::operators::operator_type::mul  : return "*"      ;
+               case core::operators::operator_type::div  : return "/"      ;
+               case core::operators::operator_type::mod  : return "%"      ;
+               case core::operators::operator_type::pow  : return "^"      ;
+               case core::operators::operator_type::lt   : return "<"      ;
+               case core::operators::operator_type::lte  : return "<="     ;
+               case core::operators::operator_type::gt   : return ">"      ;
+               case core::operators::operator_type::gte  : return ">="     ;
+               case core::operators::operator_type::eq   : return "=="     ;
+               case core::operators::operator_type::ne   : return "!="     ;
+               case core::operators::operator_type::logical_and  : return "and"    ;
+               case core::operators::operator_type::nand : return "nand"   ;
+               case core::operators::operator_type::logical_or   : return "or"     ;
+               case core::operators::operator_type::nor  : return "nor"    ;
+               case core::operators::operator_type::logical_xor  : return "xor"    ;
+               case core::operators::operator_type::xnor : return "xnor"   ;
                default              : return "UNKNOWN";
             }
          }
 
-         inline bool operation_optimisable(const details::operator_type& operation) const
+         inline bool operation_optimisable(const core::operators::operator_type& operation) const
          {
-            return (details::operator_type::add  == operation) ||
-                   (details::operator_type::sub  == operation) ||
-                   (details::operator_type::mul  == operation) ||
-                   (details::operator_type::div  == operation) ||
-                   (details::operator_type::mod  == operation) ||
-                   (details::operator_type::pow  == operation) ||
-                   (details::operator_type::lt   == operation) ||
-                   (details::operator_type::lte  == operation) ||
-                   (details::operator_type::gt   == operation) ||
-                   (details::operator_type::gte  == operation) ||
-                   (details::operator_type::eq   == operation) ||
-                   (details::operator_type::ne   == operation) ||
-                   (details::operator_type::logical_and  == operation) ||
-                   (details::operator_type::nand == operation) ||
-                   (details::operator_type::logical_or   == operation) ||
-                   (details::operator_type::nor  == operation) ||
-                   (details::operator_type::logical_xor  == operation) ||
-                   (details::operator_type::xnor == operation) ;
+            return (core::operators::operator_type::add  == operation) ||
+                   (core::operators::operator_type::sub  == operation) ||
+                   (core::operators::operator_type::mul  == operation) ||
+                   (core::operators::operator_type::div  == operation) ||
+                   (core::operators::operator_type::mod  == operation) ||
+                   (core::operators::operator_type::pow  == operation) ||
+                   (core::operators::operator_type::lt   == operation) ||
+                   (core::operators::operator_type::lte  == operation) ||
+                   (core::operators::operator_type::gt   == operation) ||
+                   (core::operators::operator_type::gte  == operation) ||
+                   (core::operators::operator_type::eq   == operation) ||
+                   (core::operators::operator_type::ne   == operation) ||
+                   (core::operators::operator_type::logical_and  == operation) ||
+                   (core::operators::operator_type::nand == operation) ||
+                   (core::operators::operator_type::logical_or   == operation) ||
+                   (core::operators::operator_type::nor  == operation) ||
+                   (core::operators::operator_type::logical_xor  == operation) ||
+                   (core::operators::operator_type::xnor == operation) ;
          }
 
          inline std::string branch_to_id(expression_node_ptr branch) const
@@ -9881,7 +9881,7 @@ namespace math_expr
             return branch_to_id(branch[0]) + std::string("o") + branch_to_id(branch[1]);
          }
 
-         inline bool cov_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool cov_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9890,7 +9890,7 @@ namespace math_expr
                       details::is_variable_node(branch[1]) ;
          }
 
-         inline bool voc_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool voc_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9899,7 +9899,7 @@ namespace math_expr
                       details::is_constant_node(branch[1]) ;
          }
 
-         inline bool vov_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool vov_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9908,7 +9908,7 @@ namespace math_expr
                       details::is_variable_node(branch[1]) ;
          }
 
-         inline bool cob_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool cob_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9917,7 +9917,7 @@ namespace math_expr
                      !details::is_constant_node(branch[1]) ;
          }
 
-         inline bool boc_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool boc_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9926,13 +9926,13 @@ namespace math_expr
                        details::is_constant_node(branch[1]) ;
          }
 
-         inline bool cocob_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool cocob_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (
-                 (details::operator_type::add == operation) ||
-                 (details::operator_type::sub == operation) ||
-                 (details::operator_type::mul == operation) ||
-                 (details::operator_type::div == operation)
+                 (core::operators::operator_type::add == operation) ||
+                 (core::operators::operator_type::sub == operation) ||
+                 (core::operators::operator_type::mul == operation) ||
+                 (core::operators::operator_type::div == operation)
                )
             {
                return (details::is_constant_node(branch[0]) && details::is_cob_node(branch[1])) ||
@@ -9942,13 +9942,13 @@ namespace math_expr
                return false;
          }
 
-         inline bool coboc_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool coboc_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (
-                 (details::operator_type::add == operation) ||
-                 (details::operator_type::sub == operation) ||
-                 (details::operator_type::mul == operation) ||
-                 (details::operator_type::div == operation)
+                 (core::operators::operator_type::add == operation) ||
+                 (core::operators::operator_type::sub == operation) ||
+                 (core::operators::operator_type::mul == operation) ||
+                 (core::operators::operator_type::div == operation)
                )
             {
                return (details::is_constant_node(branch[0]) && details::is_boc_node(branch[1])) ||
@@ -9958,7 +9958,7 @@ namespace math_expr
                return false;
          }
 
-         inline bool uvouv_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool uvouv_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9967,7 +9967,7 @@ namespace math_expr
                       details::is_uv_node(branch[1]) ;
          }
 
-         inline bool vob_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool vob_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9976,7 +9976,7 @@ namespace math_expr
                      !details::is_variable_node(branch[1]) ;
          }
 
-         inline bool bov_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool bov_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9985,7 +9985,7 @@ namespace math_expr
                        details::is_variable_node(branch[1]) ;
          }
 
-         inline bool binext_optimisable(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool binext_optimisable(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!operation_optimisable(operation))
                return false;
@@ -9994,7 +9994,7 @@ namespace math_expr
                       !details::is_constant_node(branch[1]) ;
          }
 
-         inline bool is_invalid_assignment_op(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool is_invalid_assignment_op(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (is_assignment_operation(operation))
             {
@@ -10023,7 +10023,7 @@ namespace math_expr
                return false;
          }
 
-         inline bool is_constpow_operation(const details::operator_type& operation, expression_node_ptr(&branch)[2]) const
+         inline bool is_constpow_operation(const core::operators::operator_type& operation, expression_node_ptr(&branch)[2]) const
          {
             if (
                  !details::is_constant_node(branch[1]) ||
@@ -10049,7 +10049,7 @@ namespace math_expr
                    );
          }
 
-         inline bool is_invalid_string_op(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool is_invalid_string_op(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             const bool b0_string = is_generally_string_node(branch[0]);
             const bool b1_string = is_generally_string_node(branch[1]);
@@ -10069,7 +10069,7 @@ namespace math_expr
             return result;
          }
 
-         inline bool is_invalid_string_op(const details::operator_type& operation, expression_node_ptr (&branch)[3]) const
+         inline bool is_invalid_string_op(const core::operators::operator_type& operation, expression_node_ptr (&branch)[3]) const
          {
             const bool b0_string = is_generally_string_node(branch[0]);
             const bool b1_string = is_generally_string_node(branch[1]);
@@ -10079,7 +10079,7 @@ namespace math_expr
 
             if ((b0_string != b1_string) || (b1_string != b2_string))
                result = true;
-            else if ((details::operator_type::inrange != operation) && b0_string && b1_string && b2_string)
+            else if ((core::operators::operator_type::inrange != operation) && b0_string && b1_string && b2_string)
                result = true;
 
             if (result)
@@ -10090,7 +10090,7 @@ namespace math_expr
             return result;
          }
 
-         inline bool is_string_operation(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool is_string_operation(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             const bool b0_string = is_generally_string_node(branch[0]);
             const bool b1_string = is_generally_string_node(branch[1]);
@@ -10098,26 +10098,26 @@ namespace math_expr
             return (b0_string && b1_string && valid_string_operation(operation));
          }
 
-         inline bool is_string_operation(const details::operator_type& operation, expression_node_ptr (&branch)[3]) const
+         inline bool is_string_operation(const core::operators::operator_type& operation, expression_node_ptr (&branch)[3]) const
          {
             const bool b0_string = is_generally_string_node(branch[0]);
             const bool b1_string = is_generally_string_node(branch[1]);
             const bool b2_string = is_generally_string_node(branch[2]);
 
-            return (b0_string && b1_string && b2_string && (details::operator_type::inrange == operation));
+            return (b0_string && b1_string && b2_string && (core::operators::operator_type::inrange == operation));
          }
 
-         inline bool is_shortcircuit_expression(const details::operator_type& operation) const
+         inline bool is_shortcircuit_expression(const core::operators::operator_type& operation) const
          {
-            if constexpr (::math_expr::config::build_options::kDisableScAndOr)
+            if constexpr (::math_expr::core::build_options::kDisableScAndOr)
             {
                return false;
             }
             else
             {
                return (
-                        (details::operator_type::scand == operation) ||
-                        (details::operator_type::scor  == operation)
+                        (core::operators::operator_type::scand == operation) ||
+                        (core::operators::operator_type::scor  == operation)
                       );
             }
          }
@@ -10130,50 +10130,50 @@ namespace math_expr
                    );
          }
 
-         inline bool is_vector_eqineq_logic_operation(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool is_vector_eqineq_logic_operation(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!is_ivector_node(branch[0]) && !is_ivector_node(branch[1]))
                return false;
             else
                return (
-                        (details::operator_type::lt    == operation) ||
-                        (details::operator_type::lte   == operation) ||
-                        (details::operator_type::gt    == operation) ||
-                        (details::operator_type::gte   == operation) ||
-                        (details::operator_type::eq    == operation) ||
-                        (details::operator_type::ne    == operation) ||
-                        (details::operator_type::equal == operation) ||
-                        (details::operator_type::logical_and   == operation) ||
-                        (details::operator_type::nand  == operation) ||
-                        (details::operator_type::logical_or    == operation) ||
-                        (details::operator_type::nor   == operation) ||
-                        (details::operator_type::logical_xor   == operation) ||
-                        (details::operator_type::xnor  == operation)
+                        (core::operators::operator_type::lt    == operation) ||
+                        (core::operators::operator_type::lte   == operation) ||
+                        (core::operators::operator_type::gt    == operation) ||
+                        (core::operators::operator_type::gte   == operation) ||
+                        (core::operators::operator_type::eq    == operation) ||
+                        (core::operators::operator_type::ne    == operation) ||
+                        (core::operators::operator_type::equal == operation) ||
+                        (core::operators::operator_type::logical_and   == operation) ||
+                        (core::operators::operator_type::nand  == operation) ||
+                        (core::operators::operator_type::logical_or    == operation) ||
+                        (core::operators::operator_type::nor   == operation) ||
+                        (core::operators::operator_type::logical_xor   == operation) ||
+                        (core::operators::operator_type::xnor  == operation)
                       );
          }
 
-         inline bool is_vector_arithmetic_operation(const details::operator_type& operation, expression_node_ptr (&branch)[2]) const
+         inline bool is_vector_arithmetic_operation(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
          {
             if (!is_ivector_node(branch[0]) && !is_ivector_node(branch[1]))
                return false;
             else
                return (
-                        (details::operator_type::add == operation) ||
-                        (details::operator_type::sub == operation) ||
-                        (details::operator_type::mul == operation) ||
-                        (details::operator_type::div == operation) ||
-                        (details::operator_type::pow == operation)
+                        (core::operators::operator_type::add == operation) ||
+                        (core::operators::operator_type::sub == operation) ||
+                        (core::operators::operator_type::mul == operation) ||
+                        (core::operators::operator_type::div == operation) ||
+                        (core::operators::operator_type::pow == operation)
                       );
          }
 
-         inline expression_node_ptr operator() (const details::operator_type& operation, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr operator() (const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
          {
             if ((0 == branch[0]) || (0 == branch[1]))
             {
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR249 - Invalid branches received for operator '" + details::to_str(operation) + "'",
+                  "ERR249 - Invalid branches received for operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -10183,7 +10183,7 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR250 - Invalid branch pair for string operator '" + details::to_str(operation) + "'",
+                  "ERR250 - Invalid branch pair for string operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -10193,7 +10193,7 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR251 - Invalid branch pair for assignment operator '" + details::to_str(operation) + "'",
+                  "ERR251 - Invalid branch pair for assignment operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -10203,16 +10203,16 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR252 - Invalid branch pair for break/continue operator '" + details::to_str(operation) + "'",
+                  "ERR252 - Invalid branch pair for break/continue operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
             }
-            else if (details::operator_type::assign == operation)
+            else if (core::operators::operator_type::assign == operation)
             {
                return synthesize_assignment_expression(operation, branch);
             }
-            else if (details::operator_type::swap == operation)
+            else if (core::operators::operator_type::swap == operation)
             {
                return synthesize_swap_expression(branch);
             }
@@ -10242,7 +10242,7 @@ namespace math_expr
             }
             else if (is_constpow_operation(operation, branch))
             {
-               if constexpr (!::math_expr::config::build_options::kDisableCardinalPowOptimisation)
+               if constexpr (!::math_expr::core::build_options::kDisableCardinalPowOptimisation)
                {
                   return cardinal_pow_optimisation(branch);
                }
@@ -10312,7 +10312,7 @@ namespace math_expr
                return synthesize_expression<binary_node_t,2>(operation, branch);
          }
 
-         inline expression_node_ptr operator() (const details::operator_type& operation, expression_node_ptr (&branch)[3])
+         inline expression_node_ptr operator() (const core::operators::operator_type& operation, expression_node_ptr (&branch)[3])
          {
             if (
                  (0 == branch[0]) ||
@@ -10325,7 +10325,7 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR253 - Invalid branches operator '" + details::to_str(operation) + "'",
+                  "ERR253 - Invalid branches operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -10335,7 +10335,7 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR254 - Invalid branches for string operator '" + details::to_str(operation) + "'",
+                  "ERR254 - Invalid branches for string operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -10348,18 +10348,18 @@ namespace math_expr
                return synthesize_expression<trinary_node_t,3>(operation, branch);
          }
 
-         inline expression_node_ptr operator() (const details::operator_type& operation, expression_node_ptr (&branch)[4])
+         inline expression_node_ptr operator() (const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
          {
             return synthesize_expression<quaternary_node_t,4>(operation,branch);
          }
 
-         inline expression_node_ptr operator() (const details::operator_type& operation, expression_node_ptr b0)
+         inline expression_node_ptr operator() (const core::operators::operator_type& operation, expression_node_ptr b0)
          {
             expression_node_ptr branch[1] = { b0 };
             return (*this)(operation,branch);
          }
 
-         inline expression_node_ptr operator() (const details::operator_type& operation, expression_node_ptr& b0, expression_node_ptr& b1)
+         inline expression_node_ptr operator() (const core::operators::operator_type& operation, expression_node_ptr& b0, expression_node_ptr& b1)
          {
             expression_node_ptr result = error_node();
 
@@ -11063,48 +11063,48 @@ namespace math_expr
          }
 
          #define unary_opr_switch_statements             \
-         case_stmt(details::operator_type::abs   , details::abs_op  ) \
-         case_stmt(details::operator_type::acos  , details::acos_op ) \
-         case_stmt(details::operator_type::acosh , details::acosh_op) \
-         case_stmt(details::operator_type::asin  , details::asin_op ) \
-         case_stmt(details::operator_type::asinh , details::asinh_op) \
-         case_stmt(details::operator_type::atan  , details::atan_op ) \
-         case_stmt(details::operator_type::atanh , details::atanh_op) \
-         case_stmt(details::operator_type::ceil  , details::ceil_op ) \
-         case_stmt(details::operator_type::cos   , details::cos_op  ) \
-         case_stmt(details::operator_type::cosh  , details::cosh_op ) \
-         case_stmt(details::operator_type::exp   , details::exp_op  ) \
-         case_stmt(details::operator_type::expm1 , details::expm1_op) \
-         case_stmt(details::operator_type::floor , details::floor_op) \
-         case_stmt(details::operator_type::log   , details::log_op  ) \
-         case_stmt(details::operator_type::log10 , details::log10_op) \
-         case_stmt(details::operator_type::log2  , details::log2_op ) \
-         case_stmt(details::operator_type::log1p , details::log1p_op) \
-         case_stmt(details::operator_type::neg   , details::neg_op  ) \
-         case_stmt(details::operator_type::pos   , details::pos_op  ) \
-         case_stmt(details::operator_type::round , details::round_op) \
-         case_stmt(details::operator_type::sin   , details::sin_op  ) \
-         case_stmt(details::operator_type::sinc  , details::sinc_op ) \
-         case_stmt(details::operator_type::sinh  , details::sinh_op ) \
-         case_stmt(details::operator_type::sqrt  , details::sqrt_op ) \
-         case_stmt(details::operator_type::tan   , details::tan_op  ) \
-         case_stmt(details::operator_type::tanh  , details::tanh_op ) \
-         case_stmt(details::operator_type::cot   , details::cot_op  ) \
-         case_stmt(details::operator_type::sec   , details::sec_op  ) \
-         case_stmt(details::operator_type::csc   , details::csc_op  ) \
-         case_stmt(details::operator_type::r2d   , details::r2d_op  ) \
-         case_stmt(details::operator_type::d2r   , details::d2r_op  ) \
-         case_stmt(details::operator_type::d2g   , details::d2g_op  ) \
-         case_stmt(details::operator_type::g2d   , details::g2d_op  ) \
-         case_stmt(details::operator_type::notl  , details::notl_op ) \
-         case_stmt(details::operator_type::sgn   , details::sgn_op  ) \
-         case_stmt(details::operator_type::erf   , details::erf_op  ) \
-         case_stmt(details::operator_type::erfc  , details::erfc_op ) \
-         case_stmt(details::operator_type::ncdf  , details::ncdf_op ) \
-         case_stmt(details::operator_type::frac  , details::frac_op ) \
-         case_stmt(details::operator_type::trunc , details::trunc_op) \
+         case_stmt(core::operators::operator_type::abs   , details::abs_op  ) \
+         case_stmt(core::operators::operator_type::acos  , details::acos_op ) \
+         case_stmt(core::operators::operator_type::acosh , details::acosh_op) \
+         case_stmt(core::operators::operator_type::asin  , details::asin_op ) \
+         case_stmt(core::operators::operator_type::asinh , details::asinh_op) \
+         case_stmt(core::operators::operator_type::atan  , details::atan_op ) \
+         case_stmt(core::operators::operator_type::atanh , details::atanh_op) \
+         case_stmt(core::operators::operator_type::ceil  , details::ceil_op ) \
+         case_stmt(core::operators::operator_type::cos   , details::cos_op  ) \
+         case_stmt(core::operators::operator_type::cosh  , details::cosh_op ) \
+         case_stmt(core::operators::operator_type::exp   , details::exp_op  ) \
+         case_stmt(core::operators::operator_type::expm1 , details::expm1_op) \
+         case_stmt(core::operators::operator_type::floor , details::floor_op) \
+         case_stmt(core::operators::operator_type::log   , details::log_op  ) \
+         case_stmt(core::operators::operator_type::log10 , details::log10_op) \
+         case_stmt(core::operators::operator_type::log2  , details::log2_op ) \
+         case_stmt(core::operators::operator_type::log1p , details::log1p_op) \
+         case_stmt(core::operators::operator_type::neg   , details::neg_op  ) \
+         case_stmt(core::operators::operator_type::pos   , details::pos_op  ) \
+         case_stmt(core::operators::operator_type::round , details::round_op) \
+         case_stmt(core::operators::operator_type::sin   , details::sin_op  ) \
+         case_stmt(core::operators::operator_type::sinc  , details::sinc_op ) \
+         case_stmt(core::operators::operator_type::sinh  , details::sinh_op ) \
+         case_stmt(core::operators::operator_type::sqrt  , details::sqrt_op ) \
+         case_stmt(core::operators::operator_type::tan   , details::tan_op  ) \
+         case_stmt(core::operators::operator_type::tanh  , details::tanh_op ) \
+         case_stmt(core::operators::operator_type::cot   , details::cot_op  ) \
+         case_stmt(core::operators::operator_type::sec   , details::sec_op  ) \
+         case_stmt(core::operators::operator_type::csc   , details::csc_op  ) \
+         case_stmt(core::operators::operator_type::r2d   , details::r2d_op  ) \
+         case_stmt(core::operators::operator_type::d2r   , details::d2r_op  ) \
+         case_stmt(core::operators::operator_type::d2g   , details::d2g_op  ) \
+         case_stmt(core::operators::operator_type::g2d   , details::g2d_op  ) \
+         case_stmt(core::operators::operator_type::notl  , details::notl_op ) \
+         case_stmt(core::operators::operator_type::sgn   , details::sgn_op  ) \
+         case_stmt(core::operators::operator_type::erf   , details::erf_op  ) \
+         case_stmt(core::operators::operator_type::erfc  , details::erfc_op ) \
+         case_stmt(core::operators::operator_type::ncdf  , details::ncdf_op ) \
+         case_stmt(core::operators::operator_type::frac  , details::frac_op ) \
+         case_stmt(core::operators::operator_type::trunc , details::trunc_op) \
 
-         inline expression_node_ptr synthesize_uv_expression(const details::operator_type& operation,
+         inline expression_node_ptr synthesize_uv_expression(const core::operators::operator_type& operation,
                                                              expression_node_ptr (&branch)[1])
          {
             T& v = static_cast<details::variable_node<T>*>(branch[0])->ref();
@@ -11121,7 +11121,7 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr synthesize_uvec_expression(const details::operator_type& operation,
+         inline expression_node_ptr synthesize_uvec_expression(const core::operators::operator_type& operation,
                                                                expression_node_ptr (&branch)[1])
          {
             switch (operation)
@@ -11137,7 +11137,7 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr synthesize_unary_expression(const details::operator_type& operation,
+         inline expression_node_ptr synthesize_unary_expression(const core::operators::operator_type& operation,
                                                                 expression_node_ptr (&branch)[1])
          {
             switch (operation)
@@ -11152,7 +11152,7 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr const_optimise_sf3(const details::operator_type& operation,
+         inline expression_node_ptr const_optimise_sf3(const core::operators::operator_type& operation,
                                                        expression_node_ptr (&branch)[3])
          {
             expression_node_ptr temp_node = error_node();
@@ -11160,7 +11160,7 @@ namespace math_expr
             switch (operation)
             {
                #define case_stmt(op)                                                        \
-               case details::operator_type::sf##op : temp_node = node_allocator_->                       \
+               case core::operators::operator_type::sf##op : temp_node = node_allocator_->                       \
                              allocate<details::sf3_node<Type,details::sf##op##_op<Type> > > \
                                 (operation, branch);                                        \
                              break;                                                         \
@@ -11190,7 +11190,7 @@ namespace math_expr
             return node_allocator_->allocate<literal_node_t>(v);
          }
 
-         inline expression_node_ptr varnode_optimise_sf3(const details::operator_type& operation, expression_node_ptr (&branch)[3])
+         inline expression_node_ptr varnode_optimise_sf3(const core::operators::operator_type& operation, expression_node_ptr (&branch)[3])
          {
             typedef details::variable_node<Type>* variable_ptr;
 
@@ -11201,7 +11201,7 @@ namespace math_expr
             switch (operation)
             {
                #define case_stmt(op)                                                                \
-               case details::operator_type::sf##op : return node_allocator_->                                    \
+               case core::operators::operator_type::sf##op : return node_allocator_->                                    \
                              allocate_rrr<details::sf3_var_node<Type,details::sf##op##_op<Type> > > \
                                 (v0, v1, v2);                                                       \
 
@@ -11222,7 +11222,7 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr special_function(const details::operator_type& operation, expression_node_ptr (&branch)[3])
+         inline expression_node_ptr special_function(const core::operators::operator_type& operation, expression_node_ptr (&branch)[3])
          {
             if (!all_nodes_valid(branch))
                return error_node();
@@ -11235,7 +11235,7 @@ namespace math_expr
                switch (operation)
                {
                   #define case_stmt(op)                                                        \
-                  case details::operator_type::sf##op : return node_allocator_->                            \
+                  case core::operators::operator_type::sf##op : return node_allocator_->                            \
                                 allocate<details::sf3_node<Type,details::sf##op##_op<Type> > > \
                                    (operation, branch);                                        \
 
@@ -11257,14 +11257,14 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr const_optimise_sf4(const details::operator_type& operation, expression_node_ptr (&branch)[4])
+         inline expression_node_ptr const_optimise_sf4(const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
          {
             expression_node_ptr temp_node = error_node();
 
             switch (operation)
             {
                #define case_stmt(op)                                                                    \
-               case details::operator_type::sf##op : temp_node = node_allocator_->                                   \
+               case core::operators::operator_type::sf##op : temp_node = node_allocator_->                                   \
                                          allocate<details::sf4_node<Type,details::sf##op##_op<Type> > > \
                                             (operation, branch);                                        \
                                         break;                                                          \
@@ -11295,7 +11295,7 @@ namespace math_expr
             return node_allocator_->allocate<literal_node_t>(v);
          }
 
-         inline expression_node_ptr varnode_optimise_sf4(const details::operator_type& operation, expression_node_ptr (&branch)[4])
+         inline expression_node_ptr varnode_optimise_sf4(const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
          {
             typedef details::variable_node<Type>* variable_ptr;
 
@@ -11307,7 +11307,7 @@ namespace math_expr
             switch (operation)
             {
                #define case_stmt(op)                                                                 \
-               case details::operator_type::sf##op : return node_allocator_->                                     \
+               case core::operators::operator_type::sf##op : return node_allocator_->                                     \
                              allocate_rrrr<details::sf4_var_node<Type,details::sf##op##_op<Type> > > \
                                 (v0, v1, v2, v3);                                                    \
 
@@ -11329,7 +11329,7 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr special_function(const details::operator_type& operation, expression_node_ptr (&branch)[4])
+         inline expression_node_ptr special_function(const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
          {
             if (!all_nodes_valid(branch))
                return error_node();
@@ -11340,7 +11340,7 @@ namespace math_expr
             switch (operation)
             {
                #define case_stmt(op)                                                        \
-               case details::operator_type::sf##op : return node_allocator_->                            \
+               case core::operators::operator_type::sf##op : return node_allocator_->                            \
                              allocate<details::sf4_node<Type,details::sf##op##_op<Type> > > \
                                 (operation, branch);                                        \
 
@@ -11364,7 +11364,7 @@ namespace math_expr
 
          template <typename Allocator,
                    template <typename, typename> class Sequence>
-         inline expression_node_ptr const_optimise_varargfunc(const details::operator_type& operation, Sequence<expression_node_ptr,Allocator>& arg_list)
+         inline expression_node_ptr const_optimise_varargfunc(const core::operators::operator_type& operation, Sequence<expression_node_ptr,Allocator>& arg_list)
          {
             expression_node_ptr temp_node = error_node();
 
@@ -11376,14 +11376,14 @@ namespace math_expr
                                             (arg_list);                                   \
                           break;                                                          \
 
-               case_stmt(details::operator_type::sum   , details::vararg_add_op  )
-               case_stmt(details::operator_type::prod  , details::vararg_mul_op  )
-               case_stmt(details::operator_type::avg   , details::vararg_avg_op  )
-               case_stmt(details::operator_type::min   , details::vararg_min_op  )
-               case_stmt(details::operator_type::max   , details::vararg_max_op  )
-               case_stmt(details::operator_type::mand  , details::vararg_mand_op )
-               case_stmt(details::operator_type::mor   , details::vararg_mor_op  )
-               case_stmt(details::operator_type::multi , details::vararg_multi_op)
+               case_stmt(core::operators::operator_type::sum   , details::vararg_add_op  )
+               case_stmt(core::operators::operator_type::prod  , details::vararg_mul_op  )
+               case_stmt(core::operators::operator_type::avg   , details::vararg_avg_op  )
+               case_stmt(core::operators::operator_type::min   , details::vararg_min_op  )
+               case_stmt(core::operators::operator_type::max   , details::vararg_max_op  )
+               case_stmt(core::operators::operator_type::mand  , details::vararg_mand_op )
+               case_stmt(core::operators::operator_type::mor   , details::vararg_mor_op  )
+               case_stmt(core::operators::operator_type::multi , details::vararg_multi_op)
                #undef case_stmt
                default : return error_node();
             }
@@ -11395,20 +11395,20 @@ namespace math_expr
             return node_allocator_->allocate<literal_node_t>(v);
          }
 
-         inline bool special_one_parameter_vararg(const details::operator_type& operation) const
+         inline bool special_one_parameter_vararg(const core::operators::operator_type& operation) const
          {
             return (
-                     (details::operator_type::sum  == operation) ||
-                     (details::operator_type::prod == operation) ||
-                     (details::operator_type::avg  == operation) ||
-                     (details::operator_type::min  == operation) ||
-                     (details::operator_type::max  == operation)
+                     (core::operators::operator_type::sum  == operation) ||
+                     (core::operators::operator_type::prod == operation) ||
+                     (core::operators::operator_type::avg  == operation) ||
+                     (core::operators::operator_type::min  == operation) ||
+                     (core::operators::operator_type::max  == operation)
                    );
          }
 
          template <typename Allocator,
                    template <typename, typename> class Sequence>
-         inline expression_node_ptr varnode_optimise_varargfunc(const details::operator_type& operation,
+         inline expression_node_ptr varnode_optimise_varargfunc(const core::operators::operator_type& operation,
                                                                 Sequence<expression_node_ptr,Allocator>& arg_list)
          {
             switch (operation)
@@ -11417,14 +11417,14 @@ namespace math_expr
                case op0 : return node_allocator_->                                          \
                              allocate<details::vararg_varnode<Type,op1<Type> > >(arg_list); \
 
-               case_stmt(details::operator_type::sum   , details::vararg_add_op  )
-               case_stmt(details::operator_type::prod  , details::vararg_mul_op  )
-               case_stmt(details::operator_type::avg   , details::vararg_avg_op  )
-               case_stmt(details::operator_type::min   , details::vararg_min_op  )
-               case_stmt(details::operator_type::max   , details::vararg_max_op  )
-               case_stmt(details::operator_type::mand  , details::vararg_mand_op )
-               case_stmt(details::operator_type::mor   , details::vararg_mor_op  )
-               case_stmt(details::operator_type::multi , details::vararg_multi_op)
+               case_stmt(core::operators::operator_type::sum   , details::vararg_add_op  )
+               case_stmt(core::operators::operator_type::prod  , details::vararg_mul_op  )
+               case_stmt(core::operators::operator_type::avg   , details::vararg_avg_op  )
+               case_stmt(core::operators::operator_type::min   , details::vararg_min_op  )
+               case_stmt(core::operators::operator_type::max   , details::vararg_max_op  )
+               case_stmt(core::operators::operator_type::mand  , details::vararg_mand_op )
+               case_stmt(core::operators::operator_type::mor   , details::vararg_mor_op  )
+               case_stmt(core::operators::operator_type::multi , details::vararg_multi_op)
                #undef case_stmt
                default : return error_node();
             }
@@ -11432,7 +11432,7 @@ namespace math_expr
 
          template <typename Allocator,
                    template <typename, typename> class Sequence>
-         inline expression_node_ptr vectorize_func(const details::operator_type& operation,
+         inline expression_node_ptr vectorize_func(const core::operators::operator_type& operation,
                                                    Sequence<expression_node_ptr,Allocator>& arg_list)
          {
             if (1 == arg_list.size())
@@ -11443,11 +11443,11 @@ namespace math_expr
                   case op0 : return node_allocator_->                                             \
                                 allocate<details::vectorize_node<Type,op1<Type> > >(arg_list[0]); \
 
-                  case_stmt(details::operator_type::sum  , details::vec_add_op)
-                  case_stmt(details::operator_type::prod , details::vec_mul_op)
-                  case_stmt(details::operator_type::avg  , details::vec_avg_op)
-                  case_stmt(details::operator_type::min  , details::vec_min_op)
-                  case_stmt(details::operator_type::max  , details::vec_max_op)
+                  case_stmt(core::operators::operator_type::sum  , details::vec_add_op)
+                  case_stmt(core::operators::operator_type::prod , details::vec_mul_op)
+                  case_stmt(core::operators::operator_type::avg  , details::vec_avg_op)
+                  case_stmt(core::operators::operator_type::min  , details::vec_min_op)
+                  case_stmt(core::operators::operator_type::max  , details::vec_max_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -11458,7 +11458,7 @@ namespace math_expr
 
          template <typename Allocator,
                    template <typename, typename> class Sequence>
-         inline expression_node_ptr vararg_function(const details::operator_type& operation,
+         inline expression_node_ptr vararg_function(const core::operators::operator_type& operation,
                                                     Sequence<expression_node_ptr,Allocator>& arg_list)
          {
             if (!all_nodes_valid(arg_list))
@@ -11477,7 +11477,7 @@ namespace math_expr
                return varnode_optimise_varargfunc(operation,arg_list);
 
             #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            if (details::operator_type::smulti == operation)
+            if (core::operators::operator_type::smulti == operation)
             {
                expression_node_ptr result = node_allocator_->
                  allocate<details::string_nodes::str_vararg_node<Type,details::vararg_multi_op<Type> > >(arg_list);
@@ -11506,14 +11506,14 @@ namespace math_expr
                                 allocate<details::vararg_node<Type,op1<Type> > >(arg_list); \
                              break;                                                         \
 
-                  case_stmt(details::operator_type::sum   , details::vararg_add_op  )
-                  case_stmt(details::operator_type::prod  , details::vararg_mul_op  )
-                  case_stmt(details::operator_type::avg   , details::vararg_avg_op  )
-                  case_stmt(details::operator_type::min   , details::vararg_min_op  )
-                  case_stmt(details::operator_type::max   , details::vararg_max_op  )
-                  case_stmt(details::operator_type::mand  , details::vararg_mand_op )
-                  case_stmt(details::operator_type::mor   , details::vararg_mor_op  )
-                  case_stmt(details::operator_type::multi , details::vararg_multi_op)
+                  case_stmt(core::operators::operator_type::sum   , details::vararg_add_op  )
+                  case_stmt(core::operators::operator_type::prod  , details::vararg_mul_op  )
+                  case_stmt(core::operators::operator_type::avg   , details::vararg_avg_op  )
+                  case_stmt(core::operators::operator_type::min   , details::vararg_min_op  )
+                  case_stmt(core::operators::operator_type::max   , details::vararg_max_op  )
+                  case_stmt(core::operators::operator_type::mand  , details::vararg_mand_op )
+                  case_stmt(core::operators::operator_type::mor   , details::vararg_mor_op  )
+                  case_stmt(core::operators::operator_type::multi , details::vararg_multi_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -11867,7 +11867,7 @@ namespace math_expr
 
             if (details::is_constant_node(index))
             {
-               const std::size_t vec_index = static_cast<std::size_t>(details::numeric::to_int64(index->value()));
+               const std::size_t vec_index = static_cast<std::size_t>(core::numeric::to_int64(index->value()));
 
                details::free_node(*node_allocator_,index);
 
@@ -11876,8 +11876,8 @@ namespace math_expr
                   parser_->set_error(parser_error::make_error(
                      parser_error::e_parser,
                      token_t(),
-                     "ERR269 - Index of " + details::to_str(vec_index) + " out of range for "
-                     "vector '" + symbol + "' of size " + details::to_str(vector_base->size()),
+                     "ERR269 - Index of " + core::to_str(vec_index) + " out of range for "
+                     "vector '" + symbol + "' of size " + core::to_str(vector_base->size()),
                      math_expr_error_location));
 
                   details::free_node(*node_allocator_,vec_node);
@@ -12180,7 +12180,7 @@ namespace math_expr
             return false;
          }
 
-         inline expression_node_ptr synthesize_assignment_expression(const details::operator_type& operation, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_assignment_expression(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
          {
             if (assign_immutable_symbol(branch[0]))
             {
@@ -12252,14 +12252,14 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR275 - Invalid branches for assignment operator '" + details::to_str(operation) + "'",
+                  "ERR275 - Invalid branches for assignment operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
             }
          }
 
-         inline expression_node_ptr synthesize_assignment_operation_expression(const details::operator_type& operation,
+         inline expression_node_ptr synthesize_assignment_operation_expression(const core::operators::operator_type& operation,
                                                                                expression_node_ptr (&branch)[2])
          {
             if (assign_immutable_symbol(branch[0]))
@@ -12283,11 +12283,11 @@ namespace math_expr
                              node_name = "assignment_op_node";                                                \
                              break;                                                                           \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12305,11 +12305,11 @@ namespace math_expr
                              node_name = "assignment_vec_elem_op_node";                                                 \
                              break;                                                                                     \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12327,11 +12327,11 @@ namespace math_expr
                              node_name = "assignment_vec_elem_op_rtc_node";                                                 \
                              break;                                                                                         \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12349,11 +12349,11 @@ namespace math_expr
                              node_name = "assignment_vec_celem_op_rtc_node";                                                 \
                              break;                                                                                          \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12371,11 +12371,11 @@ namespace math_expr
                              node_name = "assignment_rebasevec_elem_op_node";                                                 \
                              break;                                                                                           \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12393,11 +12393,11 @@ namespace math_expr
                              node_name = "assignment_rebasevec_celem_op_node";                                                 \
                              break;                                                                                            \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12415,11 +12415,11 @@ namespace math_expr
                              node_name = "assignment_rebasevec_elem_op_rtc_node";                                                 \
                              break;                                                                                               \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12437,11 +12437,11 @@ namespace math_expr
                              node_name = "assignment_rebasevec_celem_op_rtc_node";                                                 \
                              break;                                                                                                \
 
-                  case_stmt(details::operator_type::addass , details::add_op)
-                  case_stmt(details::operator_type::subass , details::sub_op)
-                  case_stmt(details::operator_type::mulass , details::mul_op)
-                  case_stmt(details::operator_type::divass , details::div_op)
-                  case_stmt(details::operator_type::modass , details::mod_op)
+                  case_stmt(core::operators::operator_type::addass , details::add_op)
+                  case_stmt(core::operators::operator_type::subass , details::sub_op)
+                  case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                  case_stmt(core::operators::operator_type::divass , details::div_op)
+                  case_stmt(core::operators::operator_type::modass , details::mod_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12461,11 +12461,11 @@ namespace math_expr
                                 node_name = "assignment_rebasevec_celem_op_node";                                       \
                                 break;                                                                                  \
 
-                     case_stmt(details::operator_type::addass , details::add_op)
-                     case_stmt(details::operator_type::subass , details::sub_op)
-                     case_stmt(details::operator_type::mulass , details::mul_op)
-                     case_stmt(details::operator_type::divass , details::div_op)
-                     case_stmt(details::operator_type::modass , details::mod_op)
+                     case_stmt(core::operators::operator_type::addass , details::add_op)
+                     case_stmt(core::operators::operator_type::subass , details::sub_op)
+                     case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                     case_stmt(core::operators::operator_type::divass , details::div_op)
+                     case_stmt(core::operators::operator_type::modass , details::mod_op)
                      #undef case_stmt
                      default : return error_node();
                   }
@@ -12481,11 +12481,11 @@ namespace math_expr
                                 node_name = "assignment_vec_op_node";                                                \
                                 break;                                                                               \
 
-                     case_stmt(details::operator_type::addass , details::add_op)
-                     case_stmt(details::operator_type::subass , details::sub_op)
-                     case_stmt(details::operator_type::mulass , details::mul_op)
-                     case_stmt(details::operator_type::divass , details::div_op)
-                     case_stmt(details::operator_type::modass , details::mod_op)
+                     case_stmt(core::operators::operator_type::addass , details::add_op)
+                     case_stmt(core::operators::operator_type::subass , details::sub_op)
+                     case_stmt(core::operators::operator_type::mulass , details::mul_op)
+                     case_stmt(core::operators::operator_type::divass , details::div_op)
+                     case_stmt(core::operators::operator_type::modass , details::mod_op)
                      #undef case_stmt
                      default : return error_node();
                   }
@@ -12493,7 +12493,7 @@ namespace math_expr
             }
             #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (
-                      (details::operator_type::addass == operation) &&
+                      (core::operators::operator_type::addass == operation) &&
                       details::is_string_node(branch[0])
                     )
             {
@@ -12510,7 +12510,7 @@ namespace math_expr
                parser_->set_error(parser_error::make_error(
                   parser_error::e_syntax,
                   parser_->current_state().token,
-                  "ERR276 - Invalid branches for assignment operator '" + details::to_str(operation) + "'",
+                  "ERR276 - Invalid branches for assignment operator '" + core::operators::to_str(operation) + "'",
                   math_expr_error_location));
 
                return error_node();
@@ -12531,26 +12531,26 @@ namespace math_expr
             return error_node();
          }
 
-         inline expression_node_ptr synthesize_veceqineqlogic_operation_expression(const details::operator_type& operation,
+         inline expression_node_ptr synthesize_veceqineqlogic_operation_expression(const core::operators::operator_type& operation,
                                                                                    expression_node_ptr (&branch)[2])
          {
             const bool is_b0_ivec = details::is_ivector_node(branch[0]);
             const bool is_b1_ivec = details::is_ivector_node(branch[1]);
 
             #define batch_eqineq_logic_case                 \
-            case_stmt(details::operator_type::lt    , details::lt_op   ) \
-            case_stmt(details::operator_type::lte   , details::lte_op  ) \
-            case_stmt(details::operator_type::gt    , details::gt_op   ) \
-            case_stmt(details::operator_type::gte   , details::gte_op  ) \
-            case_stmt(details::operator_type::eq    , details::eq_op   ) \
-            case_stmt(details::operator_type::ne    , details::ne_op   ) \
-            case_stmt(details::operator_type::equal , details::equal_op) \
-            case_stmt(details::operator_type::logical_and   , details::and_op  ) \
-            case_stmt(details::operator_type::nand  , details::nand_op ) \
-            case_stmt(details::operator_type::logical_or    , details::or_op   ) \
-            case_stmt(details::operator_type::nor   , details::nor_op  ) \
-            case_stmt(details::operator_type::logical_xor   , details::xor_op  ) \
-            case_stmt(details::operator_type::xnor  , details::xnor_op ) \
+            case_stmt(core::operators::operator_type::lt    , details::lt_op   ) \
+            case_stmt(core::operators::operator_type::lte   , details::lte_op  ) \
+            case_stmt(core::operators::operator_type::gt    , details::gt_op   ) \
+            case_stmt(core::operators::operator_type::gte   , details::gte_op  ) \
+            case_stmt(core::operators::operator_type::eq    , details::eq_op   ) \
+            case_stmt(core::operators::operator_type::ne    , details::ne_op   ) \
+            case_stmt(core::operators::operator_type::equal , details::equal_op) \
+            case_stmt(core::operators::operator_type::logical_and   , details::and_op  ) \
+            case_stmt(core::operators::operator_type::nand  , details::nand_op ) \
+            case_stmt(core::operators::operator_type::logical_or    , details::or_op   ) \
+            case_stmt(core::operators::operator_type::nor   , details::nor_op  ) \
+            case_stmt(core::operators::operator_type::logical_xor   , details::xor_op  ) \
+            case_stmt(core::operators::operator_type::xnor  , details::xnor_op ) \
 
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown";
@@ -12623,18 +12623,18 @@ namespace math_expr
             #undef batch_eqineq_logic_case
          }
 
-         inline expression_node_ptr synthesize_vecarithmetic_operation_expression(const details::operator_type& operation,
+         inline expression_node_ptr synthesize_vecarithmetic_operation_expression(const core::operators::operator_type& operation,
                                                                                   expression_node_ptr (&branch)[2])
          {
             const bool is_b0_ivec = details::is_ivector_node(branch[0]);
             const bool is_b1_ivec = details::is_ivector_node(branch[1]);
 
             #define vector_ops                          \
-            case_stmt(details::operator_type::add , details::add_op) \
-            case_stmt(details::operator_type::sub , details::sub_op) \
-            case_stmt(details::operator_type::mul , details::mul_op) \
-            case_stmt(details::operator_type::div , details::div_op) \
-            case_stmt(details::operator_type::mod , details::mod_op) \
+            case_stmt(core::operators::operator_type::add , details::add_op) \
+            case_stmt(core::operators::operator_type::sub , details::sub_op) \
+            case_stmt(core::operators::operator_type::mul , details::mul_op) \
+            case_stmt(core::operators::operator_type::div , details::div_op) \
+            case_stmt(core::operators::operator_type::mod , details::mod_op) \
 
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown";
@@ -12651,7 +12651,7 @@ namespace math_expr
                              break;                                                                              \
 
                   vector_ops
-                  case_stmt(details::operator_type::pow,details:: pow_op)
+                  case_stmt(core::operators::operator_type::pow,details:: pow_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12668,7 +12668,7 @@ namespace math_expr
                              break;                                                                              \
 
                   vector_ops
-                  case_stmt(details::operator_type::pow,details:: pow_op)
+                  case_stmt(core::operators::operator_type::pow,details:: pow_op)
                   #undef case_stmt
                   default : return error_node();
                }
@@ -12790,9 +12790,9 @@ namespace math_expr
             return error_node();
          }
 
-         inline expression_node_ptr synthesize_shortcircuit_expression(const details::operator_type& operation, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_shortcircuit_expression(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
          {
-            if constexpr (::math_expr::config::build_options::kDisableScAndOr)
+            if constexpr (::math_expr::core::build_options::kDisableScAndOr)
             {
                return error_node();
             }
@@ -12802,12 +12802,12 @@ namespace math_expr
             if (details::is_constant_node(branch[0]))
             {
                if (
-                    (details::operator_type::scand == operation) &&
+                    (core::operators::operator_type::scand == operation) &&
                     std::equal_to<T>()(T(0),branch[0]->value())
                   )
                   result = node_allocator_->allocate_c<literal_node_t>(T(0));
                else if (
-                         (details::operator_type::scor == operation) &&
+                         (core::operators::operator_type::scor == operation) &&
                          std::not_equal_to<T>()(T(0),branch[0]->value())
                        )
                   result = node_allocator_->allocate_c<literal_node_t>(T(1));
@@ -12816,12 +12816,12 @@ namespace math_expr
             if (details::is_constant_node(branch[1]) && (0 == result))
             {
                if (
-                    (details::operator_type::scand == operation) &&
+                    (core::operators::operator_type::scand == operation) &&
                     std::equal_to<T>()(T(0),branch[1]->value())
                   )
                   result = node_allocator_->allocate_c<literal_node_t>(T(0));
                else if (
-                         (details::operator_type::scor == operation) &&
+                         (core::operators::operator_type::scor == operation) &&
                          std::not_equal_to<T>()(T(0),branch[1]->value())
                        )
                   result = node_allocator_->allocate_c<literal_node_t>(T(1));
@@ -12834,11 +12834,11 @@ namespace math_expr
 
                return result;
             }
-            else if (details::operator_type::scand == operation)
+            else if (core::operators::operator_type::scand == operation)
             {
                return synthesize_expression<scand_node_t,2>(operation, branch);
             }
-            else if (details::operator_type::scor == operation)
+            else if (core::operators::operator_type::scor == operation)
             {
                return synthesize_expression<scor_node_t,2>(operation, branch);
             }
@@ -12847,26 +12847,26 @@ namespace math_expr
          }
 
          #define basic_opr_switch_statements         \
-         case_stmt(details::operator_type::add , details::add_op) \
-         case_stmt(details::operator_type::sub , details::sub_op) \
-         case_stmt(details::operator_type::mul , details::mul_op) \
-         case_stmt(details::operator_type::div , details::div_op) \
-         case_stmt(details::operator_type::mod , details::mod_op) \
-         case_stmt(details::operator_type::pow , details::pow_op) \
+         case_stmt(core::operators::operator_type::add , details::add_op) \
+         case_stmt(core::operators::operator_type::sub , details::sub_op) \
+         case_stmt(core::operators::operator_type::mul , details::mul_op) \
+         case_stmt(core::operators::operator_type::div , details::div_op) \
+         case_stmt(core::operators::operator_type::mod , details::mod_op) \
+         case_stmt(core::operators::operator_type::pow , details::pow_op) \
 
          #define extended_opr_switch_statements        \
-         case_stmt(details::operator_type::lt   , details::lt_op  ) \
-         case_stmt(details::operator_type::lte  , details::lte_op ) \
-         case_stmt(details::operator_type::gt   , details::gt_op  ) \
-         case_stmt(details::operator_type::gte  , details::gte_op ) \
-         case_stmt(details::operator_type::eq   , details::eq_op  ) \
-         case_stmt(details::operator_type::ne   , details::ne_op  ) \
-         case_stmt(details::operator_type::logical_and  , details::and_op ) \
-         case_stmt(details::operator_type::nand , details::nand_op) \
-         case_stmt(details::operator_type::logical_or   , details::or_op  ) \
-         case_stmt(details::operator_type::nor  , details::nor_op ) \
-         case_stmt(details::operator_type::logical_xor  , details::xor_op ) \
-         case_stmt(details::operator_type::xnor , details::xnor_op) \
+         case_stmt(core::operators::operator_type::lt   , details::lt_op  ) \
+         case_stmt(core::operators::operator_type::lte  , details::lte_op ) \
+         case_stmt(core::operators::operator_type::gt   , details::gt_op  ) \
+         case_stmt(core::operators::operator_type::gte  , details::gte_op ) \
+         case_stmt(core::operators::operator_type::eq   , details::eq_op  ) \
+         case_stmt(core::operators::operator_type::ne   , details::ne_op  ) \
+         case_stmt(core::operators::operator_type::logical_and  , details::and_op ) \
+         case_stmt(core::operators::operator_type::nand , details::nand_op) \
+         case_stmt(core::operators::operator_type::logical_or   , details::or_op  ) \
+         case_stmt(core::operators::operator_type::nor  , details::nor_op ) \
+         case_stmt(core::operators::operator_type::logical_xor  , details::xor_op ) \
+         case_stmt(core::operators::operator_type::xnor , details::xnor_op) \
 
          #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
          /**
@@ -12886,7 +12886,7 @@ namespace math_expr
             {
                #define case_stmt(cp)                                                     \
                case cp : return node_allocator_->                                        \
-                            allocate<IPowNode<T,details::numeric::fast_exp<T,cp> > >(v); \
+                            allocate<IPowNode<T,core::numeric::fast_exp<T,cp> > >(v); \
 
                case_stmt( 1) case_stmt( 2) case_stmt( 3) case_stmt( 4)
                case_stmt( 5) case_stmt( 6) case_stmt( 7) case_stmt( 8)
@@ -12911,7 +12911,7 @@ namespace math_expr
          inline expression_node_ptr cardinal_pow_optimisation(const T& v, const T& c)
          {
             const bool not_recipricol = (c >= T(0));
-            const unsigned int p = static_cast<unsigned int>(details::numeric::to_int32(details::numeric::abs(c)));
+            const unsigned int p = static_cast<unsigned int>(core::numeric::to_int32(core::numeric::abs(c)));
 
             if (0 == p)
                return node_allocator_->allocate_c<literal_node_t>(T(1));
@@ -12929,16 +12929,16 @@ namespace math_expr
             }
          }
 
-         inline bool cardinal_pow_optimisable(const details::operator_type& operation, const T& c) const
+         inline bool cardinal_pow_optimisable(const core::operators::operator_type& operation, const T& c) const
          {
-            return (details::operator_type::pow == operation) && (details::numeric::abs(c) <= T(60)) && details::numeric::is_integer(c);
+            return (core::operators::operator_type::pow == operation) && (core::numeric::abs(c) <= T(60)) && core::numeric::is_integer(c);
          }
 
          inline expression_node_ptr cardinal_pow_optimisation(expression_node_ptr (&branch)[2])
          {
             const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
             const bool not_recipricol = (c >= T(0));
-            const unsigned int p = static_cast<unsigned int>(details::numeric::to_int32(details::numeric::abs(c)));
+            const unsigned int p = static_cast<unsigned int>(core::numeric::to_int32(core::numeric::abs(c)));
 
             node_allocator_->free(branch[1]);
 
@@ -12959,7 +12959,7 @@ namespace math_expr
             return error_node();
          }
 
-         inline bool cardinal_pow_optimisable(const details::operator_type&, const T&)
+         inline bool cardinal_pow_optimisable(const core::operators::operator_type&, const T&)
          {
             return false;
          }
@@ -12973,7 +12973,7 @@ namespace math_expr
          struct synthesize_binary_ext_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const bool left_neg  = is_neg_unary_node(branch[0]);
@@ -12982,10 +12982,10 @@ namespace math_expr
                if (left_neg && right_neg)
                {
                   if (
-                       (details::operator_type::add == operation) ||
-                       (details::operator_type::sub == operation) ||
-                       (details::operator_type::mul == operation) ||
-                       (details::operator_type::div == operation)
+                       (core::operators::operator_type::add == operation) ||
+                       (core::operators::operator_type::sub == operation) ||
+                       (core::operators::operator_type::mul == operation) ||
+                       (core::operators::operator_type::div == operation)
                      )
                   {
                      if (
@@ -13002,13 +13002,13 @@ namespace math_expr
                   switch (operation)
                   {
                                            // -f(x + 1) + -g(y + 1) --> -(f(x + 1) + g(y + 1))
-                     case details::operator_type::add : return expr_gen(details::operator_type::neg,
+                     case core::operators::operator_type::add : return expr_gen(core::operators::operator_type::neg,
                                               expr_gen.node_allocator_->
                                                  template allocate<typename details::binary_ext_node<Type,details::add_op<Type> > >
                                                     (branch[0],branch[1]));
 
                                            // -f(x + 1) - -g(y + 1) --> g(y + 1) - f(x + 1)
-                     case details::operator_type::sub : return expr_gen.node_allocator_->
+                     case core::operators::operator_type::sub : return expr_gen.node_allocator_->
                                               template allocate<typename details::binary_ext_node<Type,details::sub_op<Type> > >
                                                  (branch[1],branch[0]);
 
@@ -13018,10 +13018,10 @@ namespace math_expr
                else if (left_neg && !right_neg)
                {
                   if (
-                       (details::operator_type::add == operation) ||
-                       (details::operator_type::sub == operation) ||
-                       (details::operator_type::mul == operation) ||
-                       (details::operator_type::div == operation)
+                       (core::operators::operator_type::add == operation) ||
+                       (core::operators::operator_type::sub == operation) ||
+                       (core::operators::operator_type::mul == operation) ||
+                       (core::operators::operator_type::div == operation)
                      )
                   {
                      if (!expr_gen.parser_->simplify_unary_negation_branch(branch[0]))
@@ -13034,24 +13034,24 @@ namespace math_expr
                      switch (operation)
                      {
                                               // -f(x + 1) + g(y + 1) --> g(y + 1) - f(x + 1)
-                        case details::operator_type::add : return expr_gen.node_allocator_->
+                        case core::operators::operator_type::add : return expr_gen.node_allocator_->
                                                  template allocate<typename details::binary_ext_node<Type,details::sub_op<Type> > >
                                                    (branch[1], branch[0]);
 
                                               // -f(x + 1) - g(y + 1) --> -(f(x + 1) + g(y + 1))
-                        case details::operator_type::sub : return expr_gen(details::operator_type::neg,
+                        case core::operators::operator_type::sub : return expr_gen(core::operators::operator_type::neg,
                                                  expr_gen.node_allocator_->
                                                     template allocate<typename details::binary_ext_node<Type,details::add_op<Type> > >
                                                        (branch[0], branch[1]));
 
                                               // -f(x + 1) * g(y + 1) --> -(f(x + 1) * g(y + 1))
-                        case details::operator_type::mul : return expr_gen(details::operator_type::neg,
+                        case core::operators::operator_type::mul : return expr_gen(core::operators::operator_type::neg,
                                                  expr_gen.node_allocator_->
                                                     template allocate<typename details::binary_ext_node<Type,details::mul_op<Type> > >
                                                        (branch[0], branch[1]));
 
                                               // -f(x + 1) / g(y + 1) --> -(f(x + 1) / g(y + 1))
-                        case details::operator_type::div : return expr_gen(details::operator_type::neg,
+                        case core::operators::operator_type::div : return expr_gen(core::operators::operator_type::neg,
                                                  expr_gen.node_allocator_->
                                                     template allocate<typename details::binary_ext_node<Type,details::div_op<Type> > >
                                                        (branch[0], branch[1]));
@@ -13063,10 +13063,10 @@ namespace math_expr
                else if (!left_neg && right_neg)
                {
                   if (
-                       (details::operator_type::add == operation) ||
-                       (details::operator_type::sub == operation) ||
-                       (details::operator_type::mul == operation) ||
-                       (details::operator_type::div == operation)
+                       (core::operators::operator_type::add == operation) ||
+                       (core::operators::operator_type::sub == operation) ||
+                       (core::operators::operator_type::mul == operation) ||
+                       (core::operators::operator_type::div == operation)
                      )
                   {
                      if (!expr_gen.parser_->simplify_unary_negation_branch(branch[1]))
@@ -13079,23 +13079,23 @@ namespace math_expr
                      switch (operation)
                      {
                                               // f(x + 1) + -g(y + 1) --> f(x + 1) - g(y + 1)
-                        case details::operator_type::add : return expr_gen.node_allocator_->
+                        case core::operators::operator_type::add : return expr_gen.node_allocator_->
                                                  template allocate<typename details::binary_ext_node<Type,details::sub_op<Type> > >
                                                    (branch[0], branch[1]);
 
                                               // f(x + 1) - - g(y + 1) --> f(x + 1) + g(y + 1)
-                        case details::operator_type::sub : return expr_gen.node_allocator_->
+                        case core::operators::operator_type::sub : return expr_gen.node_allocator_->
                                                  template allocate<typename details::binary_ext_node<Type,details::add_op<Type> > >
                                                    (branch[0], branch[1]);
 
                                               // f(x + 1) * -g(y + 1) --> -(f(x + 1) * g(y + 1))
-                        case details::operator_type::mul : return expr_gen(details::operator_type::neg,
+                        case core::operators::operator_type::mul : return expr_gen(core::operators::operator_type::neg,
                                                  expr_gen.node_allocator_->
                                                     template allocate<typename details::binary_ext_node<Type,details::mul_op<Type> > >
                                                        (branch[0], branch[1]));
 
                                               // f(x + 1) / -g(y + 1) --> -(f(x + 1) / g(y + 1))
-                        case details::operator_type::div : return expr_gen(details::operator_type::neg,
+                        case core::operators::operator_type::div : return expr_gen(core::operators::operator_type::neg,
                                                  expr_gen.node_allocator_->
                                                     template allocate<typename details::binary_ext_node<Type,details::div_op<Type> > >
                                                        (branch[0], branch[1]));
@@ -13123,7 +13123,7 @@ namespace math_expr
          struct synthesize_vob_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -13146,17 +13146,17 @@ namespace math_expr
                #endif
 
                if (
-                    (details::operator_type::mul == operation) ||
-                    (details::operator_type::div == operation)
+                    (core::operators::operator_type::mul == operation) ||
+                    (core::operators::operator_type::div == operation)
                   )
                {
                   if (details::is_uv_node(branch[1]))
                   {
                      typedef details::uv_base_node<Type>* uvbn_ptr_t;
 
-                     details::operator_type o = static_cast<uvbn_ptr_t>(branch[1])->operation();
+                     core::operators::operator_type o = static_cast<uvbn_ptr_t>(branch[1])->operation();
 
-                     if (details::operator_type::neg == o)
+                     if (core::operators::operator_type::neg == o)
                      {
                         const Type& v1 = static_cast<uvbn_ptr_t>(branch[1])->v();
 
@@ -13164,12 +13164,12 @@ namespace math_expr
 
                         switch (operation)
                         {
-                           case details::operator_type::mul : return expr_gen(details::operator_type::neg,
+                           case core::operators::operator_type::mul : return expr_gen(core::operators::operator_type::neg,
                                                     expr_gen.node_allocator_->
                                                        template allocate_rr<typename details::
                                                           vov_node<Type,details::mul_op<Type> > >(v,v1));
 
-                           case details::operator_type::div : return expr_gen(details::operator_type::neg,
+                           case core::operators::operator_type::div : return expr_gen(core::operators::operator_type::neg,
                                                     expr_gen.node_allocator_->
                                                        template allocate_rr<typename details::
                                                           vov_node<Type,details::div_op<Type> > >(v,v1));
@@ -13198,7 +13198,7 @@ namespace math_expr
          struct synthesize_bov_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type& v = static_cast<details::variable_node<Type>*>(branch[1])->ref();
@@ -13222,19 +13222,19 @@ namespace math_expr
                #endif
 
                if (
-                    (details::operator_type::add == operation) ||
-                    (details::operator_type::sub == operation) ||
-                    (details::operator_type::mul == operation) ||
-                    (details::operator_type::div == operation)
+                    (core::operators::operator_type::add == operation) ||
+                    (core::operators::operator_type::sub == operation) ||
+                    (core::operators::operator_type::mul == operation) ||
+                    (core::operators::operator_type::div == operation)
                   )
                {
                   if (details::is_uv_node(branch[0]))
                   {
                      typedef details::uv_base_node<Type>* uvbn_ptr_t;
 
-                     details::operator_type o = static_cast<uvbn_ptr_t>(branch[0])->operation();
+                     core::operators::operator_type o = static_cast<uvbn_ptr_t>(branch[0])->operation();
 
-                     if (details::operator_type::neg == o)
+                     if (core::operators::operator_type::neg == o)
                      {
                         const Type& v0 = static_cast<uvbn_ptr_t>(branch[0])->v();
 
@@ -13242,21 +13242,21 @@ namespace math_expr
 
                         switch (operation)
                         {
-                           case details::operator_type::add : return expr_gen.node_allocator_->
+                           case core::operators::operator_type::add : return expr_gen.node_allocator_->
                                                     template allocate_rr<typename details::
                                                        vov_node<Type,details::sub_op<Type> > >(v,v0);
 
-                           case details::operator_type::sub : return expr_gen(details::operator_type::neg,
+                           case core::operators::operator_type::sub : return expr_gen(core::operators::operator_type::neg,
                                                     expr_gen.node_allocator_->
                                                        template allocate_rr<typename details::
                                                           vov_node<Type,details::add_op<Type> > >(v0,v));
 
-                           case details::operator_type::mul : return expr_gen(details::operator_type::neg,
+                           case core::operators::operator_type::mul : return expr_gen(core::operators::operator_type::neg,
                                                     expr_gen.node_allocator_->
                                                        template allocate_rr<typename details::
                                                           vov_node<Type,details::mul_op<Type> > >(v0,v));
 
-                           case details::operator_type::div : return expr_gen(details::operator_type::neg,
+                           case core::operators::operator_type::div : return expr_gen(core::operators::operator_type::neg,
                                                     expr_gen.node_allocator_->
                                                        template allocate_rr<typename details::
                                                           vov_node<Type,details::div_op<Type> > >(v0,v));
@@ -13284,28 +13284,28 @@ namespace math_expr
          struct synthesize_cob_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
 
                details::free_node(*expr_gen.node_allocator_,branch[0]);
 
-               if (std::equal_to<T>()(T(0),c) && (details::operator_type::mul == operation))
+               if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::mul == operation))
                {
                   details::free_node(*expr_gen.node_allocator_,branch[1]);
 
                   return expr_gen(T(0));
                }
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::div == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::div == operation))
                {
                   details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                   return expr_gen(T(0));
                }
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::add == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::add == operation))
                   return branch[1];
-               else if (std::equal_to<T>()(T(1),c) && (details::operator_type::mul == operation))
+               else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::mul == operation))
                   return branch[1];
 
                if (details::is_cob_node(branch[1]))
@@ -13314,8 +13314,8 @@ namespace math_expr
                   // 1. (1 * (2 * (3 * (4 * (5 * (6 * (7 * (8 * (9 + x))))))))) --> 40320 * (9 + x)
                   // 2. (1 + (2 + (3 + (4 + (5 + (6 + (7 + (8 + (9 + x))))))))) --> 45 + x
                   if (
-                       (details::operator_type::mul == operation) ||
-                       (details::operator_type::add == operation)
+                       (core::operators::operator_type::mul == operation) ||
+                       (core::operators::operator_type::add == operation)
                      )
                   {
                      details::cob_base_node<Type>* cobnode = static_cast<details::cob_base_node<Type>*>(branch[1]);
@@ -13324,8 +13324,8 @@ namespace math_expr
                      {
                         switch (operation)
                         {
-                           case details::operator_type::add : cobnode->set_c(c + cobnode->c()); break;
-                           case details::operator_type::mul : cobnode->set_c(c * cobnode->c()); break;
+                           case core::operators::operator_type::add : cobnode->set_c(c + cobnode->c()); break;
+                           case core::operators::operator_type::mul : cobnode->set_c(c * cobnode->c()); break;
                            default             : return error_node();
                         }
 
@@ -13333,46 +13333,46 @@ namespace math_expr
                      }
                   }
 
-                  if (operation == details::operator_type::mul)
+                  if (operation == core::operators::operator_type::mul)
                   {
                      details::cob_base_node<Type>* cobnode = static_cast<details::cob_base_node<Type>*>(branch[1]);
-                     details::operator_type cob_opr = cobnode->operation();
+                     core::operators::operator_type cob_opr = cobnode->operation();
 
                      if (
-                          (details::operator_type::div == cob_opr) ||
-                          (details::operator_type::mul == cob_opr)
+                          (core::operators::operator_type::div == cob_opr) ||
+                          (core::operators::operator_type::mul == cob_opr)
                         )
                      {
                         switch (cob_opr)
                         {
-                           case details::operator_type::div : cobnode->set_c(c * cobnode->c()); break;
-                           case details::operator_type::mul : cobnode->set_c(cobnode->c() / c); break;
+                           case core::operators::operator_type::div : cobnode->set_c(c * cobnode->c()); break;
+                           case core::operators::operator_type::mul : cobnode->set_c(cobnode->c() / c); break;
                            default             : return error_node();
                         }
 
                         return cobnode;
                      }
                   }
-                  else if (operation == details::operator_type::div)
+                  else if (operation == core::operators::operator_type::div)
                   {
                      details::cob_base_node<Type>* cobnode = static_cast<details::cob_base_node<Type>*>(branch[1]);
-                     details::operator_type cob_opr = cobnode->operation();
+                     core::operators::operator_type cob_opr = cobnode->operation();
 
                      if (
-                          (details::operator_type::div == cob_opr) ||
-                          (details::operator_type::mul == cob_opr)
+                          (core::operators::operator_type::div == cob_opr) ||
+                          (core::operators::operator_type::mul == cob_opr)
                         )
                      {
                         details::expression_node<Type>* new_cobnode = error_node();
 
                         switch (cob_opr)
                         {
-                           case details::operator_type::div : new_cobnode = expr_gen.node_allocator_->
+                           case core::operators::operator_type::div : new_cobnode = expr_gen.node_allocator_->
                                                     template allocate_tt<typename details::cob_node<Type,details::mul_op<Type> > >
                                                        (c / cobnode->c(), cobnode->move_branch(0));
                                                  break;
 
-                           case details::operator_type::mul : new_cobnode = expr_gen.node_allocator_->
+                           case core::operators::operator_type::mul : new_cobnode = expr_gen.node_allocator_->
                                                     template allocate_tt<typename details::cob_node<Type,details::div_op<Type> > >
                                                        (c / cobnode->c(), cobnode->move_branch(0));
                                                  break;
@@ -13422,28 +13422,28 @@ namespace math_expr
          struct synthesize_boc_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
 
                details::free_node(*(expr_gen.node_allocator_), branch[1]);
 
-               if (std::equal_to<T>()(T(0),c) && (details::operator_type::mul == operation))
+               if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::mul == operation))
                {
                   details::free_node(*expr_gen.node_allocator_, branch[0]);
 
                   return expr_gen(T(0));
                }
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::div == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::div == operation))
                {
                   details::free_node(*expr_gen.node_allocator_, branch[0]);
 
                   return expr_gen(std::numeric_limits<T>::quiet_NaN());
                }
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::add == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::add == operation))
                   return branch[0];
-               else if (std::equal_to<T>()(T(1),c) && (details::operator_type::mul == operation))
+               else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::mul == operation))
                   return branch[0];
 
                if (details::is_boc_node(branch[0]))
@@ -13452,8 +13452,8 @@ namespace math_expr
                   // 1. (((((((((x + 9) * 8) * 7) * 6) * 5) * 4) * 3) * 2) * 1) --> (x + 9) * 40320
                   // 2. (((((((((x + 9) + 8) + 7) + 6) + 5) + 4) + 3) + 2) + 1) --> x + 45
                   if (
-                       (details::operator_type::mul == operation) ||
-                       (details::operator_type::add == operation)
+                       (core::operators::operator_type::mul == operation) ||
+                       (core::operators::operator_type::add == operation)
                      )
                   {
                      details::boc_base_node<Type>* bocnode = static_cast<details::boc_base_node<Type>*>(branch[0]);
@@ -13462,41 +13462,41 @@ namespace math_expr
                      {
                         switch (operation)
                         {
-                           case details::operator_type::add : bocnode->set_c(c + bocnode->c()); break;
-                           case details::operator_type::mul : bocnode->set_c(c * bocnode->c()); break;
+                           case core::operators::operator_type::add : bocnode->set_c(c + bocnode->c()); break;
+                           case core::operators::operator_type::mul : bocnode->set_c(c * bocnode->c()); break;
                            default             : return error_node();
                         }
 
                         return bocnode;
                      }
                   }
-                  else if (operation == details::operator_type::div)
+                  else if (operation == core::operators::operator_type::div)
                   {
                      details::boc_base_node<Type>* bocnode = static_cast<details::boc_base_node<Type>*>(branch[0]);
-                     details::operator_type        boc_opr = bocnode->operation();
+                     core::operators::operator_type        boc_opr = bocnode->operation();
 
                      if (
-                          (details::operator_type::div == boc_opr) ||
-                          (details::operator_type::mul == boc_opr)
+                          (core::operators::operator_type::div == boc_opr) ||
+                          (core::operators::operator_type::mul == boc_opr)
                         )
                      {
                         switch (boc_opr)
                         {
-                           case details::operator_type::div : bocnode->set_c(c * bocnode->c()); break;
-                           case details::operator_type::mul : bocnode->set_c(bocnode->c() / c); break;
+                           case core::operators::operator_type::div : bocnode->set_c(c * bocnode->c()); break;
+                           case core::operators::operator_type::mul : bocnode->set_c(bocnode->c() / c); break;
                            default             : return error_node();
                         }
 
                         return bocnode;
                      }
                   }
-                  else if (operation == details::operator_type::pow)
+                  else if (operation == core::operators::operator_type::pow)
                   {
                      // (v ^ c0) ^ c1 --> v ^(c0 * c1)
                      details::boc_base_node<Type>* bocnode = static_cast<details::boc_base_node<Type>*>(branch[0]);
-                     details::operator_type        boc_opr = bocnode->operation();
+                     core::operators::operator_type        boc_opr = bocnode->operation();
 
-                     if (details::operator_type::pow == boc_opr)
+                     if (core::operators::operator_type::pow == boc_opr)
                      {
                         bocnode->set_c(bocnode->c() * c);
 
@@ -13541,7 +13541,7 @@ namespace math_expr
          struct synthesize_cocob_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                expression_node_ptr result = error_node();
@@ -13553,72 +13553,72 @@ namespace math_expr
 
                   const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
 
-                  if (std::equal_to<T>()(T(0),c) && (details::operator_type::mul == operation))
+                  if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::mul == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[0]);
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return expr_gen(T(0));
                   }
-                  else if (std::equal_to<T>()(T(0),c) && (details::operator_type::div == operation))
+                  else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::div == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[0]);
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return expr_gen(T(std::numeric_limits<T>::quiet_NaN()));
                   }
-                  else if (std::equal_to<T>()(T(0),c) && (details::operator_type::add == operation))
+                  else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::add == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return branch[0];
                   }
-                  else if (std::equal_to<T>()(T(1),c) && (details::operator_type::mul == operation))
+                  else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::mul == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return branch[0];
                   }
-                  else if (std::equal_to<T>()(T(1),c) && (details::operator_type::div == operation))
+                  else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::div == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return branch[0];
                   }
 
-                  const bool op_addsub = (details::operator_type::add == cobnode->operation()) ||
-                                         (details::operator_type::sub == cobnode->operation()) ;
+                  const bool op_addsub = (core::operators::operator_type::add == cobnode->operation()) ||
+                                         (core::operators::operator_type::sub == cobnode->operation()) ;
 
                   if (op_addsub)
                   {
                      switch (operation)
                      {
-                        case details::operator_type::add : cobnode->set_c(cobnode->c() + c); break;
-                        case details::operator_type::sub : cobnode->set_c(cobnode->c() - c); break;
+                        case core::operators::operator_type::add : cobnode->set_c(cobnode->c() + c); break;
+                        case core::operators::operator_type::sub : cobnode->set_c(cobnode->c() - c); break;
                         default             : return error_node();
                      }
 
                      result = cobnode;
                   }
-                  else if (details::operator_type::mul == cobnode->operation())
+                  else if (core::operators::operator_type::mul == cobnode->operation())
                   {
                      switch (operation)
                      {
-                        case details::operator_type::mul : cobnode->set_c(cobnode->c() * c); break;
-                        case details::operator_type::div : cobnode->set_c(cobnode->c() / c); break;
+                        case core::operators::operator_type::mul : cobnode->set_c(cobnode->c() * c); break;
+                        case core::operators::operator_type::div : cobnode->set_c(cobnode->c() / c); break;
                         default             : return error_node();
                      }
 
                      result = cobnode;
                   }
-                  else if (details::operator_type::div == cobnode->operation())
+                  else if (core::operators::operator_type::div == cobnode->operation())
                   {
-                     if (details::operator_type::mul == operation)
+                     if (core::operators::operator_type::mul == operation)
                      {
                         cobnode->set_c(cobnode->c() * c);
                         result = cobnode;
                      }
-                     else if (details::operator_type::div == operation)
+                     else if (core::operators::operator_type::div == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::div_op<Type> > >
@@ -13641,41 +13641,41 @@ namespace math_expr
 
                   const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
 
-                  if (std::equal_to<T>()(T(0),c) && (details::operator_type::mul == operation))
+                  if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::mul == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[0]);
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return expr_gen(T(0));
                   }
-                  else if (std::equal_to<T>()(T(0),c) && (details::operator_type::div == operation))
+                  else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::div == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[0]);
                      details::free_node(*expr_gen.node_allocator_, branch[1]);
 
                      return expr_gen(T(0));
                   }
-                  else if (std::equal_to<T>()(T(0),c) && (details::operator_type::add == operation))
+                  else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::add == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[0]);
 
                      return branch[1];
                   }
-                  else if (std::equal_to<T>()(T(1),c) && (details::operator_type::mul == operation))
+                  else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::mul == operation))
                   {
                      details::free_node(*expr_gen.node_allocator_, branch[0]);
 
                      return branch[1];
                   }
 
-                  if (details::operator_type::add == cobnode->operation())
+                  if (core::operators::operator_type::add == cobnode->operation())
                   {
-                     if (details::operator_type::add == operation)
+                     if (core::operators::operator_type::add == operation)
                      {
                         cobnode->set_c(c + cobnode->c());
                         result = cobnode;
                      }
-                     else if (details::operator_type::sub == operation)
+                     else if (core::operators::operator_type::sub == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::sub_op<Type> > >
@@ -13684,14 +13684,14 @@ namespace math_expr
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
                   }
-                  else if (details::operator_type::sub == cobnode->operation())
+                  else if (core::operators::operator_type::sub == cobnode->operation())
                   {
-                     if (details::operator_type::add == operation)
+                     if (core::operators::operator_type::add == operation)
                      {
                         cobnode->set_c(c + cobnode->c());
                         result = cobnode;
                      }
-                     else if (details::operator_type::sub == operation)
+                     else if (core::operators::operator_type::sub == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::add_op<Type> > >
@@ -13700,14 +13700,14 @@ namespace math_expr
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
                   }
-                  else if (details::operator_type::mul == cobnode->operation())
+                  else if (core::operators::operator_type::mul == cobnode->operation())
                   {
-                     if (details::operator_type::mul == operation)
+                     if (core::operators::operator_type::mul == operation)
                      {
                         cobnode->set_c(c * cobnode->c());
                         result = cobnode;
                      }
-                     else if (details::operator_type::div == operation)
+                     else if (core::operators::operator_type::div == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::div_op<Type> > >
@@ -13716,14 +13716,14 @@ namespace math_expr
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
                   }
-                  else if (details::operator_type::div == cobnode->operation())
+                  else if (core::operators::operator_type::div == cobnode->operation())
                   {
-                     if (details::operator_type::mul == operation)
+                     if (core::operators::operator_type::mul == operation)
                      {
                         cobnode->set_c(c * cobnode->c());
                         result = cobnode;
                      }
-                     else if (details::operator_type::div == operation)
+                     else if (core::operators::operator_type::div == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::mul_op<Type> > >
@@ -13746,7 +13746,7 @@ namespace math_expr
          struct synthesize_coboc_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                expression_node_ptr result = error_node();
@@ -13758,31 +13758,31 @@ namespace math_expr
 
                   const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
 
-                  if (details::operator_type::add == bocnode->operation())
+                  if (core::operators::operator_type::add == bocnode->operation())
                   {
                      switch (operation)
                      {
-                        case details::operator_type::add : bocnode->set_c(bocnode->c() + c); break;
-                        case details::operator_type::sub : bocnode->set_c(bocnode->c() - c); break;
+                        case core::operators::operator_type::add : bocnode->set_c(bocnode->c() + c); break;
+                        case core::operators::operator_type::sub : bocnode->set_c(bocnode->c() - c); break;
                         default             : return error_node();
                      }
 
                      result = bocnode;
                   }
-                  else if (details::operator_type::mul == bocnode->operation())
+                  else if (core::operators::operator_type::mul == bocnode->operation())
                   {
                      switch (operation)
                      {
-                        case details::operator_type::mul : bocnode->set_c(bocnode->c() * c); break;
-                        case details::operator_type::div : bocnode->set_c(bocnode->c() / c); break;
+                        case core::operators::operator_type::mul : bocnode->set_c(bocnode->c() * c); break;
+                        case core::operators::operator_type::div : bocnode->set_c(bocnode->c() / c); break;
                         default             : return error_node();
                      }
 
                      result = bocnode;
                   }
-                  else if (details::operator_type::sub == bocnode->operation())
+                  else if (core::operators::operator_type::sub == bocnode->operation())
                   {
-                     if (details::operator_type::add == operation)
+                     if (core::operators::operator_type::add == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::boc_node<Type,details::add_op<Type> > >
@@ -13790,18 +13790,18 @@ namespace math_expr
 
                         details::free_node(*expr_gen.node_allocator_,branch[0]);
                      }
-                     else if (details::operator_type::sub == operation)
+                     else if (core::operators::operator_type::sub == operation)
                      {
                         bocnode->set_c(bocnode->c() + c);
                         result = bocnode;
                      }
                   }
-                  else if (details::operator_type::div == bocnode->operation())
+                  else if (core::operators::operator_type::div == bocnode->operation())
                   {
                      switch (operation)
                      {
-                        case details::operator_type::div : bocnode->set_c(bocnode->c() * c); break;
-                        case details::operator_type::mul : bocnode->set_c(bocnode->c() / c); break;
+                        case core::operators::operator_type::div : bocnode->set_c(bocnode->c() * c); break;
+                        case core::operators::operator_type::mul : bocnode->set_c(bocnode->c() / c); break;
                         default             : return error_node();
                      }
 
@@ -13821,14 +13821,14 @@ namespace math_expr
 
                   const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
 
-                  if (details::operator_type::add == bocnode->operation())
+                  if (core::operators::operator_type::add == bocnode->operation())
                   {
-                     if (details::operator_type::add == operation)
+                     if (core::operators::operator_type::add == operation)
                      {
                         bocnode->set_c(c + bocnode->c());
                         result = bocnode;
                      }
-                     else if (details::operator_type::sub == operation)
+                     else if (core::operators::operator_type::sub == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::sub_op<Type> > >
@@ -13837,9 +13837,9 @@ namespace math_expr
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
                   }
-                  else if (details::operator_type::sub == bocnode->operation())
+                  else if (core::operators::operator_type::sub == bocnode->operation())
                   {
-                     if (details::operator_type::add == operation)
+                     if (core::operators::operator_type::add == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::boc_node<Type,details::add_op<Type> > >
@@ -13847,7 +13847,7 @@ namespace math_expr
 
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
-                     else if (details::operator_type::sub == operation)
+                     else if (core::operators::operator_type::sub == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::sub_op<Type> > >
@@ -13856,14 +13856,14 @@ namespace math_expr
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
                   }
-                  else if (details::operator_type::mul == bocnode->operation())
+                  else if (core::operators::operator_type::mul == bocnode->operation())
                   {
-                     if (details::operator_type::mul == operation)
+                     if (core::operators::operator_type::mul == operation)
                      {
                         bocnode->set_c(c * bocnode->c());
                         result = bocnode;
                      }
-                     else if (details::operator_type::div == operation)
+                     else if (core::operators::operator_type::div == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::div_op<Type> > >
@@ -13872,14 +13872,14 @@ namespace math_expr
                         details::free_node(*expr_gen.node_allocator_,branch[1]);
                      }
                   }
-                  else if (details::operator_type::div == bocnode->operation())
+                  else if (core::operators::operator_type::div == bocnode->operation())
                   {
-                     if (details::operator_type::mul == operation)
+                     if (core::operators::operator_type::mul == operation)
                      {
                         bocnode->set_c(bocnode->c() / c);
                         result = bocnode;
                      }
-                     else if (details::operator_type::div == operation)
+                     else if (core::operators::operator_type::div == operation)
                      {
                         result = expr_gen.node_allocator_->
                                     template allocate_tt<typename details::cob_node<Type,details::div_op<Type> > >
@@ -13900,7 +13900,7 @@ namespace math_expr
          };
 
          #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
-         inline bool synthesize_expression(const details::operator_type& operation,
+         inline bool synthesize_expression(const core::operators::operator_type& operation,
                                            expression_node_ptr (&branch)[2],
                                            expression_node_ptr& result)
          {
@@ -13926,7 +13926,7 @@ namespace math_expr
          struct synthesize_vov_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -13950,7 +13950,7 @@ namespace math_expr
          struct synthesize_cov_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type  c = static_cast<details::literal_node<Type>*> (branch[0])->value();
@@ -13958,13 +13958,13 @@ namespace math_expr
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
 
-               if (std::equal_to<T>()(T(0),c) && (details::operator_type::mul == operation))
+               if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::mul == operation))
                   return expr_gen(T(0));
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::div == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::div == operation))
                   return expr_gen(T(0));
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::add == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::add == operation))
                   return static_cast<details::variable_node<Type>*>(branch[1]);
-               else if (std::equal_to<T>()(T(1),c) && (details::operator_type::mul == operation))
+               else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::mul == operation))
                   return static_cast<details::variable_node<Type>*>(branch[1]);
 
                switch (operation)
@@ -13985,7 +13985,7 @@ namespace math_expr
          struct synthesize_voc_expression
          {
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref  ();
@@ -14000,15 +14000,15 @@ namespace math_expr
                   else
                      return expr_gen.cardinal_pow_optimisation(v,c);
                }
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::mul == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::mul == operation))
                   return expr_gen(T(0));
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::div == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::div == operation))
                   return expr_gen(std::numeric_limits<T>::quiet_NaN());
-               else if (std::equal_to<T>()(T(0),c) && (details::operator_type::add == operation))
+               else if (std::equal_to<T>()(T(0),c) && (core::operators::operator_type::add == operation))
                   return static_cast<details::variable_node<Type>*>(branch[0]);
-               else if (std::equal_to<T>()(T(1),c) && (details::operator_type::mul == operation))
+               else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::mul == operation))
                   return static_cast<details::variable_node<Type>*>(branch[0]);
-               else if (std::equal_to<T>()(T(1),c) && (details::operator_type::div == operation))
+               else if (std::equal_to<T>()(T(1),c) && (core::operators::operator_type::div == operation))
                   return static_cast<details::variable_node<Type>*>(branch[0]);
 
                switch (operation)
@@ -14030,13 +14030,13 @@ namespace math_expr
          {
             template <typename T0, typename T1, typename T2>
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& sf3opr,
+                                                      const core::operators::operator_type& sf3opr,
                                                       T0 t0, T1 t1, T2 t2)
             {
                switch (sf3opr)
                {
                   #define case_stmt(op)                                                                              \
-                  case details::operator_type::sf##op : return details::T0oT1oT2_sf3ext<T,T0,T1,T2,details::sf##op##_op<Type> >:: \
+                  case core::operators::operator_type::sf##op : return details::T0oT1oT2_sf3ext<T,T0,T1,T2,details::sf##op##_op<Type> >:: \
                                 allocate(*(expr_gen.node_allocator_), t0, t1, t2);                                   \
 
                   case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03)
@@ -14057,7 +14057,7 @@ namespace math_expr
                                        T0 t0, T1 t1, T2 t2,
                                        expression_node_ptr& result)
             {
-               details::operator_type sf3opr;
+               core::operators::operator_type sf3opr;
 
                if (!expr_gen.sf3_optimisable(id,sf3opr))
                   return false;
@@ -14073,17 +14073,17 @@ namespace math_expr
          {
             template <typename T0, typename T1, typename T2, typename T3>
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& sf4opr,
+                                                      const core::operators::operator_type& sf4opr,
                                                       T0 t0, T1 t1, T2 t2, T3 t3)
             {
                switch (sf4opr)
                {
                   #define case_stmt0(op)                                                                                      \
-                  case details::operator_type::sf##op : return details::T0oT1oT2oT3_sf4ext<Type,T0,T1,T2,T3,details::sf##op##_op<Type> >:: \
+                  case core::operators::operator_type::sf##op : return details::T0oT1oT2oT3_sf4ext<Type,T0,T1,T2,T3,details::sf##op##_op<Type> >:: \
                                 allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3);                                        \
 
                   #define case_stmt1(op)                                                                                             \
-                  case details::operator_type::sf4ext##op : return details::T0oT1oT2oT3_sf4ext<Type,T0,T1,T2,T3,details::sfext##op##_op<Type> >:: \
+                  case core::operators::operator_type::sf4ext##op : return details::T0oT1oT2oT3_sf4ext<Type,T0,T1,T2,T3,details::sfext##op##_op<Type> >:: \
                                 allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3);                                               \
 
                   case_stmt0(48) case_stmt0(49) case_stmt0(50) case_stmt0(51)
@@ -14124,7 +14124,7 @@ namespace math_expr
                                        T0 t0, T1 t1, T2 t2, T3 t3,
                                        expression_node_ptr& result)
             {
-               details::operator_type sf4opr;
+               core::operators::operator_type sf4opr;
 
                if (!expr_gen.sf4_optimisable(id,sf4opr))
                   return false;
@@ -14139,7 +14139,7 @@ namespace math_expr
             template <typename ExternalType>
             static inline bool compile_right(expression_generator<Type>& expr_gen,
                                              ExternalType t,
-                                             const details::operator_type& operation,
+                                             const core::operators::operator_type& operation,
                                              expression_node_ptr& sf3node,
                                              expression_node_ptr& result)
             {
@@ -14181,7 +14181,7 @@ namespace math_expr
             template <typename ExternalType>
             static inline bool compile_left(expression_generator<Type>& expr_gen,
                                             ExternalType t,
-                                            const details::operator_type& operation,
+                                            const core::operators::operator_type& operation,
                                             expression_node_ptr& sf3node,
                                             expression_node_ptr& result)
             {
@@ -14271,7 +14271,7 @@ namespace math_expr
             typedef typename vovov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 v1) o1 (v2)
@@ -14279,8 +14279,8 @@ namespace math_expr
                const Type& v0 = vov->v0();
                const Type& v1 = vov->v1();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = vov->operation();
-               const details::operator_type o1 = operation;
+               const core::operators::operator_type o0 = vov->operation();
+               const core::operators::operator_type o1 = operation;
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
 
@@ -14289,7 +14289,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / v1) / v2 --> (vovov) v0 / (v1 * v2)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14320,10 +14320,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "t";
@@ -14336,7 +14336,7 @@ namespace math_expr
             typedef typename vovov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0) o0 (v1 o1 v2)
@@ -14344,8 +14344,8 @@ namespace math_expr
                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
                const Type& v1 = vov->v0();
                const Type& v2 = vov->v1();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = vov->operation();
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = vov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
 
@@ -14354,7 +14354,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // v0 / (v1 / v2) --> (vovov) (v0 * v2) / v1
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14385,10 +14385,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)";
@@ -14401,7 +14401,7 @@ namespace math_expr
             typedef typename vovoc_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 v1) o1 (c)
@@ -14409,8 +14409,8 @@ namespace math_expr
                const Type& v0 = vov->v0();
                const Type& v1 = vov->v1();
                const Type   c = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = vov->operation();
-               const details::operator_type o1 = operation;
+               const core::operators::operator_type o0 = vov->operation();
+               const core::operators::operator_type o1 = operation;
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -14420,7 +14420,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / v1) / c --> (vovoc) v0 / (v1 * c)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14451,10 +14451,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "t";
@@ -14467,7 +14467,7 @@ namespace math_expr
             typedef typename vovoc_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0) o0 (v1 o1 c)
@@ -14475,8 +14475,8 @@ namespace math_expr
                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
                const Type& v1 = voc->v();
                const Type   c = voc->c();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = voc->operation();
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = voc->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
 
@@ -14485,7 +14485,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // v0 / (v1 / c) --> (vocov) (v0 * c) / v1
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14516,10 +14516,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)";
@@ -14532,7 +14532,7 @@ namespace math_expr
             typedef typename vocov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 c) o1 (v1)
@@ -14540,8 +14540,8 @@ namespace math_expr
                const Type& v0 = voc->v();
                const Type   c = voc->c();
                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = voc->operation();
-               const details::operator_type o1 = operation;
+               const core::operators::operator_type o0 = voc->operation();
+               const core::operators::operator_type o1 = operation;
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
 
@@ -14550,7 +14550,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / c) / v1 --> (vovoc) v0 / (v1 * c)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14581,10 +14581,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "t";
@@ -14597,7 +14597,7 @@ namespace math_expr
             typedef typename vocov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0) o0 (c o1 v1)
@@ -14605,8 +14605,8 @@ namespace math_expr
                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
                const Type   c = cov->c();
                const Type& v1 = cov->v();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = cov->operation();
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = cov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
 
@@ -14615,7 +14615,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // v0 / (c / v1) --> (vovoc) (v0 * v1) / c
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14646,10 +14646,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)";
@@ -14662,7 +14662,7 @@ namespace math_expr
             typedef typename covov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c o0 v0) o1 (v1)
@@ -14670,8 +14670,8 @@ namespace math_expr
                const Type   c = cov->c();
                const Type& v0 = cov->v();
                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = cov->operation();
-               const details::operator_type o1 = operation;
+               const core::operators::operator_type o0 = cov->operation();
+               const core::operators::operator_type o1 = operation;
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
 
@@ -14680,7 +14680,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c / v0) / v1 --> (covov) c / (v0 * v1)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14711,10 +14711,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "t";
@@ -14727,7 +14727,7 @@ namespace math_expr
             typedef typename covov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c) o0 (v0 o1 v1)
@@ -14735,8 +14735,8 @@ namespace math_expr
                const Type   c = static_cast<details::literal_node<Type>*>(branch[0])->value();
                const Type& v0 = vov->v0();
                const Type& v1 = vov->v1();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = vov->operation();
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = vov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -14746,7 +14746,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // c / (v0 / v1) --> (covov) (c * v1) / v0
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -14777,10 +14777,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)";
@@ -14793,7 +14793,7 @@ namespace math_expr
             typedef typename covoc_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c0 o0 v) o1 (c1)
@@ -14801,8 +14801,8 @@ namespace math_expr
                const Type  c0 = cov->c();
                const Type&  v = cov->v();
                const Type  c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = cov->operation();
-               const details::operator_type o1 = operation;
+               const core::operators::operator_type o0 = cov->operation();
+               const core::operators::operator_type o1 = operation;
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -14812,7 +14812,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c0 + v) + c1 --> (cov) (c0 + c1) + v
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(c0 + v) + c1 --> (cov) (c0 + c1) + v\n"));
 
@@ -14820,7 +14820,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::add_op<Type> > >(c0 + c1, v);
                   }
                   // (c0 + v) - c1 --> (cov) (c0 - c1) + v
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(c0 + v) - c1 --> (cov) (c0 - c1) + v\n"));
 
@@ -14828,7 +14828,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::add_op<Type> > >(c0 - c1, v);
                   }
                   // (c0 - v) + c1 --> (cov) (c0 + c1) - v
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::add == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(c0 - v) + c1 --> (cov) (c0 + c1) - v\n"));
 
@@ -14836,7 +14836,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::sub_op<Type> > >(c0 + c1, v);
                   }
                   // (c0 - v) - c1 --> (cov) (c0 - c1) - v
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(c0 - v) - c1 --> (cov) (c0 - c1) - v\n"));
 
@@ -14844,7 +14844,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::sub_op<Type> > >(c0 - c1, v);
                   }
                   // (c0 * v) * c1 --> (cov) (c0 * c1) * v
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(c0 * v) * c1 --> (cov) (c0 * c1) * v\n"));
 
@@ -14852,7 +14852,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::mul_op<Type> > >(c0 * c1, v);
                   }
                   // (c0 * v) / c1 --> (cov) (c0 / c1) * v
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(c0 * v) / c1 --> (cov) (c0 / c1) * v\n"));
 
@@ -14860,7 +14860,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::mul_op<Type> > >(c0 / c1, v);
                   }
                   // (c0 / v) * c1 --> (cov) (c0 * c1) / v
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(c0 / v) * c1 --> (cov) (c0 * c1) / v\n"));
 
@@ -14868,7 +14868,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::div_op<Type> > >(c0 * c1, v);
                   }
                   // (c0 / v) / c1 --> (cov) (c0 / c1) / v
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(c0 / v) / c1 --> (cov) (c0 / c1) / v\n"));
 
@@ -14896,10 +14896,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "t";
@@ -14912,7 +14912,7 @@ namespace math_expr
             typedef typename covoc_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c0) o0 (v o1 c1)
@@ -14920,8 +14920,8 @@ namespace math_expr
                const Type  c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
                const Type&  v = voc->v();
                const Type  c1 = voc->c();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = voc->operation();
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = voc->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -14931,7 +14931,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c0) + (v + c1) --> (cov) (c0 + c1) + v
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(c0) + (v + c1) --> (cov) (c0 + c1) + v\n"));
 
@@ -14939,7 +14939,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::add_op<Type> > >(c0 + c1, v);
                   }
                   // (c0) + (v - c1) --> (cov) (c0 - c1) + v
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(c0) + (v - c1) --> (cov) (c0 - c1) + v\n"));
 
@@ -14947,7 +14947,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::add_op<Type> > >(c0 - c1, v);
                   }
                   // (c0) - (v + c1) --> (cov) (c0 - c1) - v
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::add == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(c0) - (v + c1) --> (cov) (c0 - c1) - v\n"));
 
@@ -14955,7 +14955,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::sub_op<Type> > >(c0 - c1, v);
                   }
                   // (c0) - (v - c1) --> (cov) (c0 + c1) - v
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(c0) - (v - c1) --> (cov) (c0 + c1) - v\n"));
 
@@ -14963,7 +14963,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::sub_op<Type> > >(c0 + c1, v);
                   }
                   // (c0) * (v * c1) --> (voc) v * (c0 * c1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(c0) * (v * c1) --> (voc) v * (c0 * c1)\n"));
 
@@ -14971,7 +14971,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::mul_op<Type> > >(c0 * c1, v);
                   }
                   // (c0) * (v / c1) --> (cov) (c0 / c1) * v
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(c0) * (v / c1) --> (cov) (c0 / c1) * v\n"));
 
@@ -14979,7 +14979,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::mul_op<Type> > >(c0 / c1, v);
                   }
                   // (c0) / (v * c1) --> (cov) (c0 / c1) / v
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(c0) / (v * c1) --> (cov) (c0 / c1) / v\n"));
 
@@ -14987,7 +14987,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::div_op<Type> > >(c0 / c1, v);
                   }
                   // (c0) / (v / c1) --> (cov) (c0 * c1) / v
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(c0) / (v / c1) --> (cov) (c0 * c1) / v\n"));
 
@@ -15015,10 +15015,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)";
@@ -15029,7 +15029,7 @@ namespace math_expr
          {
             typedef typename cocov_t::type0 node_type;
             static inline expression_node_ptr process(expression_generator<Type>&,
-                                                      const details::operator_type&,
+                                                      const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
             {
                // (c0 o0 c1) o1 (v) - Not possible.
@@ -15043,7 +15043,7 @@ namespace math_expr
             typedef typename cocov_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c0) o0 (c1 o1 v)
@@ -15051,8 +15051,8 @@ namespace math_expr
                const Type  c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
                const Type  c1 = cov->c();
                const Type&  v = cov->v();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = cov->operation();
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = cov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15062,7 +15062,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c0) + (c1 + v) --> (cov) (c0 + c1) + v
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(c0) + (c1 + v) --> (cov) (c0 + c1) + v\n"));
 
@@ -15070,7 +15070,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::add_op<Type> > >(c0 + c1, v);
                   }
                   // (c0) + (c1 - v) --> (cov) (c0 + c1) - v
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(c0) + (c1 - v) --> (cov) (c0 + c1) - v\n"));
 
@@ -15078,7 +15078,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::sub_op<Type> > >(c0 + c1, v);
                   }
                   // (c0) - (c1 + v) --> (cov) (c0 - c1) - v
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::add == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(c0) - (c1 + v) --> (cov) (c0 - c1) - v\n"));
 
@@ -15086,7 +15086,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::sub_op<Type> > >(c0 - c1, v);
                   }
                   // (c0) - (c1 - v) --> (cov) (c0 - c1) + v
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(c0) - (c1 - v) --> (cov) (c0 - c1) + v\n"));
 
@@ -15094,7 +15094,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::add_op<Type> > >(c0 - c1, v);
                   }
                   // (c0) * (c1 * v) --> (cov) (c0 * c1) * v
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(c0) * (c1 * v) --> (cov) (c0 * c1) * v\n"));
 
@@ -15102,7 +15102,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::mul_op<Type> > >(c0 * c1, v);
                   }
                   // (c0) * (c1 / v) --> (cov) (c0 * c1) / v
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(c0) * (c1 / v) --> (cov) (c0 * c1) / v\n"));
 
@@ -15110,7 +15110,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::div_op<Type> > >(c0 * c1, v);
                   }
                   // (c0) / (c1 * v) --> (cov) (c0 / c1) / v
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(c0) / (c1 * v) --> (cov) (c0 / c1) / v\n"));
 
@@ -15118,7 +15118,7 @@ namespace math_expr
                                template allocate_cr<typename details::cov_node<Type,details::div_op<Type> > >(c0 / c1, v);
                   }
                   // (c0) / (c1 / v) --> (cov) (c0 / c1) * v
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(c0) / (c1 / v) --> (cov) (c0 / c1) * v\n"));
 
@@ -15146,10 +15146,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)";
@@ -15162,7 +15162,7 @@ namespace math_expr
             typedef typename vococ_t::sf3_type sf3_type;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v o0 c0) o1 (c1)
@@ -15170,8 +15170,8 @@ namespace math_expr
                const Type&  v = voc->v();
                const Type& c0 = voc->c();
                const Type& c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = voc->operation();
-               const details::operator_type o1 = operation;
+               const core::operators::operator_type o0 = voc->operation();
+               const core::operators::operator_type o1 = operation;
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15181,7 +15181,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v + c0) + c1 --> (voc) v + (c0 + c1)
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(v + c0) + c1 --> (voc) v + (c0 + c1)\n"));
 
@@ -15189,7 +15189,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::add_op<Type> > >(v, c0 + c1);
                   }
                   // (v + c0) - c1 --> (voc) v + (c0 - c1)
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(v + c0) - c1 --> (voc) v + (c0 - c1)\n"));
 
@@ -15197,7 +15197,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::add_op<Type> > >(v, c0 - c1);
                   }
                   // (v - c0) + c1 --> (voc) v - (c0 + c1)
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::add == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::add == o1))
                   {
                      math_expr_debug(("(v - c0) + c1 --> (voc) v - (c0 + c1)\n"));
 
@@ -15205,7 +15205,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::add_op<Type> > >(v, c1 - c0);
                   }
                   // (v - c0) - c1 --> (voc) v - (c0 + c1)
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1))
                   {
                      math_expr_debug(("(v - c0) - c1 --> (voc) v - (c0 + c1)\n"));
 
@@ -15213,7 +15213,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::sub_op<Type> > >(v, c0 + c1);
                   }
                   // (v * c0) * c1 --> (voc) v * (c0 * c1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(v * c0) * c1 --> (voc) v * (c0 * c1)\n"));
 
@@ -15221,7 +15221,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::mul_op<Type> > >(v, c0 * c1);
                   }
                   // (v * c0) / c1 --> (voc) v * (c0 / c1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(v * c0) / c1 --> (voc) v * (c0 / c1)\n"));
 
@@ -15229,7 +15229,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::mul_op<Type> > >(v, c0 / c1);
                   }
                   // (v / c0) * c1 --> (voc) v * (c1 / c0)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1))
                   {
                      math_expr_debug(("(v / c0) * c1 --> (voc) v * (c1 / c0)\n"));
 
@@ -15237,7 +15237,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::mul_op<Type> > >(v, c1 / c0);
                   }
                   // (v / c0) / c1 --> (voc) v / (c0 * c1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1))
                   {
                      math_expr_debug(("(v / c0) / c1 --> (voc) v / (c0 * c1)\n"));
 
@@ -15245,7 +15245,7 @@ namespace math_expr
                                template allocate_rc<typename details::voc_node<Type,details::div_op<Type> > >(v, c0 * c1);
                   }
                   // (v ^ c0) ^ c1 --> (voc) v ^ (c0 * c1)
-                  else if ((details::operator_type::pow == o0) && (details::operator_type::pow == o1))
+                  else if ((core::operators::operator_type::pow == o0) && (core::operators::operator_type::pow == o1))
                   {
                      math_expr_debug(("(v ^ c0) ^ c1 --> (voc) v ^ (c0 * c1)\n"));
 
@@ -15273,10 +15273,10 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "t";
@@ -15288,7 +15288,7 @@ namespace math_expr
             typedef typename vococ_t::type0 node_type;
 
             static inline expression_node_ptr process(expression_generator<Type>&,
-                                                      const details::operator_type&,
+                                                      const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
             {
                // (v) o0 (c0 o1 c1) - Not possible.
@@ -15307,7 +15307,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 v1) o1 (v2 o2 v3)
@@ -15317,9 +15317,9 @@ namespace math_expr
                const Type& v1 = vov0->v1();
                const Type& v2 = vov1->v0();
                const Type& v3 = vov1->v1();
-               const details::operator_type o0 = vov0->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = vov1->operation();
+               const core::operators::operator_type o0 = vov0->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = vov1->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15329,7 +15329,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / v1) * (v2 / v3) --> (vovovov) (v0 * v2) / (v1 * v3)
-                  if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15340,7 +15340,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / v1) / (v2 / v3) --> (vovovov) (v0 * v3) / (v1 * v2)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15351,7 +15351,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 + v1) / (v2 / v3) --> (vovovov) (v0 + v1) * (v3 / v2)
-                  else if ((details::operator_type::add == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15362,7 +15362,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 - v1) / (v2 / v3) --> (vovovov) (v0 + v1) * (v3 / v2)
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15373,7 +15373,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * v1) / (v2 / v3) --> (vovovov) ((v0 * v1) * v3) / v2
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15407,11 +15407,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -15429,7 +15429,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 v1) o1 (v2 o2 c)
@@ -15439,9 +15439,9 @@ namespace math_expr
                const Type& v1 = vov->v1();
                const Type& v2 = voc->v ();
                const Type   c = voc->c ();
-               const details::operator_type o0 = vov->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = voc->operation();
+               const core::operators::operator_type o0 = vov->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = voc->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15451,7 +15451,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / v1) * (v2 / c) --> (vovovoc) (v0 * v2) / (v1 * c)
-                  if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15462,7 +15462,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / v1) / (v2 / c) --> (vocovov) (v0 * c) / (v1 * v2)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15496,11 +15496,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -15518,7 +15518,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 v1) o1 (c o2 v2)
@@ -15528,9 +15528,9 @@ namespace math_expr
                const Type& v1 = vov->v1();
                const Type& v2 = cov->v ();
                const Type   c = cov->c ();
-               const details::operator_type o0 = vov->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = cov->operation();
+               const core::operators::operator_type o0 = vov->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = cov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15540,7 +15540,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / v1) * (c / v2) --> (vocovov) (v0 * c) / (v1 * v2)
-                  if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15551,7 +15551,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / v1) / (c / v2) --> (vovovoc) (v0 * v2) / (v1 * c)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15585,11 +15585,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -15607,7 +15607,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 c) o1 (v1 o2 v2)
@@ -15617,9 +15617,9 @@ namespace math_expr
                const Type& v0 = voc->v ();
                const Type& v1 = vov->v0();
                const Type& v2 = vov->v1();
-               const details::operator_type o0 = voc->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = vov->operation();
+               const core::operators::operator_type o0 = voc->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = vov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15629,7 +15629,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 / c) * (v1 / v2) --> (vovocov) (v0 * v1) / (c * v2)
-                  if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15640,7 +15640,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c) / (v1 / v2) --> (vovocov) (v0 * v2) / (c * v1)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15674,11 +15674,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -15696,7 +15696,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c o0 v0) o1 (v1 o2 v2)
@@ -15706,9 +15706,9 @@ namespace math_expr
                const Type& v0 = cov->v ();
                const Type& v1 = vov->v0();
                const Type& v2 = vov->v1();
-               const details::operator_type o0 = cov->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = vov->operation();
+               const core::operators::operator_type o0 = cov->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = vov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15718,7 +15718,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c / v0) * (v1 / v2) --> (covovov) (c * v1) / (v0 * v2)
-                  if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15729,7 +15729,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c / v0) / (v1 / v2) --> (covovov) (c * v2) / (v0 * v1)
-                  if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -15763,11 +15763,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -15785,7 +15785,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c0 o0 v0) o1 (c1 o2 v1)
@@ -15795,9 +15795,9 @@ namespace math_expr
                const Type& v0 = cov0->v();
                const Type  c1 = cov1->c();
                const Type& v1 = cov1->v();
-               const details::operator_type o0 = cov0->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = cov1->operation();
+               const core::operators::operator_type o0 = cov0->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = cov1->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -15807,7 +15807,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c0 + v0) + (c1 + v1) --> (covov) (c0 + c1) + v0 + v1
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1) && (details::operator_type::add == o2))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15818,7 +15818,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 + v0) - (c1 + v1) --> (covov) (c0 - c1) + v0 - v1
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1) && (details::operator_type::add == o2))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15829,7 +15829,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 - v0) - (c1 - v1) --> (covov) (c0 - c1) - v0 + v1
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1) && (details::operator_type::sub == o2))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::sub == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15840,7 +15840,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 * v0) * (c1 * v1) --> (covov) (c0 * c1) * v0 * v1
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15851,7 +15851,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 * v0) / (c1 * v1) --> (covov) (c0 / c1) * (v0 / v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15862,7 +15862,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 / v0) * (c1 / v1) --> (covov) (c0 * c1) / (v0 * v1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15873,7 +15873,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 / v0) / (c1 / v1) --> (covov) ((c0 / c1) * v1) / v0
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15884,7 +15884,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 * v0) / (c1 / v1) --> (covov) (c0 / c1) * (v0 * v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15895,7 +15895,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 / v0) / (c1 * v1) --> (covov) (c0 / c1) / (v0 * v1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -15908,11 +15908,11 @@ namespace math_expr
                   // (c * v0) +/- (c * v1) --> (covov) c * (v0 +/- v1)
                   else if (
                             (std::equal_to<T>()(c0,c1)) &&
-                            (details::operator_type::mul == o0)      &&
-                            (details::operator_type::mul == o2)      &&
+                            (core::operators::operator_type::mul == o0)      &&
+                            (core::operators::operator_type::mul == o2)      &&
                             (
-                              (details::operator_type::add == o1) ||
-                              (details::operator_type::sub == o1)
+                              (core::operators::operator_type::add == o1) ||
+                              (core::operators::operator_type::sub == o1)
                             )
                           )
                   {
@@ -15920,8 +15920,8 @@ namespace math_expr
 
                      switch (o1)
                      {
-                        case details::operator_type::add : specfunc = "t*(t+t)"; break;
-                        case details::operator_type::sub : specfunc = "t*(t-t)"; break;
+                        case core::operators::operator_type::add : specfunc = "t*(t+t)"; break;
+                        case core::operators::operator_type::sub : specfunc = "t*(t-t)"; break;
                         default             : return error_node();
                      }
 
@@ -15957,11 +15957,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -15979,7 +15979,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 c0) o1 (v1 o2 c1)
@@ -15989,9 +15989,9 @@ namespace math_expr
                const Type& v0 = voc0->v();
                const Type  c1 = voc1->c();
                const Type& v1 = voc1->v();
-               const details::operator_type o0 = voc0->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = voc1->operation();
+               const core::operators::operator_type o0 = voc0->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = voc1->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -16001,7 +16001,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 + c0) + (v1 + c1) --> (covov) (c0 + c1) + v0 + v1
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1) && (details::operator_type::add == o2))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16012,7 +16012,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 + c0) - (v1 + c1) --> (covov) (c0 - c1) + v0 - v1
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1) && (details::operator_type::add == o2))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16023,7 +16023,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 - c0) - (v1 - c1) --> (covov) (c1 - c0) + v0 - v1
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1) && (details::operator_type::sub == o2))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::sub == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16034,7 +16034,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * c0) * (v1 * c1) --> (covov) (c0 * c1) * v0 * v1
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16045,7 +16045,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * c0) / (v1 * c1) --> (covov) (c0 / c1) * (v0 / v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16056,7 +16056,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) * (v1 / c1) --> (covov) (1 / (c0 * c1)) * v0 * v1
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16067,7 +16067,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) / (v1 / c1) --> (covov) ((c1 / c0) * v0) / v1
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16078,7 +16078,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * c0) / (v1 / c1) --> (covov) (c0 * c1) * (v0 / v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16089,7 +16089,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) / (v1 * c1) --> (covov) (1 / (c0 * c1)) * v0 / v1
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16100,7 +16100,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) * (v1 + c1) --> (vocovoc) (v0 * (1 / c0)) * (v1 + c1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::add == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -16111,7 +16111,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) * (v1 - c1) --> (vocovoc) (v0 * (1 / c0)) * (v1 - c1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::sub == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::sub == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf4ext_expression::
@@ -16124,11 +16124,11 @@ namespace math_expr
                   // (v0 * c) +/- (v1 * c) --> (covov) c * (v0 +/- v1)
                   else if (
                             (std::equal_to<T>()(c0,c1)) &&
-                            (details::operator_type::mul == o0)      &&
-                            (details::operator_type::mul == o2)      &&
+                            (core::operators::operator_type::mul == o0)      &&
+                            (core::operators::operator_type::mul == o2)      &&
                             (
-                              (details::operator_type::add == o1) ||
-                              (details::operator_type::sub == o1)
+                              (core::operators::operator_type::add == o1) ||
+                              (core::operators::operator_type::sub == o1)
                             )
                           )
                   {
@@ -16136,8 +16136,8 @@ namespace math_expr
 
                      switch (o1)
                      {
-                        case details::operator_type::add : specfunc = "t*(t+t)"; break;
-                        case details::operator_type::sub : specfunc = "t*(t-t)"; break;
+                        case core::operators::operator_type::add : specfunc = "t*(t+t)"; break;
+                        case core::operators::operator_type::sub : specfunc = "t*(t-t)"; break;
                         default             : return error_node();
                      }
 
@@ -16152,11 +16152,11 @@ namespace math_expr
                   // (v0 / c) +/- (v1 / c) --> (vovoc) (v0 +/- v1) / c
                   else if (
                             (std::equal_to<T>()(c0,c1)) &&
-                            (details::operator_type::div == o0)      &&
-                            (details::operator_type::div == o2)      &&
+                            (core::operators::operator_type::div == o0)      &&
+                            (core::operators::operator_type::div == o2)      &&
                             (
-                              (details::operator_type::add == o1) ||
-                              (details::operator_type::sub == o1)
+                              (core::operators::operator_type::add == o1) ||
+                              (core::operators::operator_type::sub == o1)
                             )
                           )
                   {
@@ -16164,8 +16164,8 @@ namespace math_expr
 
                      switch (o1)
                      {
-                        case details::operator_type::add : specfunc = "(t+t)/t"; break;
-                        case details::operator_type::sub : specfunc = "(t-t)/t"; break;
+                        case core::operators::operator_type::add : specfunc = "(t+t)/t"; break;
+                        case core::operators::operator_type::sub : specfunc = "(t-t)/t"; break;
                         default             : return error_node();
                      }
 
@@ -16201,11 +16201,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16223,7 +16223,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (c0 o0 v0) o1 (v1 o2 c1)
@@ -16233,9 +16233,9 @@ namespace math_expr
                const Type& v0 = cov->v();
                const Type  c1 = voc->c();
                const Type& v1 = voc->v();
-               const details::operator_type o0 = cov->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = voc->operation();
+               const core::operators::operator_type o0 = cov->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = voc->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -16245,7 +16245,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (c0 + v0) + (v1 + c1) --> (covov) (c0 + c1) + v0 + v1
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1) && (details::operator_type::add == o2))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16256,7 +16256,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 + v0) - (v1 + c1) --> (covov) (c0 - c1) + v0 - v1
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1) && (details::operator_type::add == o2))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16267,7 +16267,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 - v0) - (v1 - c1) --> (covov) (c0 + c1) - v0 - v1
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1) && (details::operator_type::sub == o2))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::sub == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16278,7 +16278,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 * v0) * (v1 * c1) --> (covov) (c0 * c1) * v0 * v1
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16289,7 +16289,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 * v0) / (v1 * c1) --> (covov) (c0 / c1) * (v0 / v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16300,7 +16300,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 / v0) * (v1 / c1) --> (covov) (c0 / c1) * (v1 / v0)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16311,7 +16311,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 / v0) / (v1 / c1) --> (covov) (c0 * c1) / (v0 * v1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16322,7 +16322,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 * v0) / (v1 / c1) --> (covov) (c0 * c1) * (v0 / v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16333,7 +16333,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (c0 / v0) / (v1 * c1) --> (covov) (c0 / c1) / (v0 * v1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16346,11 +16346,11 @@ namespace math_expr
                   // (c * v0) +/- (v1 * c) --> (covov) c * (v0 +/- v1)
                   else if (
                             (std::equal_to<T>()(c0,c1)) &&
-                            (details::operator_type::mul == o0)      &&
-                            (details::operator_type::mul == o2)      &&
+                            (core::operators::operator_type::mul == o0)      &&
+                            (core::operators::operator_type::mul == o2)      &&
                             (
-                              (details::operator_type::add == o1) ||
-                              (details::operator_type::sub == o1)
+                              (core::operators::operator_type::add == o1) ||
+                              (core::operators::operator_type::sub == o1)
                             )
                           )
                   {
@@ -16358,8 +16358,8 @@ namespace math_expr
 
                      switch (o1)
                      {
-                        case details::operator_type::add : specfunc = "t*(t+t)"; break;
-                        case details::operator_type::sub : specfunc = "t*(t-t)"; break;
+                        case core::operators::operator_type::add : specfunc = "t*(t+t)"; break;
+                        case core::operators::operator_type::sub : specfunc = "t*(t-t)"; break;
                         default             : return error_node();
                      }
 
@@ -16395,11 +16395,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16417,7 +16417,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 c0) o1 (c1 o2 v1)
@@ -16427,9 +16427,9 @@ namespace math_expr
                const Type& v0 = voc->v();
                const Type  c1 = cov->c();
                const Type& v1 = cov->v();
-               const details::operator_type o0 = voc->operation();
-               const details::operator_type o1 = operation;
-               const details::operator_type o2 = cov->operation();
+               const core::operators::operator_type o0 = voc->operation();
+               const core::operators::operator_type o1 = operation;
+               const core::operators::operator_type o2 = cov->operation();
 
                details::free_node(*(expr_gen.node_allocator_),branch[0]);
                details::free_node(*(expr_gen.node_allocator_),branch[1]);
@@ -16439,7 +16439,7 @@ namespace math_expr
                if (expr_gen.parser_->settings_.strength_reduction_enabled())
                {
                   // (v0 + c0) + (c1 + v1) --> (covov) (c0 + c1) + v0 + v1
-                  if ((details::operator_type::add == o0) && (details::operator_type::add == o1) && (details::operator_type::add == o2))
+                  if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::add == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16450,7 +16450,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 + c0) - (c1 + v1) --> (covov) (c0 - c1) + v0 - v1
-                  else if ((details::operator_type::add == o0) && (details::operator_type::sub == o1) && (details::operator_type::add == o2))
+                  else if ((core::operators::operator_type::add == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::add == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16461,7 +16461,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 - c0) - (c1 - v1) --> (vovoc) v0 + v1 - (c1 + c0)
-                  else if ((details::operator_type::sub == o0) && (details::operator_type::sub == o1) && (details::operator_type::sub == o2))
+                  else if ((core::operators::operator_type::sub == o0) && (core::operators::operator_type::sub == o1) && (core::operators::operator_type::sub == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16472,7 +16472,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * c0) * (c1 * v1) --> (covov) (c0 * c1) * v0 * v1
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::mul == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16483,7 +16483,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * c0) / (c1 * v1) --> (covov) (c0 / c1) * (v0 * v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16494,7 +16494,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) * (c1 / v1) --> (covov) (c1 / c0) * (v0 / v1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::mul == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::mul == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16505,7 +16505,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 * c0) / (c1 / v1) --> (covov) (c0 / c1) * (v0 * v1)
-                  else if ((details::operator_type::mul == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::mul == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16516,7 +16516,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) / (c1 * v1) --> (covov) (1 / (c0 * c1)) * (v0 / v1)
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::mul == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::mul == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16527,7 +16527,7 @@ namespace math_expr
                      return (synthesis_result) ? result : error_node();
                   }
                   // (v0 / c0) / (c1 / v1) --> (vovoc) (v0 * v1) * (1 / (c0 * c1))
-                  else if ((details::operator_type::div == o0) && (details::operator_type::div == o1) && (details::operator_type::div == o2))
+                  else if ((core::operators::operator_type::div == o0) && (core::operators::operator_type::div == o1) && (core::operators::operator_type::div == o2))
                   {
                      const bool synthesis_result =
                         synthesize_sf3ext_expression::
@@ -16540,10 +16540,10 @@ namespace math_expr
                   // (v0 * c) +/- (c * v1) --> (covov) c * (v0 +/- v1)
                   else if (
                             (std::equal_to<T>()(c0,c1)) &&
-                            (details::operator_type::mul == o0)      &&
-                            (details::operator_type::mul == o2)      &&
+                            (core::operators::operator_type::mul == o0)      &&
+                            (core::operators::operator_type::mul == o2)      &&
                             (
-                              (details::operator_type::add == o1) || (details::operator_type::sub == o1)
+                              (core::operators::operator_type::add == o1) || (core::operators::operator_type::sub == o1)
                             )
                           )
                   {
@@ -16551,8 +16551,8 @@ namespace math_expr
 
                      switch (o1)
                      {
-                        case details::operator_type::add : specfunc = "t*(t+t)"; break;
-                        case details::operator_type::sub : specfunc = "t*(t-t)"; break;
+                        case core::operators::operator_type::add : specfunc = "t*(t+t)"; break;
+                        case core::operators::operator_type::sub : specfunc = "t*(t-t)"; break;
                         default             : return error_node();
                      }
 
@@ -16588,11 +16588,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "t)" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16610,7 +16610,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 (v1 o1 (v2 o2 v3))
@@ -16621,9 +16621,9 @@ namespace math_expr
                const Type& v1 = vovov->t0();
                const Type& v2 = vovov->t1();
                const Type& v3 = vovov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovov->f0();
@@ -16648,11 +16648,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16670,7 +16670,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 (v1 o1 (v2 o2 c))
@@ -16681,9 +16681,9 @@ namespace math_expr
                const Type& v1 = vovoc->t0();
                const Type& v2 = vovoc->t1();
                const Type   c = vovoc->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovoc->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovoc->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovoc->f0();
@@ -16708,11 +16708,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16730,7 +16730,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 (v1 o1 (c o2 v2))
@@ -16741,9 +16741,9 @@ namespace math_expr
                const Type& v1 = vocov->t0();
                const Type   c = vocov->t1();
                const Type& v2 = vocov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vocov->f0();
@@ -16768,11 +16768,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16790,7 +16790,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 (c o1 (v1 o2 v2))
@@ -16801,9 +16801,9 @@ namespace math_expr
                const Type   c = covov->t0();
                const Type& v1 = covov->t1();
                const Type& v2 = covov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(covov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(covov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(covov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(covov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = covov->f0();
@@ -16828,11 +16828,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16850,7 +16850,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // c o0 (v0 o1 (v1 o2 v2))
@@ -16861,9 +16861,9 @@ namespace math_expr
                const Type& v0 = vovov->t0();
                const Type& v1 = vovov->t1();
                const Type& v2 = vovov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovov->f0();
@@ -16889,11 +16889,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16911,7 +16911,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // c0 o0 (v0 o1 (c1 o2 v1))
@@ -16922,9 +16922,9 @@ namespace math_expr
                const Type& v0 = vocov->t0();
                const Type  c1 = vocov->t1();
                const Type& v1 = vocov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vocov->f0();
@@ -16950,11 +16950,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -16972,7 +16972,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 (c0 o1 (v1 o2 c2))
@@ -16983,9 +16983,9 @@ namespace math_expr
                const Type  c0 = covoc->t0();
                const Type& v1 = covoc->t1();
                const Type  c1 = covoc->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(covoc->f0());
-               const details::operator_type o2 = expr_gen.get_operator(covoc->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(covoc->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = covoc->f0();
@@ -17010,11 +17010,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -17031,7 +17031,7 @@ namespace math_expr
             typedef typename node_type::T2 T2;
             typedef typename node_type::T3 T3;
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // c0 o0 (v0 o1 (v1 o2 c1))
@@ -17042,9 +17042,9 @@ namespace math_expr
                const Type& v0 = vovoc->t0();
                const Type& v1 = vovoc->t1();
                const Type  c1 = vovoc->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovoc->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovoc->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovoc->f0();
@@ -17070,11 +17070,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -17092,7 +17092,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 (c0 o1 (c1 o2 v1))
@@ -17103,9 +17103,9 @@ namespace math_expr
                const Type  c0 = cocov->t0();
                const Type  c1 = cocov->t1();
                const Type& v1 = cocov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(cocov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(cocov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(cocov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(cocov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = cocov->f0();
@@ -17130,11 +17130,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"  << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "(t" << expr_gen.to_str(o2)
@@ -17152,7 +17152,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 ((v1 o1 v2) o2 v3)
@@ -17163,9 +17163,9 @@ namespace math_expr
                const Type& v1 = vovov->t0();
                const Type& v2 = vovov->t1();
                const Type& v3 = vovov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovov->f0();
@@ -17190,11 +17190,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17212,7 +17212,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 ((v1 o1 v2) o2 c)
@@ -17223,9 +17223,9 @@ namespace math_expr
                const Type& v1 = vovoc->t0();
                const Type& v2 = vovoc->t1();
                const Type   c = vovoc->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovoc->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovoc->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovoc->f0();
@@ -17250,11 +17250,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17272,7 +17272,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 ((v1 o1 c) o2 v2)
@@ -17283,9 +17283,9 @@ namespace math_expr
                const Type& v1 = vocov->t0();
                const Type   c = vocov->t1();
                const Type& v2 = vocov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vocov->f0();
@@ -17310,11 +17310,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17332,7 +17332,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 ((c o1 v1) o2 v2)
@@ -17343,9 +17343,9 @@ namespace math_expr
                const Type   c = covov->t0();
                const Type& v1 = covov->t1();
                const Type& v2 = covov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(covov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(covov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(covov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(covov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = covov->f0();
@@ -17370,11 +17370,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17392,7 +17392,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // c o0 ((v1 o1 v2) o2 v3)
@@ -17403,9 +17403,9 @@ namespace math_expr
                const Type& v0 = vovov->t0();
                const Type& v1 = vovov->t1();
                const Type& v2 = vovov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovov->f0();
@@ -17431,11 +17431,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17453,7 +17453,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // c0 o0 ((v0 o1 c1) o2 v1)
@@ -17464,9 +17464,9 @@ namespace math_expr
                const Type& v0 = vocov->t0();
                const Type  c1 = vocov->t1();
                const Type& v1 = vocov->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vocov->f0();
@@ -17492,11 +17492,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17514,7 +17514,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // v0 o0 ((c0 o1 v1) o2 c1)
@@ -17525,9 +17525,9 @@ namespace math_expr
                const Type  c0 = covoc->t0();
                const Type& v1 = covoc->t1();
                const Type  c1 = covoc->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(covoc->f0());
-               const details::operator_type o2 = expr_gen.get_operator(covoc->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(covoc->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = covoc->f0();
@@ -17552,11 +17552,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17574,7 +17574,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // c0 o0 ((v0 o1 v1) o2 c1)
@@ -17585,9 +17585,9 @@ namespace math_expr
                const Type& v0 = vovoc->t0();
                const Type& v1 = vovoc->t1();
                const Type  c1 = vovoc->t2();
-               const details::operator_type o0 = operation;
-               const details::operator_type o1 = expr_gen.get_operator(vovoc->f0());
-               const details::operator_type o2 = expr_gen.get_operator(vovoc->f1());
+               const core::operators::operator_type o0 = operation;
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
+               const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
                binary_functor_t f1 = vovoc->f0();
@@ -17613,11 +17613,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "t"   << expr_gen.to_str(o0)
                   << "((t" << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17629,7 +17629,7 @@ namespace math_expr
          {
             typedef typename vococov_t::type2 node_type;
             static inline expression_node_ptr process(expression_generator<Type>&,
-                                                      const details::operator_type&,
+                                                      const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
             {
                // v0 o0 ((c0 o1 c1) o2 v1) - Not possible
@@ -17638,9 +17638,9 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>&,
-                                         const details::operator_type,
-                                         const details::operator_type,
-                                         const details::operator_type)
+                                         const core::operators::operator_type,
+                                         const core::operators::operator_type,
+                                         const core::operators::operator_type)
             {
                return "INVALID";
             }
@@ -17656,7 +17656,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 v1) o1 v2) o2 v3
@@ -17667,9 +17667,9 @@ namespace math_expr
                const Type& v1 = vovov->t1();
                const Type& v2 = vovov->t2();
                const Type& v3 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vovov->f0();
                binary_functor_t f1 = vovov->f1();
@@ -17694,11 +17694,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17716,7 +17716,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 v1) o1 v2) o2 c
@@ -17727,9 +17727,9 @@ namespace math_expr
                const Type& v1 = vovov->t1();
                const Type& v2 = vovov->t2();
                const Type   c = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vovov->f0();
                binary_functor_t f1 = vovov->f1();
@@ -17755,11 +17755,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17777,7 +17777,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 v1) o1 c) o2 v2
@@ -17788,9 +17788,9 @@ namespace math_expr
                const Type& v1 = vovoc->t1();
                const Type   c = vovoc->t2();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vovoc->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vovoc->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vovoc->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vovoc->f0();
                binary_functor_t f1 = vovoc->f1();
@@ -17815,11 +17815,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17837,7 +17837,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 c) o1 v1) o2 v2
@@ -17848,9 +17848,9 @@ namespace math_expr
                const Type   c = vocov->t1();
                const Type& v1 = vocov->t2();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vocov->f0();
                binary_functor_t f1 = vocov->f1();
@@ -17875,11 +17875,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17897,7 +17897,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((c o0 v0) o1 v1) o2 v2
@@ -17908,9 +17908,9 @@ namespace math_expr
                const Type& v0 = covov->t1();
                const Type& v1 = covov->t2();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(covov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(covov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = covov->f0();
                binary_functor_t f1 = covov->f1();
@@ -17935,11 +17935,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -17957,7 +17957,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((c0 o0 v0) o1 c1) o2 v1
@@ -17968,9 +17968,9 @@ namespace math_expr
                const Type& v0 = covoc->t1();
                const Type  c1 = covoc->t2();
                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(covoc->f0());
-               const details::operator_type o1 = expr_gen.get_operator(covoc->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(covoc->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = covoc->f0();
                binary_functor_t f1 = covoc->f1();
@@ -17995,11 +17995,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -18017,7 +18017,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 c0) o1 v1) o2 c1
@@ -18028,9 +18028,9 @@ namespace math_expr
                const Type  c0 = vocov->t1();
                const Type& v1 = vocov->t2();
                const Type  c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vocov->f0();
                binary_functor_t f1 = vocov->f1();
@@ -18056,11 +18056,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -18078,7 +18078,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((c0 o0 v0) o1 v1) o2 c1
@@ -18089,9 +18089,9 @@ namespace math_expr
                const Type& v0 = covov->t1();
                const Type& v1 = covov->t2();
                const Type  c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = expr_gen.get_operator(covov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(covov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = covov->f0();
                binary_functor_t f1 = covov->f1();
@@ -18117,11 +18117,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -18139,7 +18139,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 c0) o1 c1) o2 v1
@@ -18150,9 +18150,9 @@ namespace math_expr
                const Type  c0 = vococ->t1();
                const Type  c1 = vococ->t2();
                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vococ->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vococ->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vococ->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vococ->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vococ->f0();
                binary_functor_t f1 = vococ->f1();
@@ -18177,11 +18177,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "((t" << expr_gen.to_str(o0)
                   << "t)"  << expr_gen.to_str(o1)
                   << "t)"  << expr_gen.to_str(o2)
@@ -18199,7 +18199,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // (v0 o0 (v1 o1 v2)) o2 v3
@@ -18210,9 +18210,9 @@ namespace math_expr
                const Type& v1 = vovov->t1();
                const Type& v2 = vovov->t2();
                const Type& v3 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vovov->f0();
                binary_functor_t f1 = vovov->f1();
@@ -18237,11 +18237,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18259,7 +18259,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 (v1 o1 v2)) o2 c)
@@ -18270,9 +18270,9 @@ namespace math_expr
                const Type& v1 = vovov->t1();
                const Type& v2 = vovov->t2();
                const Type   c = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = expr_gen.get_operator(vovov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vovov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vovov->f0();
                binary_functor_t f1 = vovov->f1();
@@ -18298,11 +18298,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18320,7 +18320,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 (v1 o1 c)) o2 v1)
@@ -18331,9 +18331,9 @@ namespace math_expr
                const Type& v1 = vovoc->t1();
                const Type   c = vovoc->t2();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vovoc->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vovoc->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vovoc->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vovoc->f0();
                binary_functor_t f1 = vovoc->f1();
@@ -18358,11 +18358,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18380,7 +18380,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 (c o1 v1)) o2 v2)
@@ -18391,9 +18391,9 @@ namespace math_expr
                const Type   c = vocov->t1();
                const Type& v1 = vocov->t2();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vocov->f0();
                binary_functor_t f1 = vocov->f1();
@@ -18417,11 +18417,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18439,7 +18439,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((c o0 (v0 o1 v1)) o2 v2)
@@ -18450,9 +18450,9 @@ namespace math_expr
                const Type& v0 = covov->t1();
                const Type& v1 = covov->t2();
                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(covov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(covov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = covov->f0();
                binary_functor_t f1 = covov->f1();
@@ -18477,11 +18477,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18499,7 +18499,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((c0 o0 (v0 o1 c1)) o2 v1)
@@ -18510,9 +18510,9 @@ namespace math_expr
                const Type& v0 = covoc->t1();
                const Type  c1 = covoc->t2();
                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
-               const details::operator_type o0 = expr_gen.get_operator(covoc->f0());
-               const details::operator_type o1 = expr_gen.get_operator(covoc->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(covoc->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = covoc->f0();
                binary_functor_t f1 = covoc->f1();
@@ -18537,11 +18537,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18559,7 +18559,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((v0 o0 (c0 o1 v1)) o2 c1)
@@ -18570,9 +18570,9 @@ namespace math_expr
                const Type  c0 = vocov->t1();
                const Type& v1 = vocov->t2();
                const Type  c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = expr_gen.get_operator(vocov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(vocov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = vocov->f0();
                binary_functor_t f1 = vocov->f1();
@@ -18598,11 +18598,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18620,7 +18620,7 @@ namespace math_expr
             typedef typename node_type::T3 T3;
 
             static inline expression_node_ptr process(expression_generator<Type>& expr_gen,
-                                                      const details::operator_type& operation,
+                                                      const core::operators::operator_type& operation,
                                                       expression_node_ptr (&branch)[2])
             {
                // ((c0 o0 (v0 o1 v1)) o2 c1)
@@ -18631,9 +18631,9 @@ namespace math_expr
                const Type& v0 = covov->t1();
                const Type& v1 = covov->t2();
                const Type  c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
-               const details::operator_type o0 = expr_gen.get_operator(covov->f0());
-               const details::operator_type o1 = expr_gen.get_operator(covov->f1());
-               const details::operator_type o2 = operation;
+               const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
+               const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
+               const core::operators::operator_type o2 = operation;
 
                binary_functor_t f0 = covov->f0();
                binary_functor_t f1 = covov->f1();
@@ -18659,11 +18659,11 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>& expr_gen,
-                                         const details::operator_type o0,
-                                         const details::operator_type o1,
-                                         const details::operator_type o2)
+                                         const core::operators::operator_type o0,
+                                         const core::operators::operator_type o1,
+                                         const core::operators::operator_type o2)
             {
-               return details::build_string()
+               return core::build_string()
                   << "(t" << expr_gen.to_str(o0)
                   << "(t" << expr_gen.to_str(o1)
                   << "t)" << expr_gen.to_str(o2)
@@ -18675,7 +18675,7 @@ namespace math_expr
          {
             typedef typename vococov_t::type4 node_type;
             static inline expression_node_ptr process(expression_generator<Type>&,
-                                                      const details::operator_type&,
+                                                      const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
             {
                // ((v0 o0 (c0 o1 c1)) o2 v1) - Not possible
@@ -18684,20 +18684,20 @@ namespace math_expr
             }
 
             static inline std::string id(expression_generator<Type>&,
-                                         const details::operator_type,
-                                         const details::operator_type,
-                                         const details::operator_type)
+                                         const core::operators::operator_type,
+                                         const core::operators::operator_type,
+                                         const core::operators::operator_type)
             {
                return "INVALID";
             }
          };
          #endif
 
-         inline expression_node_ptr synthesize_uvouv_expression(const details::operator_type& operation, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_uvouv_expression(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
          {
             // Definition: uv o uv
-            details::operator_type o0 = static_cast<details::uv_base_node<Type>*>(branch[0])->operation();
-            details::operator_type o1 = static_cast<details::uv_base_node<Type>*>(branch[1])->operation();
+            core::operators::operator_type o0 = static_cast<details::uv_base_node<Type>*>(branch[0])->operation();
+            core::operators::operator_type o1 = static_cast<details::uv_base_node<Type>*>(branch[1])->operation();
             const Type& v0 = static_cast<details::uv_base_node<Type>*>(branch[0])->v();
             const Type& v1 = static_cast<details::uv_base_node<Type>*>(branch[1])->v();
             unary_functor_t u0 = reinterpret_cast<unary_functor_t> (0);
@@ -18714,14 +18714,14 @@ namespace math_expr
             expression_node_ptr result = error_node();
 
             if (
-                 (details::operator_type::neg == o0) &&
-                 (details::operator_type::neg == o1)
+                 (core::operators::operator_type::neg == o0) &&
+                 (core::operators::operator_type::neg == o1)
                )
             {
                switch (operation)
                {
                   // (-v0 + -v1) --> -(v0 + v1)
-                  case details::operator_type::add : result = (*this)(details::operator_type::neg,
+                  case core::operators::operator_type::add : result = (*this)(core::operators::operator_type::neg,
                                                     node_allocator_->
                                                        allocate_rr<typename details::
                                                           vov_node<Type,details::add_op<Type> > >(v0, v1));
@@ -18729,21 +18729,21 @@ namespace math_expr
                                         break;
 
                   // (-v0 - -v1) --> (v1 - v0)
-                  case details::operator_type::sub : result = node_allocator_->
+                  case core::operators::operator_type::sub : result = node_allocator_->
                                                     allocate_rr<typename details::
                                                        vov_node<Type,details::sub_op<Type> > >(v1, v0);
                                         math_expr_debug(("(-v0 - -v1) --> (v1 - v0)\n"));
                                         break;
 
                   // (-v0 * -v1) --> (v0 * v1)
-                  case details::operator_type::mul : result = node_allocator_->
+                  case core::operators::operator_type::mul : result = node_allocator_->
                                                     allocate_rr<typename details::
                                                        vov_node<Type,details::mul_op<Type> > >(v0, v1);
                                         math_expr_debug(("(-v0 * -v1) --> (v0 * v1)\n"));
                                         break;
 
                   // (-v0 / -v1) --> (v0 / v1)
-                  case details::operator_type::div : result = node_allocator_->
+                  case core::operators::operator_type::div : result = node_allocator_->
                                                     allocate_rr<typename details::
                                                        vov_node<Type,details::div_op<Type> > >(v0, v1);
                                         math_expr_debug(("(-v0 / -v1) --> (v0 / v1)\n"));
@@ -18770,18 +18770,18 @@ namespace math_expr
          #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
          #define string_opr_switch_statements            \
-         case_stmt(details::operator_type::lt    , details::lt_op   ) \
-         case_stmt(details::operator_type::lte   , details::lte_op  ) \
-         case_stmt(details::operator_type::gt    , details::gt_op   ) \
-         case_stmt(details::operator_type::gte   , details::gte_op  ) \
-         case_stmt(details::operator_type::eq    , details::eq_op   ) \
-         case_stmt(details::operator_type::ne    , details::ne_op   ) \
-         case_stmt(details::operator_type::in    , details::in_op   ) \
-         case_stmt(details::operator_type::like  , details::like_op ) \
-         case_stmt(details::operator_type::ilike , details::ilike_op) \
+         case_stmt(core::operators::operator_type::lt    , details::lt_op   ) \
+         case_stmt(core::operators::operator_type::lte   , details::lte_op  ) \
+         case_stmt(core::operators::operator_type::gt    , details::gt_op   ) \
+         case_stmt(core::operators::operator_type::gte   , details::gte_op  ) \
+         case_stmt(core::operators::operator_type::eq    , details::eq_op   ) \
+         case_stmt(core::operators::operator_type::ne    , details::ne_op   ) \
+         case_stmt(core::operators::operator_type::in    , details::in_op   ) \
+         case_stmt(core::operators::operator_type::like  , details::like_op ) \
+         case_stmt(core::operators::operator_type::ilike , details::ilike_op) \
 
          template <typename T0, typename T1>
-         inline expression_node_ptr synthesize_str_xrox_expression_impl(const details::operator_type& opr,
+         inline expression_node_ptr synthesize_str_xrox_expression_impl(const core::operators::operator_type& opr,
                                                                         T0 s0, T1 s1,
                                                                         range_t rp0)
          {
@@ -18799,7 +18799,7 @@ namespace math_expr
          }
 
          template <typename T0, typename T1>
-         inline expression_node_ptr synthesize_str_xoxr_expression_impl(const details::operator_type& opr,
+         inline expression_node_ptr synthesize_str_xoxr_expression_impl(const core::operators::operator_type& opr,
                                                                         T0 s0, T1 s1,
                                                                         range_t rp1)
          {
@@ -18817,7 +18817,7 @@ namespace math_expr
          }
 
          template <typename T0, typename T1>
-         inline expression_node_ptr synthesize_str_xroxr_expression_impl(const details::operator_type& opr,
+         inline expression_node_ptr synthesize_str_xroxr_expression_impl(const core::operators::operator_type& opr,
                                                                          T0 s0, T1 s1,
                                                                          range_t rp0, range_t rp1)
          {
@@ -18835,7 +18835,7 @@ namespace math_expr
          }
 
          template <typename T0, typename T1>
-         inline expression_node_ptr synthesize_sos_expression_impl(const details::operator_type& opr, T0 s0, T1 s1)
+         inline expression_node_ptr synthesize_sos_expression_impl(const core::operators::operator_type& opr, T0 s0, T1 s1)
          {
             switch (opr)
             {
@@ -18849,7 +18849,7 @@ namespace math_expr
             }
          }
 
-         inline expression_node_ptr synthesize_sos_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_sos_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string& s0 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
             std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
@@ -18857,7 +18857,7 @@ namespace math_expr
             return synthesize_sos_expression_impl<std::string&,std::string&>(opr, s0, s1);
          }
 
-         inline expression_node_ptr synthesize_sros_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_sros_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref  ();
             std::string&  s1 = static_cast<details::string_nodes::stringvar_node<Type>*>   (branch[1])->ref  ();
@@ -18870,7 +18870,7 @@ namespace math_expr
             return synthesize_str_xrox_expression_impl<std::string&,std::string&>(opr, s0, s1, rp0);
          }
 
-         inline expression_node_ptr synthesize_sosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_sosr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string&  s0 = static_cast<details::string_nodes::stringvar_node<Type>*>   (branch[0])->ref  ();
             std::string&  s1 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref  ();
@@ -18883,7 +18883,7 @@ namespace math_expr
             return synthesize_str_xoxr_expression_impl<std::string&,std::string&>(opr, s0, s1, rp1);
          }
 
-         inline expression_node_ptr synthesize_socsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_socsr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string&  s0 = static_cast<details::string_nodes::stringvar_node<Type>*>         (branch[0])->ref  ();
             std::string   s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
@@ -18896,7 +18896,7 @@ namespace math_expr
             return synthesize_str_xoxr_expression_impl<std::string&, const std::string>(opr, s0, s1, rp1);
          }
 
-         inline expression_node_ptr synthesize_srosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_srosr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref  ();
             std::string&  s1 = static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref  ();
@@ -18912,7 +18912,7 @@ namespace math_expr
             return synthesize_str_xroxr_expression_impl<std::string&,std::string&>(opr, s0, s1, rp0, rp1);
          }
 
-         inline expression_node_ptr synthesize_socs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_socs_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string& s0 = static_cast<     details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
             std::string  s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
@@ -18922,7 +18922,7 @@ namespace math_expr
             return synthesize_sos_expression_impl<std::string&, const std::string>(opr, s0, s1);
          }
 
-         inline expression_node_ptr synthesize_csos_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csos_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string  s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
             std::string& s1 = static_cast<details::string_nodes::stringvar_node<Type>*     >(branch[1])->ref();
@@ -18932,7 +18932,7 @@ namespace math_expr
             return synthesize_sos_expression_impl<const std::string,std::string&>(opr, s0, s1);
          }
 
-         inline expression_node_ptr synthesize_csosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csosr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string  s0  = static_cast<details::string_literal_node<Type>*>(branch[0])->str  ();
             std::string& s1  = static_cast<details::string_nodes::string_range_node<Type>*  >(branch[1])->ref  ();
@@ -18946,7 +18946,7 @@ namespace math_expr
             return synthesize_str_xoxr_expression_impl<const std::string,std::string&>(opr, s0, s1, rp1);
          }
 
-         inline expression_node_ptr synthesize_srocs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_srocs_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*  >(branch[0])->ref  ();
             std::string   s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str  ();
@@ -18960,7 +18960,7 @@ namespace math_expr
             return synthesize_str_xrox_expression_impl<std::string&, const std::string>(opr, s0, s1, rp0);
          }
 
-         inline expression_node_ptr synthesize_srocsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_srocsr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string&  s0 = static_cast<details::string_nodes::string_range_node<Type>*      >(branch[0])->ref  ();
             std::string   s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
@@ -18976,20 +18976,20 @@ namespace math_expr
             return synthesize_str_xroxr_expression_impl<std::string&, const std::string>(opr, s0, s1, rp0, rp1);
          }
 
-         inline expression_node_ptr synthesize_csocs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csocs_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             const std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
             const std::string s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
 
             expression_node_ptr result = error_node();
 
-            if (details::operator_type::add == opr)
+            if (core::operators::operator_type::add == opr)
                result = node_allocator_->allocate_c<details::string_literal_node<Type> >(s0 + s1);
-            else if (details::operator_type::in == opr)
+            else if (core::operators::operator_type::in == opr)
                result = node_allocator_->allocate_c<details::literal_node<Type> >(details::in_op   <Type>::process(s0,s1));
-            else if (details::operator_type::like == opr)
+            else if (core::operators::operator_type::like == opr)
                result = node_allocator_->allocate_c<details::literal_node<Type> >(details::like_op <Type>::process(s0,s1));
-            else if (details::operator_type::ilike == opr)
+            else if (core::operators::operator_type::ilike == opr)
                result = node_allocator_->allocate_c<details::literal_node<Type> >(details::ilike_op<Type>::process(s0,s1));
             else
             {
@@ -19007,7 +19007,7 @@ namespace math_expr
             return result;
          }
 
-         inline expression_node_ptr synthesize_csocsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csocsr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             const std::string s0 = static_cast<details::string_literal_node<Type>*    >(branch[0])->str  ();
                   std::string s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
@@ -19021,7 +19021,7 @@ namespace math_expr
             return synthesize_str_xoxr_expression_impl<const std::string, const std::string>(opr, s0, s1, rp1);
          }
 
-         inline expression_node_ptr synthesize_csros_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csros_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             std::string   s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
             std::string&  s1 = static_cast<details::string_nodes::stringvar_node<Type>*         >(branch[1])->ref  ();
@@ -19034,7 +19034,7 @@ namespace math_expr
             return synthesize_str_xrox_expression_impl<const std::string,std::string&>(opr, s0, s1, rp0);
          }
 
-         inline expression_node_ptr synthesize_csrosr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csrosr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             const std::string  s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
                   std::string& s1 = static_cast<details::string_nodes::string_range_node<Type>*      >(branch[1])->ref  ();
@@ -19050,7 +19050,7 @@ namespace math_expr
             return synthesize_str_xroxr_expression_impl<const std::string,std::string&>(opr, s0, s1, rp0, rp1);
          }
 
-         inline expression_node_ptr synthesize_csrocs_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csrocs_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             const std::string s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
             const std::string s1 = static_cast<details::string_literal_node<Type>*    >(branch[1])->str  ();
@@ -19063,7 +19063,7 @@ namespace math_expr
             return synthesize_str_xrox_expression_impl<const std::string,std::string>(opr, s0, s1, rp0);
          }
 
-         inline expression_node_ptr synthesize_csrocsr_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_csrocsr_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             const std::string s0 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])->str  ();
             const std::string s1 = static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])->str  ();
@@ -19078,7 +19078,7 @@ namespace math_expr
             return synthesize_str_xroxr_expression_impl<const std::string, const std::string>(opr, s0, s1, rp0, rp1);
          }
 
-         inline expression_node_ptr synthesize_strogen_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_strogen_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             switch (opr)
             {
@@ -19097,7 +19097,7 @@ namespace math_expr
          #endif
 
          #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-         inline expression_node_ptr synthesize_string_expression(const details::operator_type& opr, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_string_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
          {
             if ((0 == branch[0]) || (0 == branch[1]))
             {
@@ -19132,7 +19132,7 @@ namespace math_expr
                                    details::is_string_ccondition_node (branch[1]) ||
                                    details::is_string_vararg_node     (branch[1]) ;
 
-            if (details::operator_type::add == opr)
+            if (core::operators::operator_type::add == opr)
             {
                if (!b0_is_cs || !b1_is_cs)
                {
@@ -19176,7 +19176,7 @@ namespace math_expr
             return error_node();
          }
          #else
-         inline expression_node_ptr synthesize_string_expression(const details::operator_type&, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_string_expression(const core::operators::operator_type&, expression_node_ptr (&branch)[2])
          {
             details::free_all_nodes(*node_allocator_,branch);
             return error_node();
@@ -19184,9 +19184,9 @@ namespace math_expr
          #endif
 
          #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-         inline expression_node_ptr synthesize_string_expression(const details::operator_type& opr, expression_node_ptr (&branch)[3])
+         inline expression_node_ptr synthesize_string_expression(const core::operators::operator_type& opr, expression_node_ptr (&branch)[3])
          {
-            if (details::operator_type::inrange != opr)
+            if (core::operators::operator_type::inrange != opr)
                return error_node();
             else if ((0 == branch[0]) || (0 == branch[1]) || (0 == branch[2]))
             {
@@ -19293,14 +19293,14 @@ namespace math_expr
                return error_node();
          }
          #else
-         inline expression_node_ptr synthesize_string_expression(const details::operator_type&, expression_node_ptr (&branch)[3])
+         inline expression_node_ptr synthesize_string_expression(const core::operators::operator_type&, expression_node_ptr (&branch)[3])
          {
             details::free_all_nodes(*node_allocator_,branch);
             return error_node();
          }
          #endif
 
-         inline expression_node_ptr synthesize_null_expression(const details::operator_type& operation, expression_node_ptr (&branch)[2])
+         inline expression_node_ptr synthesize_null_expression(const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
          {
             /*
              Note: The following are the type promotion rules
@@ -19322,9 +19322,9 @@ namespace math_expr
             {
                expression_node_ptr result = error_node();
 
-               if (details::operator_type::eq == operation)
+               if (core::operators::operator_type::eq == operation)
                   result = node_allocator_->allocate_c<literal_node_t>(T(1));
-               else if (details::operator_type::ne == operation)
+               else if (core::operators::operator_type::ne == operation)
                   result = node_allocator_->allocate_c<literal_node_t>(T(0));
 
                if (result)
@@ -19339,7 +19339,7 @@ namespace math_expr
 
                return branch[0];
             }
-            else if (details::operator_type::eq == operation)
+            else if (core::operators::operator_type::eq == operation)
             {
                expression_node_ptr result = node_allocator_->
                                                 allocate_rc<nulleq_node_t>(branch[b0_null ? 0 : 1],true);
@@ -19348,7 +19348,7 @@ namespace math_expr
 
                return result;
             }
-            else if (details::operator_type::ne == operation)
+            else if (core::operators::operator_type::ne == operation)
             {
                expression_node_ptr result = node_allocator_->
                                                 allocate_rc<nulleq_node_t>(branch[b0_null ? 0 : 1],false);
@@ -19370,9 +19370,9 @@ namespace math_expr
             }
 
             if (
-                 (details::operator_type::add == operation) || (details::operator_type::sub == operation) ||
-                 (details::operator_type::mul == operation) || (details::operator_type::div == operation) ||
-                 (details::operator_type::mod == operation) || (details::operator_type::pow == operation)
+                 (core::operators::operator_type::add == operation) || (core::operators::operator_type::sub == operation) ||
+                 (core::operators::operator_type::mul == operation) || (core::operators::operator_type::div == operation) ||
+                 (core::operators::operator_type::mod == operation) || (core::operators::operator_type::pow == operation)
                )
             {
                return branch[0];
@@ -19381,13 +19381,13 @@ namespace math_expr
             details::free_node(*node_allocator_, branch[0]);
 
             if (
-                 (details::operator_type::lt    == operation) || (details::operator_type::lte  == operation) ||
-                 (details::operator_type::gt    == operation) || (details::operator_type::gte  == operation) ||
-                 (details::operator_type::logical_and   == operation) || (details::operator_type::nand == operation) ||
-                 (details::operator_type::logical_or    == operation) || (details::operator_type::nor  == operation) ||
-                 (details::operator_type::logical_xor   == operation) || (details::operator_type::xnor == operation) ||
-                 (details::operator_type::in    == operation) || (details::operator_type::like == operation) ||
-                 (details::operator_type::ilike == operation)
+                 (core::operators::operator_type::lt    == operation) || (core::operators::operator_type::lte  == operation) ||
+                 (core::operators::operator_type::gt    == operation) || (core::operators::operator_type::gte  == operation) ||
+                 (core::operators::operator_type::logical_and   == operation) || (core::operators::operator_type::nand == operation) ||
+                 (core::operators::operator_type::logical_or    == operation) || (core::operators::operator_type::nor  == operation) ||
+                 (core::operators::operator_type::logical_xor   == operation) || (core::operators::operator_type::xnor == operation) ||
+                 (core::operators::operator_type::in    == operation) || (core::operators::operator_type::like == operation) ||
+                 (core::operators::operator_type::ilike == operation)
                )
             {
                return node_allocator_->allocate_c<literal_node_t>(T(0));
@@ -19397,12 +19397,12 @@ namespace math_expr
          }
 
          template <typename NodeType, std::size_t N>
-         inline expression_node_ptr synthesize_expression(const details::operator_type& operation, expression_node_ptr (&branch)[N])
+         inline expression_node_ptr synthesize_expression(const core::operators::operator_type& operation, expression_node_ptr (&branch)[N])
          {
             if (
-                 (details::operator_type::in    == operation) ||
-                 (details::operator_type::like  == operation) ||
-                 (details::operator_type::ilike == operation)
+                 (core::operators::operator_type::in    == operation) ||
+                 (core::operators::operator_type::like  == operation) ||
+                 (core::operators::operator_type::ilike == operation)
                )
             {
                free_all_nodes(*node_allocator_,branch);
@@ -19415,7 +19415,7 @@ namespace math_expr
 
                return error_node();
             }
-            else if ((details::operator_type::default_op != operation))
+            else if ((core::operators::operator_type::default_op != operation))
             {
                // Attempt simple constant folding optimisation.
                expression_node_ptr expression_point = node_allocator_->allocate<NodeType>(operation,branch);
@@ -19589,45 +19589,45 @@ namespace math_expr
          #define register_unary_op(Op, UnaryFunctor)            \
          m.insert(std::make_pair(Op,UnaryFunctor<T>::process)); \
 
-         register_unary_op(details::operator_type::abs   , details::abs_op  )
-         register_unary_op(details::operator_type::acos  , details::acos_op )
-         register_unary_op(details::operator_type::acosh , details::acosh_op)
-         register_unary_op(details::operator_type::asin  , details::asin_op )
-         register_unary_op(details::operator_type::asinh , details::asinh_op)
-         register_unary_op(details::operator_type::atanh , details::atanh_op)
-         register_unary_op(details::operator_type::ceil  , details::ceil_op )
-         register_unary_op(details::operator_type::cos   , details::cos_op  )
-         register_unary_op(details::operator_type::cosh  , details::cosh_op )
-         register_unary_op(details::operator_type::exp   , details::exp_op  )
-         register_unary_op(details::operator_type::expm1 , details::expm1_op)
-         register_unary_op(details::operator_type::floor , details::floor_op)
-         register_unary_op(details::operator_type::log   , details::log_op  )
-         register_unary_op(details::operator_type::log10 , details::log10_op)
-         register_unary_op(details::operator_type::log2  , details::log2_op )
-         register_unary_op(details::operator_type::log1p , details::log1p_op)
-         register_unary_op(details::operator_type::neg   , details::neg_op  )
-         register_unary_op(details::operator_type::pos   , details::pos_op  )
-         register_unary_op(details::operator_type::round , details::round_op)
-         register_unary_op(details::operator_type::sin   , details::sin_op  )
-         register_unary_op(details::operator_type::sinc  , details::sinc_op )
-         register_unary_op(details::operator_type::sinh  , details::sinh_op )
-         register_unary_op(details::operator_type::sqrt  , details::sqrt_op )
-         register_unary_op(details::operator_type::tan   , details::tan_op  )
-         register_unary_op(details::operator_type::tanh  , details::tanh_op )
-         register_unary_op(details::operator_type::cot   , details::cot_op  )
-         register_unary_op(details::operator_type::sec   , details::sec_op  )
-         register_unary_op(details::operator_type::csc   , details::csc_op  )
-         register_unary_op(details::operator_type::r2d   , details::r2d_op  )
-         register_unary_op(details::operator_type::d2r   , details::d2r_op  )
-         register_unary_op(details::operator_type::d2g   , details::d2g_op  )
-         register_unary_op(details::operator_type::g2d   , details::g2d_op  )
-         register_unary_op(details::operator_type::notl  , details::notl_op )
-         register_unary_op(details::operator_type::sgn   , details::sgn_op  )
-         register_unary_op(details::operator_type::erf   , details::erf_op  )
-         register_unary_op(details::operator_type::erfc  , details::erfc_op )
-         register_unary_op(details::operator_type::ncdf  , details::ncdf_op )
-         register_unary_op(details::operator_type::frac  , details::frac_op )
-         register_unary_op(details::operator_type::trunc , details::trunc_op)
+         register_unary_op(core::operators::operator_type::abs   , details::abs_op  )
+         register_unary_op(core::operators::operator_type::acos  , details::acos_op )
+         register_unary_op(core::operators::operator_type::acosh , details::acosh_op)
+         register_unary_op(core::operators::operator_type::asin  , details::asin_op )
+         register_unary_op(core::operators::operator_type::asinh , details::asinh_op)
+         register_unary_op(core::operators::operator_type::atanh , details::atanh_op)
+         register_unary_op(core::operators::operator_type::ceil  , details::ceil_op )
+         register_unary_op(core::operators::operator_type::cos   , details::cos_op  )
+         register_unary_op(core::operators::operator_type::cosh  , details::cosh_op )
+         register_unary_op(core::operators::operator_type::exp   , details::exp_op  )
+         register_unary_op(core::operators::operator_type::expm1 , details::expm1_op)
+         register_unary_op(core::operators::operator_type::floor , details::floor_op)
+         register_unary_op(core::operators::operator_type::log   , details::log_op  )
+         register_unary_op(core::operators::operator_type::log10 , details::log10_op)
+         register_unary_op(core::operators::operator_type::log2  , details::log2_op )
+         register_unary_op(core::operators::operator_type::log1p , details::log1p_op)
+         register_unary_op(core::operators::operator_type::neg   , details::neg_op  )
+         register_unary_op(core::operators::operator_type::pos   , details::pos_op  )
+         register_unary_op(core::operators::operator_type::round , details::round_op)
+         register_unary_op(core::operators::operator_type::sin   , details::sin_op  )
+         register_unary_op(core::operators::operator_type::sinc  , details::sinc_op )
+         register_unary_op(core::operators::operator_type::sinh  , details::sinh_op )
+         register_unary_op(core::operators::operator_type::sqrt  , details::sqrt_op )
+         register_unary_op(core::operators::operator_type::tan   , details::tan_op  )
+         register_unary_op(core::operators::operator_type::tanh  , details::tanh_op )
+         register_unary_op(core::operators::operator_type::cot   , details::cot_op  )
+         register_unary_op(core::operators::operator_type::sec   , details::sec_op  )
+         register_unary_op(core::operators::operator_type::csc   , details::csc_op  )
+         register_unary_op(core::operators::operator_type::r2d   , details::r2d_op  )
+         register_unary_op(core::operators::operator_type::d2r   , details::d2r_op  )
+         register_unary_op(core::operators::operator_type::d2g   , details::d2g_op  )
+         register_unary_op(core::operators::operator_type::g2d   , details::g2d_op  )
+         register_unary_op(core::operators::operator_type::notl  , details::notl_op )
+         register_unary_op(core::operators::operator_type::sgn   , details::sgn_op  )
+         register_unary_op(core::operators::operator_type::erf   , details::erf_op  )
+         register_unary_op(core::operators::operator_type::erfc  , details::erfc_op )
+         register_unary_op(core::operators::operator_type::ncdf  , details::ncdf_op )
+         register_unary_op(core::operators::operator_type::frac  , details::frac_op )
+         register_unary_op(core::operators::operator_type::trunc , details::trunc_op)
          #undef register_unary_op
       }
 
@@ -19638,24 +19638,24 @@ namespace math_expr
          #define register_binary_op(Op, BinaryFunctor)       \
          m.insert(value_type(Op,BinaryFunctor<T>::process)); \
 
-         register_binary_op(details::operator_type::add  , details::add_op )
-         register_binary_op(details::operator_type::sub  , details::sub_op )
-         register_binary_op(details::operator_type::mul  , details::mul_op )
-         register_binary_op(details::operator_type::div  , details::div_op )
-         register_binary_op(details::operator_type::mod  , details::mod_op )
-         register_binary_op(details::operator_type::pow  , details::pow_op )
-         register_binary_op(details::operator_type::lt   , details::lt_op  )
-         register_binary_op(details::operator_type::lte  , details::lte_op )
-         register_binary_op(details::operator_type::gt   , details::gt_op  )
-         register_binary_op(details::operator_type::gte  , details::gte_op )
-         register_binary_op(details::operator_type::eq   , details::eq_op  )
-         register_binary_op(details::operator_type::ne   , details::ne_op  )
-         register_binary_op(details::operator_type::logical_and  , details::and_op )
-         register_binary_op(details::operator_type::nand , details::nand_op)
-         register_binary_op(details::operator_type::logical_or   , details::or_op  )
-         register_binary_op(details::operator_type::nor  , details::nor_op )
-         register_binary_op(details::operator_type::logical_xor  , details::xor_op )
-         register_binary_op(details::operator_type::xnor , details::xnor_op)
+         register_binary_op(core::operators::operator_type::add  , details::add_op )
+         register_binary_op(core::operators::operator_type::sub  , details::sub_op )
+         register_binary_op(core::operators::operator_type::mul  , details::mul_op )
+         register_binary_op(core::operators::operator_type::div  , details::div_op )
+         register_binary_op(core::operators::operator_type::mod  , details::mod_op )
+         register_binary_op(core::operators::operator_type::pow  , details::pow_op )
+         register_binary_op(core::operators::operator_type::lt   , details::lt_op  )
+         register_binary_op(core::operators::operator_type::lte  , details::lte_op )
+         register_binary_op(core::operators::operator_type::gt   , details::gt_op  )
+         register_binary_op(core::operators::operator_type::gte  , details::gte_op )
+         register_binary_op(core::operators::operator_type::eq   , details::eq_op  )
+         register_binary_op(core::operators::operator_type::ne   , details::ne_op  )
+         register_binary_op(core::operators::operator_type::logical_and  , details::and_op )
+         register_binary_op(core::operators::operator_type::nand , details::nand_op)
+         register_binary_op(core::operators::operator_type::logical_or   , details::or_op  )
+         register_binary_op(core::operators::operator_type::nor  , details::nor_op )
+         register_binary_op(core::operators::operator_type::logical_xor  , details::xor_op )
+         register_binary_op(core::operators::operator_type::xnor , details::xnor_op)
          #undef register_binary_op
       }
 
@@ -19666,33 +19666,33 @@ namespace math_expr
          #define register_binary_op(Op, BinaryFunctor)       \
          m.insert(value_type(BinaryFunctor<T>::process,Op)); \
 
-         register_binary_op(details::operator_type::add  , details::add_op )
-         register_binary_op(details::operator_type::sub  , details::sub_op )
-         register_binary_op(details::operator_type::mul  , details::mul_op )
-         register_binary_op(details::operator_type::div  , details::div_op )
-         register_binary_op(details::operator_type::mod  , details::mod_op )
-         register_binary_op(details::operator_type::pow  , details::pow_op )
-         register_binary_op(details::operator_type::lt   , details::lt_op  )
-         register_binary_op(details::operator_type::lte  , details::lte_op )
-         register_binary_op(details::operator_type::gt   , details::gt_op  )
-         register_binary_op(details::operator_type::gte  , details::gte_op )
-         register_binary_op(details::operator_type::eq   , details::eq_op  )
-         register_binary_op(details::operator_type::ne   , details::ne_op  )
-         register_binary_op(details::operator_type::logical_and  , details::and_op )
-         register_binary_op(details::operator_type::nand , details::nand_op)
-         register_binary_op(details::operator_type::logical_or   , details::or_op  )
-         register_binary_op(details::operator_type::nor  , details::nor_op )
-         register_binary_op(details::operator_type::logical_xor  , details::xor_op )
-         register_binary_op(details::operator_type::xnor , details::xnor_op)
+         register_binary_op(core::operators::operator_type::add  , details::add_op )
+         register_binary_op(core::operators::operator_type::sub  , details::sub_op )
+         register_binary_op(core::operators::operator_type::mul  , details::mul_op )
+         register_binary_op(core::operators::operator_type::div  , details::div_op )
+         register_binary_op(core::operators::operator_type::mod  , details::mod_op )
+         register_binary_op(core::operators::operator_type::pow  , details::pow_op )
+         register_binary_op(core::operators::operator_type::lt   , details::lt_op  )
+         register_binary_op(core::operators::operator_type::lte  , details::lte_op )
+         register_binary_op(core::operators::operator_type::gt   , details::gt_op  )
+         register_binary_op(core::operators::operator_type::gte  , details::gte_op )
+         register_binary_op(core::operators::operator_type::eq   , details::eq_op  )
+         register_binary_op(core::operators::operator_type::ne   , details::ne_op  )
+         register_binary_op(core::operators::operator_type::logical_and  , details::and_op )
+         register_binary_op(core::operators::operator_type::nand , details::nand_op)
+         register_binary_op(core::operators::operator_type::logical_or   , details::or_op  )
+         register_binary_op(core::operators::operator_type::nor  , details::nor_op )
+         register_binary_op(core::operators::operator_type::logical_xor  , details::xor_op )
+         register_binary_op(core::operators::operator_type::xnor , details::xnor_op)
          #undef register_binary_op
       }
 
       inline void load_sf3_map(sf3_map_t& sf3_map)
       {
-         typedef std::pair<trinary_functor_t,details::operator_type> pair_t;
+         typedef std::pair<trinary_functor_t,core::operators::operator_type> pair_t;
 
          #define register_sf3(Op)                                                                             \
-         sf3_map[details::sf##Op##_op<T>::id()] = pair_t(details::sf##Op##_op<T>::process,details::operator_type::sf##Op); \
+         sf3_map[details::sf##Op##_op<T>::id()] = pair_t(details::sf##Op##_op<T>::process,core::operators::operator_type::sf##Op); \
 
          register_sf3(00) register_sf3(01) register_sf3(02) register_sf3(03)
          register_sf3(04) register_sf3(05) register_sf3(06) register_sf3(07)
@@ -19705,7 +19705,7 @@ namespace math_expr
          #undef register_sf3
 
          #define register_sf3_extid(Id, Op)                                        \
-         sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process,details::operator_type::sf##Op); \
+         sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process,core::operators::operator_type::sf##Op); \
 
          register_sf3_extid("(t-t)-t",23)  // (t-t)-t --> t-(t+t)
          #undef register_sf3_extid
@@ -19713,10 +19713,10 @@ namespace math_expr
 
       inline void load_sf4_map(sf4_map_t& sf4_map)
       {
-         typedef std::pair<quaternary_functor_t,details::operator_type> pair_t;
+         typedef std::pair<quaternary_functor_t,core::operators::operator_type> pair_t;
 
          #define register_sf4(Op)                                                                             \
-         sf4_map[details::sf##Op##_op<T>::id()] = pair_t(details::sf##Op##_op<T>::process,details::operator_type::sf##Op); \
+         sf4_map[details::sf##Op##_op<T>::id()] = pair_t(details::sf##Op##_op<T>::process,core::operators::operator_type::sf##Op); \
 
          register_sf4(48) register_sf4(49) register_sf4(50) register_sf4(51)
          register_sf4(52) register_sf4(53) register_sf4(54) register_sf4(55)
@@ -19730,7 +19730,7 @@ namespace math_expr
          #undef register_sf4
 
          #define register_sf4ext(Op)                                                                                    \
-         sf4_map[details::sfext##Op##_op<T>::id()] = pair_t(details::sfext##Op##_op<T>::process,details::operator_type::sf4ext##Op); \
+         sf4_map[details::sfext##Op##_op<T>::id()] = pair_t(details::sfext##Op##_op<T>::process,core::operators::operator_type::sf4ext##Op); \
 
          register_sf4ext(00) register_sf4ext(01) register_sf4ext(02) register_sf4ext(03)
          register_sf4ext(04) register_sf4ext(05) register_sf4ext(06) register_sf4ext(07)
@@ -19782,8 +19782,8 @@ namespace math_expr
          {
             set_error(make_error(
                parser_error::e_parser,
-               "ERR282 - Max local vector size of " + details::to_str(max_local_vector_size_bytes) + " bytes "
-               "is larger than max total local symbol size of " + details::to_str(settings_.max_total_local_symbol_size_bytes()) + " bytes",
+               "ERR282 - Max local vector size of " + core::to_str(max_local_vector_size_bytes) + " bytes "
+               "is larger than max total local symbol size of " + core::to_str(settings_.max_total_local_symbol_size_bytes()) + " bytes",
                math_expr_error_location));
 
             return false;

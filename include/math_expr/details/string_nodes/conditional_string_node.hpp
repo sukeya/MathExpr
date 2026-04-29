@@ -56,7 +56,7 @@ namespace math_expr::details::string_nodes
          conditional_string_node(expression_ptr condition,
                                  expression_ptr consequent,
                                  expression_ptr alternative)
-         : trinary_node<T>(details::operator_type::default_op, consequent, alternative, condition)
+         : trinary_node<T>(core::operators::operator_type::default_op, consequent, alternative, condition)
          , initialised_(false)
          , str0_base_ptr_ (0)
          , str1_base_ptr_ (0)
@@ -156,7 +156,7 @@ namespace math_expr::details::string_nodes
             return value_;
          }
 
-         char_cptr base() const override
+         core::char_cptr base() const override
          {
             return &value_[0];
          }

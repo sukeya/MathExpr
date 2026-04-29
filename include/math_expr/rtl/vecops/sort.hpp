@@ -78,9 +78,9 @@ namespace math_expr::rtl::vecops
 
          if ((2 == ps_index) || (3 == ps_index))
          {
-            if (math_expr::details::imatch(to_str(string_t(parameters[1])),"ascending"))
+            if (math_expr::core::imatch(to_str(string_t(parameters[1])),"ascending"))
                ascending = true;
-            else if (math_expr::details::imatch(to_str(string_t(parameters[1])),"descending"))
+            else if (math_expr::core::imatch(to_str(string_t(parameters[1])),"descending"))
                ascending = false;
             else
                return T(0);

@@ -49,7 +49,8 @@ limitations under the License.
 #define INCLUDE_MATH_EXPR_HPP
 
 #include "math_expr/core/std_includes.hpp"
-#include "math_expr/core/fwd.hpp"
+#include "math_expr/fwd.hpp"
+#include "math_expr/details/fwd.hpp"
 #include "math_expr/core/macros.hpp"
 #include "math_expr/core/types.hpp"
 #include "math_expr/core/string_utils.hpp"

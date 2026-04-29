@@ -80,7 +80,7 @@ void newton_sqrt()
       const T real   = std::sqrt(x);
       const T error  = std::abs(result - real);
 
-      const bool err_in_bound = error <= math_expr::details::numeric::constant::pi;
+      const bool err_in_bound = error <= math_expr::core::numeric::pi;
 
       printf("sqrt(%6.2f) - Result: %15.13f\tReal: %15.13f\tError: %18.16f EIB: %c\n",
              x,

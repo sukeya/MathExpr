@@ -266,7 +266,7 @@ namespace math_expr
          typedef Type type_t;
          typedef type_t* type_ptr;
          typedef std::pair<bool,type_ptr> type_pair_t;
-         typedef std::map<std::string,type_pair_t,details::ilesscompare> type_map_t;
+         typedef std::map<std::string,type_pair_t,core::ilesscompare> type_map_t;
          typedef typename type_map_t::iterator tm_itr_t;
          typedef typename type_map_t::const_iterator tm_const_itr_t;
 
@@ -351,9 +351,9 @@ namespace math_expr
          {
             if (symbol_name.size() > 1)
             {
-               for (std::size_t i = 0; i < details::reserved_symbols_size; ++i)
+               for (std::size_t i = 0; i < core::reserved_symbols_size; ++i)
                {
-                  if (details::imatch(symbol_name, details::reserved_symbols[i]))
+                  if (core::imatch(symbol_name, core::reserved_symbols[i]))
                   {
                      return false;
                   }
@@ -671,14 +671,14 @@ namespace math_expr
 
             st_data()
             {
-               for (std::size_t i = 0; i < details::reserved_words_size; ++i)
+               for (std::size_t i = 0; i < core::reserved_words_size; ++i)
                {
-                  reserved_symbol_table_.insert(details::reserved_words[i]);
+                  reserved_symbol_table_.insert(core::reserved_words[i]);
                }
 
-               for (std::size_t i = 0; i < details::reserved_symbols_size; ++i)
+               for (std::size_t i = 0; i < core::reserved_symbols_size; ++i)
                {
-                  reserved_symbol_table_.insert(details::reserved_symbols[i]);
+                  reserved_symbol_table_.insert(core::reserved_symbols[i]);
                }
             }
 
@@ -778,7 +778,7 @@ namespace math_expr
 
      ~symbol_table()
       {
-         math_expr::details::dump_ptr("~symbol_table", this);
+         math_expr::core::dump_ptr("~symbol_table", this);
          control_block::destroy(control_block_, this);
       }
 
@@ -1383,14 +1383,14 @@ namespace math_expr
 
       inline bool add_pi()
       {
-         const typename details::numeric::details::number_type<T>::type num_type;
-         static const T local_pi = details::numeric::details::const_pi_impl<T>(num_type);
+         const typename core::numeric::details::number_type<T>::type num_type;
+         static const T local_pi = core::numeric::details::const_pi_impl<T>(num_type);
          return add_constant("pi",local_pi);
       }
 
       inline bool add_epsilon()
       {
-         static const T local_epsilon = details::numeric::details::epsilon_type<T>::value();
+         static const T local_epsilon = core::numeric::details::epsilon_type<T>::value();
          return add_constant("epsilon",local_epsilon);
       }
 
@@ -1720,14 +1720,14 @@ namespace math_expr
       {
          if (symbol.empty())
             return false;
-         else if (!details::is_letter(symbol[0]))
+         else if (!core::is_letter(symbol[0]))
             return false;
          else if (symbol.size() > 1)
          {
             for (std::size_t i = 1; i < symbol.size(); ++i)
             {
                if (
-                    !details::is_letter_or_digit(symbol[i]) &&
+                    !core::is_letter_or_digit(symbol[i]) &&
                     ('_' != symbol[i])
                   )
                {
@@ -1746,14 +1746,14 @@ namespace math_expr
       {
          if (symbol.empty())
             return false;
-         else if (!details::is_letter(symbol[0]))
+         else if (!core::is_letter(symbol[0]))
             return false;
          else if (symbol.size() > 1)
          {
             for (std::size_t i = 1; i < symbol.size(); ++i)
             {
                if (
-                    !details::is_letter_or_digit(symbol[i]) &&
+                    !core::is_letter_or_digit(symbol[i]) &&
                     ('_' != symbol[i])
                   )
                {

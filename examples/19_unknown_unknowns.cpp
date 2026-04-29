@@ -53,7 +53,7 @@ public:
       std::size_t r0 = 0;
       std::size_t r1 = v.size() - 1;
 
-      using namespace math_expr::rtl::vecops::helper;
+      using namespace math_expr::rtl::vecops::details;
 
       if (
            (1 == ps_index) &&
