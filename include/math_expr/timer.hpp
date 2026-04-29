@@ -104,21 +104,21 @@ class timer
         in_use_ = false;
     }
 
-    inline unsigned long long int usec_time() const
+    inline std::uint64_t usec_time() const
     {
         if (!in_use_)
         {
             if (stop_time_.tv_sec >= start_time_.tv_sec)
             {
                 return 1000000LLU *
-                           static_cast<core::_uint64_t>(stop_time_.tv_sec - start_time_.tv_sec) +
-                       static_cast<core::_uint64_t>(stop_time_.tv_usec - start_time_.tv_usec);
+                           static_cast<std::uint64_t>(stop_time_.tv_sec - start_time_.tv_sec) +
+                       static_cast<std::uint64_t>(stop_time_.tv_usec - start_time_.tv_usec);
             }
             else
-                return std::numeric_limits<core::_uint64_t>::max();
+                return std::numeric_limits<std::uint64_t>::max();
         }
         else
-            return std::numeric_limits<core::_uint64_t>::max();
+            return std::numeric_limits<std::uint64_t>::max();
     }
 
     inline double time() const

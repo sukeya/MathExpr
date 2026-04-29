@@ -96,7 +96,7 @@ template <typename Type> struct numeric_info
     };
 };
 
-template <> struct numeric_info<int>
+template <> struct numeric_info<std::int32_t>
 {
     enum
     {
@@ -130,17 +130,17 @@ template <> struct numeric_info<long double>
     };
 };
 
-template <typename T> inline int to_int32(const T v)
+template <typename T> inline std::int32_t to_int32(const T v)
 {
     return details::to_int32_impl(v);
 }
 
-template <typename T> inline ::math_expr::core::_int64_t to_int64(const T v)
+template <typename T> inline std::int64_t to_int64(const T v)
 {
     return details::to_int64_impl(v);
 }
 
-template <typename T> inline ::math_expr::core::_uint64_t to_uint64(const T v)
+template <typename T> inline std::uint64_t to_uint64(const T v)
 {
     return details::to_uint64_impl(v);
 }

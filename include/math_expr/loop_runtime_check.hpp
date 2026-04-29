@@ -61,13 +61,13 @@ struct loop_runtime_check
 
     loop_runtime_check() : loop_set(e_invalid), max_loop_iterations(0) {}
 
-    core::_uint64_t max_loop_iterations;
+    std::uint64_t max_loop_iterations;
 
     struct violation_context
     {
         loop_types loop;
         violation_type violation;
-        core::_uint64_t iteration_count;
+        std::uint64_t iteration_count;
     };
 
     virtual bool check()

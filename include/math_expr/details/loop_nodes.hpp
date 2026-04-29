@@ -122,7 +122,7 @@ struct loop_runtime_checker
         assert(loop_runtime_check_);
     }
 
-    inline void reset(const core::_uint64_t initial_value = 0) const
+    inline void reset(const std::uint64_t initial_value = 0) const
     {
         iteration_count_ = initial_value;
     }
@@ -150,9 +150,9 @@ struct loop_runtime_checker
         return 0 != loop_runtime_check_;
     }
 
-    mutable core::_uint64_t iteration_count_;
+    mutable std::uint64_t iteration_count_;
     mutable loop_runtime_check_ptr loop_runtime_check_;
-    const core::_uint64_t& max_loop_iterations_;
+    const std::uint64_t& max_loop_iterations_;
     loop_runtime_check::loop_types loop_type_;
 };
 

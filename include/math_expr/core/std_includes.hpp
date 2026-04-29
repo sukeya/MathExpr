@@ -37,6 +37,7 @@ limitations under the License.
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <cstdint>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

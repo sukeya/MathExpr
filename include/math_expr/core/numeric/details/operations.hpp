@@ -52,9 +52,9 @@ inline constexpr bool is_supported_real_type_v =
 
 template <typename T>
 inline constexpr bool is_supported_integral_type_v =
-    std::is_same_v<T, short> || std::is_same_v<T, int> ||
-    std::is_same_v<T, ::math_expr::core::_int64_t> || std::is_same_v<T, unsigned short> ||
-    std::is_same_v<T, unsigned int> || std::is_same_v<T, ::math_expr::core::_uint64_t>;
+    std::is_same_v<T, std::int16_t> || std::is_same_v<T, std::int32_t> ||
+    std::is_same_v<T, std::int64_t> || std::is_same_v<T, std::uint16_t> ||
+    std::is_same_v<T, std::uint32_t> || std::is_same_v<T, std::uint64_t>;
 
 template <typename T>
 inline constexpr bool is_supported_numeric_type_v =
@@ -63,8 +63,9 @@ inline constexpr bool is_supported_numeric_type_v =
 template <typename T> inline constexpr void validate_supported_numeric_type()
 {
     static_assert(is_supported_numeric_type_v<T>,
-                  "math_expr numeric helpers support float, double, long double, short, int, "
-                  "_int64_t, unsigned short, unsigned int, and _uint64_t only.");
+                  "math_expr numeric helpers support float, double, long double, std::int16_t, "
+                  "std::int32_t, std::int64_t, std::uint16_t, std::uint32_t, and std::uint64_t "
+                  "only.");
 }
 
 template <typename T> inline constexpr void validate_supported_real_type()
@@ -104,22 +105,22 @@ template <typename T> inline bool is_nan_impl(const T v)
     return std::not_equal_to<T>()(v, v);
 }
 
-template <typename T> inline int to_int32_impl(const T v)
+template <typename T> inline std::int32_t to_int32_impl(const T v)
 {
     validate_supported_real_type<T>();
-    return static_cast<int>(v);
+    return static_cast<std::int32_t>(v);
 }
 
-template <typename T> inline ::math_expr::core::_int64_t to_int64_impl(const T v)
+template <typename T> inline std::int64_t to_int64_impl(const T v)
 {
     validate_supported_real_type<T>();
-    return static_cast<::math_expr::core::_int64_t>(v);
+    return static_cast<std::int64_t>(v);
 }
 
-template <typename T> inline ::math_expr::core::_uint64_t to_uint64_impl(const T v)
+template <typename T> inline std::uint64_t to_uint64_impl(const T v)
 {
     validate_supported_real_type<T>();
-    return static_cast<::math_expr::core::_uint64_t>(v);
+    return static_cast<std::uint64_t>(v);
 }
 
 template <typename T> inline bool is_true_impl(const T v)

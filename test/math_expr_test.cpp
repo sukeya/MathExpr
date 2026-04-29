@@ -142,11 +142,22 @@ void expect_near(const T& actual, const T& expected, const T& epsilon = default_
 } // namespace test_support
 
 static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<double>);
-static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<int>);
 static_assert(math_expr::core::numeric::details::is_supported_real_type_v<double>);
-static_assert(math_expr::core::numeric::details::is_supported_integral_type_v<int>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::int16_t>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::int32_t>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::int64_t>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::uint16_t>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::uint32_t>);
+static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::uint64_t>);
+static_assert(math_expr::core::numeric::details::is_supported_integral_type_v<std::int32_t>);
 static_assert(!math_expr::core::numeric::details::is_supported_numeric_type_v<bool>);
 static_assert(!math_expr::core::numeric::details::is_supported_numeric_type_v<char>);
+static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_int32(1.25)),
+                             std::int32_t>);
+static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_int64(1.25)),
+                             std::int64_t>);
+static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_uint64(1.25)),
+                             std::uint64_t>);
 
 static const test_t global_test_list[] = {
     // Note: Each of following tests must compile down
@@ -13828,7 +13839,7 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
 
     SECTION("integral helpers keep the expected semantics")
     {
-        using int_type = int;
+        using int_type = std::int32_t;
 
         CHECK(math_expr::core::numeric::equal(int_type(7), int_type(7)) == int_type(1));
         CHECK(math_expr::core::numeric::nequal(int_type(7), int_type(8)) == int_type(1));
@@ -13849,5 +13860,13 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
         CHECK(math_expr::core::numeric::is_integer(int_type(42)));
         CHECK(math_expr::core::numeric::acos(int_type(1)) ==
               std::numeric_limits<int_type>::quiet_NaN());
+    }
+
+    SECTION("fixed-width conversions keep indexing-friendly semantics")
+    {
+        CHECK(math_expr::core::numeric::to_int32(19.75) == std::int32_t{19});
+        CHECK(math_expr::core::numeric::to_int64(19.75) == std::int64_t{19});
+        CHECK(math_expr::core::numeric::to_uint64(19.75) == std::uint64_t{19});
+        CHECK(math_expr::core::numeric::to_uint64(3.0) == std::uint64_t{3});
     }
 }

@@ -455,7 +455,7 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
   private:
     inline T* access_vector() const
     {
-        const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
+        const std::uint64_t index = core::numeric::to_uint64(index_.first->value());
         vector_node_.first->value();
 
         if (index <= max_vector_index_)
@@ -775,7 +775,7 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
     inline T* access_vector() const
     {
         vector_node_.first->value();
-        const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
+        const std::uint64_t index = core::numeric::to_uint64(index_.first->value());
 
         if (index <= (vector_holder_->size() - 1))
         {

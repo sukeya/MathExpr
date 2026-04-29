@@ -44,8 +44,6 @@ typedef char_t const* char_cptr;
 typedef unsigned char uchar_t;
 typedef uchar_t* uchar_ptr;
 typedef uchar_t const* uchar_cptr;
-typedef unsigned long long int _uint64_t;
-typedef long long int _int64_t;
 
 inline bool is_whitespace(const char_t c)
 {
