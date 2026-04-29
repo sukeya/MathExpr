@@ -36,6 +36,7 @@ limitations under the License.
 
 #include "math_expr/ifunction.hpp"
 #include "math_expr/igeneric_function.hpp"
+#include "math_expr/rtl/io/file/details/handle_codec.hpp"
 #include "math_expr/rtl/io/file/details/file_descriptor.hpp"
 
 #endif

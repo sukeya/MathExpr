@@ -31,59 +31,55 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef MATH_EXPR_RTL_IO_FILE_OPEN_HPP
-#define MATH_EXPR_RTL_IO_FILE_OPEN_HPP
+#ifndef MATH_EXPR_RTL_IO_FILE_DETAILS_HANDLE_CODEC_HPP
+#define MATH_EXPR_RTL_IO_FILE_DETAILS_HANDLE_CODEC_HPP
 
-#include "math_expr/rtl/io/file/helper.hpp"
+#include "math_expr/core/std_includes.hpp"
 
-namespace math_expr::rtl::io::file
+namespace math_expr::rtl::io::file::details
 {
+   struct file_descriptor;
+
    template <typename T>
-   class open final : public math_expr::igeneric_function<T>
+   inline T encode_handle(file_descriptor* fd)
    {
-   public:
+      T t = T(0);
 
-      typedef typename math_expr::igeneric_function<T> igfun_t;
-      typedef typename igfun_t::parameter_list_t    parameter_list_t;
-      typedef typename igfun_t::generic_type        generic_type;
-      typedef typename generic_type::string_view    string_t;
+      std::memcpy(reinterpret_cast<char*>(&t),
+                  reinterpret_cast<const char*>(&fd),
+                  sizeof(file_descriptor*));
 
-      using igfun_t::operator();
+      return t;
+   }
 
-      open()
-      : math_expr::igeneric_function<T>("S|SS")
-      { details::perform_check<T>(); }
+   template <typename T>
+   inline file_descriptor* decode_handle(T v)
+   {
+      file_descriptor* fd = nullptr;
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
+      std::memcpy(reinterpret_cast<char*>(&fd),
+                  reinterpret_cast<const char*>(&v),
+                  sizeof(file_descriptor*));
+
+      return fd;
+   }
+
+   template <typename T>
+   inline void perform_check()
+   {
+      #ifdef _MSC_VER
+      #pragma warning(push)
+      #pragma warning(disable: 4127)
+      #endif
+      if (sizeof(T) < sizeof(file_descriptor*))
       {
-         const std::string file_name = to_str(string_t(parameters[0]));
-
-         if (file_name.empty())
-         {
-            return T(0);
-         }
-
-         if ((1 == ps_index) && (0 == string_t(parameters[1]).size()))
-         {
-            return T(0);
-         }
-
-         const std::string access =
-            (0 == ps_index) ? "r" : to_str(string_t(parameters[1]));
-
-         details::file_descriptor* fd = new details::file_descriptor(file_name,access);
-
-         if (fd->open())
-         {
-            return details::encode_handle<T>(fd);
-         }
-         else
-         {
-            delete fd;
-            return T(0);
-         }
+         throw std::runtime_error("math_expr::rtl::io::file - Error - pointer size larger than holder.");
       }
-   };
-}    // namespace math_expr
+      #ifdef _MSC_VER
+      #pragma warning(pop)
+      #endif
+      assert(sizeof(T) >= sizeof(file_descriptor*));
+   }
+} // namespace math_expr::rtl::io::file::details
 
 #endif

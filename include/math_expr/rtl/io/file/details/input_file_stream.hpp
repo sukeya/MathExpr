@@ -31,59 +31,59 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef MATH_EXPR_RTL_IO_FILE_OPEN_HPP
-#define MATH_EXPR_RTL_IO_FILE_OPEN_HPP
+#ifndef MATH_EXPR_RTL_IO_FILE_DETAILS_INPUT_FILE_STREAM_HPP
+#define MATH_EXPR_RTL_IO_FILE_DETAILS_INPUT_FILE_STREAM_HPP
 
-#include "math_expr/rtl/io/file/helper.hpp"
+#include "math_expr/rtl/io/file/details/stream_base.hpp"
 
-namespace math_expr::rtl::io::file
+namespace math_expr::rtl::io::file::details
 {
-   template <typename T>
-   class open final : public math_expr::igeneric_function<T>
+   class input_file_stream final : public stream_base
    {
    public:
+      explicit input_file_stream(const std::string& file_name)
+      : stream_(file_name.c_str(), std::ios::binary)
+      {}
 
-      typedef typename math_expr::igeneric_function<T> igfun_t;
-      typedef typename igfun_t::parameter_list_t    parameter_list_t;
-      typedef typename igfun_t::generic_type        generic_type;
-      typedef typename generic_type::string_view    string_t;
-
-      using igfun_t::operator();
-
-      open()
-      : math_expr::igeneric_function<T>("S|SS")
-      { details::perform_check<T>(); }
-
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
+      bool is_open() const override
       {
-         const std::string file_name = to_str(string_t(parameters[0]));
-
-         if (file_name.empty())
-         {
-            return T(0);
-         }
-
-         if ((1 == ps_index) && (0 == string_t(parameters[1]).size()))
-         {
-            return T(0);
-         }
-
-         const std::string access =
-            (0 == ps_index) ? "r" : to_str(string_t(parameters[1]));
-
-         details::file_descriptor* fd = new details::file_descriptor(file_name,access);
-
-         if (fd->open())
-         {
-            return details::encode_handle<T>(fd);
-         }
-         else
-         {
-            delete fd;
-            return T(0);
-         }
+         return stream_.is_open() && static_cast<bool>(stream_);
       }
+
+      bool close() noexcept override
+      {
+         if (stream_.is_open())
+         {
+            stream_.close();
+         }
+
+         return !stream_.is_open();
+      }
+
+      bool write(char_cptr /*data*/, std::size_t /*size*/) override
+      {
+         return false;
+      }
+
+      bool read(char_ptr data, std::size_t size) override
+      {
+         stream_.read(data, static_cast<std::streamsize>(size));
+         return true;
+      }
+
+      bool getline(std::string& s) override
+      {
+         return !!std::getline(stream_, s);
+      }
+
+      bool eof() const override
+      {
+         return stream_.eof();
+      }
+
+   private:
+      std::ifstream stream_;
    };
-}    // namespace math_expr
+} // namespace math_expr::rtl::io::file::details
 
 #endif

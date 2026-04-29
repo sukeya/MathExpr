@@ -34,235 +34,164 @@ limitations under the License.
 #ifndef MATH_EXPR_RTL_IO_FILE_DETAILS_FILE_DESCRIPTOR_HPP
 #define MATH_EXPR_RTL_IO_FILE_DETAILS_FILE_DESCRIPTOR_HPP
 
+#include <memory>
+
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
+#include "math_expr/rtl/io/file/details/input_file_stream.hpp"
+#include "math_expr/rtl/io/file/details/output_file_stream.hpp"
+#include "math_expr/rtl/io/file/details/read_write_file_stream.hpp"
 
 namespace math_expr::rtl::io::file::details
+{
+   using ::math_expr::details::char_cptr;
+   using ::math_expr::details::char_ptr;
+
+   enum class file_mode : int
    {
-      using ::math_expr::details::char_ptr;
-      using ::math_expr::details::char_cptr;
+      error = 0,
+      read  = 1,
+      write = 2,
+      read_write = 4
+   };
 
-      enum file_mode
+   struct file_descriptor
+   {
+      file_descriptor(const std::string& fname, const std::string& access)
+      : stream_(nullptr)
+      , mode(get_file_mode(access))
+      , file_name(fname)
+      {}
+
+      ~file_descriptor() noexcept
       {
-         e_error = 0,
-         e_read  = 1,
-         e_write = 2,
-         e_rdwrt = 4
-      };
+         close();
+      }
 
-      struct file_descriptor
+      bool open()
       {
-         file_descriptor(const std::string& fname, const std::string& access)
-         : stream_ptr(0)
-         , mode(get_file_mode(access))
-         , file_name(fname)
-         {}
+         stream_.reset();
 
-         void*       stream_ptr;
-         file_mode   mode;
-         std::string file_name;
-
-         bool open()
+         switch (mode)
          {
-            if (e_read == mode)
-            {
-               std::ifstream* stream = new std::ifstream(file_name.c_str(),std::ios::binary);
+            case file_mode::read:
+               stream_ = std::make_unique<input_file_stream>(file_name);
+               break;
 
-               if (!(*stream))
-               {
-                  file_name.clear();
-                  delete stream;
+            case file_mode::write:
+               stream_ = std::make_unique<output_file_stream>(file_name);
+               break;
 
-                  return false;
-               }
+            case file_mode::read_write:
+               stream_ = std::make_unique<read_write_file_stream>(file_name);
+               break;
 
-               stream_ptr = stream;
+            default:
+               return false;
+         }
 
-               return true;
-            }
-            else if (e_write == mode)
-            {
-               std::ofstream* stream = new std::ofstream(file_name.c_str(),std::ios::binary);
-
-               if (!(*stream))
-               {
-                  file_name.clear();
-                  delete stream;
-
-                  return false;
-               }
-
-               stream_ptr = stream;
-
-               return true;
-            }
-            else if (e_rdwrt == mode)
-            {
-               std::fstream* stream = new std::fstream(file_name.c_str(),std::ios::binary);
-
-               if (!(*stream))
-               {
-                  file_name.clear();
-                  delete stream;
-
-                  return false;
-               }
-
-               stream_ptr = stream;
-
-               return true;
-            }
-
+         if (!stream_ || !stream_->is_open())
+         {
+            file_name.clear();
+            stream_.reset();
             return false;
          }
 
-         template <typename Stream, typename Ptr>
-         void close(Ptr& p)
-         {
-            Stream* stream = reinterpret_cast<Stream*>(p);
-            stream->close();
-            delete stream;
-            p = reinterpret_cast<Ptr>(0);
-         }
-
-         bool close()
-         {
-            switch (mode)
-            {
-               case e_read  : close<std::ifstream>(stream_ptr);
-                              break;
-
-               case e_write : close<std::ofstream>(stream_ptr);
-                              break;
-
-               case e_rdwrt : close<std::fstream> (stream_ptr);
-                              break;
-
-               default      : return false;
-            }
-
-            return true;
-         }
-
-         template <typename View>
-         bool write(const View& view, const std::size_t amount, const std::size_t offset = 0)
-         {
-            switch (mode)
-            {
-               case e_write : reinterpret_cast<std::ofstream*>(stream_ptr)->
-                                 write(reinterpret_cast<char_cptr>(view.begin() + offset), amount * sizeof(typename View::value_t));
-                              break;
-
-               case e_rdwrt : reinterpret_cast<std::fstream*>(stream_ptr)->
-                                 write(reinterpret_cast<char_cptr>(view.begin() + offset) , amount * sizeof(typename View::value_t));
-                              break;
-
-               default      : return false;
-            }
-
-            return true;
-         }
-
-         template <typename View>
-         bool read(View& view, const std::size_t amount, const std::size_t offset = 0)
-         {
-            switch (mode)
-            {
-               case e_read  : reinterpret_cast<std::ifstream*>(stream_ptr)->
-                                 read(reinterpret_cast<char_ptr>(view.begin() + offset), amount * sizeof(typename View::value_t));
-                              break;
-
-               case e_rdwrt : reinterpret_cast<std::fstream*>(stream_ptr)->
-                                 read(reinterpret_cast<char_ptr>(view.begin() + offset) , amount * sizeof(typename View::value_t));
-                              break;
-
-               default      : return false;
-            }
-
-            return true;
-         }
-
-         bool getline(std::string& s)
-         {
-            switch (mode)
-            {
-               case e_read  : return (!!std::getline(*reinterpret_cast<std::ifstream*>(stream_ptr),s));
-               case e_rdwrt : return (!!std::getline(*reinterpret_cast<std::fstream* >(stream_ptr),s));
-               default      : return false;
-            }
-         }
-
-         bool eof() const
-         {
-            switch (mode)
-            {
-               case e_read  : return reinterpret_cast<std::ifstream*>(stream_ptr)->eof();
-               case e_write : return reinterpret_cast<std::ofstream*>(stream_ptr)->eof();
-               case e_rdwrt : return reinterpret_cast<std::fstream* >(stream_ptr)->eof();
-               default      : return true;
-            }
-         }
-
-         file_mode get_file_mode(const std::string& access) const
-         {
-            if (access.empty() || access.size() > 2)
-               return e_error;
-
-            std::size_t w_cnt = 0;
-            std::size_t r_cnt = 0;
-
-            for (std::size_t i = 0; i < access.size(); ++i)
-            {
-               switch (std::tolower(access[i]))
-               {
-                  case 'r' : r_cnt++; break;
-                  case 'w' : w_cnt++; break;
-                  default  : return e_error;
-               }
-            }
-
-            if ((0 == r_cnt) && (0 == w_cnt))
-               return e_error;
-            else if ((r_cnt > 1) || (w_cnt > 1))
-               return e_error;
-            else if ((1 == r_cnt) && (1 == w_cnt))
-               return e_rdwrt;
-            else if (1 == r_cnt)
-               return e_read;
-            else
-               return e_write;
-         }
-      };
-
-      template <typename T>
-      file_descriptor* make_handle(T v)
-      {
-         const std::size_t fd_size    = sizeof(details::file_descriptor*);
-         details::file_descriptor* fd = reinterpret_cast<file_descriptor*>(0);
-
-         std::memcpy(reinterpret_cast<char_ptr >(&fd),
-                     reinterpret_cast<char_cptr>(&v ),
-                     fd_size);
-         return fd;
+         return true;
       }
 
-      template <typename T>
-      void perform_check()
+      bool close() noexcept
       {
-         #ifdef _MSC_VER
-         #pragma warning(push)
-         #pragma warning(disable: 4127)
-         #endif
-         if (sizeof(T) < sizeof(void*))
+         if (!stream_)
          {
-            throw std::runtime_error("math_expr::rtl::io::file - Error - pointer size larger than holder.");
+            return true;
          }
-         #ifdef _MSC_VER
-         #pragma warning(pop)
-         #endif
-         assert(sizeof(T) <= sizeof(void*));
+
+         const bool result = stream_->close();
+         stream_.reset();
+         return result;
       }
 
-   } // namespace math_expr::rtl::io::file::details
+      template <typename View>
+      bool write(const View& view, const std::size_t amount, const std::size_t offset = 0)
+      {
+         if (!stream_)
+         {
+            return false;
+         }
+
+         return stream_->write(
+            reinterpret_cast<char_cptr>(view.begin() + offset),
+            amount * sizeof(typename View::value_t));
+      }
+
+      template <typename View>
+      bool read(View& view, const std::size_t amount, const std::size_t offset = 0)
+      {
+         if (!stream_)
+         {
+            return false;
+         }
+
+         return stream_->read(
+            reinterpret_cast<char_ptr>(view.begin() + offset),
+            amount * sizeof(typename View::value_t));
+      }
+
+      bool getline(std::string& s)
+      {
+         if (!stream_)
+         {
+            return false;
+         }
+
+         return stream_->getline(s);
+      }
+
+      bool eof() const
+      {
+         if (!stream_)
+         {
+            return true;
+         }
+
+         return stream_->eof();
+      }
+
+      file_mode get_file_mode(const std::string& access) const
+      {
+         if (access.empty() || access.size() > 2)
+            return file_mode::error;
+
+         std::size_t w_cnt = 0;
+         std::size_t r_cnt = 0;
+
+         for (std::size_t i = 0; i < access.size(); ++i)
+         {
+            switch (std::tolower(access[i]))
+            {
+               case 'r': r_cnt++; break;
+               case 'w': w_cnt++; break;
+               default : return file_mode::error;
+            }
+         }
+
+         if ((0 == r_cnt) && (0 == w_cnt))
+            return file_mode::error;
+         else if ((r_cnt > 1) || (w_cnt > 1))
+            return file_mode::error;
+         else if ((1 == r_cnt) && (1 == w_cnt))
+            return file_mode::read_write;
+         else if (1 == r_cnt)
+            return file_mode::read;
+         else
+            return file_mode::write;
+      }
+
+      std::unique_ptr<stream_base> stream_;
+      file_mode mode;
+      std::string file_name;
+   };
+} // namespace math_expr::rtl::io::file::details
 
 #endif

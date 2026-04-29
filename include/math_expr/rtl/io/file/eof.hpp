@@ -49,7 +49,13 @@ namespace math_expr::rtl::io::file
 
       inline T operator() (const T& v) override
       {
-         details::file_descriptor* fd = details::make_handle(v);
+         details::file_descriptor* fd = details::decode_handle(v);
+
+         if (nullptr == fd)
+         {
+            return T(0);
+         }
+
          return (fd->eof() ? T(1) : T(0));
       }
    };

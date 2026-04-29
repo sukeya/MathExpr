@@ -58,7 +58,12 @@ namespace math_expr::rtl::io::file
 
       inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
       {
-         details::file_descriptor* fd = details::make_handle(scalar_t(parameters[0])());
+         details::file_descriptor* fd = details::decode_handle(scalar_t(parameters[0])());
+
+         if (nullptr == fd)
+         {
+            return T(0);
+         }
 
          switch (ps_index)
          {

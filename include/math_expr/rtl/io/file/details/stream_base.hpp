@@ -31,59 +31,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef MATH_EXPR_RTL_IO_FILE_OPEN_HPP
-#define MATH_EXPR_RTL_IO_FILE_OPEN_HPP
+#ifndef MATH_EXPR_RTL_IO_FILE_DETAILS_STREAM_BASE_HPP
+#define MATH_EXPR_RTL_IO_FILE_DETAILS_STREAM_BASE_HPP
 
-#include "math_expr/rtl/io/file/helper.hpp"
+#include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/types.hpp"
 
-namespace math_expr::rtl::io::file
+namespace math_expr::rtl::io::file::details
 {
-   template <typename T>
-   class open final : public math_expr::igeneric_function<T>
+   using ::math_expr::details::char_cptr;
+   using ::math_expr::details::char_ptr;
+
+   class stream_base
    {
    public:
+      virtual ~stream_base() = default;
 
-      typedef typename math_expr::igeneric_function<T> igfun_t;
-      typedef typename igfun_t::parameter_list_t    parameter_list_t;
-      typedef typename igfun_t::generic_type        generic_type;
-      typedef typename generic_type::string_view    string_t;
-
-      using igfun_t::operator();
-
-      open()
-      : math_expr::igeneric_function<T>("S|SS")
-      { details::perform_check<T>(); }
-
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
-      {
-         const std::string file_name = to_str(string_t(parameters[0]));
-
-         if (file_name.empty())
-         {
-            return T(0);
-         }
-
-         if ((1 == ps_index) && (0 == string_t(parameters[1]).size()))
-         {
-            return T(0);
-         }
-
-         const std::string access =
-            (0 == ps_index) ? "r" : to_str(string_t(parameters[1]));
-
-         details::file_descriptor* fd = new details::file_descriptor(file_name,access);
-
-         if (fd->open())
-         {
-            return details::encode_handle<T>(fd);
-         }
-         else
-         {
-            delete fd;
-            return T(0);
-         }
-      }
+      virtual bool is_open() const = 0;
+      virtual bool close() noexcept = 0;
+      virtual bool write(char_cptr data, std::size_t size) = 0;
+      virtual bool read(char_ptr data, std::size_t size) = 0;
+      virtual bool getline(std::string& s) = 0;
+      virtual bool eof() const = 0;
    };
-}    // namespace math_expr
+} // namespace math_expr::rtl::io::file::details
 
 #endif
