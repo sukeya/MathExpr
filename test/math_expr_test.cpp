@@ -86,6 +86,21 @@ inline std::mt19937 make_rng(const std::uint32_t case_salt)
    return std::mt19937(k_random_seed ^ (case_salt * 0x9e3779b9u));
 }
 
+inline std::string make_temp_file_path(const std::string& tag)
+{
+   static std::size_t counter = 0;
+
+   return "/tmp/math_expr_" + tag + "_" + std::to_string(counter++) + ".tmp";
+}
+
+inline void remove_file_if_exists(const std::string& path)
+{
+   if (!path.empty())
+   {
+      std::remove(path.c_str());
+   }
+}
+
 template <typename T>
 constexpr T default_tolerance()
 {
@@ -12814,6 +12829,187 @@ bool run_test22()
 }
 
 template <typename T>
+bool run_test23()
+{
+   typedef math_expr::symbol_table<T> symbol_table_t;
+   typedef math_expr::expression<T> expression_t;
+   typedef math_expr::parser<T> parser_t;
+
+   {
+      const std::string file_path = test_support::make_temp_file_path("file_write_read");
+      std::string path = file_path;
+      std::string payload = "alpha";
+      std::string buffer = ".....";
+
+      test_support::remove_file_if_exists(file_path);
+
+      symbol_table_t symbol_table;
+      symbol_table.add_stringvar("path", path);
+      symbol_table.add_stringvar("payload", payload);
+      symbol_table.add_stringvar("buffer", buffer);
+
+      math_expr::rtl::io::file::package<T> file_package;
+      symbol_table.add_package(file_package);
+
+      expression_t write_expression;
+      write_expression.register_symbol_table(symbol_table);
+
+      parser_t parser;
+      const std::string write_expression_string =
+         " var h := open(path,'w'); "
+         " write(h,payload) and close(h) ";
+
+      if (!parser.compile(write_expression_string, write_expression))
+      {
+         printf("run_test23() - Error: %s\tExpression: %s [1]\n",
+                parser.error().c_str(),
+                write_expression_string.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      if (T(1) != write_expression.value())
+      {
+         printf("run_test23() - Error: write expression failed for path: %s [1]\n",
+                file_path.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      expression_t read_expression;
+      read_expression.register_symbol_table(symbol_table);
+
+      const std::string read_expression_string =
+         " var h := open(path,'r'); "
+         " read(h,buffer,buffer[]) and close(h) ";
+
+      if (!parser.compile(read_expression_string, read_expression))
+      {
+         printf("run_test23() - Error: %s\tExpression: %s [2]\n",
+                parser.error().c_str(),
+                read_expression_string.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      if (T(1) != read_expression.value())
+      {
+         printf("run_test23() - Error: read expression failed for path: %s [2]\n",
+                file_path.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      if (buffer != payload)
+      {
+         printf("run_test23() - Error: expected buffer '%s' instead got '%s' [3]\n",
+                payload.c_str(),
+                buffer.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      test_support::remove_file_if_exists(file_path);
+   }
+
+   {
+      const std::string file_path = test_support::make_temp_file_path("file_getline");
+      std::string path = file_path;
+      std::string line0;
+      std::string line1;
+
+      test_support::remove_file_if_exists(file_path);
+
+      {
+         std::ofstream stream(file_path.c_str(), std::ios::binary);
+         stream << "first\nsecond";
+      }
+
+      symbol_table_t symbol_table;
+      symbol_table.add_stringvar("path", path);
+      symbol_table.add_stringvar("line0", line0);
+      symbol_table.add_stringvar("line1", line1);
+
+      math_expr::rtl::io::file::package<T> file_package;
+      symbol_table.add_package(file_package);
+
+      expression_t expression;
+      expression.register_symbol_table(symbol_table);
+
+      parser_t parser;
+      const std::string expression_string =
+         " var h := open(path,'r');      "
+         " line0 := getline(h);          "
+         " line1 := getline(h);          "
+         " (line0 == 'first') and        "
+         " (line1 == 'second') and       "
+         " eof(h) and close(h)           ";
+
+      if (!parser.compile(expression_string, expression))
+      {
+         printf("run_test23() - Error: %s\tExpression: %s [4]\n",
+                parser.error().c_str(),
+                expression_string.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      if (T(1) != expression.value())
+      {
+         printf("run_test23() - Error: getline expression failed for path: %s [5]\n",
+                file_path.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      if (("first" != line0) || ("second" != line1))
+      {
+         printf("run_test23() - Error: unexpected getline results '%s' and '%s' [6]\n",
+                line0.c_str(),
+                line1.c_str());
+         test_support::remove_file_if_exists(file_path);
+         return false;
+      }
+
+      test_support::remove_file_if_exists(file_path);
+   }
+
+   {
+      std::string path = test_support::make_temp_file_path("file_invalid_mode");
+
+      symbol_table_t symbol_table;
+      symbol_table.add_stringvar("path", path);
+
+      math_expr::rtl::io::file::package<T> file_package;
+      symbol_table.add_package(file_package);
+
+      expression_t expression;
+      expression.register_symbol_table(symbol_table);
+
+      parser_t parser;
+      const std::string expression_string =
+         " (open('', 'r') == 0) and "
+         " (open(path, 'x') == 0)   ";
+
+      if (!parser.compile(expression_string, expression))
+      {
+         printf("run_test23() - Error: %s\tExpression: %s [7]\n",
+                parser.error().c_str(),
+                expression_string.c_str());
+         return false;
+      }
+
+      if (T(1) != expression.value())
+      {
+         printf("run_test23() - Error: invalid open checks failed [8]\n");
+         return false;
+      }
+   }
+
+   return true;
+}
+
+template <typename T>
 T semicircle_antiderivative(const T& x)
 {
    const T y = std::max(T(0), T(1) - (x * x));
@@ -13205,6 +13401,11 @@ TEST_CASE("Diagnostics and invalid expressions stay guarded", "[diagnostics][par
    SECTION("local symbol limits reject oversize expressions")
    {
       REQUIRE(run_test22<numeric_type>());
+   }
+
+   SECTION("file package lifecycle stays stable")
+   {
+      REQUIRE(run_test23<numeric_type>());
    }
 }
 
