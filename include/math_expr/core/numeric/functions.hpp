@@ -59,16 +59,17 @@ template <typename T> struct set_zero_value_impl
         {                                                                                          \
             std::memset(base_ptr, 0x00, size * sizeof(T));                                         \
         }                                                                                          \
-    };
+    }
 
-pod_set_zero_value(float) pod_set_zero_value(double) pod_set_zero_value(long double)
+pod_set_zero_value(float);
+pod_set_zero_value(double);
+pod_set_zero_value(long double);
 
 #ifdef pod_set_zero_value
 #undef pod_set_zero_value
 #endif
 
-    template <typename T>
-    inline void set_zero_value(T* data, const std::size_t size)
+template <typename T> inline void set_zero_value(T* data, const std::size_t size)
 {
     set_zero_value_impl<T>::process(data, size);
 }
@@ -361,37 +362,48 @@ template <typename T> struct fast_exp<T, 0>
         return details::FunctionName##_impl(v);                                                    \
     }
 
-math_expr_define_unary_function(abs) math_expr_define_unary_function(
-    acos) math_expr_define_unary_function(acosh) math_expr_define_unary_function(asin)
-    math_expr_define_unary_function(asinh) math_expr_define_unary_function(
-        atan) math_expr_define_unary_function(atanh) math_expr_define_unary_function(ceil)
-        math_expr_define_unary_function(cos) math_expr_define_unary_function(
-            cosh) math_expr_define_unary_function(exp) math_expr_define_unary_function(expm1)
-            math_expr_define_unary_function(floor) math_expr_define_unary_function(
-                log) math_expr_define_unary_function(log10) math_expr_define_unary_function(log2)
-                math_expr_define_unary_function(log1p) math_expr_define_unary_function(
-                    neg) math_expr_define_unary_function(pos) math_expr_define_unary_function(round)
-                    math_expr_define_unary_function(sin) math_expr_define_unary_function(
-                        sinc) math_expr_define_unary_function(sinh)
-                        math_expr_define_unary_function(sqrt) math_expr_define_unary_function(
-                            tan) math_expr_define_unary_function(tanh)
-                            math_expr_define_unary_function(cot) math_expr_define_unary_function(
-                                sec) math_expr_define_unary_function(csc)
-                                math_expr_define_unary_function(
-                                    r2d) math_expr_define_unary_function(d2r)
-                                    math_expr_define_unary_function(
-                                        d2g) math_expr_define_unary_function(g2d)
-                                        math_expr_define_unary_function(
-                                            notl) math_expr_define_unary_function(sgn)
-                                            math_expr_define_unary_function(erf)
-                                                math_expr_define_unary_function(erfc)
-                                                    math_expr_define_unary_function(ncdf)
-                                                        math_expr_define_unary_function(frac)
-                                                            math_expr_define_unary_function(trunc)
+math_expr_define_unary_function(abs);
+math_expr_define_unary_function(acos);
+math_expr_define_unary_function(acosh);
+math_expr_define_unary_function(asin);
+math_expr_define_unary_function(asinh);
+math_expr_define_unary_function(atan);
+math_expr_define_unary_function(atanh);
+math_expr_define_unary_function(ceil);
+math_expr_define_unary_function(cos);
+math_expr_define_unary_function(cosh);
+math_expr_define_unary_function(exp);
+math_expr_define_unary_function(expm1);
+math_expr_define_unary_function(floor);
+math_expr_define_unary_function(log);
+math_expr_define_unary_function(log10);
+math_expr_define_unary_function(log2);
+math_expr_define_unary_function(log1p);
+math_expr_define_unary_function(neg);
+math_expr_define_unary_function(pos);
+math_expr_define_unary_function(round);
+math_expr_define_unary_function(sin);
+math_expr_define_unary_function(sinc);
+math_expr_define_unary_function(sinh);
+math_expr_define_unary_function(sqrt);
+math_expr_define_unary_function(tan);
+math_expr_define_unary_function(tanh);
+math_expr_define_unary_function(cot);
+math_expr_define_unary_function(sec);
+math_expr_define_unary_function(csc);
+math_expr_define_unary_function(r2d);
+math_expr_define_unary_function(d2r);
+math_expr_define_unary_function(d2g);
+math_expr_define_unary_function(g2d);
+math_expr_define_unary_function(notl);
+math_expr_define_unary_function(sgn);
+math_expr_define_unary_function(erf);
+math_expr_define_unary_function(erfc);
+math_expr_define_unary_function(ncdf);
+math_expr_define_unary_function(frac);
+math_expr_define_unary_function(trunc);
 #undef math_expr_define_unary_function
-                                                                template <typename T>
-                                                                inline T
-    compute_pow10(T d, const int exponent)
+template <typename T> inline T compute_pow10(T d, const int exponent)
 {
     static const double fract10[] = {
         0.0,      1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005, 1.0E+006, 1.0E+007, 1.0E+008,
@@ -507,9 +519,12 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
 #endif
 
         case 4:
-        math_expr_process_digit case 3:
-        math_expr_process_digit case 2:
-        math_expr_process_digit case 1:
+            math_expr_process_digit;
+        case 3:
+            math_expr_process_digit;
+        case 2:
+            math_expr_process_digit;
+        case 1:
             if ((digit = (*itr - zero)) >= 10)
             {
                 digit = 0;
@@ -656,7 +671,9 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
         while (end != itr)
         {
             unsigned int digit;
-            parse_digit_1(d) parse_digit_1(d) parse_digit_2(d)
+            parse_digit_1(d);
+            parse_digit_1(d);
+            parse_digit_2(d);
         }
 
         if (curr != itr)
@@ -675,7 +692,9 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
             while (end != itr)
             {
                 unsigned int digit;
-                parse_digit_1(tmp_d) parse_digit_1(tmp_d) parse_digit_2(tmp_d)
+                parse_digit_1(tmp_d);
+                parse_digit_1(tmp_d);
+                parse_digit_2(tmp_d);
             }
 
             if (curr != itr)

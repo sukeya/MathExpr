@@ -152,12 +152,9 @@ static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std
 static_assert(math_expr::core::numeric::details::is_supported_integral_type_v<std::int32_t>);
 static_assert(!math_expr::core::numeric::details::is_supported_numeric_type_v<bool>);
 static_assert(!math_expr::core::numeric::details::is_supported_numeric_type_v<char>);
-static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_int32(1.25)),
-                             std::int32_t>);
-static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_int64(1.25)),
-                             std::int64_t>);
-static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_uint64(1.25)),
-                             std::uint64_t>);
+static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_int32(1.25)), std::int32_t>);
+static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_int64(1.25)), std::int64_t>);
+static_assert(std::is_same_v<decltype(math_expr::core::numeric::to_uint64(1.25)), std::uint64_t>);
 
 static const test_t global_test_list[] = {
     // Note: Each of following tests must compile down
@@ -13798,12 +13795,11 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
     {
         using float_type = double;
 
-        test_support::expect_near(math_expr::core::numeric::equal(float_type(1.0),
-                                                                  float_type(1.0 + 5.0e-11)),
-                                  float_type(1.0));
-        test_support::expect_near(math_expr::core::numeric::nequal(float_type(1.0),
-                                                                   float_type(1.25)),
-                                  float_type(1.0));
+        test_support::expect_near(
+            math_expr::core::numeric::equal(float_type(1.0), float_type(1.0 + 5.0e-11)),
+            float_type(1.0));
+        test_support::expect_near(
+            math_expr::core::numeric::nequal(float_type(1.0), float_type(1.25)), float_type(1.0));
         test_support::expect_near(math_expr::core::numeric::modulus(float_type(5.5), float_type(2)),
                                   float_type(1.5));
         test_support::expect_near(math_expr::core::numeric::pow(float_type(3), float_type(2)),
@@ -13814,9 +13810,9 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
                                   float_type(3.0));
         test_support::expect_near(math_expr::core::numeric::round(float_type(2.6)),
                                   float_type(3.0));
-        test_support::expect_near(math_expr::core::numeric::roundn(float_type(12.345),
-                                                                   float_type(2.0)),
-                                  float_type(12.35));
+        test_support::expect_near(
+            math_expr::core::numeric::roundn(float_type(12.345), float_type(2.0)),
+            float_type(12.35));
         test_support::expect_near(math_expr::core::numeric::hypot(float_type(3), float_type(4)),
                                   float_type(5.0));
         test_support::expect_near(math_expr::core::numeric::atan2(float_type(1), float_type(0)),

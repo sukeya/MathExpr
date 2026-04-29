@@ -91,11 +91,11 @@ template <typename T> struct epsilon_type
             const Type epsilon = static_cast<Type>(Epsilon);                                       \
             return epsilon;                                                                        \
         }                                                                                          \
-    };
+    }
 
-math_expr_define_epsilon_type(float, 0.00000100000f)
-    math_expr_define_epsilon_type(double, 0.000000000100)
-        math_expr_define_epsilon_type(long double, 0.000000000001)
+math_expr_define_epsilon_type(float, 0.00000100000f);
+math_expr_define_epsilon_type(double, 0.000000000100);
+math_expr_define_epsilon_type(long double, 0.000000000001);
 
 #undef math_expr_define_epsilon_type
 
@@ -176,8 +176,8 @@ template <typename T> inline T equal_impl(const T v0, const T v1)
     else
     {
         const T epsilon = epsilon_type<T>::value();
-        return (abs_impl(v0 - v1) <= (std::max(T(1), std::max(abs_impl(v0), abs_impl(v1))) *
-                                      epsilon))
+        return (abs_impl(v0 - v1) <=
+                (std::max(T(1), std::max(abs_impl(v0), abs_impl(v1))) * epsilon))
                    ? T(1)
                    : T(0);
     }
@@ -194,8 +194,8 @@ template <typename T> inline T nequal_impl(const T v0, const T v1)
     else
     {
         const T epsilon = epsilon_type<T>::value();
-        return (abs_impl(v0 - v1) > (std::max(T(1), std::max(abs_impl(v0), abs_impl(v1))) *
-                                     epsilon))
+        return (abs_impl(v0 - v1) >
+                (std::max(T(1), std::max(abs_impl(v0), abs_impl(v1))) * epsilon))
                    ? T(1)
                    : T(0);
     }
@@ -239,8 +239,7 @@ template <typename T> inline T logn_impl(const T v0, const T v1)
     }
     else
     {
-        return static_cast<T>(
-            logn_impl<double>(static_cast<double>(v0), static_cast<double>(v1)));
+        return static_cast<T>(logn_impl<double>(static_cast<double>(v0), static_cast<double>(v1)));
     }
 }
 
@@ -261,8 +260,7 @@ template <typename T> inline T root_impl(const T v0, const T v1)
     }
     else
     {
-        return static_cast<T>(
-            root_impl<double>(static_cast<double>(v0), static_cast<double>(v1)));
+        return static_cast<T>(root_impl<double>(static_cast<double>(v0), static_cast<double>(v1)));
     }
 }
 
@@ -475,8 +473,9 @@ template <typename T> inline T xnor_impl(const T v0, const T v1)
         return impl(v);                                                                            \
     }
 
-math_expr_define_erf(float, ::erff) math_expr_define_erf(double, ::erf)
-    math_expr_define_erf(long double, ::erfl)
+math_expr_define_erf(float, ::erff);
+math_expr_define_erf(double, ::erf);
+math_expr_define_erf(long double, ::erfl);
 #undef math_expr_define_erf
 #endif
 
@@ -530,8 +529,9 @@ template <typename T> inline T erf_impl(const T v)
         return impl(v);                                                                            \
     }
 
-math_expr_define_erfc(float, ::erfcf) math_expr_define_erfc(double, ::erfc)
-    math_expr_define_erfc(long double, ::erfcl)
+math_expr_define_erfc(float, ::erfcf);
+math_expr_define_erfc(double, ::erfc);
+math_expr_define_erfc(long double, ::erfcl);
 #undef math_expr_define_erfc
 #endif
 
