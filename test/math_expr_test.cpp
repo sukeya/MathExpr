@@ -4877,7 +4877,7 @@ struct sine_deg math_expr_test_final : public math_expr::ifunction<T>
 
    inline T operator()(const T& v) math_expr_test_override
    {
-      return std::sin((v * T(math_expr::details::numeric::constant::pi)) / T(180));
+      return std::sin((v * T(math_expr::core::numeric::pi)) / T(180));
    }
 };
 
@@ -4890,7 +4890,7 @@ struct cosine_deg math_expr_test_final : public math_expr::ifunction<T>
 
    inline T operator()(const T& v) math_expr_test_override
    {
-      return std::cos((v * T(math_expr::details::numeric::constant::pi)) / T(180));
+      return std::cos((v * T(math_expr::core::numeric::pi)) / T(180));
    }
 };
 
@@ -7958,7 +7958,7 @@ struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T
                        parameter_list_t parameters) math_expr_test_override
    {
 
-      result = "depth" + math_expr::details::to_str(static_cast<int>(scalar_t(parameters[0])()));
+      result = "depth" + math_expr::core::to_str(static_cast<int>(scalar_t(parameters[0])()));
       return T(0);
    }
 };
