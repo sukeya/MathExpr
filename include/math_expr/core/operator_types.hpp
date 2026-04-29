@@ -35,8 +35,11 @@ limitations under the License.
 #define MATH_EXPR_CORE_OPERATOR_TYPES_HPP
 
 #include "math_expr/core/std_includes.hpp"
+#include "math_expr/core/config.hpp"
 #include "math_expr/core/macros.hpp"
 #include "math_expr/core/numeric.hpp"
+#include <stdexcept>
+#include <type_traits>
 
 namespace math_expr::details
 {
@@ -169,8 +172,66 @@ namespace math_expr::details
                              const unsigned int loop_batch_size = global_loop_batch_size)
             : batch_size(loop_batch_size   )
             , remainder (vsize % batch_size)
-            , upper_bound(static_cast<int>(vsize - (remainder ? loop_batch_size : 0)))
+            , upper_bound(static_cast<int>(vsize - remainder))
             {}
+
+            template <class F>
+            void foreach_remainder(F&& f) {
+               if (remainder < 0) {
+                  throw std::runtime_error("loop_unroll::details::foreach() - Invalid remainder");
+               }
+
+               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
+               {
+                  switch (remainder)
+                  {
+                     case 15: f();
+                     [[fallthrough]];
+                     case 14: f();
+                     [[fallthrough]];
+                     case 13: f();
+                     [[fallthrough]];
+                     case 12: f();
+                     [[fallthrough]];
+                     case 11: f();
+                     [[fallthrough]];
+                     case 10: f();
+                     [[fallthrough]];
+                     case 9: f();
+                     [[fallthrough]];
+                     case 8: f();
+                     [[fallthrough]];
+                     case 7: f();
+                     [[fallthrough]];
+                     case 6: f();
+                     [[fallthrough]];
+                     case 5: f();
+                     [[fallthrough]];
+                     case 4: f();
+                     [[fallthrough]];
+                     case 3: f();
+                     [[fallthrough]];
+                     case 2: f();
+                     [[fallthrough]];
+                     case 1: f();
+                        break;
+                     case 0:
+                        break;
+                  }
+               } else {
+                  switch (remainder)
+                  {
+                     case 3: f();
+                     [[fallthrough]];
+                     case 2: f();
+                     [[fallthrough]];
+                     case 1: f();
+                        break;
+                     case 0:
+                        break;
+                  }
+               }
+            }
 
             unsigned int batch_size;
             int remainder;

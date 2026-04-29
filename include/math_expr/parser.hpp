@@ -62,6 +62,18 @@ limitations under the License.
 namespace math_expr
 {
 
+   /**
+    * @brief Parses and synthesizes mathematical expressions.
+    *
+    * The template parameter `T` is the numeric value type used consistently
+    * throughout the parsed expression. Variables, literals, vector elements,
+    * and synthesized expression nodes all use this same `T`.
+    *
+    * For example, `parser<double>` produces nodes such as
+    * `details::assignment_vec_op_node<double, ...>`.
+    *
+    * @tparam T Numeric value type for the entire expression tree.
+    */
    template <typename T>
    class parser : public lexer::parser_helper
    {
@@ -3427,6 +3439,16 @@ namespace math_expr
          scoped_expression_delete& operator=(const scoped_expression_delete&) = delete;
       };
 
+      /**
+       * @brief RAII helper that releases parser-owned node pointers on scope exit.
+       *
+       * This helper is nested in `parser<T>`, so it operates within the parser
+       * instance whose numeric value type is `T`. The `Type` parameter denotes
+       * the concrete node type being managed.
+       *
+       * @tparam Type Concrete node type stored by the parser.
+       * @tparam N Number of pointers managed by this guard.
+       */
       template <typename Type, std::size_t N>
       struct scoped_delete
       {
@@ -3465,6 +3487,15 @@ namespace math_expr
          scoped_delete<Type,N>& operator=(const scoped_delete<Type,N>&) = delete;
       };
 
+      /**
+       * @brief RAII helper that releases a deque of parser-owned node pointers.
+       *
+       * This helper belongs to `parser<T>`, where `T` is the numeric value type
+       * used by the surrounding parser and its synthesized expression nodes.
+       * `Type` denotes the concrete node type stored in the deque.
+       *
+       * @tparam Type Concrete node type stored by the parser.
+       */
       template <typename Type>
       struct scoped_deq_delete
       {
@@ -3500,6 +3531,15 @@ namespace math_expr
          scoped_deq_delete<Type>& operator=(const scoped_deq_delete<Type>&) = delete;
       };
 
+      /**
+       * @brief RAII helper that releases a vector of parser-owned node pointers.
+       *
+       * This helper belongs to `parser<T>`, where `T` is the numeric value type
+       * used by the surrounding parser and its synthesized expression nodes.
+       * `Type` denotes the concrete node type stored in the vector.
+       *
+       * @tparam Type Concrete node type stored by the parser.
+       */
       template <typename Type>
       struct scoped_vec_delete
       {
@@ -9405,6 +9445,15 @@ namespace math_expr
          return branch;
       }
 
+      /**
+       * @brief Generates expression nodes for a specific parser numeric type.
+       *
+       * In normal use, `Type` matches the enclosing `parser<T>` numeric type, so
+       * the generated nodes use the same value type as the parser, variables,
+       * vectors, and literals handled during parsing.
+       *
+       * @tparam Type Numeric value type used by generated expression nodes.
+       */
       template <typename Type>
       class expression_generator
       {
@@ -12820,6 +12869,16 @@ namespace math_expr
          case_stmt(details::e_xnor , details::xnor_op) \
 
          #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
+         /**
+          * @brief Synthesizes specialized power nodes for small integer exponents.
+          *
+          * The optimized nodes that are allocated here are instantiated with the
+          * enclosing parser's numeric type `T`, which is the value type used
+          * throughout the expression tree.
+          *
+          * @tparam TType Input value category passed to the power node factory.
+          * @tparam IPowNode Power-node template instantiated with parser type `T`.
+          */
          template <typename TType, template <typename, typename> class IPowNode>
          inline expression_node_ptr cardinal_pow_optimisation_impl(const TType& v, const unsigned int& p)
          {

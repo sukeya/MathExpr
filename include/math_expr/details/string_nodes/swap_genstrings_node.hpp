@@ -128,11 +128,11 @@ namespace math_expr::details::string_nodes
                loop_unroll::details lud(max_size);
                char_cptr upper_bound = s0 + lud.upper_bound;
 
+               #define math_expr_loop(N) \
+               std::swap(s0[N], s1[N]);  \
+
                while (s0 < upper_bound)
                {
-                  #define math_expr_loop(N) \
-                  std::swap(s0[N], s1[N]);  \
-
                   math_expr_loop( 0) math_expr_loop( 1)
                   math_expr_loop( 2) math_expr_loop( 3)
                   if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
@@ -149,30 +149,13 @@ namespace math_expr::details::string_nodes
                   s1 += lud.batch_size;
                }
 
+               #undef math_expr_loop
+
                int i = 0;
 
-               switch (lud.remainder)
-               {
-                  #define case_stmt(N)                         \
-                  case N : { std::swap(s0[i], s1[i]); ++i; }  \
-                  [[fallthrough]];                             \
-
-                  if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
-                  {
-                     case_stmt(15) case_stmt(14)
-                     case_stmt(13) case_stmt(12)
-                     case_stmt(11) case_stmt(10)
-                     case_stmt( 9) case_stmt( 8)
-                     case_stmt( 7) case_stmt( 6)
-                     case_stmt( 5) case_stmt( 4)
-                  }
-                  case_stmt( 3) case_stmt( 2)
-                  case_stmt( 1)
-                  default: break;
-               }
-
-               #undef math_expr_loop
-               #undef case_stmt
+               lud.foreach_remainder([&i, s0, s1](){
+                  std::swap(s0[i], s1[i]); ++i;
+               });
             }
 
             return std::numeric_limits<T>::quiet_NaN();

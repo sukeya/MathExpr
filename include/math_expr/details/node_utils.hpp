@@ -952,26 +952,9 @@ namespace math_expr::details
                T result = T(0);
                int i    = 0;
 
-               switch (vec_size)
-               {
-                  #define case_stmt(N,fall_through) \
-                  case N : result += vec[i++];      \
-                  fall_through                      \
-
-                  if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
-                  {
-                     case_stmt(16, [[fallthrough]];) case_stmt(15, [[fallthrough]];)
-                     case_stmt(14, [[fallthrough]];) case_stmt(13, [[fallthrough]];)
-                     case_stmt(12, [[fallthrough]];) case_stmt(11, [[fallthrough]];)
-                     case_stmt(10, [[fallthrough]];) case_stmt( 9, [[fallthrough]];)
-                     case_stmt( 8, [[fallthrough]];) case_stmt( 7, [[fallthrough]];)
-                     case_stmt( 6, [[fallthrough]];) case_stmt( 5, [[fallthrough]];)
-                  }
-                  case_stmt( 4, [[fallthrough]];) case_stmt( 3, [[fallthrough]];)
-                  case_stmt( 2, [[fallthrough]];) case_stmt( 1, (void)0;)
-               }
-
-               #undef case_stmt
+               lud.foreach_remainder([&i, &result, vec](){
+                  result += vec[i++];
+               });
 
                return result;
             }
@@ -1003,29 +986,13 @@ namespace math_expr::details
                vec += lud.batch_size;
             }
 
+            #undef math_expr_loop
+
             int i = 0;
 
-            switch (lud.remainder)
-            {
-               #define case_stmt(N,fall_through) \
-               case N : r[0] += vec[i++];        \
-               fall_through                      \
-
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
-               {
-                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               }
-               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
-               case_stmt( 1, (void)0;)
-            }
-
-            #undef math_expr_loop
-            #undef case_stmt
+            lud.foreach_remainder([&i, &r, vec](){
+               r[0] += vec[i++];
+            });
 
             T result = (r[0] + r[1] + r[2] + r[3]);
 
@@ -1057,26 +1024,9 @@ namespace math_expr::details
                T result = T(1);
                int i    = 0;
 
-               switch (vec_size)
-               {
-                  #define case_stmt(N,fall_through) \
-                  case N : result *= vec[i++];      \
-                  fall_through                      \
-
-                  if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
-                  {
-                     case_stmt(16, [[fallthrough]];) case_stmt(15, [[fallthrough]];)
-                     case_stmt(14, [[fallthrough]];) case_stmt(13, [[fallthrough]];)
-                     case_stmt(12, [[fallthrough]];) case_stmt(11, [[fallthrough]];)
-                     case_stmt(10, [[fallthrough]];) case_stmt( 9, [[fallthrough]];)
-                     case_stmt( 8, [[fallthrough]];) case_stmt( 7, [[fallthrough]];)
-                     case_stmt( 6, [[fallthrough]];) case_stmt( 5, [[fallthrough]];)
-                  }
-                  case_stmt( 4, [[fallthrough]];) case_stmt( 3, [[fallthrough]];)
-                  case_stmt( 2, [[fallthrough]];) case_stmt( 1, (void)0;)
-               }
-
-               #undef case_stmt
+               lud.foreach_remainder([&i, &result, vec](){
+                  result *= vec[i++];
+               });
 
                return result;
             }
@@ -1088,11 +1038,11 @@ namespace math_expr::details
 
             const T* upper_bound = vec + lud.upper_bound;
 
+            #define math_expr_loop(N) \
+            r[N] *= vec[N];        \
+
             while (vec < upper_bound)
             {
-               #define math_expr_loop(N) \
-               r[N] *= vec[N];        \
-
                math_expr_loop( 0) math_expr_loop( 1)
                math_expr_loop( 2) math_expr_loop( 3)
                if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
@@ -1108,29 +1058,13 @@ namespace math_expr::details
                vec += lud.batch_size;
             }
 
+            #undef math_expr_loop
+
             int i = 0;
 
-            switch (lud.remainder)
-            {
-               #define case_stmt(N,fall_through) \
-               case N : r[0] *= vec[i++];        \
-               fall_through                      \
-
-               if constexpr (!::math_expr::config::build_options::kDisableSuperscalarUnroll)
-               {
-                  case_stmt(15, [[fallthrough]];) case_stmt(14, [[fallthrough]];)
-                  case_stmt(13, [[fallthrough]];) case_stmt(12, [[fallthrough]];)
-                  case_stmt(11, [[fallthrough]];) case_stmt(10, [[fallthrough]];)
-                  case_stmt( 9, [[fallthrough]];) case_stmt( 8, [[fallthrough]];)
-                  case_stmt( 7, [[fallthrough]];) case_stmt( 6, [[fallthrough]];)
-                  case_stmt( 5, [[fallthrough]];) case_stmt( 4, [[fallthrough]];)
-               }
-               case_stmt( 3, [[fallthrough]];) case_stmt( 2, [[fallthrough]];)
-               case_stmt( 1, (void)0;)
-            }
-
-            #undef math_expr_loop
-            #undef case_stmt
+            lud.foreach_remainder([&i, vec, &r](){
+               r[0] *= vec[i++];
+            });
 
             T result = (r[0] * r[1] * r[2] * r[3]);
 
