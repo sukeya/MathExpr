@@ -57,7 +57,7 @@ namespace math_expr::details::string_nodes
 
          cons_conditional_str_node(expression_ptr condition,
                                    expression_ptr consequent)
-         : binary_node<T>(details::e_default, consequent, condition)
+         : binary_node<T>(details::operator_type::default_op, consequent, condition)
          , initialised_(false)
          , str0_base_ptr_ (0)
          , str0_range_ptr_(0)

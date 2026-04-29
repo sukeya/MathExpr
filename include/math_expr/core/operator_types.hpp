@@ -43,108 +43,108 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      enum operator_type
+      enum class operator_type : int
       {
-         e_default , e_null    , e_add     , e_sub     ,
-         e_mul     , e_div     , e_mod     , e_pow     ,
-         e_atan2   , e_min     , e_max     , e_avg     ,
-         e_sum     , e_prod    , e_lt      , e_lte     ,
-         e_eq      , e_equal   , e_ne      , e_nequal  ,
-         e_gte     , e_gt      , e_and     , e_nand    ,
-         e_or      , e_nor     , e_xor     , e_xnor    ,
-         e_mand    , e_mor     , e_scand   , e_scor    ,
-         e_shr     , e_shl     , e_abs     , e_acos    ,
-         e_acosh   , e_asin    , e_asinh   , e_atan    ,
-         e_atanh   , e_ceil    , e_cos     , e_cosh    ,
-         e_exp     , e_expm1   , e_floor   , e_log     ,
-         e_log10   , e_log2    , e_log1p   , e_logn    ,
-         e_neg     , e_pos     , e_round   , e_roundn  ,
-         e_root    , e_sqrt    , e_sin     , e_sinc    ,
-         e_sinh    , e_sec     , e_csc     , e_tan     ,
-         e_tanh    , e_cot     , e_clamp   , e_iclamp  ,
-         e_inrange , e_sgn     , e_r2d     , e_d2r     ,
-         e_d2g     , e_g2d     , e_hypot   , e_notl    ,
-         e_erf     , e_erfc    , e_ncdf    , e_frac    ,
-         e_trunc   , e_assign  , e_addass  , e_subass  ,
-         e_mulass  , e_divass  , e_modass  , e_in      ,
-         e_like    , e_ilike   , e_multi   , e_smulti  ,
-         e_swap    ,
+         default_op , null    , add     , sub     ,
+         mul     , div     , mod     , pow     ,
+         atan2   , min     , max     , avg     ,
+         sum     , prod    , lt      , lte     ,
+         eq      , equal   , ne      , nequal  ,
+         gte     , gt      , logical_and     , nand    ,
+         logical_or      , nor     , logical_xor     , xnor    ,
+         mand    , mor     , scand   , scor    ,
+         shr     , shl     , abs     , acos    ,
+         acosh   , asin    , asinh   , atan    ,
+         atanh   , ceil    , cos     , cosh    ,
+         exp     , expm1   , floor   , log     ,
+         log10   , log2    , log1p   , logn    ,
+         neg     , pos     , round   , roundn  ,
+         root    , sqrt    , sin     , sinc    ,
+         sinh    , sec     , csc     , tan     ,
+         tanh    , cot     , clamp   , iclamp  ,
+         inrange , sgn     , r2d     , d2r     ,
+         d2g     , g2d     , hypot   , notl    ,
+         erf     , erfc    , ncdf    , frac    ,
+         trunc   , assign  , addass  , subass  ,
+         mulass  , divass  , modass  , in      ,
+         like    , ilike   , multi   , smulti  ,
+         swap    ,
 
          // Do not add new functions/operators after this point.
-         e_sf00 = 1000, e_sf01 = 1001, e_sf02 = 1002, e_sf03 = 1003,
-         e_sf04 = 1004, e_sf05 = 1005, e_sf06 = 1006, e_sf07 = 1007,
-         e_sf08 = 1008, e_sf09 = 1009, e_sf10 = 1010, e_sf11 = 1011,
-         e_sf12 = 1012, e_sf13 = 1013, e_sf14 = 1014, e_sf15 = 1015,
-         e_sf16 = 1016, e_sf17 = 1017, e_sf18 = 1018, e_sf19 = 1019,
-         e_sf20 = 1020, e_sf21 = 1021, e_sf22 = 1022, e_sf23 = 1023,
-         e_sf24 = 1024, e_sf25 = 1025, e_sf26 = 1026, e_sf27 = 1027,
-         e_sf28 = 1028, e_sf29 = 1029, e_sf30 = 1030, e_sf31 = 1031,
-         e_sf32 = 1032, e_sf33 = 1033, e_sf34 = 1034, e_sf35 = 1035,
-         e_sf36 = 1036, e_sf37 = 1037, e_sf38 = 1038, e_sf39 = 1039,
-         e_sf40 = 1040, e_sf41 = 1041, e_sf42 = 1042, e_sf43 = 1043,
-         e_sf44 = 1044, e_sf45 = 1045, e_sf46 = 1046, e_sf47 = 1047,
-         e_sf48 = 1048, e_sf49 = 1049, e_sf50 = 1050, e_sf51 = 1051,
-         e_sf52 = 1052, e_sf53 = 1053, e_sf54 = 1054, e_sf55 = 1055,
-         e_sf56 = 1056, e_sf57 = 1057, e_sf58 = 1058, e_sf59 = 1059,
-         e_sf60 = 1060, e_sf61 = 1061, e_sf62 = 1062, e_sf63 = 1063,
-         e_sf64 = 1064, e_sf65 = 1065, e_sf66 = 1066, e_sf67 = 1067,
-         e_sf68 = 1068, e_sf69 = 1069, e_sf70 = 1070, e_sf71 = 1071,
-         e_sf72 = 1072, e_sf73 = 1073, e_sf74 = 1074, e_sf75 = 1075,
-         e_sf76 = 1076, e_sf77 = 1077, e_sf78 = 1078, e_sf79 = 1079,
-         e_sf80 = 1080, e_sf81 = 1081, e_sf82 = 1082, e_sf83 = 1083,
-         e_sf84 = 1084, e_sf85 = 1085, e_sf86 = 1086, e_sf87 = 1087,
-         e_sf88 = 1088, e_sf89 = 1089, e_sf90 = 1090, e_sf91 = 1091,
-         e_sf92 = 1092, e_sf93 = 1093, e_sf94 = 1094, e_sf95 = 1095,
-         e_sf96 = 1096, e_sf97 = 1097, e_sf98 = 1098, e_sf99 = 1099,
-         e_sffinal  = 1100,
-         e_sf4ext00 = 2000, e_sf4ext01 = 2001, e_sf4ext02 = 2002, e_sf4ext03 = 2003,
-         e_sf4ext04 = 2004, e_sf4ext05 = 2005, e_sf4ext06 = 2006, e_sf4ext07 = 2007,
-         e_sf4ext08 = 2008, e_sf4ext09 = 2009, e_sf4ext10 = 2010, e_sf4ext11 = 2011,
-         e_sf4ext12 = 2012, e_sf4ext13 = 2013, e_sf4ext14 = 2014, e_sf4ext15 = 2015,
-         e_sf4ext16 = 2016, e_sf4ext17 = 2017, e_sf4ext18 = 2018, e_sf4ext19 = 2019,
-         e_sf4ext20 = 2020, e_sf4ext21 = 2021, e_sf4ext22 = 2022, e_sf4ext23 = 2023,
-         e_sf4ext24 = 2024, e_sf4ext25 = 2025, e_sf4ext26 = 2026, e_sf4ext27 = 2027,
-         e_sf4ext28 = 2028, e_sf4ext29 = 2029, e_sf4ext30 = 2030, e_sf4ext31 = 2031,
-         e_sf4ext32 = 2032, e_sf4ext33 = 2033, e_sf4ext34 = 2034, e_sf4ext35 = 2035,
-         e_sf4ext36 = 2036, e_sf4ext37 = 2037, e_sf4ext38 = 2038, e_sf4ext39 = 2039,
-         e_sf4ext40 = 2040, e_sf4ext41 = 2041, e_sf4ext42 = 2042, e_sf4ext43 = 2043,
-         e_sf4ext44 = 2044, e_sf4ext45 = 2045, e_sf4ext46 = 2046, e_sf4ext47 = 2047,
-         e_sf4ext48 = 2048, e_sf4ext49 = 2049, e_sf4ext50 = 2050, e_sf4ext51 = 2051,
-         e_sf4ext52 = 2052, e_sf4ext53 = 2053, e_sf4ext54 = 2054, e_sf4ext55 = 2055,
-         e_sf4ext56 = 2056, e_sf4ext57 = 2057, e_sf4ext58 = 2058, e_sf4ext59 = 2059,
-         e_sf4ext60 = 2060, e_sf4ext61 = 2061
+         sf00 = 1000, sf01 = 1001, sf02 = 1002, sf03 = 1003,
+         sf04 = 1004, sf05 = 1005, sf06 = 1006, sf07 = 1007,
+         sf08 = 1008, sf09 = 1009, sf10 = 1010, sf11 = 1011,
+         sf12 = 1012, sf13 = 1013, sf14 = 1014, sf15 = 1015,
+         sf16 = 1016, sf17 = 1017, sf18 = 1018, sf19 = 1019,
+         sf20 = 1020, sf21 = 1021, sf22 = 1022, sf23 = 1023,
+         sf24 = 1024, sf25 = 1025, sf26 = 1026, sf27 = 1027,
+         sf28 = 1028, sf29 = 1029, sf30 = 1030, sf31 = 1031,
+         sf32 = 1032, sf33 = 1033, sf34 = 1034, sf35 = 1035,
+         sf36 = 1036, sf37 = 1037, sf38 = 1038, sf39 = 1039,
+         sf40 = 1040, sf41 = 1041, sf42 = 1042, sf43 = 1043,
+         sf44 = 1044, sf45 = 1045, sf46 = 1046, sf47 = 1047,
+         sf48 = 1048, sf49 = 1049, sf50 = 1050, sf51 = 1051,
+         sf52 = 1052, sf53 = 1053, sf54 = 1054, sf55 = 1055,
+         sf56 = 1056, sf57 = 1057, sf58 = 1058, sf59 = 1059,
+         sf60 = 1060, sf61 = 1061, sf62 = 1062, sf63 = 1063,
+         sf64 = 1064, sf65 = 1065, sf66 = 1066, sf67 = 1067,
+         sf68 = 1068, sf69 = 1069, sf70 = 1070, sf71 = 1071,
+         sf72 = 1072, sf73 = 1073, sf74 = 1074, sf75 = 1075,
+         sf76 = 1076, sf77 = 1077, sf78 = 1078, sf79 = 1079,
+         sf80 = 1080, sf81 = 1081, sf82 = 1082, sf83 = 1083,
+         sf84 = 1084, sf85 = 1085, sf86 = 1086, sf87 = 1087,
+         sf88 = 1088, sf89 = 1089, sf90 = 1090, sf91 = 1091,
+         sf92 = 1092, sf93 = 1093, sf94 = 1094, sf95 = 1095,
+         sf96 = 1096, sf97 = 1097, sf98 = 1098, sf99 = 1099,
+         sffinal  = 1100,
+         sf4ext00 = 2000, sf4ext01 = 2001, sf4ext02 = 2002, sf4ext03 = 2003,
+         sf4ext04 = 2004, sf4ext05 = 2005, sf4ext06 = 2006, sf4ext07 = 2007,
+         sf4ext08 = 2008, sf4ext09 = 2009, sf4ext10 = 2010, sf4ext11 = 2011,
+         sf4ext12 = 2012, sf4ext13 = 2013, sf4ext14 = 2014, sf4ext15 = 2015,
+         sf4ext16 = 2016, sf4ext17 = 2017, sf4ext18 = 2018, sf4ext19 = 2019,
+         sf4ext20 = 2020, sf4ext21 = 2021, sf4ext22 = 2022, sf4ext23 = 2023,
+         sf4ext24 = 2024, sf4ext25 = 2025, sf4ext26 = 2026, sf4ext27 = 2027,
+         sf4ext28 = 2028, sf4ext29 = 2029, sf4ext30 = 2030, sf4ext31 = 2031,
+         sf4ext32 = 2032, sf4ext33 = 2033, sf4ext34 = 2034, sf4ext35 = 2035,
+         sf4ext36 = 2036, sf4ext37 = 2037, sf4ext38 = 2038, sf4ext39 = 2039,
+         sf4ext40 = 2040, sf4ext41 = 2041, sf4ext42 = 2042, sf4ext43 = 2043,
+         sf4ext44 = 2044, sf4ext45 = 2045, sf4ext46 = 2046, sf4ext47 = 2047,
+         sf4ext48 = 2048, sf4ext49 = 2049, sf4ext50 = 2050, sf4ext51 = 2051,
+         sf4ext52 = 2052, sf4ext53 = 2053, sf4ext54 = 2054, sf4ext55 = 2055,
+         sf4ext56 = 2056, sf4ext57 = 2057, sf4ext58 = 2058, sf4ext59 = 2059,
+         sf4ext60 = 2060, sf4ext61 = 2061
       };
 
       inline std::string to_str(const operator_type opr)
       {
          switch (opr)
          {
-            case e_add    : return  "+"  ;
-            case e_sub    : return  "-"  ;
-            case e_mul    : return  "*"  ;
-            case e_div    : return  "/"  ;
-            case e_mod    : return  "%"  ;
-            case e_pow    : return  "^"  ;
-            case e_assign : return ":="  ;
-            case e_addass : return "+="  ;
-            case e_subass : return "-="  ;
-            case e_mulass : return "*="  ;
-            case e_divass : return "/="  ;
-            case e_modass : return "%="  ;
-            case e_lt     : return  "<"  ;
-            case e_lte    : return "<="  ;
-            case e_eq     : return "=="  ;
-            case e_equal  : return  "="  ;
-            case e_ne     : return "!="  ;
-            case e_nequal : return "<>"  ;
-            case e_gte    : return ">="  ;
-            case e_gt     : return  ">"  ;
-            case e_and    : return "and" ;
-            case e_or     : return "or"  ;
-            case e_xor    : return "xor" ;
-            case e_nand   : return "nand";
-            case e_nor    : return "nor" ;
-            case e_xnor   : return "xnor";
+            case operator_type::add    : return  "+"  ;
+            case operator_type::sub    : return  "-"  ;
+            case operator_type::mul    : return  "*"  ;
+            case operator_type::div    : return  "/"  ;
+            case operator_type::mod    : return  "%"  ;
+            case operator_type::pow    : return  "^"  ;
+            case operator_type::assign : return ":="  ;
+            case operator_type::addass : return "+="  ;
+            case operator_type::subass : return "-="  ;
+            case operator_type::mulass : return "*="  ;
+            case operator_type::divass : return "/="  ;
+            case operator_type::modass : return "%="  ;
+            case operator_type::lt     : return  "<"  ;
+            case operator_type::lte    : return "<="  ;
+            case operator_type::eq     : return "=="  ;
+            case operator_type::equal  : return  "="  ;
+            case operator_type::ne     : return "!="  ;
+            case operator_type::nequal : return "<>"  ;
+            case operator_type::gte    : return ">="  ;
+            case operator_type::gt     : return  ">"  ;
+            case operator_type::logical_and    : return "and" ;
+            case operator_type::logical_or     : return "or"  ;
+            case operator_type::logical_xor    : return "xor" ;
+            case operator_type::nand   : return "nand";
+            case operator_type::nor    : return "nor" ;
+            case operator_type::xnor   : return "xnor";
             default       : return "N/A" ;
          }
       }
@@ -478,46 +478,46 @@ namespace math_expr::details
             {
                switch (operation)
                {
-                  case e_abs   : return numeric::abs  (arg);
-                  case e_acos  : return numeric::acos (arg);
-                  case e_acosh : return numeric::acosh(arg);
-                  case e_asin  : return numeric::asin (arg);
-                  case e_asinh : return numeric::asinh(arg);
-                  case e_atan  : return numeric::atan (arg);
-                  case e_atanh : return numeric::atanh(arg);
-                  case e_ceil  : return numeric::ceil (arg);
-                  case e_cos   : return numeric::cos  (arg);
-                  case e_cosh  : return numeric::cosh (arg);
-                  case e_exp   : return numeric::exp  (arg);
-                  case e_expm1 : return numeric::expm1(arg);
-                  case e_floor : return numeric::floor(arg);
-                  case e_log   : return numeric::log  (arg);
-                  case e_log10 : return numeric::log10(arg);
-                  case e_log2  : return numeric::log2 (arg);
-                  case e_log1p : return numeric::log1p(arg);
-                  case e_neg   : return numeric::neg  (arg);
-                  case e_pos   : return numeric::pos  (arg);
-                  case e_round : return numeric::round(arg);
-                  case e_sin   : return numeric::sin  (arg);
-                  case e_sinc  : return numeric::sinc (arg);
-                  case e_sinh  : return numeric::sinh (arg);
-                  case e_sqrt  : return numeric::sqrt (arg);
-                  case e_tan   : return numeric::tan  (arg);
-                  case e_tanh  : return numeric::tanh (arg);
-                  case e_cot   : return numeric::cot  (arg);
-                  case e_sec   : return numeric::sec  (arg);
-                  case e_csc   : return numeric::csc  (arg);
-                  case e_r2d   : return numeric::r2d  (arg);
-                  case e_d2r   : return numeric::d2r  (arg);
-                  case e_d2g   : return numeric::d2g  (arg);
-                  case e_g2d   : return numeric::g2d  (arg);
-                  case e_notl  : return numeric::notl (arg);
-                  case e_sgn   : return numeric::sgn  (arg);
-                  case e_erf   : return numeric::erf  (arg);
-                  case e_erfc  : return numeric::erfc (arg);
-                  case e_ncdf  : return numeric::ncdf (arg);
-                  case e_frac  : return numeric::frac (arg);
-                  case e_trunc : return numeric::trunc(arg);
+                  case operator_type::abs   : return numeric::abs  (arg);
+                  case operator_type::acos  : return numeric::acos (arg);
+                  case operator_type::acosh : return numeric::acosh(arg);
+                  case operator_type::asin  : return numeric::asin (arg);
+                  case operator_type::asinh : return numeric::asinh(arg);
+                  case operator_type::atan  : return numeric::atan (arg);
+                  case operator_type::atanh : return numeric::atanh(arg);
+                  case operator_type::ceil  : return numeric::ceil (arg);
+                  case operator_type::cos   : return numeric::cos  (arg);
+                  case operator_type::cosh  : return numeric::cosh (arg);
+                  case operator_type::exp   : return numeric::exp  (arg);
+                  case operator_type::expm1 : return numeric::expm1(arg);
+                  case operator_type::floor : return numeric::floor(arg);
+                  case operator_type::log   : return numeric::log  (arg);
+                  case operator_type::log10 : return numeric::log10(arg);
+                  case operator_type::log2  : return numeric::log2 (arg);
+                  case operator_type::log1p : return numeric::log1p(arg);
+                  case operator_type::neg   : return numeric::neg  (arg);
+                  case operator_type::pos   : return numeric::pos  (arg);
+                  case operator_type::round : return numeric::round(arg);
+                  case operator_type::sin   : return numeric::sin  (arg);
+                  case operator_type::sinc  : return numeric::sinc (arg);
+                  case operator_type::sinh  : return numeric::sinh (arg);
+                  case operator_type::sqrt  : return numeric::sqrt (arg);
+                  case operator_type::tan   : return numeric::tan  (arg);
+                  case operator_type::tanh  : return numeric::tanh (arg);
+                  case operator_type::cot   : return numeric::cot  (arg);
+                  case operator_type::sec   : return numeric::sec  (arg);
+                  case operator_type::csc   : return numeric::csc  (arg);
+                  case operator_type::r2d   : return numeric::r2d  (arg);
+                  case operator_type::d2r   : return numeric::d2r  (arg);
+                  case operator_type::d2g   : return numeric::d2g  (arg);
+                  case operator_type::g2d   : return numeric::g2d  (arg);
+                  case operator_type::notl  : return numeric::notl (arg);
+                  case operator_type::sgn   : return numeric::sgn  (arg);
+                  case operator_type::erf   : return numeric::erf  (arg);
+                  case operator_type::erfc  : return numeric::erfc (arg);
+                  case operator_type::ncdf  : return numeric::ncdf (arg);
+                  case operator_type::frac  : return numeric::frac (arg);
+                  case operator_type::trunc : return numeric::trunc(arg);
 
                   default      : math_expr_debug(("numeric::details::process_impl<T> - Invalid unary operation.\n"));
                                  return std::numeric_limits<T>::quiet_NaN();
@@ -529,35 +529,35 @@ namespace math_expr::details
             {
                switch (operation)
                {
-                  case e_add    : return (arg0 + arg1);
-                  case e_sub    : return (arg0 - arg1);
-                  case e_mul    : return (arg0 * arg1);
-                  case e_div    : return (arg0 / arg1);
-                  case e_mod    : return modulus<T>(arg0,arg1);
-                  case e_pow    : return pow<T>(arg0,arg1);
-                  case e_atan2  : return atan2<T>(arg0,arg1);
-                  case e_min    : return std::min<T>(arg0,arg1);
-                  case e_max    : return std::max<T>(arg0,arg1);
-                  case e_logn   : return logn<T>(arg0,arg1);
-                  case e_lt     : return (arg0 <  arg1) ? T(1) : T(0);
-                  case e_lte    : return (arg0 <= arg1) ? T(1) : T(0);
-                  case e_eq     : return std::equal_to<T>()(arg0,arg1) ? T(1) : T(0);
-                  case e_ne     : return std::not_equal_to<T>()(arg0,arg1) ? T(1) : T(0);
-                  case e_gte    : return (arg0 >= arg1) ? T(1) : T(0);
-                  case e_gt     : return (arg0 >  arg1) ? T(1) : T(0);
-                  case e_and    : return and_opr <T>(arg0,arg1);
-                  case e_nand   : return nand_opr<T>(arg0,arg1);
-                  case e_or     : return or_opr  <T>(arg0,arg1);
-                  case e_nor    : return nor_opr <T>(arg0,arg1);
-                  case e_xor    : return xor_opr <T>(arg0,arg1);
-                  case e_xnor   : return xnor_opr<T>(arg0,arg1);
-                  case e_root   : return root    <T>(arg0,arg1);
-                  case e_roundn : return roundn  <T>(arg0,arg1);
-                  case e_equal  : return equal   <T>(arg0,arg1);
-                  case e_nequal : return nequal  <T>(arg0,arg1);
-                  case e_hypot  : return hypot   <T>(arg0,arg1);
-                  case e_shr    : return shr     <T>(arg0,arg1);
-                  case e_shl    : return shl     <T>(arg0,arg1);
+                  case operator_type::add    : return (arg0 + arg1);
+                  case operator_type::sub    : return (arg0 - arg1);
+                  case operator_type::mul    : return (arg0 * arg1);
+                  case operator_type::div    : return (arg0 / arg1);
+                  case operator_type::mod    : return modulus<T>(arg0,arg1);
+                  case operator_type::pow    : return pow<T>(arg0,arg1);
+                  case operator_type::atan2  : return atan2<T>(arg0,arg1);
+                  case operator_type::min    : return std::min<T>(arg0,arg1);
+                  case operator_type::max    : return std::max<T>(arg0,arg1);
+                  case operator_type::logn   : return logn<T>(arg0,arg1);
+                  case operator_type::lt     : return (arg0 <  arg1) ? T(1) : T(0);
+                  case operator_type::lte    : return (arg0 <= arg1) ? T(1) : T(0);
+                  case operator_type::eq     : return std::equal_to<T>()(arg0,arg1) ? T(1) : T(0);
+                  case operator_type::ne     : return std::not_equal_to<T>()(arg0,arg1) ? T(1) : T(0);
+                  case operator_type::gte    : return (arg0 >= arg1) ? T(1) : T(0);
+                  case operator_type::gt     : return (arg0 >  arg1) ? T(1) : T(0);
+                  case operator_type::logical_and    : return and_opr <T>(arg0,arg1);
+                  case operator_type::nand   : return nand_opr<T>(arg0,arg1);
+                  case operator_type::logical_or     : return or_opr  <T>(arg0,arg1);
+                  case operator_type::nor    : return nor_opr <T>(arg0,arg1);
+                  case operator_type::logical_xor    : return xor_opr <T>(arg0,arg1);
+                  case operator_type::xnor   : return xnor_opr<T>(arg0,arg1);
+                  case operator_type::root   : return root    <T>(arg0,arg1);
+                  case operator_type::roundn : return roundn  <T>(arg0,arg1);
+                  case operator_type::equal  : return equal   <T>(arg0,arg1);
+                  case operator_type::nequal : return nequal  <T>(arg0,arg1);
+                  case operator_type::hypot  : return hypot   <T>(arg0,arg1);
+                  case operator_type::shr    : return shr     <T>(arg0,arg1);
+                  case operator_type::shl    : return shl     <T>(arg0,arg1);
 
                   default       : math_expr_debug(("numeric::details::process_impl<T> - Invalid binary operation.\n"));
                                   return std::numeric_limits<T>::quiet_NaN();
@@ -569,33 +569,33 @@ namespace math_expr::details
             {
                switch (operation)
                {
-                  case e_add    : return (arg0 + arg1);
-                  case e_sub    : return (arg0 - arg1);
-                  case e_mul    : return (arg0 * arg1);
-                  case e_div    : return (arg0 / arg1);
-                  case e_mod    : return arg0 % arg1;
-                  case e_pow    : return pow<T>(arg0,arg1);
-                  case e_min    : return std::min<T>(arg0,arg1);
-                  case e_max    : return std::max<T>(arg0,arg1);
-                  case e_logn   : return logn<T>(arg0,arg1);
-                  case e_lt     : return (arg0 <  arg1) ? T(1) : T(0);
-                  case e_lte    : return (arg0 <= arg1) ? T(1) : T(0);
-                  case e_eq     : return (arg0 == arg1) ? T(1) : T(0);
-                  case e_ne     : return (arg0 != arg1) ? T(1) : T(0);
-                  case e_gte    : return (arg0 >= arg1) ? T(1) : T(0);
-                  case e_gt     : return (arg0 >  arg1) ? T(1) : T(0);
-                  case e_and    : return ((arg0 != T(0)) && (arg1 != T(0))) ? T(1) : T(0);
-                  case e_nand   : return ((arg0 != T(0)) && (arg1 != T(0))) ? T(0) : T(1);
-                  case e_or     : return ((arg0 != T(0)) || (arg1 != T(0))) ? T(1) : T(0);
-                  case e_nor    : return ((arg0 != T(0)) || (arg1 != T(0))) ? T(0) : T(1);
-                  case e_xor    : return arg0 ^ arg1;
-                  case e_xnor   : return !(arg0 ^ arg1);
-                  case e_root   : return root<T>(arg0,arg1);
-                  case e_equal  : return arg0 == arg1;
-                  case e_nequal : return arg0 != arg1;
-                  case e_hypot  : return hypot<T>(arg0,arg1);
-                  case e_shr    : return arg0 >> arg1;
-                  case e_shl    : return arg0 << arg1;
+                  case operator_type::add    : return (arg0 + arg1);
+                  case operator_type::sub    : return (arg0 - arg1);
+                  case operator_type::mul    : return (arg0 * arg1);
+                  case operator_type::div    : return (arg0 / arg1);
+                  case operator_type::mod    : return arg0 % arg1;
+                  case operator_type::pow    : return pow<T>(arg0,arg1);
+                  case operator_type::min    : return std::min<T>(arg0,arg1);
+                  case operator_type::max    : return std::max<T>(arg0,arg1);
+                  case operator_type::logn   : return logn<T>(arg0,arg1);
+                  case operator_type::lt     : return (arg0 <  arg1) ? T(1) : T(0);
+                  case operator_type::lte    : return (arg0 <= arg1) ? T(1) : T(0);
+                  case operator_type::eq     : return (arg0 == arg1) ? T(1) : T(0);
+                  case operator_type::ne     : return (arg0 != arg1) ? T(1) : T(0);
+                  case operator_type::gte    : return (arg0 >= arg1) ? T(1) : T(0);
+                  case operator_type::gt     : return (arg0 >  arg1) ? T(1) : T(0);
+                  case operator_type::logical_and    : return ((arg0 != T(0)) && (arg1 != T(0))) ? T(1) : T(0);
+                  case operator_type::nand   : return ((arg0 != T(0)) && (arg1 != T(0))) ? T(0) : T(1);
+                  case operator_type::logical_or     : return ((arg0 != T(0)) || (arg1 != T(0))) ? T(1) : T(0);
+                  case operator_type::nor    : return ((arg0 != T(0)) || (arg1 != T(0))) ? T(0) : T(1);
+                  case operator_type::logical_xor    : return arg0 ^ arg1;
+                  case operator_type::xnor   : return !(arg0 ^ arg1);
+                  case operator_type::root   : return root<T>(arg0,arg1);
+                  case operator_type::equal  : return arg0 == arg1;
+                  case operator_type::nequal : return arg0 != arg1;
+                  case operator_type::hypot  : return hypot<T>(arg0,arg1);
+                  case operator_type::shr    : return arg0 >> arg1;
+                  case operator_type::shl    : return arg0 << arg1;
 
                   default       : math_expr_debug(("numeric::details::process_impl<IntType> - Invalid binary operation.\n"));
                                   return std::numeric_limits<T>::quiet_NaN();

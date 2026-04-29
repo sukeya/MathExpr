@@ -54,7 +54,7 @@ namespace math_expr::details::string_nodes
 
          swap_genstrings_node(expression_ptr branch0,
                               expression_ptr branch1)
-         : binary_node<T>(details::e_default, branch0, branch1)
+         : binary_node<T>(details::operator_type::default_op, branch0, branch1)
          , str0_base_ptr_ (0)
          , str1_base_ptr_ (0)
          , str0_range_ptr_(0)

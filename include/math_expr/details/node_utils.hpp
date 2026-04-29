@@ -61,7 +61,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2, Type t3) { return t1 + t2 + t3; }
          static inline void assign(RefType t1, Type t2) { t1 += t2; }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_add; }
-         static inline details::operator_type operation() { return details::e_add; }
+         static inline details::operator_type operation() { return details::operator_type::add; }
       };
 
       template <typename T>
@@ -74,7 +74,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2, Type t3) { return t1 * t2 * t3; }
          static inline void assign(RefType t1, Type t2) { t1 *= t2; }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_mul; }
-         static inline details::operator_type operation() { return details::e_mul; }
+         static inline details::operator_type operation() { return details::operator_type::mul; }
       };
 
       template <typename T>
@@ -87,7 +87,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2, Type t3) { return t1 - t2 - t3; }
          static inline void assign(RefType t1, Type t2) { t1 -= t2; }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_sub; }
-         static inline details::operator_type operation() { return details::e_sub; }
+         static inline details::operator_type operation() { return details::operator_type::sub; }
       };
 
       template <typename T>
@@ -100,7 +100,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2, Type t3) { return t1 / t2 / t3; }
          static inline void assign(RefType t1, Type t2) { t1 /= t2; }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_div; }
-         static inline details::operator_type operation() { return details::e_div; }
+         static inline details::operator_type operation() { return details::operator_type::div; }
       };
 
       template <typename T>
@@ -112,7 +112,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return numeric::modulus<T>(t1,t2); }
          static inline void assign(RefType t1, Type t2) { t1 = numeric::modulus<T>(t1,t2); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_mod; }
-         static inline details::operator_type operation() { return details::e_mod; }
+         static inline details::operator_type operation() { return details::operator_type::mod; }
       };
 
       template <typename T>
@@ -124,7 +124,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return numeric::pow<T>(t1,t2); }
          static inline void assign(RefType t1, Type t2) { t1 = numeric::pow<T>(t1,t2); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_pow; }
-         static inline details::operator_type operation() { return details::e_pow; }
+         static inline details::operator_type operation() { return details::operator_type::pow; }
       };
 
       template <typename T>
@@ -135,7 +135,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return ((t1 < t2) ? T(1) : T(0)); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 < t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_lt; }
-         static inline details::operator_type operation() { return details::e_lt; }
+         static inline details::operator_type operation() { return details::operator_type::lt; }
       };
 
       template <typename T>
@@ -146,7 +146,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return ((t1 <= t2) ? T(1) : T(0)); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 <= t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_lte; }
-         static inline details::operator_type operation() { return details::e_lte; }
+         static inline details::operator_type operation() { return details::operator_type::lte; }
       };
 
       template <typename T>
@@ -157,7 +157,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return ((t1 > t2) ? T(1) : T(0)); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 > t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_gt; }
-         static inline details::operator_type operation() { return details::e_gt; }
+         static inline details::operator_type operation() { return details::operator_type::gt; }
       };
 
       template <typename T>
@@ -168,7 +168,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return ((t1 >= t2) ? T(1) : T(0)); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 >= t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_gte; }
-         static inline details::operator_type operation() { return details::e_gte; }
+         static inline details::operator_type operation() { return details::operator_type::gte; }
       };
 
       template <typename T>
@@ -178,7 +178,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return (std::equal_to<T>()(t1,t2) ? T(1) : T(0)); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 == t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_eq; }
-         static inline details::operator_type operation() { return details::e_eq; }
+         static inline details::operator_type operation() { return details::operator_type::eq; }
       };
 
       template <typename T>
@@ -189,7 +189,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return numeric::equal(t1,t2); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 == t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_eq; }
-         static inline details::operator_type operation() { return details::e_equal; }
+         static inline details::operator_type operation() { return details::operator_type::equal; }
       };
 
       template <typename T>
@@ -200,7 +200,7 @@ namespace math_expr::details
          static inline T process(Type t1, Type t2) { return (std::not_equal_to<T>()(t1,t2) ? T(1) : T(0)); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((t1 != t2) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_ne; }
-         static inline details::operator_type operation() { return details::e_ne; }
+         static inline details::operator_type operation() { return details::operator_type::ne; }
       };
 
       template <typename T>
@@ -210,7 +210,7 @@ namespace math_expr::details
 
          static inline T process(Type t1, Type t2) { return (details::is_true(t1) && details::is_true(t2)) ? T(1) : T(0); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_and; }
-         static inline details::operator_type operation() { return details::e_and; }
+         static inline details::operator_type operation() { return details::operator_type::logical_and; }
       };
 
       template <typename T>
@@ -220,7 +220,7 @@ namespace math_expr::details
 
          static inline T process(Type t1, Type t2) { return (details::is_true(t1) && details::is_true(t2)) ? T(0) : T(1); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_nand; }
-         static inline details::operator_type operation() { return details::e_nand; }
+         static inline details::operator_type operation() { return details::operator_type::nand; }
       };
 
       template <typename T>
@@ -230,7 +230,7 @@ namespace math_expr::details
 
          static inline T process(Type t1, Type t2) { return (details::is_true(t1) || details::is_true(t2)) ? T(1) : T(0); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_or; }
-         static inline details::operator_type operation() { return details::e_or; }
+         static inline details::operator_type operation() { return details::operator_type::logical_or; }
       };
 
       template <typename T>
@@ -240,7 +240,7 @@ namespace math_expr::details
 
          static inline T process(Type t1, Type t2) { return (details::is_true(t1) || details::is_true(t2)) ? T(0) : T(1); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_nor; }
-         static inline details::operator_type operation() { return details::e_nor; }
+         static inline details::operator_type operation() { return details::operator_type::nor; }
       };
 
       template <typename T>
@@ -250,7 +250,7 @@ namespace math_expr::details
 
          static inline T process(Type t1, Type t2) { return numeric::xor_opr<T>(t1,t2); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_nor; }
-         static inline details::operator_type operation() { return details::e_xor; }
+         static inline details::operator_type operation() { return details::operator_type::logical_xor; }
       };
 
       template <typename T>
@@ -260,7 +260,7 @@ namespace math_expr::details
 
          static inline T process(Type t1, Type t2) { return numeric::xnor_opr<T>(t1,t2); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_nor; }
-         static inline details::operator_type operation() { return details::e_xnor; }
+         static inline details::operator_type operation() { return details::operator_type::xnor; }
       };
 
       template <typename T>
@@ -271,7 +271,7 @@ namespace math_expr::details
          static inline T process(const T&, const T&) { return std::numeric_limits<T>::quiet_NaN(); }
          static inline T process(const std::string& t1, const std::string& t2) { return ((std::string::npos != t2.find(t1)) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_in; }
-         static inline details::operator_type operation() { return details::e_in; }
+         static inline details::operator_type operation() { return details::operator_type::in; }
       };
 
       template <typename T>
@@ -282,7 +282,7 @@ namespace math_expr::details
          static inline T process(const T&, const T&) { return std::numeric_limits<T>::quiet_NaN(); }
          static inline T process(const std::string& t1, const std::string& t2) { return (details::wc_match(t2,t1) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_like; }
-         static inline details::operator_type operation() { return details::e_like; }
+         static inline details::operator_type operation() { return details::operator_type::like; }
       };
 
       template <typename T>
@@ -293,7 +293,7 @@ namespace math_expr::details
          static inline T process(const T&, const T&) { return std::numeric_limits<T>::quiet_NaN(); }
          static inline T process(const std::string& t1, const std::string& t2) { return (details::wc_imatch(t2,t1) ? T(1) : T(0)); }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_ilike; }
-         static inline details::operator_type operation() { return details::e_ilike; }
+         static inline details::operator_type operation() { return details::operator_type::ilike; }
       };
 
       template <typename T>
@@ -307,7 +307,7 @@ namespace math_expr::details
             return ((t0 <= t1) && (t1 <= t2)) ? T(1) : T(0);
          }
          static inline typename expression_node<T>::node_type type() { return expression_node<T>::e_inranges; }
-         static inline details::operator_type operation() { return details::e_inrange; }
+         static inline details::operator_type operation() { return details::operator_type::inrange; }
       };
 
       template <typename T>
@@ -1149,7 +1149,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
 
          virtual const T& v0() const = 0;
@@ -1167,7 +1167,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
 
          virtual const T c() const = 0;
@@ -1185,7 +1185,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
 
          virtual const T c() const = 0;
@@ -1225,7 +1225,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
 
          virtual const T c() const = 0;
@@ -1245,7 +1245,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
 
          virtual const T c() const = 0;
@@ -1265,7 +1265,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
 
          virtual const T& v() const = 0;
@@ -1281,7 +1281,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
       };
 
@@ -1295,7 +1295,7 @@ namespace math_expr::details
 
          inline virtual operator_type operation() const
          {
-            return details::e_default;
+            return details::operator_type::default_op;
          }
       };
 
@@ -1760,7 +1760,7 @@ namespace math_expr::details
 
          inline operator_type operation() const override
          {
-            return e_default;
+            return operator_type::default_op;
          }
 
          inline T value() const override
@@ -1830,7 +1830,7 @@ namespace math_expr::details
 
          inline operator_type operation()
          {
-            return e_default;
+            return operator_type::default_op;
          }
 
          inline T value() const override
@@ -2017,7 +2017,7 @@ namespace math_expr::details
 
          inline operator_type operation() const override
          {
-            return e_default;
+            return operator_type::default_op;
          }
 
          inline T value() const override
@@ -2111,7 +2111,7 @@ namespace math_expr::details
 
          inline operator_type operation()
          {
-            return e_default;
+            return operator_type::default_op;
          }
 
          inline T value() const override
@@ -2202,7 +2202,7 @@ namespace math_expr::details
 
          inline operator_type operation() const override
          {
-            return e_default;
+            return operator_type::default_op;
          }
 
          inline T value() const override
@@ -3947,58 +3947,58 @@ namespace math_expr::details
          #define register_op(Symbol, Type, Args)                                             \
          m.insert(std::make_pair(std::string(Symbol),details::base_operation_t(Type,Args))); \
 
-         register_op("abs"       , e_abs     , 1)
-         register_op("acos"      , e_acos    , 1)
-         register_op("acosh"     , e_acosh   , 1)
-         register_op("asin"      , e_asin    , 1)
-         register_op("asinh"     , e_asinh   , 1)
-         register_op("atan"      , e_atan    , 1)
-         register_op("atanh"     , e_atanh   , 1)
-         register_op("ceil"      , e_ceil    , 1)
-         register_op("cos"       , e_cos     , 1)
-         register_op("cosh"      , e_cosh    , 1)
-         register_op("exp"       , e_exp     , 1)
-         register_op("expm1"     , e_expm1   , 1)
-         register_op("floor"     , e_floor   , 1)
-         register_op("log"       , e_log     , 1)
-         register_op("log10"     , e_log10   , 1)
-         register_op("log2"      , e_log2    , 1)
-         register_op("log1p"     , e_log1p   , 1)
-         register_op("round"     , e_round   , 1)
-         register_op("sin"       , e_sin     , 1)
-         register_op("sinc"      , e_sinc    , 1)
-         register_op("sinh"      , e_sinh    , 1)
-         register_op("sec"       , e_sec     , 1)
-         register_op("csc"       , e_csc     , 1)
-         register_op("sqrt"      , e_sqrt    , 1)
-         register_op("tan"       , e_tan     , 1)
-         register_op("tanh"      , e_tanh    , 1)
-         register_op("cot"       , e_cot     , 1)
-         register_op("rad2deg"   , e_r2d     , 1)
-         register_op("deg2rad"   , e_d2r     , 1)
-         register_op("deg2grad"  , e_d2g     , 1)
-         register_op("grad2deg"  , e_g2d     , 1)
-         register_op("sgn"       , e_sgn     , 1)
-         register_op("not"       , e_notl    , 1)
-         register_op("erf"       , e_erf     , 1)
-         register_op("erfc"      , e_erfc    , 1)
-         register_op("ncdf"      , e_ncdf    , 1)
-         register_op("frac"      , e_frac    , 1)
-         register_op("trunc"     , e_trunc   , 1)
-         register_op("atan2"     , e_atan2   , 2)
-         register_op("mod"       , e_mod     , 2)
-         register_op("logn"      , e_logn    , 2)
-         register_op("pow"       , e_pow     , 2)
-         register_op("root"      , e_root    , 2)
-         register_op("roundn"    , e_roundn  , 2)
-         register_op("equal"     , e_equal   , 2)
-         register_op("not_equal" , e_nequal  , 2)
-         register_op("hypot"     , e_hypot   , 2)
-         register_op("shr"       , e_shr     , 2)
-         register_op("shl"       , e_shl     , 2)
-         register_op("clamp"     , e_clamp   , 3)
-         register_op("iclamp"    , e_iclamp  , 3)
-         register_op("inrange"   , e_inrange , 3)
+         register_op("abs"       , operator_type::abs         , 1)
+         register_op("acos"      , operator_type::acos        , 1)
+         register_op("acosh"     , operator_type::acosh       , 1)
+         register_op("asin"      , operator_type::asin        , 1)
+         register_op("asinh"     , operator_type::asinh       , 1)
+         register_op("atan"      , operator_type::atan        , 1)
+         register_op("atanh"     , operator_type::atanh       , 1)
+         register_op("ceil"      , operator_type::ceil        , 1)
+         register_op("cos"       , operator_type::cos         , 1)
+         register_op("cosh"      , operator_type::cosh        , 1)
+         register_op("exp"       , operator_type::exp         , 1)
+         register_op("expm1"     , operator_type::expm1       , 1)
+         register_op("floor"     , operator_type::floor       , 1)
+         register_op("log"       , operator_type::log         , 1)
+         register_op("log10"     , operator_type::log10       , 1)
+         register_op("log2"      , operator_type::log2        , 1)
+         register_op("log1p"     , operator_type::log1p       , 1)
+         register_op("round"     , operator_type::round       , 1)
+         register_op("sin"       , operator_type::sin         , 1)
+         register_op("sinc"      , operator_type::sinc        , 1)
+         register_op("sinh"      , operator_type::sinh        , 1)
+         register_op("sec"       , operator_type::sec         , 1)
+         register_op("csc"       , operator_type::csc         , 1)
+         register_op("sqrt"      , operator_type::sqrt        , 1)
+         register_op("tan"       , operator_type::tan         , 1)
+         register_op("tanh"      , operator_type::tanh        , 1)
+         register_op("cot"       , operator_type::cot         , 1)
+         register_op("rad2deg"   , operator_type::r2d         , 1)
+         register_op("deg2rad"   , operator_type::d2r         , 1)
+         register_op("deg2grad"  , operator_type::d2g         , 1)
+         register_op("grad2deg"  , operator_type::g2d         , 1)
+         register_op("sgn"       , operator_type::sgn         , 1)
+         register_op("not"       , operator_type::notl        , 1)
+         register_op("erf"       , operator_type::erf         , 1)
+         register_op("erfc"      , operator_type::erfc        , 1)
+         register_op("ncdf"      , operator_type::ncdf        , 1)
+         register_op("frac"      , operator_type::frac        , 1)
+         register_op("trunc"     , operator_type::trunc       , 1)
+         register_op("atan2"     , operator_type::atan2       , 2)
+         register_op("mod"       , operator_type::mod         , 2)
+         register_op("logn"      , operator_type::logn        , 2)
+         register_op("pow"       , operator_type::pow         , 2)
+         register_op("root"      , operator_type::root        , 2)
+         register_op("roundn"    , operator_type::roundn      , 2)
+         register_op("equal"     , operator_type::equal       , 2)
+         register_op("not_equal" , operator_type::nequal      , 2)
+         register_op("hypot"     , operator_type::hypot       , 2)
+         register_op("shr"       , operator_type::shr         , 2)
+         register_op("shl"       , operator_type::shl         , 2)
+         register_op("clamp"     , operator_type::clamp       , 3)
+         register_op("iclamp"    , operator_type::iclamp      , 3)
+         register_op("inrange"   , operator_type::inrange     , 3)
          #undef register_op
       }
 

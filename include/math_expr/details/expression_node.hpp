@@ -364,7 +364,7 @@ namespace math_expr::details
       {
          if (node && is_unary_node(node))
          {
-            return (details::e_neg == static_cast<const unary_node<T>*>(node)->operation());
+            return (details::operator_type::neg == static_cast<const unary_node<T>*>(node)->operation());
          }
          else
             return false;

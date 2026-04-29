@@ -1602,7 +1602,7 @@ namespace math_expr::details
          typedef ivariable<T>*       ivariable_ptr;
 
          swap_generic_node(expression_ptr var0, expression_ptr var1)
-         : binary_node<T>(details::e_swap, var0, var1)
+         : binary_node<T>(details::operator_type::swap, var0, var1)
          , var0_(dynamic_cast<ivariable_ptr>(var0))
          , var1_(dynamic_cast<ivariable_ptr>(var1))
          {}
@@ -1639,7 +1639,7 @@ namespace math_expr::details
 
          swap_vecvec_node(expression_ptr branch0,
                           expression_ptr branch1)
-         : binary_node<T>(details::e_swap, branch0, branch1)
+         : binary_node<T>(details::operator_type::swap, branch0, branch1)
          , vec0_node_ptr_(0)
          , vec1_node_ptr_(0)
          , initialised_  (false)

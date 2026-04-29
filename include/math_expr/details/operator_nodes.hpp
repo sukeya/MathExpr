@@ -251,11 +251,11 @@ namespace math_expr::details
 
             switch (operation_)
             {
-               case e_inrange : return (arg1 < arg0) ? T(0) : ((arg1 > arg2) ? T(0) : T(1));
+               case operator_type::inrange : return (arg1 < arg0) ? T(0) : ((arg1 > arg2) ? T(0) : T(1));
 
-               case e_clamp   : return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
+               case operator_type::clamp   : return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
 
-               case e_iclamp  : if ((arg1 <= arg0) || (arg1 >= arg2))
+               case operator_type::iclamp  : if ((arg1 <= arg0) || (arg1 >= arg2))
                                    return arg1;
                                 else
                                    return ((T(2) * arg1  <= (arg2 + arg0)) ? arg0 : arg2);

@@ -58,7 +58,7 @@ namespace math_expr::details::string_nodes
          using binary_node<T>::branch;
 
          swap_string_node(expression_ptr branch0, expression_ptr branch1)
-         : binary_node<T>(details::e_swap, branch0, branch1)
+         : binary_node<T>(details::operator_type::swap, branch0, branch1)
          , initialised_(false)
          , str0_node_ptr_(0)
          , str1_node_ptr_(0)
