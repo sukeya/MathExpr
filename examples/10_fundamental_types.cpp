@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: MIT                               *
  *                                                            *
  **************************************************************
-*/
-
+ */
 
 #include <cmath>
 #include <cstdio>
@@ -23,76 +22,66 @@
 
 #include "math_expr.hpp"
 
-
-template <typename T>
-void newton_sqrt()
+template <typename T> void newton_sqrt()
 {
-   typedef math_expr::symbol_table<T>         symbol_table_t;
-   typedef math_expr::expression<T>           expression_t;
-   typedef math_expr::parser<T>               parser_t;
-   typedef math_expr::function_compositor<T>  compositor_t;
-   typedef typename compositor_t::function function_t;
+    typedef math_expr::symbol_table<T> symbol_table_t;
+    typedef math_expr::expression<T> expression_t;
+    typedef math_expr::parser<T> parser_t;
+    typedef math_expr::function_compositor<T> compositor_t;
+    typedef typename compositor_t::function function_t;
 
-   T x = T(0);
+    T x = T(0);
 
-   symbol_table_t symbol_table;
+    symbol_table_t symbol_table;
 
-   symbol_table.add_constants();
-   symbol_table.add_variable("x",x);
+    symbol_table.add_constants();
+    symbol_table.add_variable("x", x);
 
-   compositor_t compositor(symbol_table);
+    compositor_t compositor(symbol_table);
 
-   compositor.add(
-      function_t("newton_sqrt")
-      .var("x")
-      .expression
-      (
-         " switch                                                   "
-         " {                                                        "
-         "    case x < 0  : null;                                   "
-         "    case x == 0 : 0;                                      "
-         "    case x == 1 : 1;                                      "
-         "    default:                                              "
-         "    {                                                     "
-         "       var remaining_itrs := 100;                         "
-         "       var sqrt_x := x / 2;                               "
-         "       repeat                                             "
-         "          if (equal(sqrt_x * sqrt_x, x))                  "
-         "             break[sqrt_x];                               "
-         "          else                                            "
-         "             sqrt_x := (1 / 2) * (sqrt_x + (x / sqrt_x)); "
-         "       until ((remaining_itrs -= 1) <= 0);                "
-         "    };                                                    "
-         " }                                                        "
-      ));
+    compositor.add(function_t("newton_sqrt")
+                       .var("x")
+                       .expression(" switch                                                   "
+                                   " {                                                        "
+                                   "    case x < 0  : null;                                   "
+                                   "    case x == 0 : 0;                                      "
+                                   "    case x == 1 : 1;                                      "
+                                   "    default:                                              "
+                                   "    {                                                     "
+                                   "       var remaining_itrs := 100;                         "
+                                   "       var sqrt_x := x / 2;                               "
+                                   "       repeat                                             "
+                                   "          if (equal(sqrt_x * sqrt_x, x))                  "
+                                   "             break[sqrt_x];                               "
+                                   "          else                                            "
+                                   "             sqrt_x := (1 / 2) * (sqrt_x + (x / sqrt_x)); "
+                                   "       until ((remaining_itrs -= 1) <= 0);                "
+                                   "    };                                                    "
+                                   " }                                                        "));
 
-   const std::string expression_str = "newton_sqrt(x)";
+    const std::string expression_str = "newton_sqrt(x)";
 
-   expression_t expression;
-   expression.register_symbol_table(symbol_table);
+    expression_t expression;
+    expression.register_symbol_table(symbol_table);
 
-   parser_t parser;
-   parser.compile(expression_str,expression);
+    parser_t parser;
+    parser.compile(expression_str, expression);
 
-   for (x = T(0); x < T(500); x += T(0.5))
-   {
-      const T result = expression.value();
-      const T real   = std::sqrt(x);
-      const T error  = std::abs(result - real);
+    for (x = T(0); x < T(500); x += T(0.5))
+    {
+        const T result = expression.value();
+        const T real = std::sqrt(x);
+        const T error = std::abs(result - real);
 
-      const bool err_in_bound = error <= math_expr::core::numeric::pi;
+        const bool err_in_bound = error <= math_expr::core::numeric::pi;
 
-      printf("sqrt(%6.2f) - Result: %15.13f\tReal: %15.13f\tError: %18.16f EIB: %c\n",
-             x,
-             result,
-             real,
-             error,
-             err_in_bound ? 'T' : 'F');
-   }
+        printf("sqrt(%6.2f) - Result: %15.13f\tReal: %15.13f\tError: %18.16f EIB: %c\n", x, result,
+               real, error, err_in_bound ? 'T' : 'F');
+    }
 }
 
 int main()
 {
-   newton_sqrt<double>();
-   return 0;
+    newton_sqrt<double>();
+    return 0;
 }

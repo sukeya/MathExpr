@@ -38,59 +38,55 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-      template <typename T>
-      class string_size_node final : public expression_node<T>
-      {
-      public:
+template <typename T> class string_size_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef string_base_node<T>* str_base_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
 
-         typedef expression_node <T>* expression_ptr;
-         typedef string_base_node<T>* str_base_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
+    explicit string_size_node(expression_ptr branch) : str_base_ptr_(0)
+    {
+        construct_branch_pair(branch_, branch);
 
-         explicit string_size_node(expression_ptr branch)
-         : str_base_ptr_(0)
-         {
-            construct_branch_pair(branch_, branch);
+        if (is_generally_string_node(branch_.first))
+        {
+            str_base_ptr_ = dynamic_cast<str_base_ptr>(branch_.first);
+        }
 
-            if (is_generally_string_node(branch_.first))
-            {
-               str_base_ptr_ = dynamic_cast<str_base_ptr>(branch_.first);
-            }
+        assert(valid());
+    }
 
-            assert(valid());
-         }
+    inline T value() const override
+    {
+        branch_.first->value();
+        return T(str_base_ptr_->size());
+    }
 
-         inline T value() const override
-         {
-            branch_.first->value();
-            return T(str_base_ptr_->size());
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_stringsize;
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_stringsize;
-         }
+    inline bool valid() const override
+    {
+        return str_base_ptr_;
+    }
 
-         inline bool valid() const override
-         {
-            return str_base_ptr_;
-         }
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(branch_, node_delete_list);
+    }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(branch_, node_delete_list);
-         }
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(branch_);
+    }
 
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(branch_);
-         }
-
-      private:
-
-         branch_t     branch_;
-         str_base_ptr str_base_ptr_;
-      };
-}
+  private:
+    branch_t branch_;
+    str_base_ptr str_base_ptr_;
+};
+} // namespace math_expr::details::string_nodes
 
 #endif

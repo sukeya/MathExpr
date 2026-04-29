@@ -38,38 +38,30 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-      template <typename T>
-      class stringvar_size_node final : public expression_node<T>
-      {
-      public:
+template <typename T> class stringvar_size_node final : public expression_node<T>
+{
+  public:
+    static const std::string null_value;
 
-         static const std::string null_value;
+    explicit stringvar_size_node() : value_(&null_value) {}
 
-         explicit stringvar_size_node()
-         : value_(&null_value)
-         {}
+    explicit stringvar_size_node(std::string& v) : value_(&v) {}
 
-         explicit stringvar_size_node(std::string& v)
-         : value_(&v)
-         {}
+    inline T value() const override
+    {
+        return T((*value_).size());
+    }
 
-         inline T value() const override
-         {
-            return T((*value_).size());
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_stringvarsize;
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_stringvarsize;
-         }
+  private:
+    const std::string* value_;
+};
 
-      private:
-
-         const std::string* value_;
-      };
-
-      template <typename T>
-      const std::string stringvar_size_node<T>::null_value = std::string("");
-}
+template <typename T> const std::string stringvar_size_node<T>::null_value = std::string("");
+} // namespace math_expr::details::string_nodes
 
 #endif

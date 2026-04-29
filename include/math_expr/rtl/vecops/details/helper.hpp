@@ -41,58 +41,54 @@ limitations under the License.
 
 namespace math_expr::rtl::vecops::details
 {
-   template <typename Vector>
-   inline bool invalid_range(const Vector& v, const std::size_t r0, const std::size_t r1)
-   {
-      if (r0 > (v.size() - 1))
-         return true;
-      else if (r1 > (v.size() - 1))
-         return true;
-      else if (r1 < r0)
-         return true;
-      else
-         return false;
-   }
+template <typename Vector>
+inline bool invalid_range(const Vector& v, const std::size_t r0, const std::size_t r1)
+{
+    if (r0 > (v.size() - 1))
+        return true;
+    else if (r1 > (v.size() - 1))
+        return true;
+    else if (r1 < r0)
+        return true;
+    else
+        return false;
+}
 
-   template <typename T>
-   struct load_vector_range
-   {
-      typedef typename math_expr::igeneric_function<T> igfun_t;
-      typedef typename igfun_t::parameter_list_t    parameter_list_t;
-      typedef typename igfun_t::generic_type        generic_type;
-      typedef typename generic_type::scalar_view    scalar_t;
-      typedef typename generic_type::vector_view    vector_t;
+template <typename T> struct load_vector_range
+{
+    typedef typename math_expr::igeneric_function<T> igfun_t;
+    typedef typename igfun_t::parameter_list_t parameter_list_t;
+    typedef typename igfun_t::generic_type generic_type;
+    typedef typename generic_type::scalar_view scalar_t;
+    typedef typename generic_type::vector_view vector_t;
 
-      static inline bool process(parameter_list_t& parameters,
-                                 std::size_t& r0, std::size_t& r1,
-                                 const std::size_t& r0_prmidx,
-                                 const std::size_t& r1_prmidx,
-                                 const std::size_t vec_idx = 0)
-      {
-         if (r0_prmidx >= parameters.size())
+    static inline bool process(parameter_list_t& parameters, std::size_t& r0, std::size_t& r1,
+                               const std::size_t& r0_prmidx, const std::size_t& r1_prmidx,
+                               const std::size_t vec_idx = 0)
+    {
+        if (r0_prmidx >= parameters.size())
             return false;
 
-         if (r1_prmidx >= parameters.size())
+        if (r1_prmidx >= parameters.size())
             return false;
 
-         if (!scalar_t(parameters[r0_prmidx]).to_uint(r0))
+        if (!scalar_t(parameters[r0_prmidx]).to_uint(r0))
             return false;
 
-         if (!scalar_t(parameters[r1_prmidx]).to_uint(r1))
+        if (!scalar_t(parameters[r1_prmidx]).to_uint(r1))
             return false;
 
-         return !invalid_range(vector_t(parameters[vec_idx]), r0, r1);
-      }
-   };
+        return !invalid_range(vector_t(parameters[vec_idx]), r0, r1);
+    }
+};
 
-   template <typename T>
-   inline void kahan_sum(T& sum, T& error, const T v)
-   {
-      const T x = v - error;
-      const T y = sum + x;
-      error = (y - sum) - x;
-      sum = y;
-   }
+template <typename T> inline void kahan_sum(T& sum, T& error, const T v)
+{
+    const T x = v - error;
+    const T y = sum + x;
+    error = (y - sum) - x;
+    sum = y;
+}
 } // namespace math_expr::rtl::vecops::details
 
 #endif

@@ -39,21 +39,21 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file::details
 {
-   using ::math_expr::core::char_cptr;
-   using ::math_expr::core::char_ptr;
+using ::math_expr::core::char_cptr;
+using ::math_expr::core::char_ptr;
 
-   class stream_base
-   {
-   public:
-      virtual ~stream_base() = default;
+class stream_base
+{
+  public:
+    virtual ~stream_base() = default;
 
-      virtual bool is_open() const = 0;
-      virtual bool close() noexcept = 0;
-      virtual bool write(char_cptr data, std::size_t size) = 0;
-      virtual bool read(char_ptr data, std::size_t size) = 0;
-      virtual bool getline(std::string& s) = 0;
-      virtual bool eof() const = 0;
-   };
+    virtual bool is_open() const = 0;
+    virtual bool close() noexcept = 0;
+    virtual bool write(char_cptr data, std::size_t size) = 0;
+    virtual bool read(char_ptr data, std::size_t size) = 0;
+    virtual bool getline(std::string& s) = 0;
+    virtual bool eof() const = 0;
+};
 } // namespace math_expr::rtl::io::file::details
 
 #endif

@@ -38,151 +38,138 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      template <typename T>
-      struct range_pack
-      {
-         typedef expression_node<T>* expression_node_ptr;
-         typedef std::pair<std::size_t,std::size_t> cached_range_t;
+template <typename T> struct range_pack
+{
+    typedef expression_node<T>* expression_node_ptr;
+    typedef std::pair<std::size_t, std::size_t> cached_range_t;
 
-         range_pack()
-         : n0_e (std::make_pair(false,expression_node_ptr(0)))
-         , n1_e (std::make_pair(false,expression_node_ptr(0)))
-         , n0_c (std::make_pair(false,0))
-         , n1_c (std::make_pair(false,0))
-         , cache(std::make_pair(0,0))
-         {}
+    range_pack()
+        : n0_e(std::make_pair(false, expression_node_ptr(0))),
+          n1_e(std::make_pair(false, expression_node_ptr(0))), n0_c(std::make_pair(false, 0)),
+          n1_c(std::make_pair(false, 0)), cache(std::make_pair(0, 0))
+    {
+    }
 
-         void clear()
-         {
-            n0_e  = std::make_pair(false,expression_node_ptr(0));
-            n1_e  = std::make_pair(false,expression_node_ptr(0));
-            n0_c  = std::make_pair(false,0);
-            n1_c  = std::make_pair(false,0);
-            cache = std::make_pair(0,0);
-         }
+    void clear()
+    {
+        n0_e = std::make_pair(false, expression_node_ptr(0));
+        n1_e = std::make_pair(false, expression_node_ptr(0));
+        n0_c = std::make_pair(false, 0);
+        n1_c = std::make_pair(false, 0);
+        cache = std::make_pair(0, 0);
+    }
 
-         void free()
-         {
-            if (n0_e.first && n0_e.second)
+    void free()
+    {
+        if (n0_e.first && n0_e.second)
+        {
+            n0_e.first = false;
+
+            if (!is_variable_node(n0_e.second) && !is_string_node(n0_e.second))
             {
-               n0_e.first = false;
-
-               if (
-                    !is_variable_node(n0_e.second) &&
-                    !is_string_node  (n0_e.second)
-                  )
-               {
-                  destroy_node(n0_e.second);
-               }
+                destroy_node(n0_e.second);
             }
+        }
 
-            if (n1_e.first && n1_e.second)
+        if (n1_e.first && n1_e.second)
+        {
+            n1_e.first = false;
+
+            if (!is_variable_node(n1_e.second) && !is_string_node(n1_e.second))
             {
-               n1_e.first = false;
-
-               if (
-                    !is_variable_node(n1_e.second) &&
-                    !is_string_node  (n1_e.second)
-                  )
-               {
-                  destroy_node(n1_e.second);
-               }
+                destroy_node(n1_e.second);
             }
-         }
+        }
+    }
 
-         bool const_range() const
-         {
-           return ( n0_c.first &&  n1_c.first) &&
-                  (!n0_e.first && !n1_e.first);
-         }
+    bool const_range() const
+    {
+        return (n0_c.first && n1_c.first) && (!n0_e.first && !n1_e.first);
+    }
 
-         bool var_range() const
-         {
-           return ( n0_e.first &&  n1_e.first) &&
-                  (!n0_c.first && !n1_c.first);
-         }
+    bool var_range() const
+    {
+        return (n0_e.first && n1_e.first) && (!n0_c.first && !n1_c.first);
+    }
 
-         bool operator() (std::size_t& r0, std::size_t& r1,
-                          const std::size_t& size = std::numeric_limits<std::size_t>::max()) const
-         {
-            if (n0_c.first)
-               r0 = n0_c.second;
-            else if (n0_e.first)
-            {
-               r0 = static_cast<std::size_t>(core::numeric::to_int64(n0_e.second->value()));
-            }
-            else
-               return false;
+    bool operator()(std::size_t& r0, std::size_t& r1,
+                    const std::size_t& size = std::numeric_limits<std::size_t>::max()) const
+    {
+        if (n0_c.first)
+            r0 = n0_c.second;
+        else if (n0_e.first)
+        {
+            r0 = static_cast<std::size_t>(core::numeric::to_int64(n0_e.second->value()));
+        }
+        else
+            return false;
 
-            if (n1_c.first)
-               r1 = n1_c.second;
-            else if (n1_e.first)
-            {
-               r1 = static_cast<std::size_t>(core::numeric::to_int64(n1_e.second->value()));
-            }
-            else
-               return false;
+        if (n1_c.first)
+            r1 = n1_c.second;
+        else if (n1_e.first)
+        {
+            r1 = static_cast<std::size_t>(core::numeric::to_int64(n1_e.second->value()));
+        }
+        else
+            return false;
 
-            if (
-                 (std::numeric_limits<std::size_t>::max() != size) &&
-                 (std::numeric_limits<std::size_t>::max() == r1  )
-               )
-            {
-               r1 = size;
-            }
+        if ((std::numeric_limits<std::size_t>::max() != size) &&
+            (std::numeric_limits<std::size_t>::max() == r1))
+        {
+            r1 = size;
+        }
 
-            cache.first  = r0;
-            cache.second = r1;
+        cache.first = r0;
+        cache.second = r1;
 
-            if constexpr (::math_expr::core::build_options::kEnableRangeRuntimeChecks)
-            {
-               return range_runtime_check(r0, r1, size);
-            }
-            else
-            {
-               return (r0 <= r1);
-            }
-         }
-
-         inline std::size_t const_size() const
-         {
-            return (n1_c.second - n0_c.second);
-         }
-
-         inline std::size_t cache_size() const
-         {
-            return (cache.second - cache.first);
-         }
-
-         std::pair<bool,expression_node_ptr> n0_e;
-         std::pair<bool,expression_node_ptr> n1_e;
-         std::pair<bool,std::size_t        > n0_c;
-         std::pair<bool,std::size_t        > n1_c;
-         mutable cached_range_t             cache;
-
-         bool range_runtime_check(const std::size_t r0,
-                                  const std::size_t r1,
-                                  const std::size_t size) const
-         {
-            if (r0 > size)
-            {
-               throw std::runtime_error("range error: (r0 < 0) || (r0 > size)");
-               #if !defined(_MSC_VER) && !defined(__NVCOMPILER)
-               return false;
-               #endif
-            }
-
-            if (r1 > size)
-            {
-               throw std::runtime_error("range error: (r1 < 0) || (r1 > size)");
-               #if !defined(_MSC_VER) && !defined(__NVCOMPILER)
-               return false;
-               #endif
-            }
-
+        if constexpr (::math_expr::core::build_options::kEnableRangeRuntimeChecks)
+        {
+            return range_runtime_check(r0, r1, size);
+        }
+        else
+        {
             return (r0 <= r1);
-         }
-      };
-}
+        }
+    }
+
+    inline std::size_t const_size() const
+    {
+        return (n1_c.second - n0_c.second);
+    }
+
+    inline std::size_t cache_size() const
+    {
+        return (cache.second - cache.first);
+    }
+
+    std::pair<bool, expression_node_ptr> n0_e;
+    std::pair<bool, expression_node_ptr> n1_e;
+    std::pair<bool, std::size_t> n0_c;
+    std::pair<bool, std::size_t> n1_c;
+    mutable cached_range_t cache;
+
+    bool range_runtime_check(const std::size_t r0, const std::size_t r1,
+                             const std::size_t size) const
+    {
+        if (r0 > size)
+        {
+            throw std::runtime_error("range error: (r0 < 0) || (r0 > size)");
+#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+            return false;
+#endif
+        }
+
+        if (r1 > size)
+        {
+            throw std::runtime_error("range error: (r1 < 0) || (r1 > size)");
+#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+            return false;
+#endif
+        }
+
+        return (r0 <= r1);
+    }
+};
+} // namespace math_expr::details
 
 #endif

@@ -14,44 +14,40 @@
  * SPDX-License-Identifier: MIT                               *
  *                                                            *
  **************************************************************
-*/
-
+ */
 
 #include <cstdio>
 #include <string>
 
 #include "math_expr.hpp"
 
-
-template <typename T>
-void stddev_example()
+template <typename T> void stddev_example()
 {
-   typedef math_expr::expression<T> expression_t;
-   typedef math_expr::parser<T>     parser_t;
+    typedef math_expr::expression<T> expression_t;
+    typedef math_expr::parser<T> parser_t;
 
-   const std::string stddev_program =
-      " var x[25] := {                     "
-      "                 1,  2,  3,  4,  5, "
-      "                 6,  7,  8,  9, 10, "
-      "                11, 12, 13, 14, 15, "
-      "                16, 17, 18, 19, 20, "
-      "                21, 22, 23, 24, 25  "
-      "              };                    "
-      "                                    "
-      " sqrt(sum([x - avg(x)]^2) / x[])    ";
+    const std::string stddev_program = " var x[25] := {                     "
+                                       "                 1,  2,  3,  4,  5, "
+                                       "                 6,  7,  8,  9, 10, "
+                                       "                11, 12, 13, 14, 15, "
+                                       "                16, 17, 18, 19, 20, "
+                                       "                21, 22, 23, 24, 25  "
+                                       "              };                    "
+                                       "                                    "
+                                       " sqrt(sum([x - avg(x)]^2) / x[])    ";
 
-   expression_t expression;
+    expression_t expression;
 
-   parser_t parser;
-   parser.compile(stddev_program,expression);
+    parser_t parser;
+    parser.compile(stddev_program, expression);
 
-   const T stddev = expression.value();
+    const T stddev = expression.value();
 
-   printf("stddev(1..25) = %10.6f\n",stddev);
+    printf("stddev(1..25) = %10.6f\n", stddev);
 }
 
 int main()
 {
-   stddev_example<double>();
-   return 0;
+    stddev_example<double>();
+    return 0;
 }

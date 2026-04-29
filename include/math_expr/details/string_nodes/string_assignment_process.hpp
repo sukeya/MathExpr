@@ -38,17 +38,21 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-      struct asn_assignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.assign(data,size); }
-      };
+struct asn_assignment
+{
+    static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
+    {
+        s.assign(data, size);
+    }
+};
 
-      struct asn_addassignment
-      {
-         static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
-         { s.append(data,size); }
-      };
-}
+struct asn_addassignment
+{
+    static inline void execute(std::string& s, core::char_cptr data, const std::size_t size)
+    {
+        s.append(data, size);
+    }
+};
+} // namespace math_expr::details::string_nodes
 
 #endif

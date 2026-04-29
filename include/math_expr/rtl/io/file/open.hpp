@@ -38,52 +38,50 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file
 {
-   template <typename T>
-   class open final : public math_expr::igeneric_function<T>
-   {
-   public:
+template <typename T> class open final : public math_expr::igeneric_function<T>
+{
+  public:
+    typedef typename math_expr::igeneric_function<T> igfun_t;
+    typedef typename igfun_t::parameter_list_t parameter_list_t;
+    typedef typename igfun_t::generic_type generic_type;
+    typedef typename generic_type::string_view string_t;
 
-      typedef typename math_expr::igeneric_function<T> igfun_t;
-      typedef typename igfun_t::parameter_list_t    parameter_list_t;
-      typedef typename igfun_t::generic_type        generic_type;
-      typedef typename generic_type::string_view    string_t;
+    using igfun_t::operator();
 
-      using igfun_t::operator();
+    open() : math_expr::igeneric_function<T>("S|SS")
+    {
+        details::perform_check<T>();
+    }
 
-      open()
-      : math_expr::igeneric_function<T>("S|SS")
-      { details::perform_check<T>(); }
+    inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
+    {
+        const std::string file_name = to_str(string_t(parameters[0]));
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
-      {
-         const std::string file_name = to_str(string_t(parameters[0]));
-
-         if (file_name.empty())
-         {
+        if (file_name.empty())
+        {
             return T(0);
-         }
+        }
 
-         if ((1 == ps_index) && (0 == string_t(parameters[1]).size()))
-         {
+        if ((1 == ps_index) && (0 == string_t(parameters[1]).size()))
+        {
             return T(0);
-         }
+        }
 
-         const std::string access =
-            (0 == ps_index) ? "r" : to_str(string_t(parameters[1]));
+        const std::string access = (0 == ps_index) ? "r" : to_str(string_t(parameters[1]));
 
-         details::file_descriptor* fd = new details::file_descriptor(file_name,access);
+        details::file_descriptor* fd = new details::file_descriptor(file_name, access);
 
-         if (fd->open())
-         {
+        if (fd->open())
+        {
             return details::encode_handle<T>(fd);
-         }
-         else
-         {
+        }
+        else
+        {
             delete fd;
             return T(0);
-         }
-      }
-   };
-}    // namespace math_expr
+        }
+    }
+};
+} // namespace math_expr::rtl::io::file
 
 #endif

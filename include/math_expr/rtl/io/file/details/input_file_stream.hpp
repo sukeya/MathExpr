@@ -38,52 +38,53 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file::details
 {
-   class input_file_stream final : public stream_base
-   {
-   public:
-      explicit input_file_stream(const std::string& file_name)
-      : stream_(file_name.c_str(), std::ios::binary)
-      {}
+class input_file_stream final : public stream_base
+{
+  public:
+    explicit input_file_stream(const std::string& file_name)
+        : stream_(file_name.c_str(), std::ios::binary)
+    {
+    }
 
-      bool is_open() const override
-      {
-         return stream_.is_open() && static_cast<bool>(stream_);
-      }
+    bool is_open() const override
+    {
+        return stream_.is_open() && static_cast<bool>(stream_);
+    }
 
-      bool close() noexcept override
-      {
-         if (stream_.is_open())
-         {
+    bool close() noexcept override
+    {
+        if (stream_.is_open())
+        {
             stream_.close();
-         }
+        }
 
-         return !stream_.is_open();
-      }
+        return !stream_.is_open();
+    }
 
-      bool write(char_cptr /*data*/, std::size_t /*size*/) override
-      {
-         return false;
-      }
+    bool write(char_cptr /*data*/, std::size_t /*size*/) override
+    {
+        return false;
+    }
 
-      bool read(char_ptr data, std::size_t size) override
-      {
-         stream_.read(data, static_cast<std::streamsize>(size));
-         return true;
-      }
+    bool read(char_ptr data, std::size_t size) override
+    {
+        stream_.read(data, static_cast<std::streamsize>(size));
+        return true;
+    }
 
-      bool getline(std::string& s) override
-      {
-         return !!std::getline(stream_, s);
-      }
+    bool getline(std::string& s) override
+    {
+        return !!std::getline(stream_, s);
+    }
 
-      bool eof() const override
-      {
-         return stream_.eof();
-      }
+    bool eof() const override
+    {
+        return stream_.eof();
+    }
 
-   private:
-      std::ifstream stream_;
-   };
+  private:
+    std::ifstream stream_;
+};
 } // namespace math_expr::rtl::io::file::details
 
 #endif

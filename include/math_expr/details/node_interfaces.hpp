@@ -31,7 +31,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 #ifndef MATH_EXPR_DETAILS_NODE_INTERFACES_HPP
 #define MATH_EXPR_DETAILS_NODE_INTERFACES_HPP
 
@@ -39,22 +38,18 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      template <typename Node>
-      struct node_collector_interface
-      {
-         typedef Node* node_ptr_t;
-         typedef Node** node_pp_t;
-         typedef std::vector<node_pp_t> noderef_list_t;
+template <typename Node> struct node_collector_interface
+{
+    typedef Node* node_ptr_t;
+    typedef Node** node_pp_t;
+    typedef std::vector<node_pp_t> noderef_list_t;
 
-         virtual ~node_collector_interface()
-         {}
+    virtual ~node_collector_interface() {}
 
-         virtual void collect_nodes(noderef_list_t&)
-         {}
-      };
+    virtual void collect_nodes(noderef_list_t&) {}
+};
 
-      template <typename Node>
-      struct node_depth_base;
+template <typename Node> struct node_depth_base;
 
 } // namespace math_expr::details
 

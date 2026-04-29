@@ -38,53 +38,50 @@ limitations under the License.
 
 namespace math_expr::rtl::vecops
 {
-   template <typename T>
-   class dotk final : public math_expr::igeneric_function<T>
-   {
-   public:
+template <typename T> class dotk final : public math_expr::igeneric_function<T>
+{
+  public:
+    typedef typename math_expr::igeneric_function<T> igfun_t;
+    typedef typename igfun_t::parameter_list_t parameter_list_t;
+    typedef typename igfun_t::generic_type generic_type;
+    typedef typename generic_type::scalar_view scalar_t;
+    typedef typename generic_type::vector_view vector_t;
 
-      typedef typename math_expr::igeneric_function<T> igfun_t;
-      typedef typename igfun_t::parameter_list_t    parameter_list_t;
-      typedef typename igfun_t::generic_type        generic_type;
-      typedef typename generic_type::scalar_view    scalar_t;
-      typedef typename generic_type::vector_view    vector_t;
+    using igfun_t::operator();
 
-      using igfun_t::operator();
+    dotk() : math_expr::igeneric_function<T>("VV|VVTT")
+    /*
+       Overloads:
+       0. VV   - x(vector), y(vector)
+       1. VVTT - x(vector), y(vector), r0, r1
+    */
+    {
+    }
 
-      dotk()
-      : math_expr::igeneric_function<T>("VV|VVTT")
-        /*
-           Overloads:
-           0. VV   - x(vector), y(vector)
-           1. VVTT - x(vector), y(vector), r0, r1
-        */
-      {}
+    inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
+    {
+        const vector_t x(parameters[0]);
+        const vector_t y(parameters[1]);
 
-      inline T operator() (const std::size_t& ps_index, parameter_list_t parameters) override
-      {
-         const vector_t x(parameters[0]);
-         const vector_t y(parameters[1]);
+        std::size_t r0 = 0;
+        std::size_t r1 = std::min(x.size(), y.size()) - 1;
 
-         std::size_t r0 = 0;
-         std::size_t r1 = std::min(x.size(),y.size()) - 1;
-
-         if ((1 == ps_index) && !details::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
+        if ((1 == ps_index) && !details::load_vector_range<T>::process(parameters, r0, r1, 2, 3, 0))
             return std::numeric_limits<T>::quiet_NaN();
-         else if (details::invalid_range(y, r0, r1))
+        else if (details::invalid_range(y, r0, r1))
             return std::numeric_limits<T>::quiet_NaN();
 
-         T result = T(0);
-         T error  = T(0);
+        T result = T(0);
+        T error = T(0);
 
-         for (std::size_t i = r0; i <= r1; ++i)
-         {
+        for (std::size_t i = r0; i <= r1; ++i)
+        {
             details::kahan_sum(result, error, (x[i] * y[i]));
-         }
+        }
 
-         return result;
-      }
-   };
-
+        return result;
+    }
+};
 
 } // namespace math_expr::rtl::vecops
 

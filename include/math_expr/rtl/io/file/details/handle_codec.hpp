@@ -38,48 +38,44 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file::details
 {
-   struct file_descriptor;
+struct file_descriptor;
 
-   template <typename T>
-   inline T encode_handle(file_descriptor* fd)
-   {
-      T t = T(0);
+template <typename T> inline T encode_handle(file_descriptor* fd)
+{
+    T t = T(0);
 
-      std::memcpy(reinterpret_cast<char*>(&t),
-                  reinterpret_cast<const char*>(&fd),
-                  sizeof(file_descriptor*));
+    std::memcpy(reinterpret_cast<char*>(&t), reinterpret_cast<const char*>(&fd),
+                sizeof(file_descriptor*));
 
-      return t;
-   }
+    return t;
+}
 
-   template <typename T>
-   inline file_descriptor* decode_handle(T v)
-   {
-      file_descriptor* fd = nullptr;
+template <typename T> inline file_descriptor* decode_handle(T v)
+{
+    file_descriptor* fd = nullptr;
 
-      std::memcpy(reinterpret_cast<char*>(&fd),
-                  reinterpret_cast<const char*>(&v),
-                  sizeof(file_descriptor*));
+    std::memcpy(reinterpret_cast<char*>(&fd), reinterpret_cast<const char*>(&v),
+                sizeof(file_descriptor*));
 
-      return fd;
-   }
+    return fd;
+}
 
-   template <typename T>
-   inline void perform_check()
-   {
-      #ifdef _MSC_VER
-      #pragma warning(push)
-      #pragma warning(disable: 4127)
-      #endif
-      if (sizeof(T) < sizeof(file_descriptor*))
-      {
-         throw std::runtime_error("math_expr::rtl::io::file - Error - pointer size larger than holder.");
-      }
-      #ifdef _MSC_VER
-      #pragma warning(pop)
-      #endif
-      assert(sizeof(T) >= sizeof(file_descriptor*));
-   }
+template <typename T> inline void perform_check()
+{
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4127)
+#endif
+    if (sizeof(T) < sizeof(file_descriptor*))
+    {
+        throw std::runtime_error(
+            "math_expr::rtl::io::file - Error - pointer size larger than holder.");
+    }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+    assert(sizeof(T) >= sizeof(file_descriptor*));
+}
 } // namespace math_expr::rtl::io::file::details
 
 #endif

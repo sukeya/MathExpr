@@ -38,24 +38,22 @@ limitations under the License.
 
 namespace math_expr
 {
-   struct assert_check
-   {
-      struct assert_context
-      {
-         std::string condition;
-         std::string message;
-         std::string id;
-         std::size_t offet;
-      };
+struct assert_check
+{
+    struct assert_context
+    {
+        std::string condition;
+        std::string message;
+        std::string id;
+        std::size_t offet;
+    };
 
-      virtual ~assert_check()
-      {}
+    virtual ~assert_check() {}
 
-      virtual void handle_assert(const assert_context& /*context*/)
-      {}
-   };
+    virtual void handle_assert(const assert_context& /*context*/) {}
+};
 
-   typedef assert_check* assert_check_ptr;
+typedef assert_check* assert_check_ptr;
 
 } // namespace math_expr
 

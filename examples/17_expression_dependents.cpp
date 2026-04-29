@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: MIT                               *
  *                                                            *
  **************************************************************
-*/
-
+ */
 
 #include <cstdio>
 #include <cstdlib>
@@ -24,56 +23,53 @@
 
 #include "math_expr.hpp"
 
-
-template <typename T>
-struct rnd_01 : public math_expr::ifunction<T>
+template <typename T> struct rnd_01 : public math_expr::ifunction<T>
 {
-   using math_expr::ifunction<T>::operator();
+    using math_expr::ifunction<T>::operator();
 
-   rnd_01() : math_expr::ifunction<T>(0)
-   { ::srand(static_cast<unsigned int>(time(NULL))); }
+    rnd_01() : math_expr::ifunction<T>(0)
+    {
+        ::srand(static_cast<unsigned int>(time(NULL)));
+    }
 
-   inline T operator()()
-   {
-      // Note: Do not use this in production
-      // Result is in the interval [0,1)
-      return T(::rand() / T(RAND_MAX + 1.0));
-   }
+    inline T operator()()
+    {
+        // Note: Do not use this in production
+        // Result is in the interval [0,1)
+        return T(::rand() / T(RAND_MAX + 1.0));
+    }
 };
 
-template <typename T>
-void monte_carlo_pi()
+template <typename T> void monte_carlo_pi()
 {
-   typedef math_expr::symbol_table<T> symbol_table_t;
-   typedef math_expr::expression<T>   expression_t;
-   typedef math_expr::parser<T>       parser_t;
+    typedef math_expr::symbol_table<T> symbol_table_t;
+    typedef math_expr::expression<T> expression_t;
+    typedef math_expr::parser<T> parser_t;
 
-   const std::string monte_carlo_pi_program =
-      " var samples[2 * 10^8] := [(rnd_01^2 + rnd_01^2) <= 1]; "
-      " 4 * sum(samples) / samples[];                          ";
+    const std::string monte_carlo_pi_program =
+        " var samples[2 * 10^8] := [(rnd_01^2 + rnd_01^2) <= 1]; "
+        " 4 * sum(samples) / samples[];                          ";
 
-   rnd_01<T> rnd01;
+    rnd_01<T> rnd01;
 
-   symbol_table_t symbol_table;
-   symbol_table.add_function("rnd_01",rnd01);
+    symbol_table_t symbol_table;
+    symbol_table.add_function("rnd_01", rnd01);
 
-   expression_t expression;
-   expression.register_symbol_table(symbol_table);
+    expression_t expression;
+    expression.register_symbol_table(symbol_table);
 
-   parser_t parser;
-   parser.compile(monte_carlo_pi_program,expression);
+    parser_t parser;
+    parser.compile(monte_carlo_pi_program, expression);
 
-   const T approximate_pi = expression.value();
+    const T approximate_pi = expression.value();
 
-   const T real_pi = T(3.141592653589793238462643383279502); // or close enough...
+    const T real_pi = T(3.141592653589793238462643383279502); // or close enough...
 
-   printf("pi ~ %20.17f\terror: %20.17f\n",
-          approximate_pi,
-          std::abs(real_pi - approximate_pi));
+    printf("pi ~ %20.17f\terror: %20.17f\n", approximate_pi, std::abs(real_pi - approximate_pi));
 }
 
 int main()
 {
-   monte_carlo_pi<double>();
-   return 0;
+    monte_carlo_pi<double>();
+    return 0;
 }

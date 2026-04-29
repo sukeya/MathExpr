@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: MIT                               *
  *                                                            *
  **************************************************************
-*/
-
+ */
 
 #include <cstdio>
 #include <cstdlib>
@@ -24,78 +23,76 @@
 
 #include "math_expr.hpp"
 
-
-template <typename T>
-void savitzky_golay_filter()
+template <typename T> void savitzky_golay_filter()
 {
-   typedef math_expr::symbol_table<T> symbol_table_t;
-   typedef math_expr::expression<T>   expression_t;
-   typedef math_expr::parser<T>       parser_t;
+    typedef math_expr::symbol_table<T> symbol_table_t;
+    typedef math_expr::expression<T> expression_t;
+    typedef math_expr::parser<T> parser_t;
 
-   const std::string sgfilter_program =
-      " var weight[9] :=                                            "
-      "     {                                                       "
-      "        -21, 14,  39,                                        "
-      "         54, 59,  54,                                        "
-      "         39, 14, -21                                         "
-      "     };                                                      "
-      "                                                             "
-      " if (v_in[] >= weight[])                                     "
-      " {                                                           "
-      "    const var lower_bound := trunc(weight[] / 2);            "
-      "    const var upper_bound := v_in[] - lower_bound;           "
-      "                                                             "
-      "    v_out := 0;                                              "
-      "                                                             "
-      "    for (var i := lower_bound; i < upper_bound; i += 1)      "
-      "    {                                                        "
-      "       for (var j := -lower_bound; j <= lower_bound; j += 1) "
-      "       {                                                     "
-      "          v_out[i] += weight[j + lower_bound] * v_in[i + j]; "
-      "       };                                                    "
-      "    };                                                       "
-      "                                                             "
-      "    v_out /= sum(weight);                                    "
-      " }                                                           ";
+    const std::string sgfilter_program =
+        " var weight[9] :=                                            "
+        "     {                                                       "
+        "        -21, 14,  39,                                        "
+        "         54, 59,  54,                                        "
+        "         39, 14, -21                                         "
+        "     };                                                      "
+        "                                                             "
+        " if (v_in[] >= weight[])                                     "
+        " {                                                           "
+        "    const var lower_bound := trunc(weight[] / 2);            "
+        "    const var upper_bound := v_in[] - lower_bound;           "
+        "                                                             "
+        "    v_out := 0;                                              "
+        "                                                             "
+        "    for (var i := lower_bound; i < upper_bound; i += 1)      "
+        "    {                                                        "
+        "       for (var j := -lower_bound; j <= lower_bound; j += 1) "
+        "       {                                                     "
+        "          v_out[i] += weight[j + lower_bound] * v_in[i + j]; "
+        "       };                                                    "
+        "    };                                                       "
+        "                                                             "
+        "    v_out /= sum(weight);                                    "
+        " }                                                           ";
 
-   const std::size_t n = 1024;
+    const std::size_t n = 1024;
 
-   std::vector<T> v_in;
-   std::vector<T> v_out;
+    std::vector<T> v_in;
+    std::vector<T> v_out;
 
-   const T pi = T(3.141592653589793238462643383279502);
+    const T pi = T(3.141592653589793238462643383279502);
 
-   srand(static_cast<unsigned int>(time(0)));
+    srand(static_cast<unsigned int>(time(0)));
 
-   // Generate a signal with noise.
-   for (T t = T(-5); t <= T(+5); t += T(10.0 / n))
-   {
-      const T noise = T(0.5 * (rand() / (RAND_MAX + 1.0) - 0.5));
-      v_in.push_back(sin(2.0 * pi * t) + noise);
-   }
+    // Generate a signal with noise.
+    for (T t = T(-5); t <= T(+5); t += T(10.0 / n))
+    {
+        const T noise = T(0.5 * (rand() / (RAND_MAX + 1.0) - 0.5));
+        v_in.push_back(sin(2.0 * pi * t) + noise);
+    }
 
-   v_out.resize(v_in.size());
+    v_out.resize(v_in.size());
 
-   symbol_table_t symbol_table;
-   symbol_table.add_vector("v_in" , v_in );
-   symbol_table.add_vector("v_out", v_out);
+    symbol_table_t symbol_table;
+    symbol_table.add_vector("v_in", v_in);
+    symbol_table.add_vector("v_out", v_out);
 
-   expression_t expression;
-   expression.register_symbol_table(symbol_table);
+    expression_t expression;
+    expression.register_symbol_table(symbol_table);
 
-   parser_t parser;
-   parser.compile(sgfilter_program,expression);
+    parser_t parser;
+    parser.compile(sgfilter_program, expression);
 
-   expression.value();
+    expression.value();
 
-   for (std::size_t i = 0; i < v_out.size(); ++i)
-   {
-      printf("%10.6f\t%10.6f\n", v_in[i], v_out[i]);
-   }
+    for (std::size_t i = 0; i < v_out.size(); ++i)
+    {
+        printf("%10.6f\t%10.6f\n", v_in[i], v_out[i]);
+    }
 }
 
 int main()
 {
-   savitzky_golay_filter<double>();
-   return 0;
+    savitzky_golay_filter<double>();
+    return 0;
 }

@@ -31,7 +31,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 #ifndef MATH_EXPR_CORE_OPERATORS_PROCESS_HPP
 #define MATH_EXPR_CORE_OPERATORS_PROCESS_HPP
 
@@ -39,17 +38,15 @@ limitations under the License.
 
 namespace math_expr::core::operators
 {
-         template <typename T>
-         inline T process(const operator_type operation, const T arg)
-         {
-            return details::process_impl(operation,arg);
-         }
+template <typename T> inline T process(const operator_type operation, const T arg)
+{
+    return details::process_impl(operation, arg);
+}
 
-         template <typename T>
-         inline T process(const operator_type operation, const T arg0, const T arg1)
-         {
-            return details::process_impl(operation, arg0, arg1);
-         }
+template <typename T> inline T process(const operator_type operation, const T arg0, const T arg1)
+{
+    return details::process_impl(operation, arg0, arg1);
+}
 
 } // namespace math_expr::core::operators
 

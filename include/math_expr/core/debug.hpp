@@ -31,7 +31,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 #ifndef MATH_EXPR_CORE_DEBUG_HPP
 #define MATH_EXPR_CORE_DEBUG_HPP
 
@@ -41,38 +40,33 @@ limitations under the License.
 
 namespace math_expr::core
 {
-      inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t size = 0)
-      {
-         if constexpr (::math_expr::core::build_options::kEnableDebugging)
-         {
-            if (size)
-               math_expr_debug(("%s - addr: %p size: %d\n",
-                             s.c_str(),
-                             ptr,
-                             static_cast<unsigned int>(size)));
-            else
-               math_expr_debug(("%s - addr: %p\n", s.c_str(), ptr));
-         }
-      }
+inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t size = 0)
+{
+    if constexpr (::math_expr::core::build_options::kEnableDebugging)
+    {
+        if (size)
+            math_expr_debug(
+                ("%s - addr: %p size: %d\n", s.c_str(), ptr, static_cast<unsigned int>(size)));
+        else
+            math_expr_debug(("%s - addr: %p\n", s.c_str(), ptr));
+    }
+}
 
-      template <typename T>
-      inline void dump_vector(const std::string& vec_name, const T* data, const std::size_t size)
-      {
-         if constexpr (::math_expr::core::build_options::kEnableDebugging)
-         {
-            std::printf("----- %s (%p) -----\n",
-                        vec_name.c_str(),
-                        static_cast<const void*>(data));
-            std::printf("[ ");
-            for (std::size_t i = 0; i <  size; ++i)
-            {
-               std::printf("%8.3f\t", data[i]);
-            }
-            std::printf(" ]\n");
-            std::printf("---------------------\n");
-         }
-      }
-
+template <typename T>
+inline void dump_vector(const std::string& vec_name, const T* data, const std::size_t size)
+{
+    if constexpr (::math_expr::core::build_options::kEnableDebugging)
+    {
+        std::printf("----- %s (%p) -----\n", vec_name.c_str(), static_cast<const void*>(data));
+        std::printf("[ ");
+        for (std::size_t i = 0; i < size; ++i)
+        {
+            std::printf("%8.3f\t", data[i]);
+        }
+        std::printf(" ]\n");
+        std::printf("---------------------\n");
+    }
+}
 
 } // namespace math_expr::core
 

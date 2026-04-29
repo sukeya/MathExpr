@@ -1,9 +1,8 @@
-name: Lint
+name: Format
 
 on: pull_request
 
 jobs:
-  if: "false"
   pre_commit:
     runs-on: ubuntu-latest
     permissions:

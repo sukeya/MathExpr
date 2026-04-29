@@ -38,74 +38,70 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-      template <typename T>
-      class const_string_range_node final
-                                    : public expression_node <T>
-                                    , public string_base_node<T>
-                                    , public range_interface <T>
-      {
-      public:
+template <typename T>
+class const_string_range_node final : public expression_node<T>,
+                                      public string_base_node<T>,
+                                      public range_interface<T>
+{
+  public:
+    typedef typename range_interface<T>::range_t range_t;
 
-         typedef typename range_interface<T>::range_t range_t;
+    explicit const_string_range_node(const std::string& v, const range_t& rp) : value_(v), rp_(rp)
+    {
+    }
 
-         explicit const_string_range_node(const std::string& v, const range_t& rp)
-         : value_(v)
-         , rp_(rp)
-         {}
+    ~const_string_range_node() override
+    {
+        rp_.free();
+    }
 
-         ~const_string_range_node() override
-         {
-            rp_.free();
-         }
+    inline T value() const override
+    {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
 
-         inline T value() const override
-         {
-            return std::numeric_limits<T>::quiet_NaN();
-         }
+    std::string str() const override
+    {
+        return value_;
+    }
 
-         std::string str() const override
-         {
-            return value_;
-         }
+    core::char_cptr base() const override
+    {
+        return value_.data();
+    }
 
-         core::char_cptr base() const override
-         {
-            return value_.data();
-         }
+    std::size_t size() const override
+    {
+        return value_.size();
+    }
 
-         std::size_t size() const override
-         {
-            return value_.size();
-         }
+    range_t range() const
+    {
+        return rp_;
+    }
 
-         range_t range() const
-         {
-            return rp_;
-         }
+    range_t& range_ref() override
+    {
+        return rp_;
+    }
 
-         range_t& range_ref() override
-         {
-            return rp_;
-         }
+    const range_t& range_ref() const override
+    {
+        return rp_;
+    }
 
-         const range_t& range_ref() const override
-         {
-            return rp_;
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_cstringvarrng;
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_cstringvarrng;
-         }
+  private:
+    const_string_range_node(const const_string_range_node<T>&) = delete;
+    const_string_range_node<T>& operator=(const const_string_range_node<T>&) = delete;
 
-      private:
-
-         const_string_range_node(const const_string_range_node<T>&) = delete;
-         const_string_range_node<T>& operator=(const const_string_range_node<T>&) = delete;
-
-         const std::string value_;
-         range_t rp_;
-      };
-}
+    const std::string value_;
+    range_t rp_;
+};
+} // namespace math_expr::details::string_nodes
 
 #endif

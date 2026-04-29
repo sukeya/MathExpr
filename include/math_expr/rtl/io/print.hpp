@@ -42,109 +42,109 @@ limitations under the License.
 
 namespace math_expr::rtl::io
 {
-   namespace details
-   {
-      template <typename T>
-      inline void print_type(const std::string& fmt,
-                             const T v,
-                             math_expr::core::numeric::details::real_type_tag)
-      {
-         #if defined(__clang__)
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wformat-nonliteral"
-         #elif defined(__GNUC__) || defined(__GNUG__)
-            #pragma GCC diagnostic push
-            #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-         #elif defined(_MSC_VER)
-         #endif
+namespace details
+{
+template <typename T>
+inline void print_type(const std::string& fmt, const T v,
+                       math_expr::core::numeric::details::real_type_tag)
+{
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#elif defined(_MSC_VER)
+#endif
 
-         printf(fmt.c_str(), v);
+    printf(fmt.c_str(), v);
 
-         #if defined(__clang__)
-            #pragma clang diagnostic pop
-         #elif defined(__GNUC__) || defined(__GNUG__)
-            #pragma GCC diagnostic pop
-         #elif defined(_MSC_VER)
-         #endif
-      }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#endif
+}
 
-      template <typename T>
-      struct print_impl
-      {
-         typedef typename igeneric_function<T>::generic_type generic_type;
-         typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
-         typedef typename generic_type::scalar_view scalar_t;
-         typedef typename generic_type::vector_view vector_t;
-         typedef typename generic_type::string_view string_t;
-         typedef typename math_expr::core::numeric::details::number_type<T>::type num_type;
+template <typename T> struct print_impl
+{
+    typedef typename igeneric_function<T>::generic_type generic_type;
+    typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
+    typedef typename generic_type::scalar_view scalar_t;
+    typedef typename generic_type::vector_view vector_t;
+    typedef typename generic_type::string_view string_t;
+    typedef typename math_expr::core::numeric::details::number_type<T>::type num_type;
 
-         static void process(const std::string& scalar_format, parameter_list_t parameters)
-         {
-            for (std::size_t i = 0; i < parameters.size(); ++i)
+    static void process(const std::string& scalar_format, parameter_list_t parameters)
+    {
+        for (std::size_t i = 0; i < parameters.size(); ++i)
+        {
+            generic_type& gt = parameters[i];
+
+            switch (gt.type)
             {
-               generic_type& gt = parameters[i];
+            case generic_type::e_scalar:
+                print(scalar_format, scalar_t(gt));
+                break;
 
-               switch (gt.type)
-               {
-                  case generic_type::e_scalar : print(scalar_format,scalar_t(gt));
-                                                break;
+            case generic_type::e_vector:
+                print(scalar_format, vector_t(gt));
+                break;
 
-                  case generic_type::e_vector : print(scalar_format,vector_t(gt));
-                                                break;
+            case generic_type::e_string:
+                print(string_t(gt));
+                break;
 
-                  case generic_type::e_string : print(string_t(gt));
-                                                break;
-
-                  default                     : continue;
-               }
+            default:
+                continue;
             }
-         }
+        }
+    }
 
-         static inline void print(const std::string& scalar_format, const scalar_t& s)
-         {
-            print_type(scalar_format,s(),num_type());
-         }
+    static inline void print(const std::string& scalar_format, const scalar_t& s)
+    {
+        print_type(scalar_format, s(), num_type());
+    }
 
-         static inline void print(const std::string& scalar_format, const vector_t& v)
-         {
-            for (std::size_t i = 0; i < v.size(); ++i)
-            {
-               print_type(scalar_format,v[i],num_type());
+    static inline void print(const std::string& scalar_format, const vector_t& v)
+    {
+        for (std::size_t i = 0; i < v.size(); ++i)
+        {
+            print_type(scalar_format, v[i], num_type());
 
-               if ((i + 1) < v.size())
-                  printf(" ");
-            }
-         }
+            if ((i + 1) < v.size())
+                printf(" ");
+        }
+    }
 
-         static inline void print(const string_t& s)
-         {
-            printf("%s",to_str(s).c_str());
-         }
-      };
+    static inline void print(const string_t& s)
+    {
+        printf("%s", to_str(s).c_str());
+    }
+};
 
-   } // namespace details
+} // namespace details
 
-   template <typename T>
-   struct print final : public math_expr::igeneric_function<T>
-   {
-      typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
+template <typename T> struct print final : public math_expr::igeneric_function<T>
+{
+    typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
 
-      using math_expr::igeneric_function<T>::operator();
+    using math_expr::igeneric_function<T>::operator();
 
-      explicit print(const std::string& scalar_format = "%10.5f")
-      : scalar_format_(scalar_format)
-      {
-         math_expr::enable_zero_parameters(*this);
-      }
+    explicit print(const std::string& scalar_format = "%10.5f") : scalar_format_(scalar_format)
+    {
+        math_expr::enable_zero_parameters(*this);
+    }
 
-      inline T operator() (parameter_list_t parameters) override
-      {
-         details::print_impl<T>::process(scalar_format_,parameters);
-         return T(0);
-      }
+    inline T operator()(parameter_list_t parameters) override
+    {
+        details::print_impl<T>::process(scalar_format_, parameters);
+        return T(0);
+    }
 
-      std::string scalar_format_;
-   };
+    std::string scalar_format_;
+};
 
 } // namespace math_expr::rtl::io
 #endif

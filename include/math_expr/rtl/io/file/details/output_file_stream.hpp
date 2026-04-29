@@ -38,52 +38,53 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file::details
 {
-   class output_file_stream final : public stream_base
-   {
-   public:
-      explicit output_file_stream(const std::string& file_name)
-      : stream_(file_name.c_str(), std::ios::binary)
-      {}
+class output_file_stream final : public stream_base
+{
+  public:
+    explicit output_file_stream(const std::string& file_name)
+        : stream_(file_name.c_str(), std::ios::binary)
+    {
+    }
 
-      bool is_open() const override
-      {
-         return stream_.is_open() && static_cast<bool>(stream_);
-      }
+    bool is_open() const override
+    {
+        return stream_.is_open() && static_cast<bool>(stream_);
+    }
 
-      bool close() noexcept override
-      {
-         if (stream_.is_open())
-         {
+    bool close() noexcept override
+    {
+        if (stream_.is_open())
+        {
             stream_.close();
-         }
+        }
 
-         return !stream_.is_open();
-      }
+        return !stream_.is_open();
+    }
 
-      bool write(char_cptr data, std::size_t size) override
-      {
-         stream_.write(data, static_cast<std::streamsize>(size));
-         return true;
-      }
+    bool write(char_cptr data, std::size_t size) override
+    {
+        stream_.write(data, static_cast<std::streamsize>(size));
+        return true;
+    }
 
-      bool read(char_ptr /*data*/, std::size_t /*size*/) override
-      {
-         return false;
-      }
+    bool read(char_ptr /*data*/, std::size_t /*size*/) override
+    {
+        return false;
+    }
 
-      bool getline(std::string& /*s*/) override
-      {
-         return false;
-      }
+    bool getline(std::string& /*s*/) override
+    {
+        return false;
+    }
 
-      bool eof() const override
-      {
-         return stream_.eof();
-      }
+    bool eof() const override
+    {
+        return stream_.eof();
+    }
 
-   private:
-      std::ofstream stream_;
-   };
+  private:
+    std::ofstream stream_;
+};
 } // namespace math_expr::rtl::io::file::details
 
 #endif

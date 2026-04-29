@@ -38,28 +38,27 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file
 {
-   template <typename T>
-   struct eof final : public math_expr::ifunction<T>
-   {
-      using math_expr::ifunction<T>::operator();
+template <typename T> struct eof final : public math_expr::ifunction<T>
+{
+    using math_expr::ifunction<T>::operator();
 
-      eof()
-      : math_expr::ifunction<T>(1)
-      { details::perform_check<T>(); }
+    eof() : math_expr::ifunction<T>(1)
+    {
+        details::perform_check<T>();
+    }
 
-      inline T operator() (const T& v) override
-      {
-         details::file_descriptor* fd = details::decode_handle(v);
+    inline T operator()(const T& v) override
+    {
+        details::file_descriptor* fd = details::decode_handle(v);
 
-         if (nullptr == fd)
-         {
+        if (nullptr == fd)
+        {
             return T(0);
-         }
+        }
 
-         return (fd->eof() ? T(1) : T(0));
-      }
-   };
-
+        return (fd->eof() ? T(1) : T(0));
+    }
+};
 
 } // namespace math_expr::rtl::io::file
 

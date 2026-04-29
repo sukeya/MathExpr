@@ -46,1843 +46,1630 @@ limitations under the License.
 
 namespace math_expr::details
 {
-      template <typename T>
-      class variable_node final
-                          : public expression_node<T>
-                          , public ivariable      <T>
-      {
-      public:
+template <typename T> class variable_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    static T null_value;
 
-         static T null_value;
+    explicit variable_node() : value_(&null_value) {}
 
-         explicit variable_node()
-         : value_(&null_value)
-         {}
+    explicit variable_node(T& v) : value_(&v) {}
 
-         explicit variable_node(T& v)
-         : value_(&v)
-         {}
+    inline bool operator<(const variable_node<T>& v) const
+    {
+        return this < (&v);
+    }
 
-         inline bool operator <(const variable_node<T>& v) const
-         {
-            return this < (&v);
-         }
+    inline T value() const override
+    {
+        return (*value_);
+    }
 
-         inline T value() const override
-         {
-            return (*value_);
-         }
+    inline T& ref() override
+    {
+        return (*value_);
+    }
 
-         inline T& ref() override
-         {
-            return (*value_);
-         }
+    inline const T& ref() const override
+    {
+        return (*value_);
+    }
 
-         inline const T& ref() const override
-         {
-            return (*value_);
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_variable;
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_variable;
-         }
+  private:
+    T* value_;
+};
 
-      private:
+template <typename T> T variable_node<T>::null_value = T(std::numeric_limits<T>::quiet_NaN());
 
-         T* value_;
-      };
+template <typename T> class string_base_node;
 
-      template <typename T>
-      T variable_node<T>::null_value = T(std::numeric_limits<T>::quiet_NaN());
+template <typename T> struct range_data_type
+{
+    typedef range_pack<T> range_t;
+    typedef string_base_node<T>* strbase_ptr_t;
 
-      template <typename T>
-      class string_base_node;
+    range_data_type() : range(0), data(0), size(0), type_size(0), str_node(0) {}
 
-      template <typename T>
-      struct range_data_type
-      {
-         typedef range_pack<T> range_t;
-         typedef string_base_node<T>* strbase_ptr_t;
+    range_t* range;
+    void* data;
+    std::size_t size;
+    std::size_t type_size;
+    strbase_ptr_t str_node;
+};
 
-         range_data_type()
-         : range(0)
-         , data (0)
-         , size (0)
-         , type_size(0)
-         , str_node (0)
-         {}
+template <typename T> class vector_node;
 
-         range_t*      range;
-         void*         data;
-         std::size_t   size;
-         std::size_t   type_size;
-         strbase_ptr_t str_node;
-      };
+template <typename T> class vector_interface
+{
+  public:
+    typedef vector_node<T>* vector_node_ptr;
+    typedef core::vec_data_store<T> vds_t;
 
-      template <typename T> class vector_node;
+    virtual ~vector_interface() {}
 
-      template <typename T>
-      class vector_interface
-      {
-      public:
+    virtual std::size_t size() const = 0;
 
-         typedef vector_node<T>*   vector_node_ptr;
-         typedef core::vec_data_store<T> vds_t;
+    virtual std::size_t base_size() const = 0;
 
-         virtual ~vector_interface()
-         {}
+    virtual vector_node_ptr vec() const = 0;
 
-         virtual std::size_t size     () const = 0;
+    virtual vector_node_ptr vec() = 0;
 
-         virtual std::size_t base_size() const = 0;
+    virtual vds_t& vds() = 0;
 
-         virtual vector_node_ptr vec  () const = 0;
+    virtual const vds_t& vds() const = 0;
 
-         virtual vector_node_ptr vec  ()       = 0;
+    virtual bool side_effect() const
+    {
+        return false;
+    }
+};
 
-         virtual       vds_t& vds     ()       = 0;
+template <typename T>
+class vector_node final : public expression_node<T>, public vector_interface<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_node<T>* vector_node_ptr;
+    typedef core::vec_data_store<T> vds_t;
 
-         virtual const vds_t& vds     () const = 0;
+    explicit vector_node(vector_holder_t* vh)
+        : vector_holder_(vh), vds_((*vector_holder_).size(), (*vector_holder_)[0])
+    {
+        vector_holder_->set_ref(&vds_.ref());
+    }
 
-         virtual bool side_effect     () const { return false; }
-      };
+    vector_node(const vds_t& vds, vector_holder_t* vh) : vector_holder_(vh), vds_(vds) {}
 
-      template <typename T>
-      class vector_node final
-                        : public expression_node <T>
-                        , public vector_interface<T>
-      {
-      public:
+    ~vector_node() override
+    {
+        assert(valid());
+        vector_holder_->remove_ref(&vds_.ref());
+    }
 
-         typedef expression_node<T>* expression_ptr;
-         typedef vector_holder<T>    vector_holder_t;
-         typedef vector_node<T>*     vector_node_ptr;
-         typedef core::vec_data_store<T>   vds_t;
+    inline T value() const override
+    {
+        return vds().data()[0];
+    }
 
-         explicit vector_node(vector_holder_t* vh)
-         : vector_holder_(vh)
-         , vds_((*vector_holder_).size(),(*vector_holder_)[0])
-         {
-            vector_holder_->set_ref(&vds_.ref());
-         }
+    vector_node_ptr vec() const override
+    {
+        return const_cast<vector_node_ptr>(this);
+    }
 
-         vector_node(const vds_t& vds, vector_holder_t* vh)
-         : vector_holder_(vh)
-         , vds_(vds)
-         {}
+    vector_node_ptr vec() override
+    {
+        return this;
+    }
 
-        ~vector_node() override
-         {
-            assert(valid());
-            vector_holder_->remove_ref(&vds_.ref());
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vector;
+    }
 
-         inline T value() const override
-         {
-            return vds().data()[0];
-         }
+    inline bool valid() const override
+    {
+        return vector_holder_;
+    }
 
-         vector_node_ptr vec() const override
-         {
-            return const_cast<vector_node_ptr>(this);
-         }
+    std::size_t size() const override
+    {
+        return vec_holder().size();
+    }
 
-         vector_node_ptr vec() override
-         {
-            return this;
-         }
+    std::size_t base_size() const override
+    {
+        return vec_holder().base_size();
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vector;
-         }
+    vds_t& vds() override
+    {
+        return vds_;
+    }
 
-         inline bool valid() const override
-         {
-            return vector_holder_;
-         }
+    const vds_t& vds() const override
+    {
+        return vds_;
+    }
 
-         std::size_t size() const override
-         {
-            return vec_holder().size();
-         }
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
 
-         std::size_t base_size() const override
-         {
-            return vec_holder().base_size();
-         }
+    inline vector_holder_t& vec_holder() const
+    {
+        return (*vector_holder_);
+    }
 
-         vds_t& vds() override
-         {
-            return vds_;
-         }
+  private:
+    vector_holder_t* vector_holder_;
+    vds_t vds_;
+};
 
-         const vds_t& vds() const override
-         {
-            return vds_;
-         }
+template <typename T> class vector_size_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
 
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
+    explicit vector_size_node(vector_holder_t* vh) : vector_holder_(vh) {}
 
-         inline vector_holder_t& vec_holder() const
-         {
-            return (*vector_holder_);
-         }
+    ~vector_size_node() override
+    {
+        assert(valid());
+    }
 
-      private:
+    inline T value() const override
+    {
+        assert(vector_holder_);
+        return static_cast<T>(vector_holder_->size());
+    }
 
-         vector_holder_t* vector_holder_;
-         vds_t                      vds_;
-      };
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecsize;
+    }
 
-      template <typename T>
-      class vector_size_node final
-                        : public expression_node <T>
-      {
-      public:
+    inline bool valid() const override
+    {
+        return vector_holder_ && vector_holder_->size();
+    }
 
-         typedef expression_node<T>* expression_ptr;
-         typedef vector_holder<T>    vector_holder_t;
+    inline vector_holder_t* vec_holder()
+    {
+        return vector_holder_;
+    }
 
-         explicit vector_size_node(vector_holder_t* vh)
-         : vector_holder_(vh)
-         {}
+  private:
+    vector_holder_t* vector_holder_;
+};
 
-        ~vector_size_node() override
-         {
-            assert(valid());
-         }
+template <typename T> class vector_elem_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
 
-         inline T value() const override
-         {
-            assert(vector_holder_);
-            return static_cast<T>(vector_holder_->size());
-         }
+    vector_elem_node(expression_ptr vec_node, expression_ptr index, vector_holder_ptr vec_holder)
+        : vector_holder_(vec_holder), vector_base_((*vec_holder)[0])
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        construct_branch_pair(index_, index);
+        assert(valid());
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecsize;
-         }
+    inline T value() const override
+    {
+        return *access_vector();
+    }
 
-         inline bool valid() const override
-         {
-            return vector_holder_ && vector_holder_->size();
-         }
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
 
-         inline vector_holder_t* vec_holder()
-         {
-            return vector_holder_;
-         }
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
 
-      private:
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecelem;
+    }
 
-         vector_holder_t* vector_holder_;
-      };
-
-      template <typename T>
-      class vector_elem_node final
-                             : public expression_node<T>
-                             , public ivariable      <T>
-      {
-      public:
-
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
-
-         vector_elem_node(expression_ptr vec_node,
-                          expression_ptr index,
-                          vector_holder_ptr vec_holder)
-         : vector_holder_(vec_holder)
-         , vector_base_((*vec_holder)[0])
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            construct_branch_pair(index_      , index   );
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            return *access_vector();
-         }
-
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
-
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecelem;
-         }
-
-         inline bool valid() const override
-         {
-            return
-               vector_holder_        &&
-               index_.first          &&
-               vector_node_.first    &&
-               index_.first->valid() &&
+    inline bool valid() const override
+    {
+        return vector_holder_ && index_.first && vector_node_.first && index_.first->valid() &&
                vector_node_.first->valid();
-         }
+    }
 
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-            expression_node<T>::ndb_t::collect(index_      , node_delete_list);
-         }
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+        expression_node<T>::ndb_t::collect(index_, node_delete_list);
+    }
 
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth
-               (vector_node_, index_);
-         }
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
+    }
 
-      private:
+  private:
+    inline T* access_vector() const
+    {
+        vector_node_.first->value();
+        return (vector_base_ + core::numeric::to_uint64(index_.first->value()));
+    }
 
-         inline T* access_vector() const
-         {
-            vector_node_.first->value();
-            return (vector_base_ + core::numeric::to_uint64(index_.first->value()));
-         }
+    vector_holder_ptr vector_holder_;
+    T* vector_base_;
+    branch_t vector_node_;
+    branch_t index_;
+};
 
-         vector_holder_ptr vector_holder_;
-         T* vector_base_;
-         branch_t vector_node_;
-         branch_t index_;
-      };
+template <typename T> class vector_celem_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
 
-      template <typename T>
-      class vector_celem_node final
-                              : public expression_node<T>
-                              , public ivariable      <T>
-      {
-      public:
+    vector_celem_node(expression_ptr vec_node, const std::size_t index,
+                      vector_holder_ptr vec_holder)
+        : index_(index), vector_holder_(vec_holder), vector_base_((*vec_holder)[0])
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        assert(valid());
+    }
 
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
+    inline T value() const override
+    {
+        return *access_vector();
+    }
 
-         vector_celem_node(expression_ptr vec_node,
-                           const std::size_t index,
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
+
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_veccelem;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_holder_ && vector_node_.first && vector_node_.first->valid();
+    }
+
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
+    }
+
+  private:
+    inline T* access_vector() const
+    {
+        vector_node_.first->value();
+        return (vector_base_ + index_);
+    }
+
+    const std::size_t index_;
+    vector_holder_ptr vector_holder_;
+    T* vector_base_;
+    branch_t vector_node_;
+};
+
+template <typename T>
+class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
+
+    vector_elem_rtc_node(expression_ptr vec_node, expression_ptr index,
+                         vector_holder_ptr vec_holder, vector_access_runtime_check_ptr vec_rt_chk)
+        : vector_holder_(vec_holder), vector_base_((*vec_holder)[0]), vec_rt_chk_(vec_rt_chk),
+          max_vector_index_(vector_holder_->size() - 1)
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        construct_branch_pair(index_, index);
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        return *access_vector();
+    }
+
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
+
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecelemrtc;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_holder_ && index_.first && vector_node_.first && index_.first->valid() &&
+               vector_node_.first->valid();
+    }
+
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+        expression_node<T>::ndb_t::collect(index_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
+    }
+
+  private:
+    inline T* access_vector() const
+    {
+        const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
+        vector_node_.first->value();
+
+        if (index <= max_vector_index_)
+        {
+            return (vector_holder_->data() + index);
+        }
+
+        assert(vec_rt_chk_);
+
+        vector_access_runtime_check::violation_context context;
+        context.base_ptr = reinterpret_cast<void*>(vector_base_);
+        context.end_ptr = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
+        context.access_ptr = reinterpret_cast<void*>(vector_base_ + index);
+        context.type_size = sizeof(T);
+
+        return vec_rt_chk_->handle_runtime_violation(context)
+                   ? reinterpret_cast<T*>(context.access_ptr)
+                   : vector_base_;
+    }
+
+    vector_holder_ptr vector_holder_;
+    T* vector_base_;
+    branch_t vector_node_;
+    branch_t index_;
+    vector_access_runtime_check_ptr vec_rt_chk_;
+    const std::size_t max_vector_index_;
+};
+
+template <typename T>
+class vector_celem_rtc_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
+
+    vector_celem_rtc_node(expression_ptr vec_node, const std::size_t index,
+                          vector_holder_ptr vec_holder, vector_access_runtime_check_ptr vec_rt_chk)
+        : index_(index), max_vector_index_(vec_holder->size() - 1), vector_holder_(vec_holder),
+          vector_base_((*vec_holder)[0]), vec_rt_chk_(vec_rt_chk)
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        return *access_vector();
+    }
+
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
+
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_veccelemrtc;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_holder_ && vector_node_.first && vector_node_.first->valid();
+    }
+
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
+    }
+
+  private:
+    inline T* access_vector() const
+    {
+        vector_node_.first->value();
+
+        if (index_ <= max_vector_index_)
+        {
+            return (vector_holder_->data() + index_);
+        }
+
+        assert(vec_rt_chk_);
+
+        vector_access_runtime_check::violation_context context;
+        context.base_ptr = reinterpret_cast<void*>(vector_base_);
+        context.end_ptr = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
+        context.access_ptr = reinterpret_cast<void*>(vector_base_ + index_);
+        context.type_size = sizeof(T);
+
+        return vec_rt_chk_->handle_runtime_violation(context)
+                   ? reinterpret_cast<T*>(context.access_ptr)
+                   : vector_base_;
+    }
+
+    const std::size_t index_;
+    const std::size_t max_vector_index_;
+    vector_holder_ptr vector_holder_;
+    T* vector_base_;
+    branch_t vector_node_;
+    vector_access_runtime_check_ptr vec_rt_chk_;
+};
+
+template <typename T>
+class rebasevector_elem_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef core::vec_data_store<T> vds_t;
+    typedef std::pair<expression_ptr, bool> branch_t;
+
+    rebasevector_elem_node(expression_ptr vec_node, expression_ptr index,
                            vector_holder_ptr vec_holder)
-         : index_(index)
-         , vector_holder_(vec_holder)
-         , vector_base_((*vec_holder)[0])
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            assert(valid());
-         }
+        : vector_holder_(vec_holder)
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        construct_branch_pair(index_, index);
+        assert(valid());
+    }
 
-         inline T value() const override
-         {
-            return *access_vector();
-         }
+    inline T value() const override
+    {
+        return *access_vector();
+    }
 
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
 
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_veccelem;
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_rbvecelem;
+    }
 
-         inline bool valid() const override
-         {
-            return
-               vector_holder_     &&
-               vector_node_.first &&
+    inline bool valid() const override
+    {
+        return vector_holder_ && index_.first && vector_node_.first && index_.first->valid() &&
                vector_node_.first->valid();
-         }
+    }
 
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-         }
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+        expression_node<T>::ndb_t::collect(index_, node_delete_list);
+    }
 
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
-         }
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
+    }
 
-      private:
+  private:
+    inline T* access_vector() const
+    {
+        vector_node_.first->value();
+        return (vector_holder_->data() + core::numeric::to_uint64(index_.first->value()));
+    }
 
-         inline T* access_vector() const
-         {
-            vector_node_.first->value();
-            return (vector_base_ + index_);
-         }
+    vector_holder_ptr vector_holder_;
+    branch_t vector_node_;
+    branch_t index_;
+};
 
-         const std::size_t index_;
-         vector_holder_ptr vector_holder_;
-         T* vector_base_;
-         branch_t vector_node_;
-      };
+template <typename T>
+class rebasevector_celem_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
 
-      template <typename T>
-      class vector_elem_rtc_node final
-                                 : public expression_node<T>
-                                 , public ivariable      <T>
-      {
-      public:
+    rebasevector_celem_node(expression_ptr vec_node, const std::size_t index,
+                            vector_holder_ptr vec_holder)
+        : index_(index), vector_holder_(vec_holder)
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        assert(valid());
+    }
 
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
+    inline T value() const override
+    {
+        vector_node_.first->value();
+        return ref();
+    }
 
-         vector_elem_rtc_node(expression_ptr vec_node,
-                              expression_ptr index,
-                              vector_holder_ptr vec_holder,
-                              vector_access_runtime_check_ptr vec_rt_chk)
-         : vector_holder_(vec_holder)
-         , vector_base_((*vec_holder)[0])
-         , vec_rt_chk_(vec_rt_chk)
-         , max_vector_index_(vector_holder_->size() - 1)
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            construct_branch_pair(index_      , index   );
-            assert(valid());
-         }
+    inline T& ref() override
+    {
+        return *(vector_holder_->data() + index_);
+    }
 
-         inline T value() const override
-         {
-            return *access_vector();
-         }
+    inline const T& ref() const override
+    {
+        return *(vector_holder_->data() + index_);
+    }
 
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_rbveccelem;
+    }
 
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
+    inline bool valid() const override
+    {
+        return vector_holder_ && vector_node_.first && vector_node_.first->valid();
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecelemrtc;
-         }
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
 
-         inline bool valid() const override
-         {
-            return
-               vector_holder_        &&
-               index_.first          &&
-               vector_node_.first    &&
-               index_.first->valid() &&
-               vector_node_.first->valid();
-         }
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+    }
 
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
+    }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-            expression_node<T>::ndb_t::collect(index_,       node_delete_list);
-         }
+  private:
+    const std::size_t index_;
+    vector_holder_ptr vector_holder_;
+    branch_t vector_node_;
+};
 
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth
-               (vector_node_, index_);
-         }
+template <typename T>
+class rebasevector_elem_rtc_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
 
-      private:
-
-         inline T* access_vector() const
-         {
-            const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
-            vector_node_.first->value();
-
-            if (index <= max_vector_index_)
-            {
-               return (vector_holder_->data() + index);
-            }
-
-            assert(vec_rt_chk_);
-
-            vector_access_runtime_check::violation_context context;
-            context.base_ptr   = reinterpret_cast<void*>(vector_base_);
-            context.end_ptr    = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
-            context.access_ptr = reinterpret_cast<void*>(vector_base_ + index);
-            context.type_size  = sizeof(T);
-
-            return vec_rt_chk_->handle_runtime_violation(context) ?
-               reinterpret_cast<T*>(context.access_ptr) :
-               vector_base_ ;
-         }
-
-         vector_holder_ptr vector_holder_;
-         T*                vector_base_;
-         branch_t          vector_node_;
-         branch_t          index_;
-         vector_access_runtime_check_ptr vec_rt_chk_;
-         const std::size_t max_vector_index_;
-      };
-
-      template <typename T>
-      class vector_celem_rtc_node final
-                                 : public expression_node<T>
-                                 , public ivariable      <T>
-      {
-      public:
-
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
-
-         vector_celem_rtc_node(expression_ptr vec_node,
-                               const std::size_t index,
+    rebasevector_elem_rtc_node(expression_ptr vec_node, expression_ptr index,
                                vector_holder_ptr vec_holder,
                                vector_access_runtime_check_ptr vec_rt_chk)
-         : index_(index)
-         , max_vector_index_(vec_holder->size() - 1)
-         , vector_holder_(vec_holder)
-         , vector_base_((*vec_holder)[0])
-         , vec_rt_chk_(vec_rt_chk)
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            assert(valid());
-         }
+        : vector_holder_(vec_holder), vec_rt_chk_(vec_rt_chk)
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        construct_branch_pair(index_, index);
+        assert(valid());
+    }
 
-         inline T value() const override
-         {
-            return *access_vector();
-         }
+    inline T value() const override
+    {
+        return *access_vector();
+    }
 
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
 
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_veccelemrtc;
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_rbvecelemrtc;
+    }
 
-         inline bool valid() const override
-         {
-            return
-               vector_holder_     &&
-               vector_node_.first &&
+    inline bool valid() const override
+    {
+        return vector_holder_ && index_.first && vector_node_.first && index_.first->valid() &&
                vector_node_.first->valid();
-         }
+    }
 
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-         }
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+        expression_node<T>::ndb_t::collect(index_, node_delete_list);
+    }
 
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
-         }
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
+    }
 
-      private:
+  private:
+    inline T* access_vector() const
+    {
+        vector_node_.first->value();
+        const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
 
-         inline T* access_vector() const
-         {
-            vector_node_.first->value();
+        if (index <= (vector_holder_->size() - 1))
+        {
+            return (vector_holder_->data() + index);
+        }
 
-            if (index_ <= max_vector_index_)
+        assert(vec_rt_chk_);
+
+        vector_access_runtime_check::violation_context context;
+        context.base_ptr = reinterpret_cast<void*>(vector_holder_->data());
+        context.end_ptr = reinterpret_cast<void*>(vector_holder_->data() + vector_holder_->size());
+        context.access_ptr = reinterpret_cast<void*>(vector_holder_->data() + index);
+        context.type_size = sizeof(T);
+
+        return vec_rt_chk_->handle_runtime_violation(context)
+                   ? reinterpret_cast<T*>(context.access_ptr)
+                   : vector_holder_->data();
+    }
+
+    vector_holder_ptr vector_holder_;
+    branch_t vector_node_;
+    branch_t index_;
+    vector_access_runtime_check_ptr vec_rt_chk_;
+};
+
+template <typename T>
+class rebasevector_celem_rtc_node final : public expression_node<T>, public ivariable<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_holder<T> vector_holder_t;
+    typedef vector_holder_t* vector_holder_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
+
+    rebasevector_celem_rtc_node(expression_ptr vec_node, const std::size_t index,
+                                vector_holder_ptr vec_holder,
+                                vector_access_runtime_check_ptr vec_rt_chk)
+        : index_(index), vector_holder_(vec_holder), vector_base_((*vec_holder)[0]),
+          vec_rt_chk_(vec_rt_chk)
+    {
+        construct_branch_pair(vector_node_, vec_node);
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        return *access_vector();
+    }
+
+    inline T& ref() override
+    {
+        return *access_vector();
+    }
+
+    inline const T& ref() const override
+    {
+        return *access_vector();
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_rbveccelemrtc;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_holder_ && vector_node_.first && vector_node_.first->valid();
+    }
+
+    inline vector_holder_t& vec_holder()
+    {
+        return (*vector_holder_);
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
+    }
+
+  private:
+    inline T* access_vector() const
+    {
+        vector_node_.first->value();
+
+        if (index_ <= vector_holder_->size() - 1)
+        {
+            return (vector_holder_->data() + index_);
+        }
+
+        assert(vec_rt_chk_);
+
+        vector_access_runtime_check::violation_context context;
+        context.base_ptr = reinterpret_cast<void*>(vector_base_);
+        context.end_ptr = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
+        context.access_ptr = reinterpret_cast<void*>(vector_base_ + index_);
+        context.type_size = sizeof(T);
+
+        return vec_rt_chk_->handle_runtime_violation(context)
+                   ? reinterpret_cast<T*>(context.access_ptr)
+                   : vector_base_;
+    }
+
+    const std::size_t index_;
+    vector_holder_ptr vector_holder_;
+    T* vector_base_;
+    branch_t vector_node_;
+    vector_access_runtime_check_ptr vec_rt_chk_;
+};
+
+template <typename T> class vector_initialisation_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_initialisation_node(T* vector_base, const std::size_t& size,
+                               const std::vector<expression_ptr>& initialiser_list,
+                               const bool single_value_initialse)
+        : vector_base_(vector_base), initialiser_list_(initialiser_list), size_(size),
+          single_value_initialse_(single_value_initialse), zero_value_initialse_(false),
+          const_nonzero_literal_value_initialse_(false), single_initialiser_value_(T(0))
+    {
+        if (single_value_initialse_)
+        {
+            if (initialiser_list_.empty())
+                zero_value_initialse_ = true;
+            else if ((initialiser_list_.size() == 1) &&
+                     details::is_constant_node(initialiser_list_[0]) &&
+                     (T(0) == initialiser_list_[0]->value()))
             {
-               return (vector_holder_->data() + index_);
-            }
-
-            assert(vec_rt_chk_);
-
-            vector_access_runtime_check::violation_context context;
-            context.base_ptr   = reinterpret_cast<void*>(vector_base_);
-            context.end_ptr    = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
-            context.access_ptr = reinterpret_cast<void*>(vector_base_ + index_);
-            context.type_size  = sizeof(T);
-
-            return vec_rt_chk_->handle_runtime_violation(context) ?
-               reinterpret_cast<T*>(context.access_ptr) :
-               vector_base_ ;
-         }
-
-         const std::size_t index_;
-         const std::size_t max_vector_index_;
-         vector_holder_ptr vector_holder_;
-         T*                vector_base_;
-         branch_t          vector_node_;
-         vector_access_runtime_check_ptr vec_rt_chk_;
-      };
-
-      template <typename T>
-      class rebasevector_elem_node final
-                                   : public expression_node<T>
-                                   , public ivariable      <T>
-      {
-      public:
-
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef core::vec_data_store<T>              vds_t;
-         typedef std::pair<expression_ptr,bool> branch_t;
-
-         rebasevector_elem_node(expression_ptr vec_node,
-                                expression_ptr index,
-                                vector_holder_ptr vec_holder)
-         : vector_holder_(vec_holder)
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            construct_branch_pair(index_      , index   );
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            return *access_vector();
-         }
-
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
-
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_rbvecelem;
-         }
-
-         inline bool valid() const override
-         {
-            return
-               vector_holder_        &&
-               index_.first          &&
-               vector_node_.first    &&
-               index_.first->valid() &&
-               vector_node_.first->valid();
-         }
-
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-            expression_node<T>::ndb_t::collect(index_,       node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth
-               (vector_node_, index_);
-         }
-
-      private:
-
-         inline T* access_vector() const
-         {
-            vector_node_.first->value();
-            return (vector_holder_->data() + core::numeric::to_uint64(index_.first->value()));
-         }
-
-         vector_holder_ptr vector_holder_;
-         branch_t          vector_node_;
-         branch_t          index_;
-      };
-
-      template <typename T>
-      class rebasevector_celem_node final
-                                    : public expression_node<T>
-                                    , public ivariable      <T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-         typedef vector_holder<T>    vector_holder_t;
-         typedef vector_holder_t*    vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
-
-         rebasevector_celem_node(expression_ptr vec_node,
-                                 const std::size_t index,
-                                 vector_holder_ptr vec_holder)
-         : index_(index)
-         , vector_holder_(vec_holder)
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            vector_node_.first->value();
-            return ref();
-         }
-
-         inline T& ref() override
-         {
-            return *(vector_holder_->data() + index_);
-         }
-
-         inline const T& ref() const override
-         {
-            return *(vector_holder_->data() + index_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_rbveccelem;
-         }
-
-         inline bool valid() const override
-         {
-            return
-               vector_holder_     &&
-               vector_node_.first &&
-               vector_node_.first->valid();
-         }
-
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
-         }
-
-      private:
-
-         const std::size_t index_;
-         vector_holder_ptr vector_holder_;
-         branch_t          vector_node_;
-      };
-
-      template <typename T>
-      class rebasevector_elem_rtc_node final
-                                       : public expression_node<T>
-                                       , public ivariable      <T>
-      {
-      public:
-
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
-
-         rebasevector_elem_rtc_node(expression_ptr vec_node,
-                                    expression_ptr index,
-                                    vector_holder_ptr vec_holder,
-                                    vector_access_runtime_check_ptr vec_rt_chk)
-         : vector_holder_(vec_holder)
-         , vec_rt_chk_(vec_rt_chk)
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            construct_branch_pair(index_      , index   );
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            return *access_vector();
-         }
-
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
-
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_rbvecelemrtc;
-         }
-
-         inline bool valid() const override
-         {
-            return
-               vector_holder_        &&
-               index_.first          &&
-               vector_node_.first    &&
-               index_.first->valid() &&
-               vector_node_.first->valid();
-         }
-
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-            expression_node<T>::ndb_t::collect(index_      , node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth
-               (vector_node_, index_);
-         }
-
-      private:
-
-         inline T* access_vector() const
-         {
-            vector_node_.first->value();
-            const core::_uint64_t index = core::numeric::to_uint64(index_.first->value());
-
-            if (index <= (vector_holder_->size() - 1))
-            {
-               return (vector_holder_->data() + index);
-            }
-
-            assert(vec_rt_chk_);
-
-            vector_access_runtime_check::violation_context context;
-            context.base_ptr   = reinterpret_cast<void*>(vector_holder_->data());
-            context.end_ptr    = reinterpret_cast<void*>(vector_holder_->data() + vector_holder_->size());
-            context.access_ptr = reinterpret_cast<void*>(vector_holder_->data() + index);
-            context.type_size  = sizeof(T);
-
-            return vec_rt_chk_->handle_runtime_violation(context) ?
-                   reinterpret_cast<T*>(context.access_ptr) :
-                   vector_holder_->data() ;
-         }
-
-         vector_holder_ptr vector_holder_;
-         branch_t          vector_node_;
-         branch_t          index_;
-         vector_access_runtime_check_ptr vec_rt_chk_;
-      };
-
-      template <typename T>
-      class rebasevector_celem_rtc_node final
-                                    : public expression_node<T>
-                                    , public ivariable      <T>
-      {
-      public:
-
-         typedef expression_node<T>*            expression_ptr;
-         typedef vector_holder<T>               vector_holder_t;
-         typedef vector_holder_t*               vector_holder_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
-
-         rebasevector_celem_rtc_node(expression_ptr vec_node,
-                                     const std::size_t index,
-                                     vector_holder_ptr vec_holder,
-                                     vector_access_runtime_check_ptr vec_rt_chk)
-         : index_(index)
-         , vector_holder_(vec_holder)
-         , vector_base_((*vec_holder)[0])
-         , vec_rt_chk_(vec_rt_chk)
-         {
-            construct_branch_pair(vector_node_, vec_node);
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            return *access_vector();
-         }
-
-         inline T& ref() override
-         {
-            return *access_vector();
-         }
-
-         inline const T& ref() const override
-         {
-            return *access_vector();
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_rbveccelemrtc;
-         }
-
-         inline bool valid() const override
-         {
-            return
-               vector_holder_     &&
-               vector_node_.first &&
-               vector_node_.first->valid();
-         }
-
-         inline vector_holder_t& vec_holder()
-         {
-            return (*vector_holder_);
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
-         }
-
-      private:
-
-         inline T* access_vector() const
-         {
-            vector_node_.first->value();
-
-            if (index_ <= vector_holder_->size() - 1)
-            {
-               return (vector_holder_->data() + index_);
-            }
-
-            assert(vec_rt_chk_);
-
-            vector_access_runtime_check::violation_context context;
-            context.base_ptr   = reinterpret_cast<void*>(vector_base_);
-            context.end_ptr    = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
-            context.access_ptr = reinterpret_cast<void*>(vector_base_ + index_);
-            context.type_size  = sizeof(T);
-
-            return vec_rt_chk_->handle_runtime_violation(context) ?
-               reinterpret_cast<T*>(context.access_ptr) :
-               vector_base_ ;
-         }
-
-         const std::size_t index_;
-         vector_holder_ptr vector_holder_;
-         T*                vector_base_;
-         branch_t          vector_node_;
-         vector_access_runtime_check_ptr vec_rt_chk_;
-      };
-
-      template <typename T>
-      class vector_initialisation_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_initialisation_node(T* vector_base,
-                                    const std::size_t& size,
-                                    const std::vector<expression_ptr>& initialiser_list,
-                                    const bool single_value_initialse)
-         : vector_base_(vector_base)
-         , initialiser_list_(initialiser_list)
-         , size_(size)
-         , single_value_initialse_(single_value_initialse)
-         , zero_value_initialse_(false)
-         , const_nonzero_literal_value_initialse_(false)
-         , single_initialiser_value_(T(0))
-         {
-            if (single_value_initialse_)
-            {
-               if (initialiser_list_.empty())
-                  zero_value_initialse_ = true;
-               else if (
-                         (initialiser_list_.size() == 1) &&
-                         details::is_constant_node(initialiser_list_[0]) &&
-                         (T(0) == initialiser_list_[0]->value())
-                       )
-               {
-                  zero_value_initialse_ = true;
-               }
-               else
-               {
-                  assert(initialiser_list_.size() == 1);
-
-                  if (details::is_constant_node(initialiser_list_[0]))
-                  {
-                     const_nonzero_literal_value_initialse_ = true;
-                     single_initialiser_value_ = initialiser_list_[0]->value();
-                     assert(T(0) != single_initialiser_value_);
-                  }
-               }
-            }
-         }
-
-         inline T value() const override
-         {
-            if (single_value_initialse_)
-            {
-               if (zero_value_initialse_)
-               {
-                  core::numeric::set_zero_value(vector_base_, size_);
-               }
-               else if (const_nonzero_literal_value_initialse_)
-               {
-                  for (std::size_t i = 0; i < size_; ++i)
-                  {
-                     *(vector_base_ + i) = single_initialiser_value_;
-                  }
-               }
-               else
-               {
-                  for (std::size_t i = 0; i < size_; ++i)
-                  {
-                     *(vector_base_ + i) = initialiser_list_[0]->value();
-                  }
-               }
+                zero_value_initialse_ = true;
             }
             else
             {
-               const std::size_t initialiser_list_size = initialiser_list_.size();
+                assert(initialiser_list_.size() == 1);
 
-               for (std::size_t i = 0; i < initialiser_list_size; ++i)
-               {
-                  *(vector_base_ + i) = initialiser_list_[i]->value();
-               }
-
-               if (initialiser_list_size < size_)
-               {
-                  core::numeric::set_zero_value(
-                     vector_base_ + initialiser_list_size,
-                     (size_ - initialiser_list_size));
-               }
+                if (details::is_constant_node(initialiser_list_[0]))
+                {
+                    const_nonzero_literal_value_initialse_ = true;
+                    single_initialiser_value_ = initialiser_list_[0]->value();
+                    assert(T(0) != single_initialiser_value_);
+                }
             }
+        }
+    }
 
-            return *(vector_base_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_;
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_initialisation_node(const vector_initialisation_node<T>&) = delete;
-         vector_initialisation_node<T>& operator=(const vector_initialisation_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         std::vector<expression_ptr> initialiser_list_;
-         const std::size_t size_;
-         const bool single_value_initialse_;
-         bool zero_value_initialse_;
-         bool const_nonzero_literal_value_initialse_;
-         T single_initialiser_value_;
-      };
-
-      template <typename T>
-      class vector_init_zero_value_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_init_zero_value_node(T* vector_base,
-                                     const std::size_t& size,
-                                     const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {}
-
-         inline T value() const override
-         {
-            core::numeric::set_zero_value(vector_base_, size_);
-            return *(vector_base_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_;
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_init_zero_value_node(const vector_init_zero_value_node<T>&) = delete;
-         vector_init_zero_value_node<T>& operator=(const vector_init_zero_value_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-      };
-
-      template <typename T>
-      class vector_init_single_constvalue_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_init_single_constvalue_node(T* vector_base,
-                                            const std::size_t& size,
-                                            const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {
-            single_initialiser_value_ = initialiser_list_[0]->value();
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            for (std::size_t i = 0; i < size_; ++i)
+    inline T value() const override
+    {
+        if (single_value_initialse_)
+        {
+            if (zero_value_initialse_)
             {
-               *(vector_base_ + i) = single_initialiser_value_;
+                core::numeric::set_zero_value(vector_base_, size_);
+            }
+            else if (const_nonzero_literal_value_initialse_)
+            {
+                for (std::size_t i = 0; i < size_; ++i)
+                {
+                    *(vector_base_ + i) = single_initialiser_value_;
+                }
+            }
+            else
+            {
+                for (std::size_t i = 0; i < size_; ++i)
+                {
+                    *(vector_base_ + i) = initialiser_list_[0]->value();
+                }
+            }
+        }
+        else
+        {
+            const std::size_t initialiser_list_size = initialiser_list_.size();
+
+            for (std::size_t i = 0; i < initialiser_list_size; ++i)
+            {
+                *(vector_base_ + i) = initialiser_list_[i]->value();
             }
 
-            return *(vector_base_);
-         }
+            if (initialiser_list_size < size_)
+            {
+                core::numeric::set_zero_value(vector_base_ + initialiser_list_size,
+                                              (size_ - initialiser_list_size));
+            }
+        }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
+        return *(vector_base_);
+    }
 
-         inline bool valid() const override
-         {
-            return vector_base_ &&
-                   (initialiser_list_.size() == 1) &&
-                   (details::is_constant_node(initialiser_list_[0])) &&
-                   (single_initialiser_value_ != T(0));
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
 
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
+    inline bool valid() const override
+    {
+        return vector_base_;
+    }
 
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
 
-      private:
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
 
-         vector_init_single_constvalue_node(const vector_init_single_constvalue_node<T>&) = delete;
-         vector_init_single_constvalue_node<T>& operator=(const vector_init_single_constvalue_node<T>&) = delete;
+  private:
+    vector_initialisation_node(const vector_initialisation_node<T>&) = delete;
+    vector_initialisation_node<T>& operator=(const vector_initialisation_node<T>&) = delete;
 
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-         T single_initialiser_value_;
-      };
+    mutable T* vector_base_;
+    std::vector<expression_ptr> initialiser_list_;
+    const std::size_t size_;
+    const bool single_value_initialse_;
+    bool zero_value_initialse_;
+    bool const_nonzero_literal_value_initialse_;
+    T single_initialiser_value_;
+};
 
-      template <typename T>
-      class vector_init_single_value_node final : public expression_node<T>
-      {
-      public:
+template <typename T> class vector_init_zero_value_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
 
-         typedef expression_node<T>* expression_ptr;
+    vector_init_zero_value_node(T* vector_base, const std::size_t& size,
+                                const std::vector<expression_ptr>& initialiser_list)
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+    }
 
-         vector_init_single_value_node(T* vector_base,
-                                       const std::size_t& size,
+    inline T value() const override
+    {
+        core::numeric::set_zero_value(vector_base_, size_);
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_;
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_zero_value_node(const vector_init_zero_value_node<T>&) = delete;
+    vector_init_zero_value_node<T>& operator=(const vector_init_zero_value_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+};
+
+template <typename T> class vector_init_single_constvalue_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_init_single_constvalue_node(T* vector_base, const std::size_t& size,
                                        const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {
-            assert(valid());
-         }
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+        single_initialiser_value_ = initialiser_list_[0]->value();
+        assert(valid());
+    }
 
-         inline T value() const override
-         {
-            expression_node<T>& node = *initialiser_list_[0];
+    inline T value() const override
+    {
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            *(vector_base_ + i) = single_initialiser_value_;
+        }
 
-            for (std::size_t i = 0; i < size_; ++i)
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_ && (initialiser_list_.size() == 1) &&
+               (details::is_constant_node(initialiser_list_[0])) &&
+               (single_initialiser_value_ != T(0));
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_single_constvalue_node(const vector_init_single_constvalue_node<T>&) = delete;
+    vector_init_single_constvalue_node<T>&
+    operator=(const vector_init_single_constvalue_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+    T single_initialiser_value_;
+};
+
+template <typename T> class vector_init_single_value_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_init_single_value_node(T* vector_base, const std::size_t& size,
+                                  const std::vector<expression_ptr>& initialiser_list)
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        expression_node<T>& node = *initialiser_list_[0];
+
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            *(vector_base_ + i) = node.value();
+        }
+
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_ && (initialiser_list_.size() == 1) &&
+               !details::is_constant_node(initialiser_list_[0]);
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_single_value_node(const vector_init_single_value_node<T>&) = delete;
+    vector_init_single_value_node<T>& operator=(const vector_init_single_value_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+};
+
+template <typename T> class vector_init_iota_constconst_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_init_iota_constconst_node(T* vector_base, const std::size_t& size,
+                                     const std::vector<expression_ptr>& initialiser_list)
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+        base_value_ = initialiser_list_[0]->value();
+        increment_value_ = initialiser_list_[1]->value();
+
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        T value = base_value_;
+
+        for (std::size_t i = 0; i < size_; ++i, value += increment_value_)
+        {
+            *(vector_base_ + i) = value;
+        }
+
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_ && (initialiser_list_.size() == 2) &&
+               (details::is_constant_node(initialiser_list_[0])) &&
+               (details::is_constant_node(initialiser_list_[1]));
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_iota_constconst_node(const vector_init_iota_constconst_node<T>&) = delete;
+    vector_init_iota_constconst_node<T>&
+    operator=(const vector_init_iota_constconst_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+    T base_value_;
+    T increment_value_;
+};
+
+template <typename T> class vector_init_iota_constnconst_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_init_iota_constnconst_node(T* vector_base, const std::size_t& size,
+                                      const std::vector<expression_ptr>& initialiser_list)
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+        assert(valid());
+        base_value_ = initialiser_list_[0]->value();
+    }
+
+    inline T value() const override
+    {
+        T value = base_value_;
+        expression_node<T>& increment = *initialiser_list_[1];
+
+        for (std::size_t i = 0; i < size_; ++i, value += increment.value())
+        {
+            *(vector_base_ + i) = value;
+        }
+
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_ && (initialiser_list_.size() == 2) &&
+               (details::is_constant_node(initialiser_list_[0])) &&
+               (!details::is_constant_node(initialiser_list_[1]));
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_iota_constnconst_node(const vector_init_iota_constnconst_node<T>&) = delete;
+    vector_init_iota_constnconst_node<T>&
+    operator=(const vector_init_iota_constnconst_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+    T base_value_;
+};
+
+template <typename T> class vector_init_iota_nconstconst_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_init_iota_nconstconst_node(T* vector_base, const std::size_t& size,
+                                      const std::vector<expression_ptr>& initialiser_list)
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        T value = initialiser_list_[0]->value();
+        const T increment = initialiser_list_[1]->value();
+
+        for (std::size_t i = 0; i < size_; ++i, value += increment)
+        {
+            *(vector_base_ + i) = value;
+        }
+
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_ && (initialiser_list_.size() == 2) &&
+               (!details::is_constant_node(initialiser_list_[0])) &&
+               (details::is_constant_node(initialiser_list_[1]));
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_iota_nconstconst_node(const vector_init_iota_nconstconst_node<T>&) = delete;
+    vector_init_iota_nconstconst_node<T>&
+    operator=(const vector_init_iota_nconstconst_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+};
+
+template <typename T> class vector_init_iota_nconstnconst_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+
+    vector_init_iota_nconstnconst_node(T* vector_base, const std::size_t& size,
+                                       const std::vector<expression_ptr>& initialiser_list)
+        : vector_base_(vector_base), size_(size), initialiser_list_(initialiser_list)
+    {
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        T value = initialiser_list_[0]->value();
+        expression_node<T>& increment = *initialiser_list_[1];
+
+        for (std::size_t i = 0; i < size_; ++i, value += increment.value())
+        {
+            *(vector_base_ + i) = value;
+        }
+
+        return *(vector_base_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecinit;
+    }
+
+    inline bool valid() const override
+    {
+        return vector_base_ && (initialiser_list_.size() == 2) &&
+               (!details::is_constant_node(initialiser_list_[0])) &&
+               (!details::is_constant_node(initialiser_list_[1]));
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+  private:
+    vector_init_iota_nconstnconst_node(const vector_init_iota_nconstnconst_node<T>&) = delete;
+    vector_init_iota_nconstnconst_node<T>&
+    operator=(const vector_init_iota_nconstnconst_node<T>&) = delete;
+
+    mutable T* vector_base_;
+    const std::size_t size_;
+    std::vector<expression_ptr> initialiser_list_;
+};
+
+template <typename T> class swap_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef variable_node<T>* variable_node_ptr;
+
+    swap_node(variable_node_ptr var0, variable_node_ptr var1) : var0_(var0), var1_(var1) {}
+
+    inline T value() const override
+    {
+        std::swap(var0_->ref(), var1_->ref());
+        return var1_->ref();
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_swap;
+    }
+
+  private:
+    variable_node_ptr var0_;
+    variable_node_ptr var1_;
+};
+
+template <typename T> class swap_generic_node final : public binary_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef ivariable<T>* ivariable_ptr;
+
+    swap_generic_node(expression_ptr var0, expression_ptr var1)
+        : binary_node<T>(core::operators::operator_type::swap, var0, var1),
+          var0_(dynamic_cast<ivariable_ptr>(var0)), var1_(dynamic_cast<ivariable_ptr>(var1))
+    {
+    }
+
+    inline T value() const override
+    {
+        std::swap(var0_->ref(), var1_->ref());
+        return var1_->ref();
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_swap;
+    }
+
+  private:
+    ivariable_ptr var0_;
+    ivariable_ptr var1_;
+};
+
+template <typename T>
+class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef vector_node<T>* vector_node_ptr;
+    typedef core::vec_data_store<T> vds_t;
+
+    using binary_node<T>::branch;
+
+    swap_vecvec_node(expression_ptr branch0, expression_ptr branch1)
+        : binary_node<T>(core::operators::operator_type::swap, branch0, branch1), vec0_node_ptr_(0),
+          vec1_node_ptr_(0), initialised_(false)
+    {
+        if (is_ivector_node(branch(0)))
+        {
+            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+
+            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
             {
-               *(vector_base_ + i) = node.value();
+                vec0_node_ptr_ = vi->vec();
+                vds() = vi->vds();
             }
+        }
 
-            return *(vector_base_);
-         }
+        if (is_ivector_node(branch(1)))
+        {
+            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_ &&
-                   (initialiser_list_.size() == 1) &&
-                   !details::is_constant_node(initialiser_list_[0]);
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_init_single_value_node(const vector_init_single_value_node<T>&) = delete;
-         vector_init_single_value_node<T>& operator=(const vector_init_single_value_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-      };
-
-      template <typename T>
-      class vector_init_iota_constconst_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_init_iota_constconst_node(T* vector_base,
-                                          const std::size_t& size,
-                                          const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {
-            base_value_      = initialiser_list_[0]->value();
-            increment_value_ = initialiser_list_[1]->value();
-
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            T value = base_value_;
-
-            for (std::size_t i = 0; i < size_; ++i, value += increment_value_)
+            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
             {
-               *(vector_base_ + i) = value;
+                vec1_node_ptr_ = vi->vec();
             }
-
-            return *(vector_base_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_ &&
-                   (initialiser_list_.size() == 2) &&
-                   (details::is_constant_node(initialiser_list_[0])) &&
-                   (details::is_constant_node(initialiser_list_[1])) ;
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_init_iota_constconst_node(const vector_init_iota_constconst_node<T>&) = delete;
-         vector_init_iota_constconst_node<T>& operator=(const vector_init_iota_constconst_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-         T base_value_;
-         T increment_value_;
-      };
-
-      template <typename T>
-      class vector_init_iota_constnconst_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_init_iota_constnconst_node(T* vector_base,
-                                           const std::size_t& size,
-                                           const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {
-            assert(valid());
-            base_value_ = initialiser_list_[0]->value();
-         }
-
-         inline T value() const override
-         {
-            T value = base_value_;
-            expression_node<T>& increment = *initialiser_list_[1];
-
-            for (std::size_t i = 0; i < size_; ++i, value += increment.value())
-            {
-               *(vector_base_ + i) = value;
-            }
-
-            return *(vector_base_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_ &&
-                  (initialiser_list_.size() == 2) &&
-                  ( details::is_constant_node(initialiser_list_[0])) &&
-                  (!details::is_constant_node(initialiser_list_[1]));
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_init_iota_constnconst_node(const vector_init_iota_constnconst_node<T>&) = delete;
-         vector_init_iota_constnconst_node<T>& operator=(const vector_init_iota_constnconst_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-         T base_value_;
-      };
-
-      template <typename T>
-      class vector_init_iota_nconstconst_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_init_iota_nconstconst_node(T* vector_base,
-                                           const std::size_t& size,
-                                           const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            T value = initialiser_list_[0]->value();
-            const T increment = initialiser_list_[1]->value();
-
-            for (std::size_t i = 0; i < size_; ++i, value += increment)
-            {
-               *(vector_base_ + i) = value;
-            }
-
-            return *(vector_base_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_ &&
-                   (initialiser_list_.size() == 2) &&
-                   (!details::is_constant_node(initialiser_list_[0])) &&
-                   (details::is_constant_node(initialiser_list_[1]));
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_init_iota_nconstconst_node(const vector_init_iota_nconstconst_node<T>&) = delete;
-         vector_init_iota_nconstconst_node<T>& operator=(const vector_init_iota_nconstconst_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-      };
-
-      template <typename T>
-      class vector_init_iota_nconstnconst_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-
-         vector_init_iota_nconstnconst_node(T* vector_base,
-                                            const std::size_t& size,
-                                            const std::vector<expression_ptr>& initialiser_list)
-         : vector_base_(vector_base)
-         , size_(size)
-         , initialiser_list_(initialiser_list)
-         {
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            T value = initialiser_list_[0]->value();
-            expression_node<T>& increment = *initialiser_list_[1];
-
-            for (std::size_t i = 0; i < size_; ++i, value += increment.value())
-            {
-               *(vector_base_ + i) = value;
-            }
-
-            return *(vector_base_);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecinit;
-         }
-
-         inline bool valid() const override
-         {
-            return vector_base_ &&
-                   (initialiser_list_.size() == 2) &&
-                   (!details::is_constant_node(initialiser_list_[0])) &&
-                   (!details::is_constant_node(initialiser_list_[1]));
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
-         }
-
-      private:
-
-         vector_init_iota_nconstnconst_node(const vector_init_iota_nconstnconst_node<T>&) = delete;
-         vector_init_iota_nconstnconst_node<T>& operator=(const vector_init_iota_nconstnconst_node<T>&) = delete;
-
-         mutable T* vector_base_;
-         const std::size_t size_;
-         std::vector<expression_ptr> initialiser_list_;
-      };
-
-      template <typename T>
-      class swap_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-         typedef variable_node<T>*   variable_node_ptr;
-
-         swap_node(variable_node_ptr var0, variable_node_ptr var1)
-         : var0_(var0)
-         , var1_(var1)
-         {}
-
-         inline T value() const override
-         {
-            std::swap(var0_->ref(),var1_->ref());
-            return var1_->ref();
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_swap;
-         }
-
-      private:
-
-         variable_node_ptr var0_;
-         variable_node_ptr var1_;
-      };
-
-      template <typename T>
-      class swap_generic_node final : public binary_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-         typedef ivariable<T>*       ivariable_ptr;
-
-         swap_generic_node(expression_ptr var0, expression_ptr var1)
-         : binary_node<T>(core::operators::operator_type::swap, var0, var1)
-         , var0_(dynamic_cast<ivariable_ptr>(var0))
-         , var1_(dynamic_cast<ivariable_ptr>(var1))
-         {}
-
-         inline T value() const override
-         {
-            std::swap(var0_->ref(),var1_->ref());
-            return var1_->ref();
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_swap;
-         }
-
-      private:
-
-         ivariable_ptr var0_;
-         ivariable_ptr var1_;
-      };
-
-      template <typename T>
-      class swap_vecvec_node final
-                             : public binary_node     <T>
-                             , public vector_interface<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-         typedef vector_node    <T>* vector_node_ptr;
-         typedef core::vec_data_store <T>  vds_t;
-
-         using binary_node<T>::branch;
-
-         swap_vecvec_node(expression_ptr branch0,
-                          expression_ptr branch1)
-         : binary_node<T>(core::operators::operator_type::swap, branch0, branch1)
-         , vec0_node_ptr_(0)
-         , vec1_node_ptr_(0)
-         , initialised_  (false)
-         {
-            if (is_ivector_node(branch(0)))
-            {
-               vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
-
-               if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
-               {
-                  vec0_node_ptr_ = vi->vec();
-                  vds()          = vi->vds();
-               }
-            }
-
-            if (is_ivector_node(branch(1)))
-            {
-               vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
-
-               if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
-               {
-                  vec1_node_ptr_ = vi->vec();
-               }
-            }
-
-            if (vec0_node_ptr_ && vec1_node_ptr_)
-            {
-               initialised_ = size() <= base_size();
-            }
-
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            binary_node<T>::branch(0)->value();
-            binary_node<T>::branch(1)->value();
-
-            T* vec0 = vec0_node_ptr_->vds().data();
-            T* vec1 = vec1_node_ptr_->vds().data();
-
-            assert(size() <= base_size());
-            const std::size_t n = size();
-
-            for (std::size_t i = 0; i < n; ++i)
-            {
-               std::swap(vec0[i],vec1[i]);
-            }
-
-            return vec1_node_ptr_->value();
-         }
-
-         vector_node_ptr vec() const override
-         {
-            return vec0_node_ptr_;
-         }
-
-         vector_node_ptr vec() override
-         {
-            return vec0_node_ptr_;
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_vecvecswap;
-         }
-
-         inline bool valid() const override
-         {
-            return initialised_ && binary_node<T>::valid();
-         }
-
-         std::size_t size() const override
-         {
-            return std::min(
-               vec0_node_ptr_->vec_holder().size(),
-               vec1_node_ptr_->vec_holder().size());
-         }
-
-         std::size_t base_size() const override
-         {
-            return std::min(
-               vec0_node_ptr_->vec_holder().base_size(),
-               vec1_node_ptr_->vec_holder().base_size());
-         }
-
-         vds_t& vds() override
-         {
-            return vds_;
-         }
-
-         const vds_t& vds() const override
-         {
-            return vds_;
-         }
-
-      private:
-
-         vector_node<T>* vec0_node_ptr_;
-         vector_node<T>* vec1_node_ptr_;
-         bool            initialised_;
-         vds_t           vds_;
-      };
-
-      template <typename T>
-      class assert_node final : public expression_node<T>
-      {
-      public:
-
-         typedef expression_node<T>* expression_ptr;
-         typedef std::pair<expression_ptr,bool> branch_t;
-         typedef string_base_node<T>* str_base_ptr;
-         typedef assert_check::assert_context assert_context_t;
-
-         assert_node(expression_ptr   assert_condition_node,
-                     expression_ptr   assert_message_node,
-                     assert_check_ptr assert_check,
-                     const assert_context_t& context)
-         : assert_message_str_base_(0)
-         , assert_check_(assert_check)
-         , context_(context)
-         {
-            construct_branch_pair(assert_condition_node_, assert_condition_node);
-            construct_branch_pair(assert_message_node_  , assert_message_node  );
-
-            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            if (
-                  assert_message_node_.first &&
-                  details::is_generally_string_node(assert_message_node_.first)
-               )
-            {
-               assert_message_str_base_ = dynamic_cast<str_base_ptr>(assert_message_node_.first);
-            }
-            #endif
-
-            assert(valid());
-         }
-
-         inline T value() const override
-         {
-            if (details::is_true(assert_condition_node_.first->value()))
-            {
-               return T(1);
-            }
-
-            #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            if (assert_message_node_.first)
-            {
-               assert_message_node_.first->value();
-               assert(assert_message_str_base_);
-               context_.message = assert_message_str_base_->str();
-            }
-            #endif
-
-            assert_check_->handle_assert(context_);
-            return T(0);
-         }
-
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_assert;
-         }
-
-         inline bool valid() const override
-         {
-            return (
-                     assert_check_ &&
-                     assert_condition_node_.first &&
-                     assert_condition_node_.first->valid()
-                   ) &&
-                   (
-                     (0 == assert_message_node_.first) ||
-                     (
-                       assert_message_node_.first &&
-                       assert_message_str_base_   &&
-                       assert_message_node_.first->valid() &&
-                       details::is_generally_string_node(assert_message_node_.first)
-                     )
-                   );
-         }
-
-         void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
-         {
-            expression_node<T>::ndb_t::collect(assert_condition_node_, node_delete_list);
-            expression_node<T>::ndb_t::collect(assert_message_node_  , node_delete_list);
-         }
-
-         std::size_t node_depth() const override
-         {
-            return expression_node<T>::ndb_t::compute_node_depth
-               (assert_condition_node_, assert_message_node_);
-         }
-
-      private:
-
-         branch_t         assert_condition_node_;
-         branch_t         assert_message_node_;
-         str_base_ptr     assert_message_str_base_;
-         assert_check_ptr assert_check_;
-         mutable assert_context_t context_;
-      };
-
-      template <typename T, std::size_t N>
-      inline T axn(const T a, const T x)
-      {
-         // a*x^n
-         return a * math_expr::core::numeric::fast_exp<T,N>::result(x);
-      }
-
-      template <typename T, std::size_t N>
-      inline T axnb(const T a, const T x, const T b)
-      {
-         // a*x^n+b
-         return a * math_expr::core::numeric::fast_exp<T,N>::result(x) + b;
-      }
-
-      template <typename T>
-      struct sf_base
-      {
-         typedef typename core::numeric::functor_t<T>::Type Type;
-         typedef typename core::numeric::functor_t<T> functor_t;
-         typedef typename functor_t::qfunc_t quaternary_functor_t;
-         typedef typename functor_t::tfunc_t trinary_functor_t;
-         typedef typename functor_t::bfunc_t binary_functor_t;
-         typedef typename functor_t::ufunc_t unary_functor_t;
-      };
-
-      #define define_sfop3(NN, OP0, OP1)                 \
-      template <typename T>                              \
-      struct sf##NN##_op : public sf_base<T>             \
-      {                                                  \
-         typedef typename sf_base<T>::Type const Type;   \
-         static inline T process(Type x, Type y, Type z) \
-         {                                               \
-            return (OP0);                                \
-         }                                               \
-         static inline std::string id()                  \
-         {                                               \
-            return (OP1);                                \
-         }                                               \
-      };                                                 \
+        }
+
+        if (vec0_node_ptr_ && vec1_node_ptr_)
+        {
+            initialised_ = size() <= base_size();
+        }
+
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        binary_node<T>::branch(0)->value();
+        binary_node<T>::branch(1)->value();
+
+        T* vec0 = vec0_node_ptr_->vds().data();
+        T* vec1 = vec1_node_ptr_->vds().data();
+
+        assert(size() <= base_size());
+        const std::size_t n = size();
+
+        for (std::size_t i = 0; i < n; ++i)
+        {
+            std::swap(vec0[i], vec1[i]);
+        }
+
+        return vec1_node_ptr_->value();
+    }
+
+    vector_node_ptr vec() const override
+    {
+        return vec0_node_ptr_;
+    }
+
+    vector_node_ptr vec() override
+    {
+        return vec0_node_ptr_;
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_vecvecswap;
+    }
+
+    inline bool valid() const override
+    {
+        return initialised_ && binary_node<T>::valid();
+    }
+
+    std::size_t size() const override
+    {
+        return std::min(vec0_node_ptr_->vec_holder().size(), vec1_node_ptr_->vec_holder().size());
+    }
+
+    std::size_t base_size() const override
+    {
+        return std::min(vec0_node_ptr_->vec_holder().base_size(),
+                        vec1_node_ptr_->vec_holder().base_size());
+    }
+
+    vds_t& vds() override
+    {
+        return vds_;
+    }
+
+    const vds_t& vds() const override
+    {
+        return vds_;
+    }
+
+  private:
+    vector_node<T>* vec0_node_ptr_;
+    vector_node<T>* vec1_node_ptr_;
+    bool initialised_;
+    vds_t vds_;
+};
+
+template <typename T> class assert_node final : public expression_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
+    typedef std::pair<expression_ptr, bool> branch_t;
+    typedef string_base_node<T>* str_base_ptr;
+    typedef assert_check::assert_context assert_context_t;
+
+    assert_node(expression_ptr assert_condition_node, expression_ptr assert_message_node,
+                assert_check_ptr assert_check, const assert_context_t& context)
+        : assert_message_str_base_(0), assert_check_(assert_check), context_(context)
+    {
+        construct_branch_pair(assert_condition_node_, assert_condition_node);
+        construct_branch_pair(assert_message_node_, assert_message_node);
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        if (assert_message_node_.first &&
+            details::is_generally_string_node(assert_message_node_.first))
+        {
+            assert_message_str_base_ = dynamic_cast<str_base_ptr>(assert_message_node_.first);
+        }
+#endif
+
+        assert(valid());
+    }
+
+    inline T value() const override
+    {
+        if (details::is_true(assert_condition_node_.first->value()))
+        {
+            return T(1);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        if (assert_message_node_.first)
+        {
+            assert_message_node_.first->value();
+            assert(assert_message_str_base_);
+            context_.message = assert_message_str_base_->str();
+        }
+#endif
+
+        assert_check_->handle_assert(context_);
+        return T(0);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_assert;
+    }
+
+    inline bool valid() const override
+    {
+        return (assert_check_ && assert_condition_node_.first &&
+                assert_condition_node_.first->valid()) &&
+               ((0 == assert_message_node_.first) ||
+                (assert_message_node_.first && assert_message_str_base_ &&
+                 assert_message_node_.first->valid() &&
+                 details::is_generally_string_node(assert_message_node_.first)));
+    }
+
+    void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
+    {
+        expression_node<T>::ndb_t::collect(assert_condition_node_, node_delete_list);
+        expression_node<T>::ndb_t::collect(assert_message_node_, node_delete_list);
+    }
+
+    std::size_t node_depth() const override
+    {
+        return expression_node<T>::ndb_t::compute_node_depth(assert_condition_node_,
+                                                             assert_message_node_);
+    }
+
+  private:
+    branch_t assert_condition_node_;
+    branch_t assert_message_node_;
+    str_base_ptr assert_message_str_base_;
+    assert_check_ptr assert_check_;
+    mutable assert_context_t context_;
+};
+
+template <typename T, std::size_t N> inline T axn(const T a, const T x)
+{
+    // a*x^n
+    return a * math_expr::core::numeric::fast_exp<T, N>::result(x);
+}
+
+template <typename T, std::size_t N> inline T axnb(const T a, const T x, const T b)
+{
+    // a*x^n+b
+    return a * math_expr::core::numeric::fast_exp<T, N>::result(x) + b;
+}
+
+template <typename T> struct sf_base
+{
+    typedef typename core::numeric::functor_t<T>::Type Type;
+    typedef typename core::numeric::functor_t<T> functor_t;
+    typedef typename functor_t::qfunc_t quaternary_functor_t;
+    typedef typename functor_t::tfunc_t trinary_functor_t;
+    typedef typename functor_t::bfunc_t binary_functor_t;
+    typedef typename functor_t::ufunc_t unary_functor_t;
+};
+
+// clang-format off
+#define define_sfop3(NN, OP0, OP1)                                                                 \
+    template <typename T> struct sf##NN##_op : public sf_base<T>                                   \
+    {                                                                                              \
+        typedef typename sf_base<T>::Type const Type;                                              \
+        static inline T process(Type x, Type y, Type z)                                            \
+        {                                                                                          \
+            return (OP0);                                                                          \
+        }                                                                                          \
+        static inline std::string id()                                                             \
+        {                                                                                          \
+            return (OP1);                                                                          \
+        }                                                                                          \
+    };
 
       define_sfop3(00,(x + y) / z       ,"(t+t)/t")
       define_sfop3(01,(x + y) * z       ,"(t+t)*t")
@@ -1933,20 +1720,19 @@ namespace math_expr::details
       define_sfop3(46,x * core::numeric::cos(y) - z  ,"")
       define_sfop3(47,details::is_true(x) ? y : z,"")
 
-      #define define_sfop4(NN, OP0, OP1)                         \
-      template <typename T>                                      \
-      struct sf##NN##_op : public sf_base<T>                     \
-      {                                                          \
-         typedef typename sf_base<T>::Type const Type;           \
-         static inline T process(Type x, Type y, Type z, Type w) \
-         {                                                       \
-            return (OP0);                                        \
-         }                                                       \
-         static inline std::string id()                          \
-         {                                                       \
-            return (OP1);                                        \
-         }                                                       \
-      };                                                         \
+#define define_sfop4(NN, OP0, OP1)                                                                 \
+    template <typename T> struct sf##NN##_op : public sf_base<T>                                   \
+    {                                                                                              \
+        typedef typename sf_base<T>::Type const Type;                                              \
+        static inline T process(Type x, Type y, Type z, Type w)                                    \
+        {                                                                                          \
+            return (OP0);                                                                          \
+        }                                                                                          \
+        static inline std::string id()                                                             \
+        {                                                                                          \
+            return (OP1);                                                                          \
+        }                                                                                          \
+    };
 
       define_sfop4(48,(x + ((y + z) / w)),"t+((t+t)/t)")
       define_sfop4(49,(x + ((y + z) * w)),"t+((t+t)*t)")
@@ -2065,59 +1851,53 @@ namespace math_expr::details
       define_sfop4(ext60,((x / y) + (z * w)),"(t/t)+(t*t)")
       define_sfop4(ext61,(((x * y) * z) / w),"((t*t)*t)/t")
 
-      #undef define_sfop3
-      #undef define_sfop4
+#undef define_sfop3
+#undef define_sfop4
+    // clang-format on
 
-      template <typename T, typename SpecialFunction>
-      class sf3_node final : public trinary_node<T>
-      {
-      public:
+    template <typename T, typename SpecialFunction>
+    class sf3_node final : public trinary_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
 
-         typedef expression_node<T>* expression_ptr;
+    sf3_node(const core::operators::operator_type& opr, expression_ptr branch0,
+             expression_ptr branch1, expression_ptr branch2)
+        : trinary_node<T>(opr, branch0, branch1, branch2)
+    {
+    }
 
-         sf3_node(const core::operators::operator_type& opr,
-                  expression_ptr branch0,
-                  expression_ptr branch1,
-                  expression_ptr branch2)
-         : trinary_node<T>(opr, branch0, branch1, branch2)
-         {}
+    inline T value() const override
+    {
+        const T x = trinary_node<T>::branch_[0].first->value();
+        const T y = trinary_node<T>::branch_[1].first->value();
+        const T z = trinary_node<T>::branch_[2].first->value();
 
-         inline T value() const override
-         {
-            const T x = trinary_node<T>::branch_[0].first->value();
-            const T y = trinary_node<T>::branch_[1].first->value();
-            const T z = trinary_node<T>::branch_[2].first->value();
+        return SpecialFunction::process(x, y, z);
+    }
+};
 
-            return SpecialFunction::process(x, y, z);
-         }
-      };
+template <typename T, typename SpecialFunction> class sf4_node final : public quaternary_node<T>
+{
+  public:
+    typedef expression_node<T>* expression_ptr;
 
-      template <typename T, typename SpecialFunction>
-      class sf4_node final : public quaternary_node<T>
-      {
-      public:
+    sf4_node(const core::operators::operator_type& opr, expression_ptr branch0,
+             expression_ptr branch1, expression_ptr branch2, expression_ptr branch3)
+        : quaternary_node<T>(opr, branch0, branch1, branch2, branch3)
+    {
+    }
 
-         typedef expression_node<T>* expression_ptr;
+    inline T value() const override
+    {
+        const T x = quaternary_node<T>::branch_[0].first->value();
+        const T y = quaternary_node<T>::branch_[1].first->value();
+        const T z = quaternary_node<T>::branch_[2].first->value();
+        const T w = quaternary_node<T>::branch_[3].first->value();
 
-         sf4_node(const core::operators::operator_type& opr,
-                  expression_ptr branch0,
-                  expression_ptr branch1,
-                  expression_ptr branch2,
-                  expression_ptr branch3)
-         : quaternary_node<T>(opr, branch0, branch1, branch2, branch3)
-         {}
-
-         inline T value() const override
-         {
-            const T x = quaternary_node<T>::branch_[0].first->value();
-            const T y = quaternary_node<T>::branch_[1].first->value();
-            const T z = quaternary_node<T>::branch_[2].first->value();
-            const T w = quaternary_node<T>::branch_[3].first->value();
-
-            return SpecialFunction::process(x, y, z, w);
-         }
-      };
-
+        return SpecialFunction::process(x, y, z, w);
+    }
+};
 
 } // namespace math_expr::details
 

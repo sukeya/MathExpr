@@ -38,101 +38,94 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-      template <typename T>
-      class stringvar_node final
-                           : public expression_node <T>
-                           , public string_base_node<T>
-                           , public range_interface <T>
-      {
-      public:
+template <typename T>
+class stringvar_node final : public expression_node<T>,
+                             public string_base_node<T>,
+                             public range_interface<T>
+{
+  public:
+    typedef typename range_interface<T>::range_t range_t;
 
-         typedef typename range_interface<T>::range_t range_t;
+    static std::string null_value;
 
-         static std::string null_value;
+    explicit stringvar_node() : value_(&null_value) {}
 
-         explicit stringvar_node()
-         : value_(&null_value)
-         {}
+    explicit stringvar_node(std::string& v) : value_(&v)
+    {
+        rp_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
+        rp_.n1_c = std::make_pair<bool, std::size_t>(true, v.size());
+        rp_.cache.first = rp_.n0_c.second;
+        rp_.cache.second = rp_.n1_c.second;
+    }
 
-         explicit stringvar_node(std::string& v)
-         : value_(&v)
-         {
-            rp_.n0_c = std::make_pair<bool,std::size_t>(true,0);
-            rp_.n1_c = std::make_pair<bool,std::size_t>(true,v.size());
-            rp_.cache.first  = rp_.n0_c.second;
-            rp_.cache.second = rp_.n1_c.second;
-         }
+    inline bool operator<(const stringvar_node<T>& v) const
+    {
+        return this < (&v);
+    }
 
-         inline bool operator <(const stringvar_node<T>& v) const
-         {
-            return this < (&v);
-         }
+    inline T value() const override
+    {
+        rp_.n1_c.second = (*value_).size();
+        rp_.cache.second = rp_.n1_c.second;
 
-         inline T value() const override
-         {
-            rp_.n1_c.second  = (*value_).size();
-            rp_.cache.second = rp_.n1_c.second;
+        return std::numeric_limits<T>::quiet_NaN();
+    }
 
-            return std::numeric_limits<T>::quiet_NaN();
-         }
+    std::string str() const override
+    {
+        return ref();
+    }
 
-         std::string str() const override
-         {
-            return ref();
-         }
+    core::char_cptr base() const override
+    {
+        return &(*value_)[0];
+    }
 
-         core::char_cptr base() const override
-         {
-            return &(*value_)[0];
-         }
+    std::size_t size() const override
+    {
+        return ref().size();
+    }
 
-         std::size_t size() const override
-         {
-            return ref().size();
-         }
+    std::string& ref()
+    {
+        return (*value_);
+    }
 
-         std::string& ref()
-         {
-            return (*value_);
-         }
+    const std::string& ref() const
+    {
+        return (*value_);
+    }
 
-         const std::string& ref() const
-         {
-            return (*value_);
-         }
+    range_t& range_ref() override
+    {
+        return rp_;
+    }
 
-         range_t& range_ref() override
-         {
-            return rp_;
-         }
+    const range_t& range_ref() const override
+    {
+        return rp_;
+    }
 
-         const range_t& range_ref() const override
-         {
-            return rp_;
-         }
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return expression_node<T>::e_stringvar;
+    }
 
-         inline typename expression_node<T>::node_type type() const override
-         {
-            return expression_node<T>::e_stringvar;
-         }
+    void rebase(std::string& s)
+    {
+        value_ = &s;
+        rp_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
+        rp_.n1_c = std::make_pair<bool, std::size_t>(true, value_->size() - 1);
+        rp_.cache.first = rp_.n0_c.second;
+        rp_.cache.second = rp_.n1_c.second;
+    }
 
-         void rebase(std::string& s)
-         {
-            value_ = &s;
-            rp_.n0_c = std::make_pair<bool,std::size_t>(true,0);
-            rp_.n1_c = std::make_pair<bool,std::size_t>(true,value_->size() - 1);
-            rp_.cache.first  = rp_.n0_c.second;
-            rp_.cache.second = rp_.n1_c.second;
-         }
+  private:
+    std::string* value_;
+    mutable range_t rp_;
+};
 
-      private:
-
-         std::string* value_;
-         mutable range_t rp_;
-      };
-
-      template <typename T>
-      std::string stringvar_node<T>::null_value = std::string("");
-}
+template <typename T> std::string stringvar_node<T>::null_value = std::string("");
+} // namespace math_expr::details::string_nodes
 
 #endif
