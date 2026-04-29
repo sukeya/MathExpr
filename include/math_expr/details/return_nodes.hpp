@@ -189,7 +189,7 @@ namespace math_expr::details
       };
       #endif
 
-      #define math_expr_define_unary_op(OpName)                    \
+      #define math_expr_define_unary_op(OpName)                 \
       template <typename T>                                     \
       struct OpName##_op                                        \
       {                                                         \
@@ -198,7 +198,7 @@ namespace math_expr::details
                                                                 \
          static inline T process(Type v)                        \
          {                                                      \
-            return numeric:: OpName (v);                        \
+            return numeric::OpName(v);                          \
          }                                                      \
                                                                 \
          static inline node_t type()                            \
@@ -208,7 +208,7 @@ namespace math_expr::details
                                                                 \
          static inline details::operator_type operation()       \
          {                                                      \
-            return details::e_##OpName;                         \
+            return details::operator_type::OpName;              \
          }                                                      \
       };                                                        \
 
