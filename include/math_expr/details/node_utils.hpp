@@ -1764,20 +1764,16 @@ template <typename T> struct T0oT1oT20T3process
 
 template <typename T, typename T0, typename T1> struct nodetype_T0oT1
 {
-    static const typename expression_node<T>::node_type result;
+    static constexpr typename expression_node<T>::node_type result =
+        expression_node<T>::node_type::e_none;
 };
-template <typename T, typename T0, typename T1>
-const typename expression_node<T>::node_type nodetype_T0oT1<T, T0, T1>::result =
-    expression_node<T>::node_type::e_none;
 
 #define synthesis_node_type_define(T0_, T1_, v_)                                                   \
     template <typename T, typename T0, typename T1> struct nodetype_T0oT1<T, T0_, T1_>             \
     {                                                                                              \
-        static const typename expression_node<T>::node_type result;                                \
-    };                                                                                             \
-    template <typename T, typename T0, typename T1>                                                \
-    const typename expression_node<T>::node_type nodetype_T0oT1<T, T0_, T1_>::result =             \
-        expression_node<T>::node_type::v_;
+        static constexpr typename expression_node<T>::node_type result =                           \
+            expression_node<T>::node_type::v_;                                                     \
+    };
 
 synthesis_node_type_define(const T0&, const T1&, e_vov)
     synthesis_node_type_define(const T0&, const T1, e_voc)
@@ -1793,21 +1789,17 @@ synthesis_node_type_define(const T0&, const T1&, e_vov)
                                     template <typename T, typename T0, typename T1, typename T2>
                                     struct nodetype_T0oT1oT2
 {
-    static const typename expression_node<T>::node_type result;
+    static constexpr typename expression_node<T>::node_type result =
+        expression_node<T>::node_type::e_none;
 };
-template <typename T, typename T0, typename T1, typename T2>
-const typename expression_node<T>::node_type nodetype_T0oT1oT2<T, T0, T1, T2>::result =
-    expression_node<T>::node_type::e_none;
 
 #define synthesis_node_type_define(T0_, T1_, T2_, v_)                                              \
     template <typename T, typename T0, typename T1, typename T2>                                   \
     struct nodetype_T0oT1oT2<T, T0_, T1_, T2_>                                                     \
     {                                                                                              \
-        static const typename expression_node<T>::node_type result;                                \
-    };                                                                                             \
-    template <typename T, typename T0, typename T1, typename T2>                                   \
-    const typename expression_node<T>::node_type nodetype_T0oT1oT2<T, T0_, T1_, T2_>::result =     \
-        expression_node<T>::node_type::v_;
+        static constexpr typename expression_node<T>::node_type result =                           \
+            expression_node<T>::node_type::v_;                                                     \
+    };
 
 synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
     synthesis_node_type_define(const T0&, const T1&, const T2, e_vovoc) synthesis_node_type_define(
@@ -1824,21 +1816,17 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
                         template <typename T, typename T0, typename T1, typename T2, typename T3>
                         struct nodetype_T0oT1oT2oT3
 {
-    static const typename expression_node<T>::node_type result;
+    static constexpr typename expression_node<T>::node_type result =
+        expression_node<T>::node_type::e_none;
 };
-template <typename T, typename T0, typename T1, typename T2, typename T3>
-const typename expression_node<T>::node_type nodetype_T0oT1oT2oT3<T, T0, T1, T2, T3>::result =
-    expression_node<T>::node_type::e_none;
 
 #define synthesis_node_type_define(T0_, T1_, T2_, T3_, v_)                                         \
     template <typename T, typename T0, typename T1, typename T2, typename T3>                      \
     struct nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>                                             \
     {                                                                                              \
-        static const typename expression_node<T>::node_type result;                                \
-    };                                                                                             \
-    template <typename T, typename T0, typename T1, typename T2, typename T3>                      \
-    const typename expression_node<T>::node_type                                                   \
-        nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>::result = expression_node<T>::node_type::v_;
+        static constexpr typename expression_node<T>::node_type result =                           \
+            expression_node<T>::node_type::v_;                                                     \
+    };
 
 synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
                            e_vovovov) synthesis_node_type_define(const T0&, const T1&, const T2&,
@@ -1882,9 +1870,7 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        static const typename expression_node<T>::node_type result =
-            nodetype_T0oT1<T, T0, T1>::result;
-        return result;
+        return nodetype_T0oT1<T, T0, T1>::result;
     }
 
     inline core::operators::operator_type operation() const override
@@ -1947,9 +1933,7 @@ class T0oT1oT2 final : public T0oT1oT2_base_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        static const typename expression_node<T>::node_type result =
-            nodetype_T0oT1oT2<T, T0, T1, T2>::result;
-        return result;
+        return nodetype_T0oT1oT2<T, T0, T1, T2>::result;
     }
 
     inline core::operators::operator_type operation()
@@ -2119,9 +2103,7 @@ class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        static const typename expression_node<T>::node_type result =
-            nodetype_T0oT1oT2<T, T0, T1, T2>::result;
-        return result;
+        return nodetype_T0oT1oT2<T, T0, T1, T2>::result;
     }
 
     inline core::operators::operator_type operation() const override
@@ -2205,9 +2187,7 @@ class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        static const typename expression_node<T>::node_type result =
-            nodetype_T0oT1oT2<T, T0, T1, T2>::result;
-        return result;
+        return nodetype_T0oT1oT2<T, T0, T1, T2>::result;
     }
 
     inline core::operators::operator_type operation()
@@ -2295,9 +2275,7 @@ class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        static const typename expression_node<T>::node_type result =
-            nodetype_T0oT1oT2oT3<T, T0, T1, T2, T3>::result;
-        return result;
+        return nodetype_T0oT1oT2oT3<T, T0, T1, T2, T3>::result;
     }
 
     inline core::operators::operator_type operation() const override
@@ -2375,9 +2353,7 @@ class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        static const typename expression_node<T>::node_type result =
-            nodetype_T0oT1oT2oT3<T, T0, T1, T2, T3>::result;
-        return result;
+        return nodetype_T0oT1oT2oT3<T, T0, T1, T2, T3>::result;
     }
 
     inline T value() const override

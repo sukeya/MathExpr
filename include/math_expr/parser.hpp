@@ -1664,7 +1664,7 @@ template <typename T> class parser : public lexer::parser_helper
             e_ineq_gt
         };
 
-        static const std::size_t default_compile_all_opts =
+        static constexpr std::size_t default_compile_all_opts =
             e_replacer + e_joiner + e_numeric_check + e_bracket_check + e_sequence_check +
             e_commutative_check + e_strength_reduction;
 
@@ -1732,54 +1732,55 @@ template <typename T> class parser : public lexer::parser_helper
 
         settings_store& disable_all_base_functions()
         {
-            std::copy(core::base_function_list,
-                      core::base_function_list + core::base_function_list_size,
-                      std::insert_iterator<disabled_entity_set_t>(disabled_func_set_,
-                                                                  disabled_func_set_.begin()));
+            for (std::size_t i = 0; i < core::base_function_list_size; ++i)
+            {
+                disabled_func_set_.insert(std::string(core::base_function_list[i]));
+            }
             return (*this);
         }
 
         settings_store& disable_all_control_structures()
         {
-            std::copy(core::cntrl_struct_list,
-                      core::cntrl_struct_list + core::cntrl_struct_list_size,
-                      std::insert_iterator<disabled_entity_set_t>(disabled_ctrl_set_,
-                                                                  disabled_ctrl_set_.begin()));
+            for (std::size_t i = 0; i < core::cntrl_struct_list_size; ++i)
+            {
+                disabled_ctrl_set_.insert(std::string(core::cntrl_struct_list[i]));
+            }
             return (*this);
         }
 
         settings_store& disable_all_logic_ops()
         {
-            std::copy(core::logic_ops_list, core::logic_ops_list + core::logic_ops_list_size,
-                      std::insert_iterator<disabled_entity_set_t>(disabled_logic_set_,
-                                                                  disabled_logic_set_.begin()));
+            for (std::size_t i = 0; i < core::logic_ops_list_size; ++i)
+            {
+                disabled_logic_set_.insert(std::string(core::logic_ops_list[i]));
+            }
             return (*this);
         }
 
         settings_store& disable_all_arithmetic_ops()
         {
-            std::copy(core::arithmetic_ops_list,
-                      core::arithmetic_ops_list + core::arithmetic_ops_list_size,
-                      std::insert_iterator<disabled_entity_set_t>(
-                          disabled_arithmetic_set_, disabled_arithmetic_set_.begin()));
+            for (std::size_t i = 0; i < core::arithmetic_ops_list_size; ++i)
+            {
+                disabled_arithmetic_set_.insert(std::string(core::arithmetic_ops_list[i]));
+            }
             return (*this);
         }
 
         settings_store& disable_all_assignment_ops()
         {
-            std::copy(core::assignment_ops_list,
-                      core::assignment_ops_list + core::assignment_ops_list_size,
-                      std::insert_iterator<disabled_entity_set_t>(
-                          disabled_assignment_set_, disabled_assignment_set_.begin()));
+            for (std::size_t i = 0; i < core::assignment_ops_list_size; ++i)
+            {
+                disabled_assignment_set_.insert(std::string(core::assignment_ops_list[i]));
+            }
             return (*this);
         }
 
         settings_store& disable_all_inequality_ops()
         {
-            std::copy(core::inequality_ops_list,
-                      core::inequality_ops_list + core::inequality_ops_list_size,
-                      std::insert_iterator<disabled_entity_set_t>(
-                          disabled_inequality_set_, disabled_inequality_set_.begin()));
+            for (std::size_t i = 0; i < core::inequality_ops_list_size; ++i)
+            {
+                disabled_inequality_set_.insert(std::string(core::inequality_ops_list[i]));
+            }
             return (*this);
         }
 
@@ -1970,7 +1971,7 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_bf_unknown != bf) &&
                 (static_cast<std::size_t>(bf) < (core::base_function_list_size + 1)))
             {
-                disabled_func_set_.insert(core::base_function_list[bf - 1]);
+                disabled_func_set_.insert(std::string(core::base_function_list[bf - 1]));
             }
 
             return (*this);
@@ -1981,7 +1982,7 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_ctrl_unknown != ctrl_struct) &&
                 (static_cast<std::size_t>(ctrl_struct) < (core::cntrl_struct_list_size + 1)))
             {
-                disabled_ctrl_set_.insert(core::cntrl_struct_list[ctrl_struct - 1]);
+                disabled_ctrl_set_.insert(std::string(core::cntrl_struct_list[ctrl_struct - 1]));
             }
 
             return (*this);
@@ -1992,7 +1993,7 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_logic_unknown != logic) &&
                 (static_cast<std::size_t>(logic) < (core::logic_ops_list_size + 1)))
             {
-                disabled_logic_set_.insert(core::logic_ops_list[logic - 1]);
+                disabled_logic_set_.insert(std::string(core::logic_ops_list[logic - 1]));
             }
 
             return (*this);
@@ -2003,7 +2004,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_arith_unknown != arithmetic) &&
                 (static_cast<std::size_t>(arithmetic) < (core::arithmetic_ops_list_size + 1)))
             {
-                disabled_arithmetic_set_.insert(core::arithmetic_ops_list[arithmetic - 1]);
+                disabled_arithmetic_set_.insert(
+                    std::string(core::arithmetic_ops_list[arithmetic - 1]));
             }
 
             return (*this);
@@ -2014,7 +2016,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_assign_unknown != assignment) &&
                 (static_cast<std::size_t>(assignment) < (core::assignment_ops_list_size + 1)))
             {
-                disabled_assignment_set_.insert(core::assignment_ops_list[assignment - 1]);
+                disabled_assignment_set_.insert(
+                    std::string(core::assignment_ops_list[assignment - 1]));
             }
 
             return (*this);
@@ -2025,7 +2028,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_ineq_unknown != inequality) &&
                 (static_cast<std::size_t>(inequality) < (core::inequality_ops_list_size + 1)))
             {
-                disabled_inequality_set_.insert(core::inequality_ops_list[inequality - 1]);
+                disabled_inequality_set_.insert(
+                    std::string(core::inequality_ops_list[inequality - 1]));
             }
 
             return (*this);
@@ -2036,7 +2040,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_bf_unknown != bf) &&
                 (static_cast<std::size_t>(bf) < (core::base_function_list_size + 1)))
             {
-                const des_itr_t itr = disabled_func_set_.find(core::base_function_list[bf - 1]);
+                const des_itr_t itr =
+                    disabled_func_set_.find(std::string(core::base_function_list[bf - 1]));
 
                 if (disabled_func_set_.end() != itr)
                 {
@@ -2053,7 +2058,7 @@ template <typename T> class parser : public lexer::parser_helper
                 (static_cast<std::size_t>(ctrl_struct) < (core::cntrl_struct_list_size + 1)))
             {
                 const des_itr_t itr =
-                    disabled_ctrl_set_.find(core::cntrl_struct_list[ctrl_struct - 1]);
+                    disabled_ctrl_set_.find(std::string(core::cntrl_struct_list[ctrl_struct - 1]));
 
                 if (disabled_ctrl_set_.end() != itr)
                 {
@@ -2069,7 +2074,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_logic_unknown != logic) &&
                 (static_cast<std::size_t>(logic) < (core::logic_ops_list_size + 1)))
             {
-                const des_itr_t itr = disabled_logic_set_.find(core::logic_ops_list[logic - 1]);
+                const des_itr_t itr =
+                    disabled_logic_set_.find(std::string(core::logic_ops_list[logic - 1]));
 
                 if (disabled_logic_set_.end() != itr)
                 {
@@ -2085,8 +2091,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_arith_unknown != arithmetic) &&
                 (static_cast<std::size_t>(arithmetic) < (core::arithmetic_ops_list_size + 1)))
             {
-                const des_itr_t itr =
-                    disabled_arithmetic_set_.find(core::arithmetic_ops_list[arithmetic - 1]);
+                const des_itr_t itr = disabled_arithmetic_set_.find(
+                    std::string(core::arithmetic_ops_list[arithmetic - 1]));
 
                 if (disabled_arithmetic_set_.end() != itr)
                 {
@@ -2102,8 +2108,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_assign_unknown != assignment) &&
                 (static_cast<std::size_t>(assignment) < (core::assignment_ops_list_size + 1)))
             {
-                const des_itr_t itr =
-                    disabled_assignment_set_.find(core::assignment_ops_list[assignment - 1]);
+                const des_itr_t itr = disabled_assignment_set_.find(
+                    std::string(core::assignment_ops_list[assignment - 1]));
 
                 if (disabled_assignment_set_.end() != itr)
                 {
@@ -2119,8 +2125,8 @@ template <typename T> class parser : public lexer::parser_helper
             if ((e_ineq_unknown != inequality) &&
                 (static_cast<std::size_t>(inequality) < (core::inequality_ops_list_size + 1)))
             {
-                const des_itr_t itr =
-                    disabled_inequality_set_.find(core::inequality_ops_list[inequality - 1]);
+                const des_itr_t itr = disabled_inequality_set_.find(
+                    std::string(core::inequality_ops_list[inequality - 1]));
 
                 if (disabled_inequality_set_.end() != itr)
                 {
@@ -2370,7 +2376,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             for (std::size_t i = 0; i < core::reserved_words_size; ++i)
             {
-                commutative_inserter_.ignore_symbol(core::reserved_words[i]);
+                commutative_inserter_.ignore_symbol(std::string(core::reserved_words[i]));
             }
 
             helper_assembly_.token_inserter_list.clear();
@@ -2816,15 +2822,15 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline bool valid_vararg_operation(const std::string& symbol) const
     {
-        static const std::string s_sum = "sum";
-        static const std::string s_mul = "mul";
-        static const std::string s_avg = "avg";
-        static const std::string s_min = "min";
-        static const std::string s_max = "max";
-        static const std::string s_mand = "mand";
-        static const std::string s_mor = "mor";
-        static const std::string s_multi = "~";
-        static const std::string s_mswitch = "[*]";
+        static constexpr std::string_view s_sum = "sum";
+        static constexpr std::string_view s_mul = "mul";
+        static constexpr std::string_view s_avg = "avg";
+        static constexpr std::string_view s_min = "min";
+        static constexpr std::string_view s_max = "max";
+        static constexpr std::string_view s_mand = "mand";
+        static constexpr std::string_view s_mor = "mor";
+        static constexpr std::string_view s_multi = "~";
+        static constexpr std::string_view s_mswitch = "[*]";
 
         return (core::imatch(symbol, s_sum) || core::imatch(symbol, s_mul) ||
                 core::imatch(symbol, s_avg) || core::imatch(symbol, s_min) ||
@@ -2977,7 +2983,7 @@ template <typename T> class parser : public lexer::parser_helper
         return result;
     }
 
-    static const precedence_level default_precedence = precedence_level::e_level00;
+    static constexpr precedence_level default_precedence = precedence_level::e_level00;
 
     struct state_t
     {
@@ -3157,18 +3163,18 @@ template <typename T> class parser : public lexer::parser_helper
             default:
                 if (token_t::e_symbol == current_token().type)
                 {
-                    static const std::string s_and = "and";
-                    static const std::string s_nand = "nand";
-                    static const std::string s_or = "or";
-                    static const std::string s_nor = "nor";
-                    static const std::string s_xor = "xor";
-                    static const std::string s_xnor = "xnor";
-                    static const std::string s_in = "in";
-                    static const std::string s_like = "like";
-                    static const std::string s_ilike = "ilike";
-                    static const std::string s_and1 = "&";
-                    static const std::string s_or1 = "|";
-                    static const std::string s_not = "not";
+                    static constexpr std::string_view s_and = "and";
+                    static constexpr std::string_view s_nand = "nand";
+                    static constexpr std::string_view s_or = "or";
+                    static constexpr std::string_view s_nor = "nor";
+                    static constexpr std::string_view s_xor = "xor";
+                    static constexpr std::string_view s_xnor = "xnor";
+                    static constexpr std::string_view s_in = "in";
+                    static constexpr std::string_view s_like = "like";
+                    static constexpr std::string_view s_ilike = "ilike";
+                    static constexpr std::string_view s_and1 = "&";
+                    static constexpr std::string_view s_or1 = "|";
+                    static constexpr std::string_view s_not = "not";
 
                     if (core::imatch(current_token().value, s_and))
                     {
@@ -3946,7 +3952,7 @@ template <typename T> class parser : public lexer::parser_helper
             return error_node();
         }
 
-        static const std::size_t MaxNumberofParameters = 4;
+        static constexpr std::size_t MaxNumberofParameters = 4;
         expression_node_ptr param_list[MaxNumberofParameters] = {0};
 
         const std::size_t parameter_count = parse_base_function_call(param_list, operation_name);
@@ -8798,22 +8804,22 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_symbol()
     {
-        static const std::string symbol_if = "if";
-        static const std::string symbol_while = "while";
-        static const std::string symbol_repeat = "repeat";
-        static const std::string symbol_for = "for";
-        static const std::string symbol_switch = "switch";
-        static const std::string symbol_null = "null";
-        static const std::string symbol_break = "break";
-        static const std::string symbol_continue = "continue";
-        static const std::string symbol_var = "var";
-        static const std::string symbol_const = "const";
-        static const std::string symbol_swap = "swap";
-        static const std::string symbol_return = "return";
-        static const std::string symbol_not = "not";
-        static const std::string symbol_assert = "assert";
-        static const std::string symbol_true = "true";
-        static const std::string symbol_false = "false";
+        static constexpr std::string_view symbol_if = "if";
+        static constexpr std::string_view symbol_while = "while";
+        static constexpr std::string_view symbol_repeat = "repeat";
+        static constexpr std::string_view symbol_for = "for";
+        static constexpr std::string_view symbol_switch = "switch";
+        static constexpr std::string_view symbol_null = "null";
+        static constexpr std::string_view symbol_break = "break";
+        static constexpr std::string_view symbol_continue = "continue";
+        static constexpr std::string_view symbol_var = "var";
+        static constexpr std::string_view symbol_const = "const";
+        static constexpr std::string_view symbol_swap = "swap";
+        static constexpr std::string_view symbol_return = "return";
+        static constexpr std::string_view symbol_not = "not";
+        static constexpr std::string_view symbol_assert = "assert";
+        static constexpr std::string_view symbol_true = "true";
+        static constexpr std::string_view symbol_false = "false";
 
         const std::string symbol = current_token().value;
 

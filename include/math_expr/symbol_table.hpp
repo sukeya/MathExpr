@@ -702,7 +702,7 @@ template <typename T> class symbol_table
     typedef vararg_function_t* vararg_function_ptr;
     typedef generic_function_t* generic_function_ptr;
 
-    static const std::size_t lut_size = 256;
+    static constexpr std::size_t lut_size = 256;
 
     // Symbol Table Holder
     struct control_block
@@ -724,12 +724,12 @@ template <typename T> class symbol_table
             {
                 for (std::size_t i = 0; i < core::reserved_words_size; ++i)
                 {
-                    reserved_symbol_table_.insert(core::reserved_words[i]);
+                    reserved_symbol_table_.insert(std::string(core::reserved_words[i]));
                 }
 
                 for (std::size_t i = 0; i < core::reserved_symbols_size; ++i)
                 {
-                    reserved_symbol_table_.insert(core::reserved_symbols[i]);
+                    reserved_symbol_table_.insert(std::string(core::reserved_symbols[i]));
                 }
             }
 
@@ -1462,19 +1462,19 @@ template <typename T> class symbol_table
 
     inline bool add_pi()
     {
-        static const T local_pi = core::numeric::const_pi<T>();
+        static constexpr T local_pi = core::numeric::const_pi<T>();
         return add_constant("pi", local_pi);
     }
 
     inline bool add_epsilon()
     {
-        static const T local_epsilon = core::numeric::details::epsilon_type<T>::value();
+        static constexpr T local_epsilon = core::numeric::details::epsilon_type<T>::value();
         return add_constant("epsilon", local_epsilon);
     }
 
     inline bool add_infinity()
     {
-        static const T local_infinity = std::numeric_limits<T>::infinity();
+        static constexpr T local_infinity = std::numeric_limits<T>::infinity();
         return add_constant("inf", local_infinity);
     }
 

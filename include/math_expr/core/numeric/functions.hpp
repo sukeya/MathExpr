@@ -126,13 +126,13 @@ template <typename T> inline bool is_false(const T v)
     return std::equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
 }
 
-template <typename T> inline T const_pi()
+template <typename T> inline constexpr T const_pi()
 {
     details::validate_supported_real_type<T>();
     return T(pi);
 }
 
-template <typename T> inline T const_e()
+template <typename T> inline constexpr T const_e()
 {
     details::validate_supported_real_type<T>();
     return T(e);
@@ -1038,7 +1038,7 @@ template <typename T> inline T trunc(const T v)
 
 template <typename T> inline T compute_pow10(T d, const int exponent)
 {
-    static const double fract10[] = {
+    static constexpr double fract10[] = {
         0.0,      1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005, 1.0E+006, 1.0E+007, 1.0E+008,
         1.0E+009, 1.0E+010, 1.0E+011, 1.0E+012, 1.0E+013, 1.0E+014, 1.0E+015, 1.0E+016, 1.0E+017,
         1.0E+018, 1.0E+019, 1.0E+020, 1.0E+021, 1.0E+022, 1.0E+023, 1.0E+024, 1.0E+025, 1.0E+026,
@@ -1075,7 +1075,7 @@ template <typename T> inline T compute_pow10(T d, const int exponent)
         1.0E+297, 1.0E+298, 1.0E+299, 1.0E+300, 1.0E+301, 1.0E+302, 1.0E+303, 1.0E+304, 1.0E+305,
         1.0E+306, 1.0E+307, 1.0E+308};
 
-    static const int fract10_size = static_cast<int>(sizeof(fract10) / sizeof(double));
+    static constexpr int fract10_size = static_cast<int>(std::size(fract10));
 
     const int e = std::abs(exponent);
 
@@ -1112,7 +1112,7 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
             return false;
     }
 
-    static const ::math_expr::core::uchar_t zero = static_cast<::math_expr::core::uchar_t>('0');
+    static constexpr ::math_expr::core::uchar_t zero = static_cast<::math_expr::core::uchar_t>('0');
 
     while ((end != itr) && (zero == (*itr)))
         ++itr;
@@ -1185,7 +1185,7 @@ static inline bool parse_nan(Iterator& itr, const Iterator end, T& t)
 {
     typedef typename std::iterator_traits<Iterator>::value_type type;
 
-    static const std::size_t nan_length = 3;
+    static constexpr std::size_t nan_length = 3;
 
     if (std::distance(itr, end) != static_cast<int>(nan_length))
         return false;
@@ -1210,9 +1210,9 @@ static inline bool parse_nan(Iterator& itr, const Iterator end, T& t)
 template <typename Iterator, typename T>
 static inline bool parse_inf(Iterator& itr, const Iterator end, T& t, const bool negative)
 {
-    static const ::math_expr::core::char_t inf_uc[] = "INFINITY";
-    static const ::math_expr::core::char_t inf_lc[] = "infinity";
-    static const std::size_t inf_length = 8;
+    static constexpr ::math_expr::core::char_t inf_uc[] = "INFINITY";
+    static constexpr ::math_expr::core::char_t inf_lc[] = "infinity";
+    static constexpr std::size_t inf_length = 8;
 
     const std::size_t length = static_cast<std::size_t>(std::distance(itr, end));
 
@@ -1270,7 +1270,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
     bool instate = false;
 
-    static const ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
+    static constexpr ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
 
 #define parse_digit_1(d)                                                                           \
     if ((digit = (*itr - zero)) < 10)                                                              \

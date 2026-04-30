@@ -449,7 +449,7 @@ template <typename T>
 inline bool compute(const std::string& expression_string, const T& x, T& result)
 {
     // Only 'x'
-    static const std::string x_var("x");
+    static constexpr char x_var[] = "x";
 
     symbol_table<T> symbol_table;
     symbol_table.add_constants();
@@ -474,8 +474,8 @@ template <typename T>
 inline bool compute(const std::string& expression_string, const T& x, const T& y, T& result)
 {
     // Only 'x' and 'y'
-    static const std::string x_var("x");
-    static const std::string y_var("y");
+    static constexpr char x_var[] = "x";
+    static constexpr char y_var[] = "y";
 
     symbol_table<T> symbol_table;
     symbol_table.add_constants();
@@ -502,9 +502,9 @@ inline bool compute(const std::string& expression_string, const T& x, const T& y
                     T& result)
 {
     // Only 'x', 'y' or 'z'
-    static const std::string x_var("x");
-    static const std::string y_var("y");
-    static const std::string z_var("z");
+    static constexpr char x_var[] = "x";
+    static constexpr char y_var[] = "y";
+    static constexpr char z_var[] = "z";
 
     symbol_table<T> symbol_table;
     symbol_table.add_constants();

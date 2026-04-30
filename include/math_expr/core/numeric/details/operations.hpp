@@ -46,11 +46,11 @@ template <typename T> inline constexpr T true_v = T(1);
 
 namespace math_expr::core::numeric::details
 {
-static const double pow10[] = {1.0,      1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005,
-                               1.0E+006, 1.0E+007, 1.0E+008, 1.0E+009, 1.0E+010, 1.0E+011,
-                               1.0E+012, 1.0E+013, 1.0E+014, 1.0E+015, 1.0E+016};
+static constexpr double pow10[] = {1.0,      1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005,
+                                   1.0E+006, 1.0E+007, 1.0E+008, 1.0E+009, 1.0E+010, 1.0E+011,
+                                   1.0E+012, 1.0E+013, 1.0E+014, 1.0E+015, 1.0E+016};
 
-static const std::size_t pow10_size = sizeof(pow10) / sizeof(double);
+static constexpr std::size_t pow10_size = std::size(pow10);
 
 template <typename T>
 inline constexpr bool is_supported_real_type_v =
@@ -87,10 +87,9 @@ template <typename T> struct epsilon_type
 #define math_expr_define_epsilon_type(Type, Epsilon)                                               \
     template <> struct epsilon_type<Type>                                                          \
     {                                                                                              \
-        static inline Type value()                                                                 \
+        static inline constexpr Type value()                                                       \
         {                                                                                          \
-            const Type epsilon = static_cast<Type>(Epsilon);                                       \
-            return epsilon;                                                                        \
+            return static_cast<Type>(Epsilon);                                                     \
         }                                                                                          \
     }
 

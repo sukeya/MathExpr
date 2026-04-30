@@ -64,7 +64,7 @@ inline bool imatch(const char_t c1, const char_t c2)
     }
 }
 
-inline bool imatch(const std::string& s1, const std::string& s2)
+inline bool imatch(const std::string_view s1, const std::string_view s2)
 {
     if constexpr (::math_expr::core::build_options::kDisableCaseInsensitivity)
     {
@@ -318,15 +318,15 @@ class build_string
     std::string data_;
 };
 
-static const std::string reserved_words[] = {
+static constexpr std::string_view reserved_words[] = {
     "assert", "break",  "case",   "continue", "const", "default", "false",  "for",  "if",
     "else",   "ilike",  "in",     "like",     "and",   "nand",    "nor",    "not",  "null",
     "or",     "repeat", "return", "shl",      "shr",   "swap",    "switch", "true", "until",
     "var",    "while",  "xnor",   "xor",      "&",     "|"};
 
-static const std::size_t reserved_words_size = sizeof(reserved_words) / sizeof(std::string);
+static constexpr std::size_t reserved_words_size = std::size(reserved_words);
 
-static const std::string reserved_symbols[] = {
+static constexpr std::string_view reserved_symbols[] = {
     "abs",    "acos",  "acosh", "and",       "asin",     "asinh",   "assert",   "atan",    "atanh",
     "atan2",  "avg",   "break", "case",      "ceil",     "clamp",   "continue", "const",   "cos",
     "cosh",   "cot",   "csc",   "default",   "deg2grad", "deg2rad", "equal",    "erf",     "erfc",
@@ -338,9 +338,9 @@ static const std::string reserved_symbols[] = {
     "sinc",   "sinh",  "sqrt",  "sum",       "swap",     "switch",  "tan",      "tanh",    "true",
     "trunc",  "until", "var",   "while",     "xnor",     "xor",     "&",        "|"};
 
-static const std::size_t reserved_symbols_size = sizeof(reserved_symbols) / sizeof(std::string);
+static constexpr std::size_t reserved_symbols_size = std::size(reserved_symbols);
 
-static const std::string base_function_list[] = {
+static constexpr std::string_view base_function_list[] = {
     "abs",     "acos",    "acosh", "asin",  "asinh",     "atan",    "atanh",    "atan2",
     "avg",     "ceil",    "clamp", "cos",   "cosh",      "cot",     "csc",      "equal",
     "erf",     "erfc",    "exp",   "expm1", "floor",     "frac",    "hypot",    "iclamp",
@@ -350,31 +350,30 @@ static const std::string base_function_list[] = {
     "swap",    "tan",     "tanh",  "trunc", "not_equal", "inrange", "deg2grad", "deg2rad",
     "rad2deg", "grad2deg"};
 
-static const std::size_t base_function_list_size = sizeof(base_function_list) / sizeof(std::string);
+static constexpr std::size_t base_function_list_size = std::size(base_function_list);
 
-static const std::string logic_ops_list[] = {"and",  "nand", "nor", "not", "or",
-                                             "xnor", "xor",  "&",   "|"};
+static constexpr std::string_view logic_ops_list[] = {"and",  "nand", "nor", "not", "or",
+                                                      "xnor", "xor",  "&",   "|"};
 
-static const std::size_t logic_ops_list_size = sizeof(logic_ops_list) / sizeof(std::string);
+static constexpr std::size_t logic_ops_list_size = std::size(logic_ops_list);
 
-static const std::string cntrl_struct_list[] = {"if", "switch", "for", "while", "repeat", "return"};
+static constexpr std::string_view cntrl_struct_list[] = {"if",    "switch", "for",
+                                                         "while", "repeat", "return"};
 
-static const std::size_t cntrl_struct_list_size = sizeof(cntrl_struct_list) / sizeof(std::string);
+static constexpr std::size_t cntrl_struct_list_size = std::size(cntrl_struct_list);
 
-static const std::string arithmetic_ops_list[] = {"+", "-", "*", "/", "%", "^"};
+static constexpr std::string_view arithmetic_ops_list[] = {"+", "-", "*", "/", "%", "^"};
 
-static const std::size_t arithmetic_ops_list_size =
-    sizeof(arithmetic_ops_list) / sizeof(std::string);
+static constexpr std::size_t arithmetic_ops_list_size = std::size(arithmetic_ops_list);
 
-static const std::string assignment_ops_list[] = {":=", "+=", "-=", "*=", "/=", "%="};
+static constexpr std::string_view assignment_ops_list[] = {":=", "+=", "-=", "*=", "/=", "%="};
 
-static const std::size_t assignment_ops_list_size =
-    sizeof(assignment_ops_list) / sizeof(std::string);
+static constexpr std::size_t assignment_ops_list_size = std::size(assignment_ops_list);
 
-static const std::string inequality_ops_list[] = {"<", "<=", "==", "=", "!=", "<>", ">=", ">"};
+static constexpr std::string_view inequality_ops_list[] = {"<",  "<=", "==", "=",
+                                                           "!=", "<>", ">=", ">"};
 
-static const std::size_t inequality_ops_list_size =
-    sizeof(inequality_ops_list) / sizeof(std::string);
+static constexpr std::size_t inequality_ops_list_size = std::size(inequality_ops_list);
 
 inline bool is_reserved_word(const std::string& symbol)
 {
