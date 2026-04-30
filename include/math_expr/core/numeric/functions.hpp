@@ -133,122 +133,326 @@ template <> struct numeric_info<long double>
 
 template <typename T> inline std::int32_t to_int32(const T v)
 {
-    return details::to_int32_impl(v);
+    details::validate_supported_real_type<T>();
+    return static_cast<std::int32_t>(v);
 }
 
 template <typename T> inline std::int64_t to_int64(const T v)
 {
-    return details::to_int64_impl(v);
+    details::validate_supported_real_type<T>();
+    return static_cast<std::int64_t>(v);
 }
 
 template <typename T> inline std::uint64_t to_uint64(const T v)
 {
-    return details::to_uint64_impl(v);
+    details::validate_supported_real_type<T>();
+    return static_cast<std::uint64_t>(v);
 }
 
 template <typename T> inline bool is_nan(const T v)
 {
-    return details::is_nan_impl(v);
+    details::validate_supported_real_type<T>();
+    return std::not_equal_to<T>()(v, v);
 }
 
 template <typename T> inline T min(const T v0, const T v1)
 {
-    return details::min_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+    return std::min<T>(v0, v1);
 }
 
 template <typename T> inline T max(const T v0, const T v1)
 {
-    return details::max_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+    return std::max<T>(v0, v1);
 }
 
 template <typename T> inline T equal(const T v0, const T v1)
 {
-    return details::equal_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_integral_type_v<T>)
+    {
+        return (v0 == v1) ? T(1) : T(0);
+    }
+    else
+    {
+        const T epsilon = details::epsilon_type<T>::value();
+        return (details::abs_value(v0 - v1) <=
+                (std::max(T(1), std::max(details::abs_value(v0), details::abs_value(v1))) *
+                 epsilon))
+                   ? T(1)
+                   : T(0);
+    }
 }
 
 template <typename T> inline T nequal(const T v0, const T v1)
 {
-    return details::nequal_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_integral_type_v<T>)
+    {
+        return (v0 != v1) ? T(1) : T(0);
+    }
+    else
+    {
+        const T epsilon = details::epsilon_type<T>::value();
+        return (details::abs_value(v0 - v1) >
+                (std::max(T(1), std::max(details::abs_value(v0), details::abs_value(v1))) *
+                 epsilon))
+                   ? T(1)
+                   : T(0);
+    }
 }
 
 template <typename T> inline T modulus(const T v0, const T v1)
 {
-    return details::modulus_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::fmod(v0, v1);
+    }
+    else
+    {
+        return v0 % v1;
+    }
 }
 
 template <typename T> inline T pow(const T v0, const T v1)
 {
-    return details::pow_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::pow(v0, v1);
+    }
+    else
+    {
+        return static_cast<T>(std::pow(static_cast<double>(v0), static_cast<double>(v1)));
+    }
 }
 
 template <typename T> inline T logn(const T v0, const T v1)
 {
-    return details::logn_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::log(v0) / std::log(v1);
+    }
+    else
+    {
+        return static_cast<T>(logn<double>(static_cast<double>(v0), static_cast<double>(v1)));
+    }
 }
 
 template <typename T> inline T root(const T v0, const T v1)
 {
-    return details::root_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        if (v0 < T(0))
+        {
+            return (v1 == std::trunc(v1)) && (std::fmod(v1, T(2)) != T(0))
+                       ? -std::pow(details::abs_value(v0), T(1) / v1)
+                       : details::quiet_nan_impl<T>();
+        }
+
+        return std::pow(v0, T(1) / v1);
+    }
+    else
+    {
+        return static_cast<T>(root<double>(static_cast<double>(v0), static_cast<double>(v1)));
+    }
 }
 
 template <typename T> inline T roundn(const T v0, const T v1)
 {
-    return details::roundn_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        const int index =
+            std::max<int>(0,
+                          std::min<int>(details::pow10_size - 1,
+                                        static_cast<int>(std::floor(v1))));
+        const T p10 = T(details::pow10[index]);
+
+        if (v0 < T(0))
+        {
+            return T(std::ceil((v0 * p10) - T(0.5)) / p10);
+        }
+        else
+        {
+            return T(std::floor((v0 * p10) + T(0.5)) / p10);
+        }
+    }
+    else
+    {
+        return v0;
+    }
 }
 
 template <typename T> inline T hypot(const T v0, const T v1)
 {
-    return details::hypot_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::sqrt((v0 * v0) + (v1 * v1));
+    }
+    else
+    {
+        return static_cast<T>(std::sqrt(static_cast<double>((v0 * v0) + (v1 * v1))));
+    }
 }
 
 template <typename T> inline T atan2(const T v0, const T v1)
 {
-    return details::atan2_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::atan2(v0, v1);
+    }
+    else
+    {
+        static_cast<void>(v0);
+        static_cast<void>(v1);
+        return T(0);
+    }
 }
 
 template <typename T> inline T shr(const T v0, const T v1)
 {
-    return details::shr_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return v0 * (T(1) / std::pow(T(2), static_cast<T>(static_cast<int>(v1))));
+    }
+    else
+    {
+        return v0 >> v1;
+    }
 }
 
 template <typename T> inline T shl(const T v0, const T v1)
 {
-    return details::shl_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return v0 * std::pow(T(2), static_cast<T>(static_cast<int>(v1)));
+    }
+    else
+    {
+        return v0 << v1;
+    }
 }
 
 template <typename T> inline T and_opr(const T v0, const T v1)
 {
-    return details::and_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (details::is_true_impl(v0) && details::is_true_impl(v1)) ? T(1) : T(0);
+    }
+    else
+    {
+        return v0 && v1;
+    }
 }
 
 template <typename T> inline T nand_opr(const T v0, const T v1)
 {
-    return details::nand_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (details::is_false_impl(v0) || details::is_false_impl(v1)) ? T(1) : T(0);
+    }
+    else
+    {
+        return !(v0 && v1);
+    }
 }
 
 template <typename T> inline T or_opr(const T v0, const T v1)
 {
-    return details::or_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (details::is_true_impl(v0) || details::is_true_impl(v1)) ? T(1) : T(0);
+    }
+    else
+    {
+        return (v0 || v1);
+    }
 }
 
 template <typename T> inline T nor_opr(const T v0, const T v1)
 {
-    return details::nor_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (details::is_false_impl(v0) && details::is_false_impl(v1)) ? T(1) : T(0);
+    }
+    else
+    {
+        return !(v0 || v1);
+    }
 }
 
 template <typename T> inline T xor_opr(const T v0, const T v1)
 {
-    return details::xor_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (details::is_false_impl(v0) != details::is_false_impl(v1)) ? T(1) : T(0);
+    }
+    else
+    {
+        return v0 ^ v1;
+    }
 }
 
 template <typename T> inline T xnor_opr(const T v0, const T v1)
 {
-    return details::xnor_impl(v0, v1);
+    details::validate_supported_numeric_type<T>();
+
+    const bool v0_true = details::is_true_impl(v0);
+    const bool v1_true = details::is_true_impl(v1);
+
+    if ((v0_true && v1_true) || (!v0_true && !v1_true))
+    {
+        return T(1);
+    }
+    else
+    {
+        return T(0);
+    }
 }
 
 template <typename T> inline bool is_integer(const T v)
 {
-    return details::is_integer_impl(v);
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::equal_to<T>()(T(0), std::fmod(v, T(1)));
+    }
+    else
+    {
+        static_cast<void>(v);
+        return true;
+    }
 }
 
 template <typename T, unsigned int N> struct fast_exp
@@ -356,53 +560,537 @@ template <typename T> struct fast_exp<T, 0>
     }
 };
 
-#define math_expr_define_unary_function(FunctionName)                                              \
-    template <typename T> inline T FunctionName(const T v)                                         \
-    {                                                                                              \
-        return details::FunctionName##_impl(v);                                                    \
-    }
+template <typename T> inline T abs(const T v)
+{
+    details::validate_supported_numeric_type<T>();
 
-math_expr_define_unary_function(abs);
-math_expr_define_unary_function(acos);
-math_expr_define_unary_function(acosh);
-math_expr_define_unary_function(asin);
-math_expr_define_unary_function(asinh);
-math_expr_define_unary_function(atan);
-math_expr_define_unary_function(atanh);
-math_expr_define_unary_function(ceil);
-math_expr_define_unary_function(cos);
-math_expr_define_unary_function(cosh);
-math_expr_define_unary_function(exp);
-math_expr_define_unary_function(expm1);
-math_expr_define_unary_function(floor);
-math_expr_define_unary_function(log);
-math_expr_define_unary_function(log10);
-math_expr_define_unary_function(log2);
-math_expr_define_unary_function(log1p);
-math_expr_define_unary_function(neg);
-math_expr_define_unary_function(pos);
-math_expr_define_unary_function(round);
-math_expr_define_unary_function(sin);
-math_expr_define_unary_function(sinc);
-math_expr_define_unary_function(sinh);
-math_expr_define_unary_function(sqrt);
-math_expr_define_unary_function(tan);
-math_expr_define_unary_function(tanh);
-math_expr_define_unary_function(cot);
-math_expr_define_unary_function(sec);
-math_expr_define_unary_function(csc);
-math_expr_define_unary_function(r2d);
-math_expr_define_unary_function(d2r);
-math_expr_define_unary_function(d2g);
-math_expr_define_unary_function(g2d);
-math_expr_define_unary_function(notl);
-math_expr_define_unary_function(sgn);
-math_expr_define_unary_function(erf);
-math_expr_define_unary_function(erfc);
-math_expr_define_unary_function(ncdf);
-math_expr_define_unary_function(frac);
-math_expr_define_unary_function(trunc);
-#undef math_expr_define_unary_function
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return ((v < T(0)) ? -v : v);
+    }
+    else if constexpr (std::is_unsigned_v<T>)
+    {
+        return v;
+    }
+    else
+    {
+        return ((v >= T(0)) ? v : -v);
+    }
+}
+
+template <typename T> inline T acos(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::acos(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T acosh(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::acosh_real_impl(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T asin(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::asin(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T asinh(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::asinh_real_impl(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T atan(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::atan(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T atanh(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::atanh_real_impl(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T ceil(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::ceil(v);
+    }
+    else
+    {
+        return v;
+    }
+}
+
+template <typename T> inline T cos(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::cos(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T cosh(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::cosh(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T exp(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::exp(v);
+}
+
+template <typename T> inline T expm1(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::expm1_real_impl(v);
+    }
+    else
+    {
+#if __cplusplus >= 201103L
+        return std::expm1(v);
+#else
+        return T(std::exp<double>(v)) - T(1);
+#endif
+    }
+}
+
+template <typename T> inline T floor(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::floor(v);
+    }
+    else
+    {
+        return v;
+    }
+}
+
+template <typename T> inline T log(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::log(v);
+}
+
+template <typename T> inline T log10(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::log10(v);
+}
+
+template <typename T> inline T log2(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::log(v) / T(log2_value);
+}
+
+template <typename T> inline T log1p(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::log1p_real_impl(v);
+    }
+    else
+    {
+#if __cplusplus >= 201103L
+        return std::log1p(v);
+#else
+        if (v > T(-1))
+        {
+            return std::log(T(1) + v);
+        }
+
+        return details::quiet_nan_impl<T>();
+#endif
+    }
+}
+
+template <typename T> inline T neg(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return -v;
+}
+
+template <typename T> inline T pos(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return +v;
+}
+
+template <typename T> inline T round(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return ((v < T(0)) ? std::ceil(v - T(0.5)) : std::floor(v + T(0.5)));
+    }
+    else
+    {
+        return v;
+    }
+}
+
+template <typename T> inline T sin(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::sin(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T sinc(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        if (std::abs(v) >= std::numeric_limits<T>::epsilon())
+        {
+            return (std::sin(v) / v);
+        }
+        else
+        {
+            return T(1);
+        }
+    }
+    else
+    {
+        return static_cast<T>(sinc(static_cast<double>(v)));
+    }
+}
+
+template <typename T> inline T sinh(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::sinh(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T sqrt(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::sqrt(v);
+}
+
+template <typename T> inline T tan(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::tan(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T tanh(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return std::tanh(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T cot(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return T(1) / std::tan(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T sec(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return T(1) / std::cos(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T csc(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return T(1) / std::sin(v);
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T r2d(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (v * T(_180_pi));
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T d2r(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (v * T(pi_180));
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T d2g(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (v * T(10.0 / 9.0));
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T g2d(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (v * T(9.0 / 10.0));
+    }
+    else
+    {
+        static_cast<void>(v);
+        return details::quiet_nan_impl<T>();
+    }
+}
+
+template <typename T> inline T notl(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (std::not_equal_to<T>()(T(0), v) ? T(0) : T(1));
+    }
+    else
+    {
+        return !v;
+    }
+}
+
+template <typename T> inline T sgn(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if (v > T(0))
+    {
+        return T(+1);
+    }
+    else if (v < T(0))
+    {
+        return T(-1);
+    }
+    else
+    {
+        return T(0);
+    }
+}
+
+template <typename T> inline T erf(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::erf_real_impl(v);
+    }
+    else
+    {
+        return static_cast<T>(details::erf_real_impl(static_cast<double>(v)));
+    }
+}
+
+template <typename T> inline T erfc(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::erfc_real_impl(v);
+    }
+    else
+    {
+        return static_cast<T>(details::erfc_real_impl(static_cast<double>(v)));
+    }
+}
+
+template <typename T> inline T ncdf(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return T(0.5) * details::erfc_real_impl(-(v / T(sqrt2)));
+    }
+    else
+    {
+        return static_cast<T>(ncdf(static_cast<double>(v)));
+    }
+}
+
+template <typename T> inline T frac(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return (v - details::trunc_real_impl(v));
+    }
+    else
+    {
+        static_cast<void>(v);
+        return T(0);
+    }
+}
+
+template <typename T> inline T trunc(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+
+    if constexpr (details::is_supported_real_type_v<T>)
+    {
+        return details::trunc_real_impl(v);
+    }
+    else
+    {
+        return v;
+    }
+}
+
 template <typename T> inline T compute_pow10(T d, const int exponent)
 {
     static const double fract10[] = {
