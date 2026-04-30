@@ -1183,7 +1183,7 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
 template <typename Iterator, typename T>
 static inline bool parse_nan(Iterator& itr, const Iterator end, T& t)
 {
-    typedef typename std::iterator_traits<Iterator>::value_type type;
+    using type = typename std::iterator_traits<Iterator>::value_type;
 
     static constexpr std::size_t nan_length = 3;
 
@@ -1436,14 +1436,14 @@ template <typename T> struct functor_t
              based on the compiler and target architecture. The benchmark
              should provide enough information to make the right choice.
     */
-    // typedef T Type;
-    // typedef const T Type;
-    typedef const T& Type;
-    typedef T& RefType;
-    typedef T (*qfunc_t)(Type t0, Type t1, Type t2, Type t3);
-    typedef T (*tfunc_t)(Type t0, Type t1, Type t2);
-    typedef T (*bfunc_t)(Type t0, Type t1);
-    typedef T (*ufunc_t)(Type t0);
+    // using Type = T;
+    // using Type = const T;
+    using Type = const T&;
+    using RefType = T&;
+    using qfunc_t = T (*)(Type t0, Type t1, Type t2, Type t3);
+    using tfunc_t = T (*)(Type t0, Type t1, Type t2);
+    using bfunc_t = T (*)(Type t0, Type t1);
+    using ufunc_t = T (*)(Type t0);
 };
 
 } // namespace math_expr::core::numeric

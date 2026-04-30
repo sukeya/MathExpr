@@ -51,9 +51,9 @@ template <typename T> class igeneric_function : public function_traits
         e_rtrn_overload = 2
     };
 
-    typedef T type;
-    typedef type_store<T> generic_type;
-    typedef typename generic_type::parameter_list parameter_list_t;
+    using type = T;
+    using generic_type = type_store<T>;
+    using parameter_list_t = typename generic_type::parameter_list;
 
     explicit igeneric_function(const std::string& param_seq = "",
                                const return_type rtr_type = return_type::e_rtrn_scalar)

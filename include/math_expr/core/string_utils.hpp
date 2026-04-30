@@ -194,7 +194,7 @@ template <typename Iterator> inline bool parse_hex(Iterator& itr, Iterator end, 
 
 inline bool cleanup_escapes(std::string& s)
 {
-    typedef std::string::iterator str_itr_t;
+    using str_itr_t = std::string::iterator;
 
     str_itr_t itr1 = s.begin();
     str_itr_t itr2 = s.begin();
@@ -462,7 +462,7 @@ inline bool match_impl(const Iterator pattern_begin, const Iterator pattern_end,
                        const typename std::iterator_traits<Iterator>::value_type& zero_or_more,
                        const typename std::iterator_traits<Iterator>::value_type& exactly_one)
 {
-    typedef typename std::iterator_traits<Iterator>::value_type type;
+    using type = typename std::iterator_traits<Iterator>::value_type;
 
     const Iterator null_itr(0);
 
@@ -539,7 +539,7 @@ inline bool sequence_match(const std::string& pattern, const std::string& str,
     else if ('*' == pattern[0])
         return false;
 
-    typedef std::string::const_iterator itr_t;
+    using itr_t = std::string::const_iterator;
 
     itr_t p_itr = pattern.begin();
     itr_t s_itr = str.begin();

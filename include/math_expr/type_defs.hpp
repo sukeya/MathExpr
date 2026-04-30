@@ -41,12 +41,12 @@ namespace math_expr
 {
 template <typename T> struct type_defs
 {
-    typedef symbol_table<T> symbol_table_t;
-    typedef expression<T> expression_t;
-    typedef parser<T> parser_t;
-    typedef parser_error::type error_t;
-    typedef function_compositor<T> compositor_t;
-    typedef typename compositor_t::function function_t;
+    using symbol_table_t = symbol_table<T>;
+    using expression_t = expression<T>;
+    using parser_t = parser<T>;
+    using error_t = parser_error::type;
+    using compositor_t = function_compositor<T>;
+    using function_t = typename compositor_t::function;
 };
 
 } // namespace math_expr

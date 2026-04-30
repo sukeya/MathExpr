@@ -50,7 +50,7 @@ struct compilation_check
     virtual ~compilation_check() {}
 };
 
-typedef compilation_check* compilation_check_ptr;
+using compilation_check_ptr = compilation_check*;
 
 } // namespace math_expr
 

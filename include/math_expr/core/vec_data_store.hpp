@@ -44,8 +44,8 @@ namespace math_expr::core
 template <typename T> class vec_data_store
 {
   public:
-    typedef vec_data_store<T> type;
-    typedef T* data_t;
+    using type = vec_data_store<T>;
+    using data_t = T*;
 
   private:
     struct control_block

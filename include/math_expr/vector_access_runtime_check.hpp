@@ -59,7 +59,7 @@ struct vector_access_runtime_check
     }
 };
 
-typedef vector_access_runtime_check* vector_access_runtime_check_ptr;
+using vector_access_runtime_check_ptr = vector_access_runtime_check*;
 
 } // namespace math_expr
 

@@ -55,8 +55,8 @@ class continue_exception
 template <typename T> class break_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     explicit break_node(expression_ptr ret = expression_ptr(0))
     {
@@ -159,8 +159,8 @@ struct loop_runtime_checker
 template <typename T> class while_loop_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     while_loop_node(expression_ptr condition, expression_ptr loop_body)
     {
@@ -212,8 +212,8 @@ template <typename T>
 class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime_checker
 {
   public:
-    typedef while_loop_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = while_loop_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     while_loop_rtc_node(expression_ptr condition, expression_ptr loop_body,
                         loop_runtime_check_ptr loop_rt_chk)
@@ -249,8 +249,8 @@ class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime
 template <typename T> class repeat_until_loop_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     repeat_until_loop_node(expression_ptr condition, expression_ptr loop_body)
     {
@@ -303,8 +303,8 @@ class repeat_until_loop_rtc_node final : public repeat_until_loop_node<T>,
                                          public loop_runtime_checker
 {
   public:
-    typedef repeat_until_loop_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = repeat_until_loop_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     repeat_until_loop_rtc_node(expression_ptr condition, expression_ptr loop_body,
                                loop_runtime_check_ptr loop_rt_chk)
@@ -339,8 +339,8 @@ class repeat_until_loop_rtc_node final : public repeat_until_loop_node<T>,
 template <typename T> class for_loop_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     for_loop_node(expression_ptr initialiser, expression_ptr condition, expression_ptr incrementor,
                   expression_ptr loop_body)
@@ -413,8 +413,8 @@ template <typename T>
 class for_loop_rtc_node final : public for_loop_node<T>, public loop_runtime_checker
 {
   public:
-    typedef for_loop_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = for_loop_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     for_loop_rtc_node(expression_ptr initialiser, expression_ptr condition,
                       expression_ptr incrementor, expression_ptr loop_body,
@@ -465,8 +465,8 @@ class for_loop_rtc_node final : public for_loop_node<T>, public loop_runtime_che
 template <typename T> class while_loop_bc_node : public while_loop_node<T>
 {
   public:
-    typedef while_loop_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = while_loop_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     while_loop_bc_node(expression_ptr condition, expression_ptr loop_body)
         : parent_t(condition, loop_body)
@@ -501,8 +501,8 @@ template <typename T>
 class while_loop_bc_rtc_node final : public while_loop_bc_node<T>, public loop_runtime_checker
 {
   public:
-    typedef while_loop_bc_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = while_loop_bc_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     while_loop_bc_rtc_node(expression_ptr condition, expression_ptr loop_body,
                            loop_runtime_check_ptr loop_rt_chk)
@@ -547,8 +547,8 @@ class while_loop_bc_rtc_node final : public while_loop_bc_node<T>, public loop_r
 template <typename T> class repeat_until_loop_bc_node : public repeat_until_loop_node<T>
 {
   public:
-    typedef repeat_until_loop_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = repeat_until_loop_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     repeat_until_loop_bc_node(expression_ptr condition, expression_ptr loop_body)
         : parent_t(condition, loop_body)
@@ -584,8 +584,8 @@ class repeat_until_loop_bc_rtc_node final : public repeat_until_loop_bc_node<T>,
                                             public loop_runtime_checker
 {
   public:
-    typedef repeat_until_loop_bc_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = repeat_until_loop_bc_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     repeat_until_loop_bc_rtc_node(expression_ptr condition, expression_ptr loop_body,
                                   loop_runtime_check_ptr loop_rt_chk)
@@ -630,8 +630,8 @@ class repeat_until_loop_bc_rtc_node final : public repeat_until_loop_bc_node<T>,
 template <typename T> class for_loop_bc_node : public for_loop_node<T>
 {
   public:
-    typedef for_loop_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = for_loop_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     for_loop_bc_node(expression_ptr initialiser, expression_ptr condition,
                      expression_ptr incrementor, expression_ptr loop_body)
@@ -692,8 +692,8 @@ template <typename T>
 class for_loop_bc_rtc_node final : public for_loop_bc_node<T>, public loop_runtime_checker
 {
   public:
-    typedef for_loop_bc_node<T> parent_t;
-    typedef expression_node<T>* expression_ptr;
+    using parent_t = for_loop_bc_node<T>;
+    using expression_ptr = expression_node<T>*;
 
     for_loop_bc_rtc_node(expression_ptr initialiser, expression_ptr condition,
                          expression_ptr incrementor, expression_ptr loop_body,
@@ -765,8 +765,8 @@ class for_loop_bc_rtc_node final : public for_loop_bc_node<T>, public loop_runti
 template <typename T> class switch_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit switch_node(const Sequence<expression_ptr, Allocator>& arg_list)
@@ -837,7 +837,7 @@ template <typename T> class switch_node : public expression_node<T>
 template <typename T, typename Switch_N> class switch_n_node final : public switch_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit switch_n_node(const Sequence<expression_ptr, Allocator>& arg_list)
@@ -854,8 +854,8 @@ template <typename T, typename Switch_N> class switch_n_node final : public swit
 template <typename T> class multi_switch_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit multi_switch_node(const Sequence<expression_ptr, Allocator>& arg_list)

@@ -43,10 +43,10 @@ namespace math_expr::lexer
 class generator
 {
   public:
-    typedef token token_t;
-    typedef std::vector<token_t> token_list_t;
-    typedef token_list_t::iterator token_list_itr_t;
-    typedef core::char_t char_t;
+    using token_t = token;
+    using token_list_t = std::vector<token_t>;
+    using token_list_itr_t = token_list_t::iterator;
+    using char_t = core::char_t;
 
     generator() : base_itr_(0), s_itr_(0), s_end_(0)
     {

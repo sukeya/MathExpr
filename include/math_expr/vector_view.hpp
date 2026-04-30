@@ -42,7 +42,7 @@ namespace math_expr
 template <typename T> class vector_view
 {
   public:
-    typedef T* data_ptr_t;
+    using data_ptr_t = T*;
 
     vector_view(data_ptr_t data, const std::size_t& size)
         : base_size_(size), size_(size), data_(data), data_ref_(0)

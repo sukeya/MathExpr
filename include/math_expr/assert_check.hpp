@@ -53,7 +53,7 @@ struct assert_check
     virtual void handle_assert(const assert_context& /*context*/) {}
 };
 
-typedef assert_check* assert_check_ptr;
+using assert_check_ptr = assert_check*;
 
 } // namespace math_expr
 

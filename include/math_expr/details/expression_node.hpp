@@ -204,11 +204,11 @@ class expression_node : public node_collector_interface<expression_node<T>>,
         e_assert
     };
 
-    typedef T value_type;
-    typedef expression_node<T>* expression_ptr;
-    typedef node_collector_interface<expression_node<T>> nci_t;
-    typedef typename nci_t::noderef_list_t noderef_list_t;
-    typedef node_depth_base<expression_node<T>> ndb_t;
+    using value_type = T;
+    using expression_ptr = expression_node<T>*;
+    using nci_t = node_collector_interface<expression_node<T>>;
+    using noderef_list_t = typename nci_t::noderef_list_t;
+    using ndb_t = node_depth_base<expression_node<T>>;
 
     virtual ~expression_node() {}
 
@@ -515,11 +515,11 @@ inline bool all_nodes_variables(const Sequence<expression_node<T>*, Allocator>& 
 template <typename Node> class node_collection_destructor
 {
   public:
-    typedef node_collector_interface<Node> nci_t;
+    using nci_t = node_collector_interface<Node>;
 
-    typedef typename nci_t::node_ptr_t node_ptr_t;
-    typedef typename nci_t::node_pp_t node_pp_t;
-    typedef typename nci_t::noderef_list_t noderef_list_t;
+    using node_ptr_t = typename nci_t::node_ptr_t;
+    using node_pp_t = typename nci_t::node_pp_t;
+    using noderef_list_t = typename nci_t::noderef_list_t;
 
     static void delete_nodes(node_ptr_t& root)
     {
@@ -622,8 +622,8 @@ template <typename T> inline void destroy_node(expression_node<T>*& node)
 
 template <typename Node> struct node_depth_base
 {
-    typedef Node* node_ptr_t;
-    typedef std::pair<node_ptr_t, bool> nb_pair_t;
+    using node_ptr_t = Node*;
+    using nb_pair_t = std::pair<node_ptr_t, bool>;
 
     node_depth_base() : depth_set(false), depth(0) {}
 
@@ -844,10 +844,10 @@ template <typename Node> struct node_depth_base
 template <typename Type> class vector_holder
 {
   private:
-    typedef Type value_type;
-    typedef value_type* value_ptr;
-    typedef const value_ptr const_value_ptr;
-    typedef vector_holder<Type> vector_holder_t;
+    using value_type = Type;
+    using value_ptr = value_type*;
+    using const_value_ptr = const value_ptr;
+    using vector_holder_t = vector_holder<Type>;
 
     class vector_holder_base
     {
@@ -934,7 +934,7 @@ template <typename Type> class vector_holder
     class sequence_vector_impl final : public vector_holder_base
     {
       public:
-        typedef Sequence<Type, Allocator> sequence_t;
+        using sequence_t = Sequence<Type, Allocator>;
 
         explicit sequence_vector_impl(sequence_t& seq) : sequence_(seq) {}
 
@@ -965,7 +965,7 @@ template <typename Type> class vector_holder
     class vector_view_impl final : public vector_holder_base
     {
       public:
-        typedef math_expr::vector_view<Type> vector_view_t;
+        using vector_view_t = math_expr::vector_view<Type>;
 
         explicit vector_view_impl(vector_view_t& vec_view) : vec_view_(vec_view)
         {
@@ -1066,7 +1066,7 @@ template <typename Type> class vector_holder
     };
 
   public:
-    typedef typename core::vec_data_store<Type> vds_t;
+    using vds_t = typename core::vec_data_store<Type>;
 
     vector_holder(Type* vec, const std::size_t& vec_size)
         : vector_holder_base_(new (buffer) array_vector_impl(vec, vec_size))

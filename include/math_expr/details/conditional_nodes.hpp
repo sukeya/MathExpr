@@ -41,8 +41,8 @@ namespace math_expr::details
 template <typename T> class conditional_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     conditional_node(expression_ptr condition, expression_ptr consequent,
                      expression_ptr alternative)
@@ -94,8 +94,8 @@ template <typename T> class cons_conditional_node final : public expression_node
 {
   public:
     // Consequent only conditional statement node
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     cons_conditional_node(expression_ptr condition, expression_ptr consequent)
     {

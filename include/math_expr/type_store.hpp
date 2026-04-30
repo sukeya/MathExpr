@@ -59,7 +59,7 @@ template <typename T> struct type_store
         T* vec_data;
     };
 
-    typedef details::vector_interface<T>* ivec_t;
+    using ivec_t = details::vector_interface<T>*;
 
     std::size_t size;
     store_type type;
@@ -138,8 +138,8 @@ template <typename T> struct type_store
 
     template <typename ViewType> struct type_view
     {
-        typedef type_store<T> type_store_t;
-        typedef ViewType value_t;
+        using type_store_t = type_store<T>;
+        using value_t = ViewType;
 
         explicit type_view(type_store_t& ts) : ts_(ts), data_(reinterpret_cast<value_t*>(ts_.data))
         {
@@ -188,13 +188,13 @@ template <typename T> struct type_store
         value_t* data_;
     };
 
-    typedef type_view<T> vector_view;
-    typedef type_view<char> string_view;
+    using vector_view = type_view<T>;
+    using string_view = type_view<char>;
 
     struct scalar_view
     {
-        typedef type_store<T> type_store_t;
-        typedef T value_t;
+        using type_store_t = type_store<T>;
+        using value_t = T;
 
         explicit scalar_view(type_store_t& ts) : v_(*reinterpret_cast<value_t*>(ts.data)) {}
 

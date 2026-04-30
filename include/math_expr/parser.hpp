@@ -96,126 +96,126 @@ template <typename T> class parser : public lexer::parser_helper
         e_level14
     };
 
-    typedef const T& cref_t;
-    typedef const T const_t;
-    typedef ifunction<T> F;
-    typedef ivararg_function<T> VAF;
-    typedef igeneric_function<T> GF;
-    typedef ifunction<T> ifunction_t;
-    typedef ivararg_function<T> ivararg_function_t;
-    typedef igeneric_function<T> igeneric_function_t;
-    typedef details::expression_node<T> expression_node_t;
-    typedef details::literal_node<T> literal_node_t;
-    typedef details::unary_node<T> unary_node_t;
-    typedef details::binary_node<T> binary_node_t;
-    typedef details::trinary_node<T> trinary_node_t;
-    typedef details::quaternary_node<T> quaternary_node_t;
-    typedef details::conditional_node<T> conditional_node_t;
-    typedef details::cons_conditional_node<T> cons_conditional_node_t;
-    typedef details::while_loop_node<T> while_loop_node_t;
-    typedef details::repeat_until_loop_node<T> repeat_until_loop_node_t;
-    typedef details::for_loop_node<T> for_loop_node_t;
-    typedef details::while_loop_rtc_node<T> while_loop_rtc_node_t;
-    typedef details::repeat_until_loop_rtc_node<T> repeat_until_loop_rtc_node_t;
-    typedef details::for_loop_rtc_node<T> for_loop_rtc_node_t;
+    using cref_t = const T&;
+    using const_t = const T;
+    using F = ifunction<T>;
+    using VAF = ivararg_function<T>;
+    using GF = igeneric_function<T>;
+    using ifunction_t = ifunction<T>;
+    using ivararg_function_t = ivararg_function<T>;
+    using igeneric_function_t = igeneric_function<T>;
+    using expression_node_t = details::expression_node<T>;
+    using literal_node_t = details::literal_node<T>;
+    using unary_node_t = details::unary_node<T>;
+    using binary_node_t = details::binary_node<T>;
+    using trinary_node_t = details::trinary_node<T>;
+    using quaternary_node_t = details::quaternary_node<T>;
+    using conditional_node_t = details::conditional_node<T>;
+    using cons_conditional_node_t = details::cons_conditional_node<T>;
+    using while_loop_node_t = details::while_loop_node<T>;
+    using repeat_until_loop_node_t = details::repeat_until_loop_node<T>;
+    using for_loop_node_t = details::for_loop_node<T>;
+    using while_loop_rtc_node_t = details::while_loop_rtc_node<T>;
+    using repeat_until_loop_rtc_node_t = details::repeat_until_loop_rtc_node<T>;
+    using for_loop_rtc_node_t = details::for_loop_rtc_node<T>;
 #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
-    typedef details::while_loop_bc_node<T> while_loop_bc_node_t;
-    typedef details::repeat_until_loop_bc_node<T> repeat_until_loop_bc_node_t;
-    typedef details::for_loop_bc_node<T> for_loop_bc_node_t;
-    typedef details::while_loop_bc_rtc_node<T> while_loop_bc_rtc_node_t;
-    typedef details::repeat_until_loop_bc_rtc_node<T> repeat_until_loop_bc_rtc_node_t;
-    typedef details::for_loop_bc_rtc_node<T> for_loop_bc_rtc_node_t;
+    using while_loop_bc_node_t = details::while_loop_bc_node<T>;
+    using repeat_until_loop_bc_node_t = details::repeat_until_loop_bc_node<T>;
+    using for_loop_bc_node_t = details::for_loop_bc_node<T>;
+    using while_loop_bc_rtc_node_t = details::while_loop_bc_rtc_node<T>;
+    using repeat_until_loop_bc_rtc_node_t = details::repeat_until_loop_bc_rtc_node<T>;
+    using for_loop_bc_rtc_node_t = details::for_loop_bc_rtc_node<T>;
 #endif
-    typedef details::switch_node<T> switch_node_t;
-    typedef details::variable_node<T> variable_node_t;
-    typedef details::vector_elem_node<T> vector_elem_node_t;
-    typedef details::vector_celem_node<T> vector_celem_node_t;
-    typedef details::vector_elem_rtc_node<T> vector_elem_rtc_node_t;
-    typedef details::vector_celem_rtc_node<T> vector_celem_rtc_node_t;
-    typedef details::rebasevector_elem_node<T> rebasevector_elem_node_t;
-    typedef details::rebasevector_celem_node<T> rebasevector_celem_node_t;
-    typedef details::rebasevector_elem_rtc_node<T> rebasevector_elem_rtc_node_t;
-    typedef details::rebasevector_celem_rtc_node<T> rebasevector_celem_rtc_node_t;
-    typedef details::vector_node<T> vector_node_t;
-    typedef details::vector_size_node<T> vector_size_node_t;
-    typedef details::range_pack<T> range_t;
+    using switch_node_t = details::switch_node<T>;
+    using variable_node_t = details::variable_node<T>;
+    using vector_elem_node_t = details::vector_elem_node<T>;
+    using vector_celem_node_t = details::vector_celem_node<T>;
+    using vector_elem_rtc_node_t = details::vector_elem_rtc_node<T>;
+    using vector_celem_rtc_node_t = details::vector_celem_rtc_node<T>;
+    using rebasevector_elem_node_t = details::rebasevector_elem_node<T>;
+    using rebasevector_celem_node_t = details::rebasevector_celem_node<T>;
+    using rebasevector_elem_rtc_node_t = details::rebasevector_elem_rtc_node<T>;
+    using rebasevector_celem_rtc_node_t = details::rebasevector_celem_rtc_node<T>;
+    using vector_node_t = details::vector_node<T>;
+    using vector_size_node_t = details::vector_size_node<T>;
+    using range_t = details::range_pack<T>;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    typedef details::string_nodes::stringvar_node<T> stringvar_node_t;
-    typedef details::string_literal_node<T> string_literal_node_t;
-    typedef details::string_nodes::string_range_node<T> string_range_node_t;
-    typedef details::string_nodes::const_string_range_node<T> const_string_range_node_t;
-    typedef details::string_nodes::generic_string_range_node<T> generic_string_range_node_t;
-    typedef details::string_nodes::string_concat_node<T> string_concat_node_t;
-    typedef details::string_nodes::assignment_string_node<T> assignment_string_node_t;
-    typedef details::string_nodes::assignment_string_range_node<T> assignment_string_range_node_t;
-    typedef details::string_nodes::conditional_string_node<T> conditional_string_node_t;
-    typedef details::string_nodes::cons_conditional_str_node<T> cons_conditional_str_node_t;
+    using stringvar_node_t = details::string_nodes::stringvar_node<T>;
+    using string_literal_node_t = details::string_literal_node<T>;
+    using string_range_node_t = details::string_nodes::string_range_node<T>;
+    using const_string_range_node_t = details::string_nodes::const_string_range_node<T>;
+    using generic_string_range_node_t = details::string_nodes::generic_string_range_node<T>;
+    using string_concat_node_t = details::string_nodes::string_concat_node<T>;
+    using assignment_string_node_t = details::string_nodes::assignment_string_node<T>;
+    using assignment_string_range_node_t = details::string_nodes::assignment_string_range_node<T>;
+    using conditional_string_node_t = details::string_nodes::conditional_string_node<T>;
+    using cons_conditional_str_node_t = details::string_nodes::cons_conditional_str_node<T>;
 #endif
-    typedef details::assignment_node<T> assignment_node_t;
-    typedef details::assignment_vec_elem_node<T> assignment_vec_elem_node_t;
-    typedef details::assignment_vec_elem_rtc_node<T> assignment_vec_elem_rtc_node_t;
-    typedef details::assignment_rebasevec_elem_node<T> assignment_rebasevec_elem_node_t;
-    typedef details::assignment_rebasevec_elem_rtc_node<T> assignment_rebasevec_elem_rtc_node_t;
-    typedef details::assignment_rebasevec_celem_node<T> assignment_rebasevec_celem_node_t;
-    typedef details::assignment_vec_node<T> assignment_vec_node_t;
-    typedef details::assignment_vecvec_node<T> assignment_vecvec_node_t;
-    typedef details::conditional_vector_node<T> conditional_vector_node_t;
-    typedef details::scand_node<T> scand_node_t;
-    typedef details::scor_node<T> scor_node_t;
-    typedef lexer::token token_t;
-    typedef expression_node_t* expression_node_ptr;
-    typedef expression<T> expression_t;
-    typedef symbol_table<T> symbol_table_t;
-    typedef typename expression<T>::symtab_list_t symbol_table_list_t;
-    typedef details::vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
+    using assignment_node_t = details::assignment_node<T>;
+    using assignment_vec_elem_node_t = details::assignment_vec_elem_node<T>;
+    using assignment_vec_elem_rtc_node_t = details::assignment_vec_elem_rtc_node<T>;
+    using assignment_rebasevec_elem_node_t = details::assignment_rebasevec_elem_node<T>;
+    using assignment_rebasevec_elem_rtc_node_t = details::assignment_rebasevec_elem_rtc_node<T>;
+    using assignment_rebasevec_celem_node_t = details::assignment_rebasevec_celem_node<T>;
+    using assignment_vec_node_t = details::assignment_vec_node<T>;
+    using assignment_vecvec_node_t = details::assignment_vecvec_node<T>;
+    using conditional_vector_node_t = details::conditional_vector_node<T>;
+    using scand_node_t = details::scand_node<T>;
+    using scor_node_t = details::scor_node<T>;
+    using token_t = lexer::token;
+    using expression_node_ptr = expression_node_t*;
+    using expression_t = expression<T>;
+    using symbol_table_t = symbol_table<T>;
+    using symbol_table_list_t = typename expression<T>::symtab_list_t;
+    using vector_holder_t = details::vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
 
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::qfunc_t quaternary_functor_t;
-    typedef typename functor_t::tfunc_t trinary_functor_t;
-    typedef typename functor_t::bfunc_t binary_functor_t;
-    typedef typename functor_t::ufunc_t unary_functor_t;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using quaternary_functor_t = typename functor_t::qfunc_t;
+    using trinary_functor_t = typename functor_t::tfunc_t;
+    using binary_functor_t = typename functor_t::bfunc_t;
+    using unary_functor_t = typename functor_t::ufunc_t;
 
-    typedef core::operators::operator_type operator_t;
+    using operator_t = core::operators::operator_type;
 
-    typedef std::map<operator_t, unary_functor_t> unary_op_map_t;
-    typedef std::map<operator_t, binary_functor_t> binary_op_map_t;
-    typedef std::map<operator_t, trinary_functor_t> trinary_op_map_t;
+    using unary_op_map_t = std::map<operator_t, unary_functor_t>;
+    using binary_op_map_t = std::map<operator_t, binary_functor_t>;
+    using trinary_op_map_t = std::map<operator_t, trinary_functor_t>;
 
-    typedef std::map<std::string, std::pair<trinary_functor_t, operator_t>> sf3_map_t;
-    typedef std::map<std::string, std::pair<quaternary_functor_t, operator_t>> sf4_map_t;
+    using sf3_map_t = std::map<std::string, std::pair<trinary_functor_t, operator_t>>;
+    using sf4_map_t = std::map<std::string, std::pair<quaternary_functor_t, operator_t>>;
 
-    typedef std::map<binary_functor_t, operator_t> inv_binary_op_map_t;
-    typedef std::multimap<std::string, core::operators::base_operation_t, core::ilesscompare>
-        base_ops_map_t;
-    typedef std::set<std::string, core::ilesscompare> disabled_func_set_t;
+    using inv_binary_op_map_t = std::map<binary_functor_t, operator_t>;
+    using base_ops_map_t =
+        std::multimap<std::string, core::operators::base_operation_t, core::ilesscompare>;
+    using disabled_func_set_t = std::set<std::string, core::ilesscompare>;
 
-    typedef details::T0oT1_define<T, cref_t, cref_t> vov_t;
-    typedef details::T0oT1_define<T, const_t, cref_t> cov_t;
-    typedef details::T0oT1_define<T, cref_t, const_t> voc_t;
+    using vov_t = details::T0oT1_define<T, cref_t, cref_t>;
+    using cov_t = details::T0oT1_define<T, const_t, cref_t>;
+    using voc_t = details::T0oT1_define<T, cref_t, const_t>;
 
-    typedef details::T0oT1oT2_define<T, cref_t, cref_t, cref_t> vovov_t;
-    typedef details::T0oT1oT2_define<T, cref_t, cref_t, const_t> vovoc_t;
-    typedef details::T0oT1oT2_define<T, cref_t, const_t, cref_t> vocov_t;
-    typedef details::T0oT1oT2_define<T, const_t, cref_t, cref_t> covov_t;
-    typedef details::T0oT1oT2_define<T, const_t, cref_t, const_t> covoc_t;
-    typedef details::T0oT1oT2_define<T, const_t, const_t, cref_t> cocov_t;
-    typedef details::T0oT1oT2_define<T, cref_t, const_t, const_t> vococ_t;
+    using vovov_t = details::T0oT1oT2_define<T, cref_t, cref_t, cref_t>;
+    using vovoc_t = details::T0oT1oT2_define<T, cref_t, cref_t, const_t>;
+    using vocov_t = details::T0oT1oT2_define<T, cref_t, const_t, cref_t>;
+    using covov_t = details::T0oT1oT2_define<T, const_t, cref_t, cref_t>;
+    using covoc_t = details::T0oT1oT2_define<T, const_t, cref_t, const_t>;
+    using cocov_t = details::T0oT1oT2_define<T, const_t, const_t, cref_t>;
+    using vococ_t = details::T0oT1oT2_define<T, cref_t, const_t, const_t>;
 
-    typedef details::T0oT1oT2oT3_define<T, cref_t, cref_t, cref_t, cref_t> vovovov_t;
-    typedef details::T0oT1oT2oT3_define<T, cref_t, cref_t, cref_t, const_t> vovovoc_t;
-    typedef details::T0oT1oT2oT3_define<T, cref_t, cref_t, const_t, cref_t> vovocov_t;
-    typedef details::T0oT1oT2oT3_define<T, cref_t, const_t, cref_t, cref_t> vocovov_t;
-    typedef details::T0oT1oT2oT3_define<T, const_t, cref_t, cref_t, cref_t> covovov_t;
+    using vovovov_t = details::T0oT1oT2oT3_define<T, cref_t, cref_t, cref_t, cref_t>;
+    using vovovoc_t = details::T0oT1oT2oT3_define<T, cref_t, cref_t, cref_t, const_t>;
+    using vovocov_t = details::T0oT1oT2oT3_define<T, cref_t, cref_t, const_t, cref_t>;
+    using vocovov_t = details::T0oT1oT2oT3_define<T, cref_t, const_t, cref_t, cref_t>;
+    using covovov_t = details::T0oT1oT2oT3_define<T, const_t, cref_t, cref_t, cref_t>;
 
-    typedef details::T0oT1oT2oT3_define<T, const_t, cref_t, const_t, cref_t> covocov_t;
-    typedef details::T0oT1oT2oT3_define<T, cref_t, const_t, cref_t, const_t> vocovoc_t;
-    typedef details::T0oT1oT2oT3_define<T, const_t, cref_t, cref_t, const_t> covovoc_t;
-    typedef details::T0oT1oT2oT3_define<T, cref_t, const_t, const_t, cref_t> vococov_t;
+    using covocov_t = details::T0oT1oT2oT3_define<T, const_t, cref_t, const_t, cref_t>;
+    using vocovoc_t = details::T0oT1oT2oT3_define<T, cref_t, const_t, cref_t, const_t>;
+    using covovoc_t = details::T0oT1oT2oT3_define<T, const_t, cref_t, cref_t, const_t>;
+    using vococov_t = details::T0oT1oT2oT3_define<T, cref_t, const_t, const_t, cref_t>;
 
-    typedef results_context<T> results_context_t;
+    using results_context_t = results_context<T>;
 
-    typedef parser_helper prsrhlpr_t;
+    using prsrhlpr_t = parser_helper;
 
     struct scope_element
     {
@@ -229,13 +229,13 @@ template <typename T> class parser : public lexer::parser_helper
             e_string
         };
 
-        typedef details::vector_holder<T> vector_holder_t;
-        typedef literal_node_t* literal_node_ptr;
-        typedef variable_node_t* variable_node_ptr;
-        typedef vector_holder_t* vector_holder_ptr;
-        typedef expression_node_t* expression_node_ptr;
+        using vector_holder_t = details::vector_holder<T>;
+        using literal_node_ptr = literal_node_t*;
+        using variable_node_ptr = variable_node_t*;
+        using vector_holder_ptr = vector_holder_t*;
+        using expression_node_ptr = expression_node_t*;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        typedef stringvar_node_t* stringvar_node_ptr;
+        using stringvar_node_ptr = stringvar_node_t*;
 #endif
 
         scope_element()
@@ -305,9 +305,9 @@ template <typename T> class parser : public lexer::parser_helper
     class scope_element_manager
     {
       public:
-        typedef expression_node_t* expression_node_ptr;
-        typedef variable_node_t* variable_node_ptr;
-        typedef parser<T> parser_t;
+        using expression_node_ptr = expression_node_t*;
+        using variable_node_ptr = variable_node_t*;
+        using parser_t = parser<T>;
 
         explicit scope_element_manager(parser<T>& p)
             : parser_(p), input_param_cnt_(0), total_local_symb_size_bytes_(0)
@@ -536,7 +536,7 @@ template <typename T> class parser : public lexer::parser_helper
     class scope_handler
     {
       public:
-        typedef parser<T> parser_t;
+        using parser_t = parser<T>;
 
         explicit scope_handler(parser<T>& p) : parser_(p)
         {
@@ -621,10 +621,10 @@ template <typename T> class parser : public lexer::parser_helper
     class interval_container_t
     {
       public:
-        typedef IntervalPointType interval_point_t;
-        typedef std::pair<interval_point_t, interval_point_t> interval_t;
-        typedef std::map<interval_point_t, interval_t> interval_map_t;
-        typedef typename interval_map_t::const_iterator interval_map_citr_t;
+        using interval_point_t = IntervalPointType;
+        using interval_t = std::pair<interval_point_t, interval_point_t>;
+        using interval_map_t = std::map<interval_point_t, interval_t>;
+        using interval_map_citr_t = typename interval_map_t::const_iterator;
 
         std::size_t size() const
         {
@@ -691,7 +691,7 @@ template <typename T> class parser : public lexer::parser_helper
     class stack_limit_handler
     {
       public:
-        typedef parser<T> parser_t;
+        using parser_t = parser<T>;
 
         explicit stack_limit_handler(parser<T>& p) : parser_(p), limit_exceeded_(false)
         {
@@ -730,15 +730,15 @@ template <typename T> class parser : public lexer::parser_helper
     {
         symbol_table_list_t symtab_list_;
 
-        typedef typename symbol_table_t::local_data_t local_data_t;
-        typedef typename symbol_table_t::variable_ptr variable_ptr;
-        typedef typename symbol_table_t::function_ptr function_ptr;
+        using local_data_t = typename symbol_table_t::local_data_t;
+        using variable_ptr = typename symbol_table_t::variable_ptr;
+        using function_ptr = typename symbol_table_t::function_ptr;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        typedef typename symbol_table_t::stringvar_ptr stringvar_ptr;
+        using stringvar_ptr = typename symbol_table_t::stringvar_ptr;
 #endif
-        typedef typename symbol_table_t::vector_holder_ptr vector_holder_ptr;
-        typedef typename symbol_table_t::vararg_function_ptr vararg_function_ptr;
-        typedef typename symbol_table_t::generic_function_ptr generic_function_ptr;
+        using vector_holder_ptr = typename symbol_table_t::vector_holder_ptr;
+        using vararg_function_ptr = typename symbol_table_t::vararg_function_ptr;
+        using generic_function_ptr = typename symbol_table_t::generic_function_ptr;
 
         struct variable_context
         {
@@ -1368,8 +1368,8 @@ template <typename T> class parser : public lexer::parser_helper
     class dependent_entity_collector
     {
       public:
-        typedef std::pair<std::string, symbol_type> symbol_t;
-        typedef std::vector<symbol_t> symbol_list_t;
+        using symbol_t = std::pair<std::string, symbol_type>;
+        using symbol_list_t = std::vector<symbol_t>;
 
         explicit dependent_entity_collector(const std::size_t options = e_ct_none)
             : options_(options), collect_variables_((options_ & e_ct_variables) == e_ct_variables),
@@ -1455,7 +1455,7 @@ template <typename T> class parser : public lexer::parser_helper
             return final_stmt_return_;
         }
 
-        typedef std::vector<std::string> retparam_list_t;
+        using retparam_list_t = std::vector<std::string>;
 
         retparam_list_t return_param_type_list() const
         {
@@ -1519,8 +1519,8 @@ template <typename T> class parser : public lexer::parser_helper
     class settings_store
     {
       private:
-        typedef std::set<std::string, core::ilesscompare> disabled_entity_set_t;
-        typedef disabled_entity_set_t::iterator des_itr_t;
+        using disabled_entity_set_t = std::set<std::string, core::ilesscompare>;
+        using des_itr_t = disabled_entity_set_t::iterator;
 
       public:
         enum settings_compilation_options
@@ -2318,7 +2318,7 @@ template <typename T> class parser : public lexer::parser_helper
         friend class parser<T>;
     };
 
-    typedef settings_store settings_t;
+    using settings_t = settings_store;
 
     explicit parser(const settings_t& settings = settings_t())
         : settings_(settings), resolve_unknown_symbol_(false), results_context_(0),
@@ -3410,7 +3410,7 @@ template <typename T> class parser : public lexer::parser_helper
     bool simplify_unary_negation_branch(expression_node_ptr& node)
     {
         {
-            typedef details::unary_branch_node<T, details::neg_op<T>> ubn_t;
+            using ubn_t = details::unary_branch_node<T, details::neg_op<T>>;
             ubn_t* n = dynamic_cast<ubn_t*>(node);
 
             if (n)
@@ -3425,7 +3425,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         {
-            typedef details::unary_variable_node<T, details::neg_op<T>> uvn_t;
+            using uvn_t = details::unary_variable_node<T, details::neg_op<T>>;
 
             uvn_t* n = dynamic_cast<uvn_t*>(node);
 
@@ -3499,7 +3499,7 @@ template <typename T> class parser : public lexer::parser_helper
      */
     template <typename Type, std::size_t N> struct scoped_delete
     {
-        typedef Type* ptr_t;
+        using ptr_t = Type*;
 
         scoped_delete(parser<T>& pr, ptr_t& p) : delete_ptr(true), parser_(pr), p_(&p) {}
 
@@ -3536,7 +3536,7 @@ template <typename T> class parser : public lexer::parser_helper
      */
     template <typename Type> struct scoped_deq_delete
     {
-        typedef Type* ptr_t;
+        using ptr_t = Type*;
 
         scoped_deq_delete(parser<T>& pr, std::deque<ptr_t>& deq)
             : delete_ptr(true), parser_(pr), deq_(deq)
@@ -3578,7 +3578,7 @@ template <typename T> class parser : public lexer::parser_helper
      */
     template <typename Type> struct scoped_vec_delete
     {
-        typedef Type* ptr_t;
+        using ptr_t = Type*;
 
         scoped_vec_delete(parser<T>& pr, std::vector<ptr_t>& vec)
             : delete_ptr(true), parser_(pr), vec_(vec)
@@ -3936,7 +3936,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_base_operation()
     {
-        typedef std::pair<base_ops_map_t::iterator, base_ops_map_t::iterator> map_range_t;
+        using map_range_t = std::pair<base_ops_map_t::iterator, base_ops_map_t::iterator>;
 
         const std::string operation_name = current_token().value;
         const token_t diagnostic_token = current_token();
@@ -5741,7 +5741,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         const std::string symbol = current_token().value;
 
-        typedef details::string_nodes::stringvar_node<T>* strvar_node_t;
+        using strvar_node_t = details::string_nodes::stringvar_node<T>*;
 
         expression_node_ptr result = error_node();
         strvar_node_t const_str_node = static_cast<strvar_node_t>(0);
@@ -5756,7 +5756,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else
         {
-            typedef typename symtab_store::string_context str_ctxt_t;
+            using str_ctxt_t = typename symtab_store::string_context;
             str_ctxt_t str_ctx = symtab_store_.get_string_context(symbol);
 
             if ((0 == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
@@ -5948,7 +5948,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (!core::imatch(se.name, vector_name) || (se.depth > state_.scope_depth) ||
             (scope_element::element_type::e_vector != se.type))
         {
-            typedef typename symtab_store::vector_context vec_ctxt_t;
+            using vec_ctxt_t = typename symtab_store::vector_context;
             vec_ctxt_t vec_ctx = symtab_store_.get_vector_context(vector_name);
 
             if (0 == vec_ctx.vector_holder)
@@ -6139,8 +6139,8 @@ template <typename T> class parser : public lexer::parser_helper
             std::string param_seq;
         };
 
-        typedef parser<T> parser_t;
-        typedef std::vector<function_prototype_t> function_definition_list_t;
+        using parser_t = parser<T>;
+        using function_definition_list_t = std::vector<function_prototype_t>;
 
         type_checker(parser_t& p, const std::string& func_name, const std::string& func_prototypes,
                      const return_type_t default_return_type)
@@ -6326,7 +6326,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             std::vector<std::string> param_seq_list = split_param_seq(func_prototypes);
 
-            typedef std::map<std::string, std::size_t> param_seq_map_t;
+            using param_seq_map_t = std::map<std::string, std::size_t>;
             param_seq_map_t param_seq_map;
 
             for (std::size_t i = 0; i < param_seq_list.size(); ++i)
@@ -8048,7 +8048,7 @@ template <typename T> class parser : public lexer::parser_helper
             return error_node();
         }
 
-        typedef details::variable_node<T>* variable_node_ptr;
+        using variable_node_ptr = details::variable_node<T>*;
 
         variable_node_ptr v0 = variable_node_ptr(0);
         variable_node_ptr v1 = variable_node_ptr(0);
@@ -8440,9 +8440,9 @@ template <typename T> class parser : public lexer::parser_helper
         return true;
     }
 
-    typedef typename interval_container_t<const void*>::interval_t interval_t;
-    typedef interval_container_t<const void*> immutable_memory_map_t;
-    typedef std::map<interval_t, token_t> immutable_symtok_map_t;
+    using interval_t = typename interval_container_t<const void*>::interval_t;
+    using immutable_memory_map_t = interval_container_t<const void*>;
+    using immutable_symtok_map_t = std::map<interval_t, token_t>;
 
     inline interval_t make_memory_range(const T& t)
     {
@@ -8472,7 +8472,7 @@ template <typename T> class parser : public lexer::parser_helper
         const std::string symbol = current_token().value;
 
         // Are we dealing with a variable or a special constant?
-        typedef typename symtab_store::variable_context var_ctxt_t;
+        using var_ctxt_t = typename symtab_store::variable_context;
         var_ctxt_t var_ctx = symtab_store_.get_variable_context(symbol);
 
         if (var_ctx.variable)
@@ -9120,14 +9120,14 @@ template <typename T> class parser : public lexer::parser_helper
     template <typename Type> class expression_generator
     {
       public:
-        typedef details::expression_node<Type>* expression_node_ptr;
-        typedef expression_node_ptr (*synthesize_functor_t)(
+        using expression_node_ptr = details::expression_node<Type>*;
+        using synthesize_functor_t = expression_node_ptr (*)(
             expression_generator<T>&, const core::operators::operator_type& operation,
             expression_node_ptr (&branch)[2]);
-        typedef std::map<std::string, synthesize_functor_t> synthesize_map_t;
-        typedef typename math_expr::parser<Type> parser_t;
-        typedef const Type& vtype;
-        typedef const Type ctype;
+        using synthesize_map_t = std::map<std::string, synthesize_functor_t>;
+        using parser_t = typename math_expr::parser<Type>;
+        using vtype = const Type&;
+        using ctype = const Type;
 
         inline void init_synthesize_map()
         {
@@ -10536,7 +10536,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct switch_nodes
         {
-            typedef std::vector<std::pair<expression_node_ptr, bool>> arg_list_t;
+            using arg_list_t = std::vector<std::pair<expression_node_ptr, bool>>;
 
 #define case_stmt(N)                                                                               \
     if (is_true(arg[(2 * N)].first))                                                               \
@@ -10686,7 +10686,7 @@ template <typename T> class parser : public lexer::parser_helper
                                                expression_node_ptr& assert_message,
                                                const assert_check::assert_context& context)
         {
-            typedef details::assert_node<Type> alloc_type;
+            using alloc_type = details::assert_node<Type>;
 
             expression_node_ptr result = node_allocator_->allocate_rrrr<alloc_type>(
                 assert_condition, assert_message, parser_->assert_check_, context);
@@ -10884,7 +10884,7 @@ template <typename T> class parser : public lexer::parser_helper
         varnode_optimise_sf3(const core::operators::operator_type& operation,
                              expression_node_ptr (&branch)[3])
         {
-            typedef details::variable_node<Type>* variable_ptr;
+            using variable_ptr = details::variable_node<Type>*;
 
             const Type& v0 = static_cast<variable_ptr>(branch[0])->ref();
             const Type& v1 = static_cast<variable_ptr>(branch[1])->ref();
@@ -10994,7 +10994,7 @@ template <typename T> class parser : public lexer::parser_helper
         varnode_optimise_sf4(const core::operators::operator_type& operation,
                              expression_node_ptr (&branch)[4])
         {
-            typedef details::variable_node<Type>* variable_ptr;
+            using variable_ptr = details::variable_node<Type>*;
 
             const Type& v0 = static_cast<variable_ptr>(branch[0])->ref();
             const Type& v1 = static_cast<variable_ptr>(branch[1])->ref();
@@ -11243,7 +11243,7 @@ template <typename T> class parser : public lexer::parser_helper
         template <std::size_t N>
         inline expression_node_ptr function(ifunction_t* f, expression_node_ptr (&b)[N])
         {
-            typedef typename details::function_N_node<T, ifunction_t, N> function_N_node_t;
+            using function_N_node_t = typename details::function_N_node<T, ifunction_t, N>;
             expression_node_ptr result = synthesize_expression<function_N_node_t, N>(f, b);
 
             if (0 == result)
@@ -11295,7 +11295,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         inline expression_node_ptr function(ifunction_t* f)
         {
-            typedef typename details::function_N_node<Type, ifunction_t, 0> function_N_node_t;
+            using function_N_node_t = typename details::function_N_node<Type, ifunction_t, 0>;
             return node_allocator_->allocate<function_N_node_t>(f);
         }
 
@@ -11309,7 +11309,7 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            typedef details::vararg_function_node<Type, ivararg_function_t> alloc_type;
+            using alloc_type = details::vararg_function_node<Type, ivararg_function_t>;
 
             expression_node_ptr result = node_allocator_->allocate<alloc_type>(vaf, arg_list);
 
@@ -11346,8 +11346,8 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            typedef details::generic_function_node<Type, igeneric_function_t> alloc_type1;
-            typedef details::multimode_genfunction_node<Type, igeneric_function_t> alloc_type2;
+            using alloc_type1 = details::generic_function_node<Type, igeneric_function_t>;
+            using alloc_type2 = details::multimode_genfunction_node<Type, igeneric_function_t>;
 
             const std::size_t no_psi = std::numeric_limits<std::size_t>::max();
 
@@ -11415,8 +11415,8 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            typedef details::string_function_node<Type, igeneric_function_t> alloc_type1;
-            typedef details::multimode_strfunction_node<Type, igeneric_function_t> alloc_type2;
+            using alloc_type1 = details::string_function_node<Type, igeneric_function_t>;
+            using alloc_type2 = details::multimode_strfunction_node<Type, igeneric_function_t>;
 
             const std::size_t no_psi = std::numeric_limits<std::size_t>::max();
 
@@ -11482,7 +11482,7 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            typedef details::return_node<Type> alloc_type;
+            using alloc_type = details::return_node<Type>;
 
             expression_node_ptr result =
                 node_allocator_->allocate_rr<alloc_type>(arg_list, parser_->results_ctx());
@@ -11518,7 +11518,7 @@ template <typename T> class parser : public lexer::parser_helper
         inline expression_node_ptr return_envelope(expression_node_ptr body, results_context_t* rc,
                                                    bool*& return_invoked)
         {
-            typedef details::return_envelope_node<Type> alloc_type;
+            using alloc_type = details::return_envelope_node<Type>;
 
             expression_node_ptr result = node_allocator_->allocate_cr<alloc_type>(body, (*rc));
 
@@ -11754,7 +11754,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             case symbol_type::e_st_vector:
             {
-                typedef details::vector_holder<T> vector_holder_t;
+                using vector_holder_t = details::vector_holder<T>;
 
                 vector_holder_t& vh = static_cast<vector_node_t*>(node)->vec_holder();
 
@@ -11764,7 +11764,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             case symbol_type::e_st_vecelem:
             {
-                typedef details::vector_holder<T> vector_holder_t;
+                using vector_holder_t = details::vector_holder<T>;
 
                 vector_holder_t& vh = static_cast<vector_elem_node_t*>(node)->vec_holder();
 
@@ -12213,9 +12213,8 @@ template <typename T> class parser : public lexer::parser_helper
             else if ((core::operators::operator_type::addass == operation) &&
                      details::is_string_node(branch[0]))
             {
-                typedef details::string_nodes::assignment_string_node<
-                    T, details::string_nodes::asn_addassignment>
-                    addass_t;
+                using addass_t = details::string_nodes::assignment_string_node<
+                    T, details::string_nodes::asn_addassignment>;
 
                 lodge_assignment(symbol_type::e_st_string, branch[0]);
 
@@ -12451,7 +12450,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (v0_is_ivar && v1_is_ivar)
             {
-                typedef details::variable_node<T>* variable_node_ptr;
+                using variable_node_ptr = details::variable_node<T>*;
 
                 variable_node_ptr v0 = variable_node_ptr(0);
                 variable_node_ptr v1 = variable_node_ptr(0);
@@ -12893,7 +12892,7 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     if (details::is_uv_node(branch[1]))
                     {
-                        typedef details::uv_base_node<Type>* uvbn_ptr_t;
+                        using uvbn_ptr_t = details::uv_base_node<Type>*;
 
                         core::operators::operator_type o =
                             static_cast<uvbn_ptr_t>(branch[1])->operation();
@@ -12975,7 +12974,7 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     if (details::is_uv_node(branch[0]))
                     {
-                        typedef details::uv_base_node<Type>* uvbn_ptr_t;
+                        using uvbn_ptr_t = details::uv_base_node<Type>*;
 
                         core::operators::operator_type o =
                             static_cast<uvbn_ptr_t>(branch[0])->operation();
@@ -13987,7 +13986,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (!details::is_sf3ext_node(sf3node))
                     return false;
 
-                typedef details::T0oT1oT2_base_node<Type>* sf3ext_base_ptr;
+                using sf3ext_base_ptr = details::T0oT1oT2_base_node<Type>*;
 
                 sf3ext_base_ptr n = static_cast<sf3ext_base_ptr>(sf3node);
                 const std::string id = "t" + expr_gen.to_str(operation) + "(" + n->type_id() + ")";
@@ -14029,7 +14028,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (!details::is_sf3ext_node(sf3node))
                     return false;
 
-                typedef details::T0oT1oT2_base_node<Type>* sf3ext_base_ptr;
+                using sf3ext_base_ptr = details::T0oT1oT2_base_node<Type>*;
 
                 sf3ext_base_ptr n = static_cast<sf3ext_base_ptr>(sf3node);
 
@@ -14109,8 +14108,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovov_expression0
         {
-            typedef typename vovov_t::type0 node_type;
-            typedef typename vovov_t::sf3_type sf3_type;
+            using node_type = typename vovov_t::type0;
+            using sf3_type = typename vovov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14175,8 +14174,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovov_expression1
         {
-            typedef typename vovov_t::type1 node_type;
-            typedef typename vovov_t::sf3_type sf3_type;
+            using node_type = typename vovov_t::type1;
+            using sf3_type = typename vovov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14241,8 +14240,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovoc_expression0
         {
-            typedef typename vovoc_t::type0 node_type;
-            typedef typename vovoc_t::sf3_type sf3_type;
+            using node_type = typename vovoc_t::type0;
+            using sf3_type = typename vovoc_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14308,8 +14307,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovoc_expression1
         {
-            typedef typename vovoc_t::type1 node_type;
-            typedef typename vovoc_t::sf3_type sf3_type;
+            using node_type = typename vovoc_t::type1;
+            using sf3_type = typename vovoc_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14374,8 +14373,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocov_expression0
         {
-            typedef typename vocov_t::type0 node_type;
-            typedef typename vocov_t::sf3_type sf3_type;
+            using node_type = typename vocov_t::type0;
+            using sf3_type = typename vocov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14440,8 +14439,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocov_expression1
         {
-            typedef typename vocov_t::type1 node_type;
-            typedef typename vocov_t::sf3_type sf3_type;
+            using node_type = typename vocov_t::type1;
+            using sf3_type = typename vocov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14506,8 +14505,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covov_expression0
         {
-            typedef typename covov_t::type0 node_type;
-            typedef typename covov_t::sf3_type sf3_type;
+            using node_type = typename covov_t::type0;
+            using sf3_type = typename covov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14572,8 +14571,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covov_expression1
         {
-            typedef typename covov_t::type1 node_type;
-            typedef typename covov_t::sf3_type sf3_type;
+            using node_type = typename covov_t::type1;
+            using sf3_type = typename covov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14639,8 +14638,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covoc_expression0
         {
-            typedef typename covoc_t::type0 node_type;
-            typedef typename covoc_t::sf3_type sf3_type;
+            using node_type = typename covoc_t::type0;
+            using sf3_type = typename covoc_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14766,8 +14765,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covoc_expression1
         {
-            typedef typename covoc_t::type1 node_type;
-            typedef typename covoc_t::sf3_type sf3_type;
+            using node_type = typename covoc_t::type1;
+            using sf3_type = typename covoc_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -14893,7 +14892,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_cocov_expression0
         {
-            typedef typename cocov_t::type0 node_type;
+            using node_type = typename cocov_t::type0;
             static inline expression_node_ptr process(expression_generator<Type>&,
                                                       const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
@@ -14905,8 +14904,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_cocov_expression1
         {
-            typedef typename cocov_t::type1 node_type;
-            typedef typename cocov_t::sf3_type sf3_type;
+            using node_type = typename cocov_t::type1;
+            using sf3_type = typename cocov_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15032,8 +15031,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococ_expression0
         {
-            typedef typename vococ_t::type0 node_type;
-            typedef typename vococ_t::sf3_type sf3_type;
+            using node_type = typename vococ_t::type0;
+            using sf3_type = typename vococ_t::sf3_type;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15168,7 +15167,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococ_expression1
         {
-            typedef typename vococ_t::type0 node_type;
+            using node_type = typename vococ_t::type0;
 
             static inline expression_node_ptr process(expression_generator<Type>&,
                                                       const core::operators::operator_type&,
@@ -15182,12 +15181,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovov_expression0
         {
-            typedef typename vovovov_t::type0 node_type;
-            typedef typename vovovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovov_t::type0;
+            using sf4_type = typename vovovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15326,12 +15325,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovoc_expression0
         {
-            typedef typename vovovoc_t::type0 node_type;
-            typedef typename vovovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovoc_t::type0;
+            using sf4_type = typename vovovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15425,12 +15424,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovocov_expression0
         {
-            typedef typename vovocov_t::type0 node_type;
-            typedef typename vovocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovocov_t::type0;
+            using sf4_type = typename vovocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15524,12 +15523,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovov_expression0
         {
-            typedef typename vocovov_t::type0 node_type;
-            typedef typename vocovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovov_t::type0;
+            using sf4_type = typename vocovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15623,12 +15622,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovov_expression0
         {
-            typedef typename covovov_t::type0 node_type;
-            typedef typename covovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovov_t::type0;
+            using sf4_type = typename covovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15722,12 +15721,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covocov_expression0
         {
-            typedef typename covocov_t::type0 node_type;
-            typedef typename covocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covocov_t::type0;
+            using sf4_type = typename covocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -15946,12 +15945,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovoc_expression0
         {
-            typedef typename vocovoc_t::type0 node_type;
-            typedef typename vocovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovoc_t::type0;
+            using sf4_type = typename vocovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16229,12 +16228,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovoc_expression0
         {
-            typedef typename covovoc_t::type0 node_type;
-            typedef typename covovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovoc_t::type0;
+            using sf4_type = typename covovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16453,12 +16452,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococov_expression0
         {
-            typedef typename vococov_t::type0 node_type;
-            typedef typename vococov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vococov_t::type0;
+            using sf4_type = typename vococov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16677,12 +16676,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovov_expression1
         {
-            typedef typename vovovov_t::type1 node_type;
-            typedef typename vovovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovov_t::type1;
+            using sf4_type = typename vovovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16690,7 +16689,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (v1 o1 (v2 o2 v3))
-                typedef typename synthesize_vovov_expression1::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -16736,12 +16735,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovoc_expression1
         {
-            typedef typename vovovoc_t::type1 node_type;
-            typedef typename vovovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovoc_t::type1;
+            using sf4_type = typename vovovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16749,7 +16748,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (v1 o1 (v2 o2 c))
-                typedef typename synthesize_vovoc_expression1::node_type lcl_vovoc_t;
+                using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -16795,12 +16794,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovocov_expression1
         {
-            typedef typename vovocov_t::type1 node_type;
-            typedef typename vovocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovocov_t::type1;
+            using sf4_type = typename vovocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16808,7 +16807,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (v1 o1 (c o2 v2))
-                typedef typename synthesize_vocov_expression1::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -16854,12 +16853,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovov_expression1
         {
-            typedef typename vocovov_t::type1 node_type;
-            typedef typename vocovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovov_t::type1;
+            using sf4_type = typename vocovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16867,7 +16866,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (c o1 (v1 o2 v2))
-                typedef typename synthesize_covov_expression1::node_type lcl_covov_t;
+                using lcl_covov_t = typename synthesize_covov_expression1::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -16913,12 +16912,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovov_expression1
         {
-            typedef typename covovov_t::type1 node_type;
-            typedef typename covovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovov_t::type1;
+            using sf4_type = typename covovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16926,7 +16925,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // c o0 (v0 o1 (v1 o2 v2))
-                typedef typename synthesize_vovov_expression1::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
                 const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
@@ -16973,12 +16972,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covocov_expression1
         {
-            typedef typename covocov_t::type1 node_type;
-            typedef typename covocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covocov_t::type1;
+            using sf4_type = typename covocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -16986,7 +16985,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // c0 o0 (v0 o1 (c1 o2 v1))
-                typedef typename synthesize_vocov_expression1::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
                 const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
@@ -17033,12 +17032,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovoc_expression1
         {
-            typedef typename vocovoc_t::type1 node_type;
-            typedef typename vocovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovoc_t::type1;
+            using sf4_type = typename vocovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17046,7 +17045,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (c0 o1 (v1 o2 c2))
-                typedef typename synthesize_covoc_expression1::node_type lcl_covoc_t;
+                using lcl_covoc_t = typename synthesize_covoc_expression1::node_type;
 
                 const lcl_covoc_t* covoc = static_cast<const lcl_covoc_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17092,19 +17091,19 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovoc_expression1
         {
-            typedef typename covovoc_t::type1 node_type;
-            typedef typename covovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovoc_t::type1;
+            using sf4_type = typename covovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
                     const core::operators::operator_type& operation,
                     expression_node_ptr (&branch)[2])
             {
                 // c0 o0 (v0 o1 (v1 o2 c1))
-                typedef typename synthesize_vovoc_expression1::node_type lcl_vovoc_t;
+                using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
                 const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
@@ -17151,12 +17150,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococov_expression1
         {
-            typedef typename vococov_t::type1 node_type;
-            typedef typename vococov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vococov_t::type1;
+            using sf4_type = typename vococov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17164,7 +17163,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (c0 o1 (c1 o2 v1))
-                typedef typename synthesize_cocov_expression1::node_type lcl_cocov_t;
+                using lcl_cocov_t = typename synthesize_cocov_expression1::node_type;
 
                 const lcl_cocov_t* cocov = static_cast<const lcl_cocov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17210,12 +17209,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovov_expression2
         {
-            typedef typename vovovov_t::type2 node_type;
-            typedef typename vovovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovov_t::type2;
+            using sf4_type = typename vovovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17223,7 +17222,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((v1 o1 v2) o2 v3)
-                typedef typename synthesize_vovov_expression0::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17269,12 +17268,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovoc_expression2
         {
-            typedef typename vovovoc_t::type2 node_type;
-            typedef typename vovovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovoc_t::type2;
+            using sf4_type = typename vovovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17282,7 +17281,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((v1 o1 v2) o2 c)
-                typedef typename synthesize_vovoc_expression0::node_type lcl_vovoc_t;
+                using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17328,12 +17327,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovocov_expression2
         {
-            typedef typename vovocov_t::type2 node_type;
-            typedef typename vovocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovocov_t::type2;
+            using sf4_type = typename vovocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17341,7 +17340,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((v1 o1 c) o2 v2)
-                typedef typename synthesize_vocov_expression0::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17387,12 +17386,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovov_expression2
         {
-            typedef typename vocovov_t::type2 node_type;
-            typedef typename vocovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovov_t::type2;
+            using sf4_type = typename vocovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17400,7 +17399,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((c o1 v1) o2 v2)
-                typedef typename synthesize_covov_expression0::node_type lcl_covov_t;
+                using lcl_covov_t = typename synthesize_covov_expression0::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17446,12 +17445,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovov_expression2
         {
-            typedef typename covovov_t::type2 node_type;
-            typedef typename covovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovov_t::type2;
+            using sf4_type = typename covovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17459,7 +17458,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // c o0 ((v1 o1 v2) o2 v3)
-                typedef typename synthesize_vovov_expression0::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
                 const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
@@ -17506,12 +17505,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covocov_expression2
         {
-            typedef typename covocov_t::type2 node_type;
-            typedef typename covocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covocov_t::type2;
+            using sf4_type = typename covocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17519,7 +17518,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // c0 o0 ((v0 o1 c1) o2 v1)
-                typedef typename synthesize_vocov_expression0::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
                 const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
@@ -17566,12 +17565,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovoc_expression2
         {
-            typedef typename vocovoc_t::type2 node_type;
-            typedef typename vocovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovoc_t::type2;
+            using sf4_type = typename vocovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17579,7 +17578,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((c0 o1 v1) o2 c1)
-                typedef typename synthesize_covoc_expression0::node_type lcl_covoc_t;
+                using lcl_covoc_t = typename synthesize_covoc_expression0::node_type;
 
                 const lcl_covoc_t* covoc = static_cast<const lcl_covoc_t*>(branch[1]);
                 const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
@@ -17625,12 +17624,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovoc_expression2
         {
-            typedef typename covovoc_t::type2 node_type;
-            typedef typename covovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovoc_t::type2;
+            using sf4_type = typename covovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17638,7 +17637,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // c0 o0 ((v0 o1 v1) o2 c1)
-                typedef typename synthesize_vovoc_expression0::node_type lcl_vovoc_t;
+                using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
                 const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
@@ -17685,7 +17684,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococov_expression2
         {
-            typedef typename vococov_t::type2 node_type;
+            using node_type = typename vococov_t::type2;
             static inline expression_node_ptr process(expression_generator<Type>&,
                                                       const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
@@ -17706,12 +17705,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovov_expression3
         {
-            typedef typename vovovov_t::type3 node_type;
-            typedef typename vovovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovov_t::type3;
+            using sf4_type = typename vovovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17719,7 +17718,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 v1) o1 v2) o2 v3
-                typedef typename synthesize_vovov_expression0::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[0]);
                 const Type& v0 = vovov->t0();
@@ -17765,12 +17764,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovoc_expression3
         {
-            typedef typename vovovoc_t::type3 node_type;
-            typedef typename vovovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovoc_t::type3;
+            using sf4_type = typename vovovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17778,7 +17777,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 v1) o1 v2) o2 c
-                typedef typename synthesize_vovov_expression0::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[0]);
                 const Type& v0 = vovov->t0();
@@ -17825,12 +17824,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovocov_expression3
         {
-            typedef typename vovocov_t::type3 node_type;
-            typedef typename vovocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovocov_t::type3;
+            using sf4_type = typename vovocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17838,7 +17837,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 v1) o1 c) o2 v2
-                typedef typename synthesize_vovoc_expression0::node_type lcl_vovoc_t;
+                using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[0]);
                 const Type& v0 = vovoc->t0();
@@ -17884,12 +17883,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovov_expression3
         {
-            typedef typename vocovov_t::type3 node_type;
-            typedef typename vocovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovov_t::type3;
+            using sf4_type = typename vocovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17897,7 +17896,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 c) o1 v1) o2 v2
-                typedef typename synthesize_vocov_expression0::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[0]);
                 const Type& v0 = vocov->t0();
@@ -17943,12 +17942,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovov_expression3
         {
-            typedef typename covovov_t::type3 node_type;
-            typedef typename covovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovov_t::type3;
+            using sf4_type = typename covovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -17956,7 +17955,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((c o0 v0) o1 v1) o2 v2
-                typedef typename synthesize_covov_expression0::node_type lcl_covov_t;
+                using lcl_covov_t = typename synthesize_covov_expression0::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[0]);
                 const Type c = covov->t0();
@@ -18002,12 +18001,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covocov_expression3
         {
-            typedef typename covocov_t::type3 node_type;
-            typedef typename covocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covocov_t::type3;
+            using sf4_type = typename covocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18015,7 +18014,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 v0) o1 c1) o2 v1
-                typedef typename synthesize_covoc_expression0::node_type lcl_covoc_t;
+                using lcl_covoc_t = typename synthesize_covoc_expression0::node_type;
 
                 const lcl_covoc_t* covoc = static_cast<const lcl_covoc_t*>(branch[0]);
                 const Type c0 = covoc->t0();
@@ -18061,12 +18060,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovoc_expression3
         {
-            typedef typename vocovoc_t::type3 node_type;
-            typedef typename vocovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovoc_t::type3;
+            using sf4_type = typename vocovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18074,7 +18073,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 c0) o1 v1) o2 c1
-                typedef typename synthesize_vocov_expression0::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[0]);
                 const Type& v0 = vocov->t0();
@@ -18121,12 +18120,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovoc_expression3
         {
-            typedef typename covovoc_t::type3 node_type;
-            typedef typename covovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovoc_t::type3;
+            using sf4_type = typename covovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18134,7 +18133,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 v0) o1 v1) o2 c1
-                typedef typename synthesize_covov_expression0::node_type lcl_covov_t;
+                using lcl_covov_t = typename synthesize_covov_expression0::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[0]);
                 const Type c0 = covov->t0();
@@ -18181,12 +18180,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococov_expression3
         {
-            typedef typename vococov_t::type3 node_type;
-            typedef typename vococov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vococov_t::type3;
+            using sf4_type = typename vococov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18194,7 +18193,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 c0) o1 c1) o2 v1
-                typedef typename synthesize_vococ_expression0::node_type lcl_vococ_t;
+                using lcl_vococ_t = typename synthesize_vococ_expression0::node_type;
 
                 const lcl_vococ_t* vococ = static_cast<const lcl_vococ_t*>(branch[0]);
                 const Type& v0 = vococ->t0();
@@ -18240,12 +18239,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovov_expression4
         {
-            typedef typename vovovov_t::type4 node_type;
-            typedef typename vovovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovov_t::type4;
+            using sf4_type = typename vovovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18253,7 +18252,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 (v1 o1 v2)) o2 v3
-                typedef typename synthesize_vovov_expression1::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[0]);
                 const Type& v0 = vovov->t0();
@@ -18299,12 +18298,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovovoc_expression4
         {
-            typedef typename vovovoc_t::type4 node_type;
-            typedef typename vovovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovovoc_t::type4;
+            using sf4_type = typename vovovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18312,7 +18311,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (v1 o1 v2)) o2 c)
-                typedef typename synthesize_vovov_expression1::node_type lcl_vovov_t;
+                using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[0]);
                 const Type& v0 = vovov->t0();
@@ -18359,12 +18358,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vovocov_expression4
         {
-            typedef typename vovocov_t::type4 node_type;
-            typedef typename vovocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vovocov_t::type4;
+            using sf4_type = typename vovocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18372,7 +18371,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (v1 o1 c)) o2 v1)
-                typedef typename synthesize_vovoc_expression1::node_type lcl_vovoc_t;
+                using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[0]);
                 const Type& v0 = vovoc->t0();
@@ -18418,12 +18417,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovov_expression4
         {
-            typedef typename vocovov_t::type4 node_type;
-            typedef typename vocovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovov_t::type4;
+            using sf4_type = typename vocovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18431,7 +18430,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (c o1 v1)) o2 v2)
-                typedef typename synthesize_vocov_expression1::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[0]);
                 const Type& v0 = vocov->t0();
@@ -18476,12 +18475,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovov_expression4
         {
-            typedef typename covovov_t::type4 node_type;
-            typedef typename covovov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovov_t::type4;
+            using sf4_type = typename covovov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18489,7 +18488,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((c o0 (v0 o1 v1)) o2 v2)
-                typedef typename synthesize_covov_expression1::node_type lcl_covov_t;
+                using lcl_covov_t = typename synthesize_covov_expression1::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[0]);
                 const Type c = covov->t0();
@@ -18535,12 +18534,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covocov_expression4
         {
-            typedef typename covocov_t::type4 node_type;
-            typedef typename covocov_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covocov_t::type4;
+            using sf4_type = typename covocov_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18548,7 +18547,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 (v0 o1 c1)) o2 v1)
-                typedef typename synthesize_covoc_expression1::node_type lcl_covoc_t;
+                using lcl_covoc_t = typename synthesize_covoc_expression1::node_type;
 
                 const lcl_covoc_t* covoc = static_cast<const lcl_covoc_t*>(branch[0]);
                 const Type c0 = covoc->t0();
@@ -18594,12 +18593,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vocovoc_expression4
         {
-            typedef typename vocovoc_t::type4 node_type;
-            typedef typename vocovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename vocovoc_t::type4;
+            using sf4_type = typename vocovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18607,7 +18606,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (c0 o1 v1)) o2 c1)
-                typedef typename synthesize_vocov_expression1::node_type lcl_vocov_t;
+                using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[0]);
                 const Type& v0 = vocov->t0();
@@ -18654,12 +18653,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_covovoc_expression4
         {
-            typedef typename covovoc_t::type4 node_type;
-            typedef typename covovoc_t::sf4_type sf4_type;
-            typedef typename node_type::T0 T0;
-            typedef typename node_type::T1 T1;
-            typedef typename node_type::T2 T2;
-            typedef typename node_type::T3 T3;
+            using node_type = typename covovoc_t::type4;
+            using sf4_type = typename covovoc_t::sf4_type;
+            using T0 = typename node_type::T0;
+            using T1 = typename node_type::T1;
+            using T2 = typename node_type::T2;
+            using T3 = typename node_type::T3;
 
             static inline expression_node_ptr
             process(expression_generator<Type>& expr_gen,
@@ -18667,7 +18666,7 @@ template <typename T> class parser : public lexer::parser_helper
                     expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 (v0 o1 v1)) o2 c1)
-                typedef typename synthesize_covov_expression1::node_type lcl_covov_t;
+                using lcl_covov_t = typename synthesize_covov_expression1::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[0]);
                 const Type c0 = covov->t0();
@@ -18714,7 +18713,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vococov_expression4
         {
-            typedef typename vococov_t::type4 node_type;
+            using node_type = typename vococov_t::type4;
             static inline expression_node_ptr process(expression_generator<Type>&,
                                                       const core::operators::operator_type&,
                                                       expression_node_ptr (&)[2])
@@ -19444,9 +19443,9 @@ template <typename T> class parser : public lexer::parser_helper
                 std::string& s2 =
                     static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
 
-                typedef typename details::sosos_node<Type, std::string&, std::string&, std::string&,
-                                                     details::inrange_op<Type>>
-                    inrange_t;
+                using inrange_t =
+                    typename details::sosos_node<Type, std::string&, std::string&, std::string&,
+                                                 details::inrange_op<Type>>;
 
                 return node_allocator_
                     ->allocate_type<inrange_t, std::string&, std::string&, std::string&>(s0, s1,
@@ -19460,9 +19459,9 @@ template <typename T> class parser : public lexer::parser_helper
                     static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
                 std::string s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
 
-                typedef typename details::sosos_node<Type, std::string, std::string&, std::string,
-                                                     details::inrange_op<Type>>
-                    inrange_t;
+                using inrange_t =
+                    typename details::sosos_node<Type, std::string, std::string&, std::string,
+                                                 details::inrange_op<Type>>;
 
                 details::free_node(*node_allocator_, branch[0]);
                 details::free_node(*node_allocator_, branch[2]);
@@ -19479,9 +19478,9 @@ template <typename T> class parser : public lexer::parser_helper
                 std::string& s2 =
                     static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
 
-                typedef typename details::sosos_node<Type, std::string&, std::string, std::string&,
-                                                     details::inrange_op<Type>>
-                    inrange_t;
+                using inrange_t =
+                    typename details::sosos_node<Type, std::string&, std::string, std::string&,
+                                                 details::inrange_op<Type>>;
 
                 details::free_node(*node_allocator_, branch[1]);
 
@@ -19497,9 +19496,9 @@ template <typename T> class parser : public lexer::parser_helper
                     static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
                 std::string s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
 
-                typedef typename details::sosos_node<Type, std::string&, std::string&, std::string,
-                                                     details::inrange_op<Type>>
-                    inrange_t;
+                using inrange_t =
+                    typename details::sosos_node<Type, std::string&, std::string&, std::string,
+                                                 details::inrange_op<Type>>;
 
                 details::free_node(*node_allocator_, branch[2]);
 
@@ -19515,9 +19514,9 @@ template <typename T> class parser : public lexer::parser_helper
                 std::string& s2 =
                     static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
 
-                typedef typename details::sosos_node<Type, std::string, std::string&, std::string&,
-                                                     details::inrange_op<Type>>
-                    inrange_t;
+                using inrange_t =
+                    typename details::sosos_node<Type, std::string, std::string&, std::string&,
+                                                 details::inrange_op<Type>>;
 
                 details::free_node(*node_allocator_, branch[0]);
 
@@ -19552,7 +19551,7 @@ template <typename T> class parser : public lexer::parser_helper
              5. null operation x    --> x
             */
 
-            typedef typename details::null_eq_node<T> nulleq_node_t;
+            using nulleq_node_t = typename details::null_eq_node<T>;
 
             const bool b0_null = details::is_null_node(branch[0]);
             const bool b1_null = details::is_null_node(branch[1]);
@@ -19698,7 +19697,7 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            typedef typename details::function_N_node<T, ifunction_t, N> function_N_node_t;
+            using function_N_node_t = typename details::function_N_node<T, ifunction_t, N>;
 
             // Attempt simple constant folding optimisation.
 
@@ -19959,7 +19958,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline void load_binary_operations_map(binary_op_map_t& m)
     {
-        typedef typename binary_op_map_t::value_type value_type;
+        using value_type = typename binary_op_map_t::value_type;
 
 #define register_binary_op(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process));
 
@@ -20004,7 +20003,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline void load_inv_binary_operations_map(inv_binary_op_map_t& m)
     {
-        typedef typename inv_binary_op_map_t::value_type value_type;
+        using value_type = typename inv_binary_op_map_t::value_type;
 
 #define register_binary_op(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op));
 
@@ -20049,7 +20048,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline void load_sf3_map(sf3_map_t& sf3_map)
     {
-        typedef std::pair<trinary_functor_t, core::operators::operator_type> pair_t;
+        using pair_t = std::pair<trinary_functor_t, core::operators::operator_type>;
 
 #define register_sf3(Op)                                                                           \
     sf3_map[details::sf##Op##_op<T>::id()] =                                                       \
@@ -20073,7 +20072,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     inline void load_sf4_map(sf4_map_t& sf4_map)
     {
-        typedef std::pair<quaternary_functor_t, core::operators::operator_type> pair_t;
+        using pair_t = std::pair<quaternary_functor_t, core::operators::operator_type>;
 
 #define register_sf4(Op)                                                                           \
     sf4_map[details::sf##Op##_op<T>::id()] =                                                       \

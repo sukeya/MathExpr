@@ -48,8 +48,8 @@ template <typename T> class null_igenfunc
   public:
     virtual ~null_igenfunc() {}
 
-    typedef type_store<T> generic_type;
-    typedef typename generic_type::parameter_list parameter_list_t;
+    using generic_type = type_store<T>;
+    using parameter_list_t = typename generic_type::parameter_list;
 
     inline virtual T operator()(parameter_list_t)
     {
@@ -61,10 +61,10 @@ template <typename T> class null_igenfunc
 template <typename T> class return_node final : public generic_function_node<T, null_igenfunc<T>>
 {
   public:
-    typedef results_context<T> results_context_t;
-    typedef null_igenfunc<T> igeneric_function_t;
-    typedef igeneric_function_t* igeneric_function_ptr;
-    typedef generic_function_node<T, igeneric_function_t> gen_function_t;
+    using results_context_t = results_context<T>;
+    using igeneric_function_t = null_igenfunc<T>;
+    using igeneric_function_ptr = igeneric_function_t*;
+    using gen_function_t = generic_function_node<T, igeneric_function_t>;
 
     return_node(const std::vector<typename gen_function_t::expression_ptr>& arg_list,
                 results_context_t& rc)
@@ -79,7 +79,7 @@ template <typename T> class return_node final : public generic_function_node<T, 
         {
             prepare_typestore_list();
 
-            typedef typename type_store<T>::parameter_list parameter_list_t;
+            using parameter_list_t = typename type_store<T>::parameter_list;
 
             results_context_->assign(parameter_list_t(gen_function_t::typestore_list_));
 
@@ -119,9 +119,9 @@ template <typename T> class return_node final : public generic_function_node<T, 
 template <typename T> class return_envelope_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef results_context<T> results_context_t;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using results_context_t = results_context<T>;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     return_envelope_node(expression_ptr body, results_context_t& rc)
         : results_context_(&rc), return_invoked_(false)
@@ -182,8 +182,8 @@ template <typename T> class return_envelope_node final : public expression_node<
 #define math_expr_define_unary_op(OpName)                                                          \
     template <typename T> struct OpName##_op                                                       \
     {                                                                                              \
-        typedef typename core::numeric::functor_t<T>::Type Type;                                   \
-        typedef typename expression_node<T>::node_type node_t;                                     \
+        using Type = typename core::numeric::functor_t<T>::Type;                                   \
+        using node_t = typename expression_node<T>::node_type;                                     \
                                                                                                    \
         static inline T process(Type v)                                                            \
         {                                                                                          \

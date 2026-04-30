@@ -40,9 +40,9 @@ namespace math_expr::details
 {
 template <typename Node> struct node_collector_interface
 {
-    typedef Node* node_ptr_t;
-    typedef Node** node_pp_t;
-    typedef std::vector<node_pp_t> noderef_list_t;
+    using node_ptr_t = Node*;
+    using node_pp_t = Node**;
+    using noderef_list_t = std::vector<node_pp_t>;
 
     virtual ~node_collector_interface() {}
 

@@ -46,19 +46,19 @@ template <typename T> inline T truth_value(const bool value)
 
 template <typename T> struct opr_base
 {
-    typedef typename core::numeric::functor_t<T>::Type Type;
-    typedef typename core::numeric::functor_t<T>::RefType RefType;
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::qfunc_t quaternary_functor_t;
-    typedef typename functor_t::tfunc_t trinary_functor_t;
-    typedef typename functor_t::bfunc_t binary_functor_t;
-    typedef typename functor_t::ufunc_t unary_functor_t;
+    using Type = typename core::numeric::functor_t<T>::Type;
+    using RefType = typename core::numeric::functor_t<T>::RefType;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using quaternary_functor_t = typename functor_t::qfunc_t;
+    using trinary_functor_t = typename functor_t::tfunc_t;
+    using binary_functor_t = typename functor_t::bfunc_t;
+    using unary_functor_t = typename functor_t::ufunc_t;
 };
 
 template <typename T> struct add_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
-    typedef typename opr_base<T>::RefType RefType;
+    using Type = typename opr_base<T>::Type;
+    using RefType = typename opr_base<T>::RefType;
 
     static inline T process(Type t1, Type t2)
     {
@@ -84,8 +84,8 @@ template <typename T> struct add_op : public opr_base<T>
 
 template <typename T> struct mul_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
-    typedef typename opr_base<T>::RefType RefType;
+    using Type = typename opr_base<T>::Type;
+    using RefType = typename opr_base<T>::RefType;
 
     static inline T process(Type t1, Type t2)
     {
@@ -111,8 +111,8 @@ template <typename T> struct mul_op : public opr_base<T>
 
 template <typename T> struct sub_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
-    typedef typename opr_base<T>::RefType RefType;
+    using Type = typename opr_base<T>::Type;
+    using RefType = typename opr_base<T>::RefType;
 
     static inline T process(Type t1, Type t2)
     {
@@ -138,8 +138,8 @@ template <typename T> struct sub_op : public opr_base<T>
 
 template <typename T> struct div_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
-    typedef typename opr_base<T>::RefType RefType;
+    using Type = typename opr_base<T>::Type;
+    using RefType = typename opr_base<T>::RefType;
 
     static inline T process(Type t1, Type t2)
     {
@@ -165,8 +165,8 @@ template <typename T> struct div_op : public opr_base<T>
 
 template <typename T> struct mod_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
-    typedef typename opr_base<T>::RefType RefType;
+    using Type = typename opr_base<T>::Type;
+    using RefType = typename opr_base<T>::RefType;
 
     static inline T process(Type t1, Type t2)
     {
@@ -188,8 +188,8 @@ template <typename T> struct mod_op : public opr_base<T>
 
 template <typename T> struct pow_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
-    typedef typename opr_base<T>::RefType RefType;
+    using Type = typename opr_base<T>::Type;
+    using RefType = typename opr_base<T>::RefType;
 
     static inline T process(Type t1, Type t2)
     {
@@ -211,7 +211,7 @@ template <typename T> struct pow_op : public opr_base<T>
 
 template <typename T> struct lt_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -233,7 +233,7 @@ template <typename T> struct lt_op : public opr_base<T>
 
 template <typename T> struct lte_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -255,7 +255,7 @@ template <typename T> struct lte_op : public opr_base<T>
 
 template <typename T> struct gt_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -277,7 +277,7 @@ template <typename T> struct gt_op : public opr_base<T>
 
 template <typename T> struct gte_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -299,7 +299,7 @@ template <typename T> struct gte_op : public opr_base<T>
 
 template <typename T> struct eq_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
     static inline T process(Type t1, Type t2)
     {
         return truth_value<T>(std::equal_to<T>()(t1, t2));
@@ -320,7 +320,7 @@ template <typename T> struct eq_op : public opr_base<T>
 
 template <typename T> struct equal_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -342,7 +342,7 @@ template <typename T> struct equal_op : public opr_base<T>
 
 template <typename T> struct ne_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -364,7 +364,7 @@ template <typename T> struct ne_op : public opr_base<T>
 
 template <typename T> struct and_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -382,7 +382,7 @@ template <typename T> struct and_op : public opr_base<T>
 
 template <typename T> struct nand_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -400,7 +400,7 @@ template <typename T> struct nand_op : public opr_base<T>
 
 template <typename T> struct or_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -418,7 +418,7 @@ template <typename T> struct or_op : public opr_base<T>
 
 template <typename T> struct nor_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -436,7 +436,7 @@ template <typename T> struct nor_op : public opr_base<T>
 
 template <typename T> struct xor_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -454,7 +454,7 @@ template <typename T> struct xor_op : public opr_base<T>
 
 template <typename T> struct xnor_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(Type t1, Type t2)
     {
@@ -472,7 +472,7 @@ template <typename T> struct xnor_op : public opr_base<T>
 
 template <typename T> struct in_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(const T&, const T&)
     {
@@ -494,7 +494,7 @@ template <typename T> struct in_op : public opr_base<T>
 
 template <typename T> struct like_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(const T&, const T&)
     {
@@ -516,7 +516,7 @@ template <typename T> struct like_op : public opr_base<T>
 
 template <typename T> struct ilike_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(const T&, const T&)
     {
@@ -538,7 +538,7 @@ template <typename T> struct ilike_op : public opr_base<T>
 
 template <typename T> struct inrange_op : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     static inline T process(const T& t0, const T& t1, const T& t2)
     {
@@ -580,7 +580,7 @@ template <typename T> inline T value(const T& t)
 
 template <typename T> struct vararg_add_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -642,7 +642,7 @@ template <typename T> struct vararg_add_op final : public opr_base<T>
 
 template <typename T> struct vararg_mul_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -704,7 +704,7 @@ template <typename T> struct vararg_mul_op final : public opr_base<T>
 
 template <typename T> struct vararg_avg_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -759,7 +759,7 @@ template <typename T> struct vararg_avg_op final : public opr_base<T>
 
 template <typename T> struct vararg_min_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -826,7 +826,7 @@ template <typename T> struct vararg_min_op final : public opr_base<T>
 
 template <typename T> struct vararg_max_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -893,7 +893,7 @@ template <typename T> struct vararg_max_op final : public opr_base<T>
 
 template <typename T> struct vararg_mand_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -959,7 +959,7 @@ template <typename T> struct vararg_mand_op final : public opr_base<T>
 
 template <typename T> struct vararg_mor_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -1025,7 +1025,7 @@ template <typename T> struct vararg_mor_op final : public opr_base<T>
 
 template <typename T> struct vararg_multi_op final : public opr_base<T>
 {
-    typedef typename opr_base<T>::Type Type;
+    using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
     static inline T process(const Sequence<Type, Allocator>& arg_list)
@@ -1132,7 +1132,7 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
 
 template <typename T> struct vec_add_op
 {
-    typedef vector_interface<T>* ivector_ptr;
+    using ivector_ptr = vector_interface<T>*;
 
     static inline T process(const ivector_ptr v)
     {
@@ -1189,7 +1189,7 @@ template <typename T> struct vec_add_op
 
 template <typename T> struct vec_mul_op
 {
-    typedef vector_interface<T>* ivector_ptr;
+    using ivector_ptr = vector_interface<T>*;
 
     static inline T process(const ivector_ptr v)
     {
@@ -1246,7 +1246,7 @@ template <typename T> struct vec_mul_op
 
 template <typename T> struct vec_avg_op
 {
-    typedef vector_interface<T>* ivector_ptr;
+    using ivector_ptr = vector_interface<T>*;
 
     static inline T process(const ivector_ptr v)
     {
@@ -1257,7 +1257,7 @@ template <typename T> struct vec_avg_op
 
 template <typename T> struct vec_min_op
 {
-    typedef vector_interface<T>* ivector_ptr;
+    using ivector_ptr = vector_interface<T>*;
 
     static inline T process(const ivector_ptr v)
     {
@@ -1280,7 +1280,7 @@ template <typename T> struct vec_min_op
 
 template <typename T> struct vec_max_op
 {
-    typedef vector_interface<T>* ivector_ptr;
+    using ivector_ptr = vector_interface<T>*;
 
     static inline T process(const ivector_ptr v)
     {
@@ -1450,8 +1450,8 @@ template <typename T> class T0oT1oT2oT3_base_node : public expression_node<T>
 template <typename T, typename Operation> class unary_variable_node final : public uv_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
 
     explicit unary_variable_node(const T& var) : v_(var) {}
 
@@ -1486,10 +1486,10 @@ template <typename T> class uvouv_node final : public expression_node<T>
 {
   public:
     // UOpr1(v0) Op UOpr2(v1)
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::bfunc_t bfunc_t;
-    typedef typename functor_t::ufunc_t ufunc_t;
-    typedef expression_node<T>* expression_ptr;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
+    using ufunc_t = typename functor_t::ufunc_t;
+    using expression_ptr = expression_node<T>*;
 
     explicit uvouv_node(const T& var0, const T& var1, ufunc_t uf0, ufunc_t uf1, bfunc_t bf)
         : v0_(var0), v1_(var1), u0_(uf0), u1_(uf1), f_(bf)
@@ -1545,9 +1545,9 @@ template <typename T> class uvouv_node final : public expression_node<T>
 template <typename T, typename Operation> class unary_branch_node final : public expression_node<T>
 {
   public:
-    typedef Operation operation_t;
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using operation_t = Operation;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     explicit unary_branch_node(expression_ptr branch)
     {
@@ -1625,8 +1625,8 @@ template <> struct param_to_str<0>
 
 template <typename T> struct T0oT1oT2process
 {
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::bfunc_t bfunc_t;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
 
     struct mode0
     {
@@ -1667,8 +1667,8 @@ template <typename T> struct T0oT1oT2process
 
 template <typename T> struct T0oT1oT20T3process
 {
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::bfunc_t bfunc_t;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
 
     struct mode0
     {
@@ -1861,10 +1861,10 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
                                                     class T0oT1 final : public expression_node<T>
 {
   public:
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::bfunc_t bfunc_t;
-    typedef T value_type;
-    typedef T0oT1<T, T0, T1> node_type;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
+    using value_type = T;
+    using node_type = T0oT1<T, T0, T1>;
 
     T0oT1(T0 p0, T1 p1, const bfunc_t p2) : t0_(p0), t1_(p1), f_(p2) {}
 
@@ -1920,11 +1920,11 @@ template <typename T, typename T0, typename T1, typename T2, typename ProcessMod
 class T0oT1oT2 final : public T0oT1oT2_base_node<T>
 {
   public:
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::bfunc_t bfunc_t;
-    typedef T value_type;
-    typedef T0oT1oT2<T, T0, T1, T2, ProcessMode> node_type;
-    typedef ProcessMode process_mode_t;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
+    using value_type = T;
+    using node_type = T0oT1oT2<T, T0, T1, T2, ProcessMode>;
+    using process_mode_t = ProcessMode;
 
     T0oT1oT2(T0 p0, T1 p1, T2 p2, const bfunc_t p3, const bfunc_t p4)
         : t0_(p0), t1_(p1), t2_(p2), f0_(p3), f1_(p4)
@@ -2004,15 +2004,15 @@ template <typename T, typename T0_, typename T1_, typename T2_, typename T3_, ty
 class T0oT1oT2oT3 final : public T0oT1oT2oT3_base_node<T>
 {
   public:
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::bfunc_t bfunc_t;
-    typedef T value_type;
-    typedef T0_ T0;
-    typedef T1_ T1;
-    typedef T2_ T2;
-    typedef T3_ T3;
-    typedef T0oT1oT2oT3<T, T0, T1, T2, T3, ProcessMode> node_type;
-    typedef ProcessMode process_mode_t;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
+    using value_type = T;
+    using T0 = T0_;
+    using T1 = T1_;
+    using T2 = T2_;
+    using T3 = T3_;
+    using node_type = T0oT1oT2oT3<T, T0, T1, T2, T3, ProcessMode>;
+    using process_mode_t = ProcessMode;
 
     T0oT1oT2oT3(T0 p0, T1 p1, T2 p2, T3 p3, bfunc_t p4, bfunc_t p5, bfunc_t p6)
         : t0_(p0), t1_(p1), t2_(p2), t3_(p3), f0_(p4), f1_(p5), f2_(p6)
@@ -2094,10 +2094,10 @@ template <typename T, typename T0, typename T1, typename T2>
 class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
 {
   public:
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::tfunc_t tfunc_t;
-    typedef T value_type;
-    typedef T0oT1oT2_sf3<T, T0, T1, T2> node_type;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using tfunc_t = typename functor_t::tfunc_t;
+    using value_type = T;
+    using node_type = T0oT1oT2_sf3<T, T0, T1, T2>;
 
     T0oT1oT2_sf3(T0 p0, T1 p1, T2 p2, const tfunc_t p3) : t0_(p0), t1_(p1), t2_(p2), f_(p3) {}
 
@@ -2180,8 +2180,8 @@ template <typename T, typename T0, typename T1, typename T2, typename SF3Operati
 class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
 {
   public:
-    typedef T value_type;
-    typedef T0oT1oT2_sf3ext<T, T0, T1, T2, SF3Operation> node_type;
+    using value_type = T;
+    using node_type = T0oT1oT2_sf3ext<T, T0, T1, T2, SF3Operation>;
 
     T0oT1oT2_sf3ext(T0 p0, T1 p1, T2 p2) : t0_(p0), t1_(p1), t2_(p2) {}
 
@@ -2263,10 +2263,10 @@ template <typename T, typename T0, typename T1, typename T2, typename T3>
 class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
 {
   public:
-    typedef typename core::numeric::functor_t<T> functor_t;
-    typedef typename functor_t::qfunc_t qfunc_t;
-    typedef T value_type;
-    typedef T0oT1oT2oT3_sf4<T, T0, T1, T2, T3> node_type;
+    using functor_t = typename core::numeric::functor_t<T>;
+    using qfunc_t = typename functor_t::qfunc_t;
+    using value_type = T;
+    using node_type = T0oT1oT2oT3_sf4<T, T0, T1, T2, T3>;
 
     T0oT1oT2oT3_sf4(T0 p0, T1 p1, T2 p2, T3 p3, const qfunc_t p4)
         : t0_(p0), t1_(p1), t2_(p2), t3_(p3), f_(p4)
@@ -2346,8 +2346,8 @@ template <typename T, typename T0, typename T1, typename T2, typename T3, typena
 class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
 {
   public:
-    typedef T value_type;
-    typedef T0oT1oT2oT3_sf4ext<T, T0, T1, T2, T3, SF4Operation> node_type;
+    using value_type = T;
+    using node_type = T0oT1oT2oT3_sf4ext<T, T0, T1, T2, T3, SF4Operation>;
 
     T0oT1oT2oT3_sf4ext(T0 p0, T1 p1, T2 p2, T3 p3) : t0_(p0), t1_(p1), t2_(p2), t3_(p3) {}
 
@@ -2436,32 +2436,32 @@ template <typename T> inline bool is_sf4ext_node(const expression_node<T>* n)
 
 template <typename T, typename T0, typename T1> struct T0oT1_define
 {
-    typedef details::T0oT1<T, T0, T1> type0;
+    using type0 = details::T0oT1<T, T0, T1>;
 };
 
 template <typename T, typename T0, typename T1, typename T2> struct T0oT1oT2_define
 {
-    typedef details::T0oT1oT2<T, T0, T1, T2, typename T0oT1oT2process<T>::mode0> type0;
-    typedef details::T0oT1oT2<T, T0, T1, T2, typename T0oT1oT2process<T>::mode1> type1;
-    typedef details::T0oT1oT2_sf3<T, T0, T1, T2> sf3_type;
-    typedef details::sf3ext_type_node<T, T0, T1, T2> sf3_type_node;
+    using type0 = details::T0oT1oT2<T, T0, T1, T2, typename T0oT1oT2process<T>::mode0>;
+    using type1 = details::T0oT1oT2<T, T0, T1, T2, typename T0oT1oT2process<T>::mode1>;
+    using sf3_type = details::T0oT1oT2_sf3<T, T0, T1, T2>;
+    using sf3_type_node = details::sf3ext_type_node<T, T0, T1, T2>;
 };
 
 template <typename T, typename T0, typename T1, typename T2, typename T3> struct T0oT1oT2oT3_define
 {
-    typedef details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode0> type0;
-    typedef details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode1> type1;
-    typedef details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode2> type2;
-    typedef details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode3> type3;
-    typedef details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode4> type4;
-    typedef details::T0oT1oT2oT3_sf4<T, T0, T1, T2, T3> sf4_type;
+    using type0 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode0>;
+    using type1 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode1>;
+    using type2 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode2>;
+    using type3 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode3>;
+    using type4 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode4>;
+    using sf4_type = details::T0oT1oT2oT3_sf4<T, T0, T1, T2, T3>;
 };
 
 template <typename T, typename Operation> class vov_node final : public vov_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
 
     // variable op variable node
     explicit vov_node(const T& var0, const T& var1) : v0_(var0), v1_(var1) {}
@@ -2503,8 +2503,8 @@ template <typename T, typename Operation> class vov_node final : public vov_base
 template <typename T, typename Operation> class cov_node final : public cov_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
 
     // constant op variable node
     explicit cov_node(const T& const_var, const T& var) : c_(const_var), v_(var) {}
@@ -2546,8 +2546,8 @@ template <typename T, typename Operation> class cov_node final : public cov_base
 template <typename T, typename Operation> class voc_node final : public voc_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
 
     // variable op constant node
     explicit voc_node(const T& var, const T& const_var) : v_(var), c_(const_var) {}
@@ -2584,9 +2584,9 @@ template <typename T, typename Operation> class voc_node final : public voc_base
 template <typename T, typename Operation> class vob_node final : public vob_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using operation_t = Operation;
 
     // variable op binary node
     explicit vob_node(const T& var, const expression_ptr branch) : v_(var)
@@ -2636,9 +2636,9 @@ template <typename T, typename Operation> class vob_node final : public vob_base
 template <typename T, typename Operation> class bov_node final : public bov_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using operation_t = Operation;
 
     // binary node op variable node
     explicit bov_node(const expression_ptr branch, const T& var) : v_(var)
@@ -2688,9 +2688,9 @@ template <typename T, typename Operation> class bov_node final : public bov_base
 template <typename T, typename Operation> class cob_node final : public cob_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using operation_t = Operation;
 
     // constant op variable node
     explicit cob_node(const T const_var, const expression_ptr branch) : c_(const_var)
@@ -2756,9 +2756,9 @@ template <typename T, typename Operation> class cob_node final : public cob_base
 template <typename T, typename Operation> class boc_node final : public boc_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using operation_t = Operation;
 
     // binary node op constant node
     explicit boc_node(const expression_ptr branch, const T const_var) : c_(const_var)
@@ -2826,8 +2826,8 @@ template <typename T, typename SType0, typename SType1, typename Operation>
 class sos_node final : public sos_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
 
     // string op string node
     explicit sos_node(SType0 p0, SType1 p1) : s0_(p0), s1_(p1) {}
@@ -2871,9 +2871,9 @@ template <typename T, typename SType0, typename SType1, typename RangePack, type
 class str_xrox_node final : public sos_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
-    typedef str_xrox_node<T, SType0, SType1, RangePack, Operation> node_type;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
+    using node_type = str_xrox_node<T, SType0, SType1, RangePack, Operation>;
 
     // string-range op string node
     explicit str_xrox_node(SType0 p0, SType1 p1, RangePack rp0) : s0_(p0), s1_(p1), rp0_(rp0) {}
@@ -2928,9 +2928,9 @@ template <typename T, typename SType0, typename SType1, typename RangePack, type
 class str_xoxr_node final : public sos_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
-    typedef str_xoxr_node<T, SType0, SType1, RangePack, Operation> node_type;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
+    using node_type = str_xoxr_node<T, SType0, SType1, RangePack, Operation>;
 
     // string op string range node
     explicit str_xoxr_node(SType0 p0, SType1 p1, RangePack rp1) : s0_(p0), s1_(p1), rp1_(rp1) {}
@@ -2987,9 +2987,9 @@ template <typename T, typename SType0, typename SType1, typename RangePack, type
 class str_xroxr_node final : public sos_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
-    typedef str_xroxr_node<T, SType0, SType1, RangePack, Operation> node_type;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
+    using node_type = str_xroxr_node<T, SType0, SType1, RangePack, Operation>;
 
     // string-range op string-range node
     explicit str_xroxr_node(SType0 p0, SType1 p1, RangePack rp0, RangePack rp1)
@@ -3053,12 +3053,12 @@ class str_xroxr_node final : public sos_base_node<T>
 template <typename T, typename Operation> class str_sogens_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef string_base_node<T>* str_base_ptr;
-    typedef range_pack<T> range_t;
-    typedef range_t* range_ptr;
-    typedef range_interface<T> irange_t;
-    typedef irange_t* irange_ptr;
+    using expression_ptr = expression_node<T>*;
+    using str_base_ptr = string_base_node<T>*;
+    using range_t = range_pack<T>;
+    using range_ptr = range_t*;
+    using irange_t = range_interface<T>;
+    using irange_ptr = irange_t*;
 
     using binary_node<T>::branch;
 
@@ -3151,9 +3151,9 @@ template <typename T, typename SType0, typename SType1, typename SType2, typenam
 class sosos_node final : public sosos_base_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef Operation operation_t;
-    typedef sosos_node<T, SType0, SType1, SType2, Operation> node_type;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = Operation;
+    using node_type = sosos_node<T, SType0, SType1, SType2, Operation>;
 
     // string op string op string node
     explicit sosos_node(SType0 p0, SType1 p1, SType2 p2) : s0_(p0), s1_(p1), s2_(p2) {}
@@ -3202,8 +3202,8 @@ class sosos_node final : public sosos_base_node<T>
 template <typename T, typename PowOp> class ipow_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef PowOp operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = PowOp;
 
     explicit ipow_node(const T& v) : v_(v) {}
 
@@ -3227,9 +3227,9 @@ template <typename T, typename PowOp> class ipow_node final : public expression_
 template <typename T, typename PowOp> class bipow_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef PowOp operation_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using operation_t = PowOp;
 
     explicit bipow_node(expression_ptr branch)
     {
@@ -3272,8 +3272,8 @@ template <typename T, typename PowOp> class bipow_node final : public expression
 template <typename T, typename PowOp> class ipowinv_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef PowOp operation_t;
+    using expression_ptr = expression_node<T>*;
+    using operation_t = PowOp;
 
     explicit ipowinv_node(const T& v) : v_(v) {}
 
@@ -3297,9 +3297,9 @@ template <typename T, typename PowOp> class ipowinv_node final : public expressi
 template <typename T, typename PowOp> class bipowinv_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef PowOp operation_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using operation_t = PowOp;
 
     explicit bipowinv_node(expression_ptr branch)
     {

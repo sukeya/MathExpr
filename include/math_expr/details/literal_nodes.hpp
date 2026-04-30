@@ -99,8 +99,8 @@ inline void init_branches(std::pair<expression_node<T>*, bool> (&branch)[N], exp
 template <typename T> class null_eq_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     explicit null_eq_node(expression_ptr branch, const bool equality = true) : equality_(equality)
     {
@@ -183,7 +183,7 @@ template <typename T> struct range_data_type;
 template <typename T> class range_interface
 {
   public:
-    typedef range_pack<T> range_t;
+    using range_t = range_pack<T>;
 
     virtual ~range_interface() {}
 
@@ -196,7 +196,7 @@ template <typename T> class range_interface
 template <typename T> class string_base_node
 {
   public:
-    typedef range_data_type<T> range_data_type_t;
+    using range_data_type_t = range_data_type<T>;
 
     virtual ~string_base_node() {}
 
@@ -213,7 +213,7 @@ class string_literal_node final : public expression_node<T>,
                                   public range_interface<T>
 {
   public:
-    typedef range_pack<T> range_t;
+    using range_t = range_pack<T>;
 
     explicit string_literal_node(const std::string& v) : value_(v)
     {

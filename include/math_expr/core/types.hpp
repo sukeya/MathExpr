@@ -38,12 +38,12 @@ limitations under the License.
 
 namespace math_expr::core
 {
-typedef char char_t;
-typedef char_t* char_ptr;
-typedef char_t const* char_cptr;
-typedef unsigned char uchar_t;
-typedef uchar_t* uchar_ptr;
-typedef uchar_t const* uchar_cptr;
+using char_t = char;
+using char_ptr = char_t*;
+using char_cptr = char_t const*;
+using uchar_t = unsigned char;
+using uchar_ptr = uchar_t*;
+using uchar_cptr = uchar_t const*;
 
 inline bool is_whitespace(const char_t c)
 {

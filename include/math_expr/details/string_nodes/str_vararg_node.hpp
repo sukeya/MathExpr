@@ -44,13 +44,13 @@ class str_vararg_node final : public expression_node<T>,
                               public range_interface<T>
 {
   public:
-    typedef typename range_interface<T>::range_t range_t;
-    typedef range_t* range_ptr;
-    typedef range_interface<T> irange_t;
-    typedef irange_t* irange_ptr;
-    typedef expression_node<T>* expression_ptr;
-    typedef string_base_node<T>* str_base_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using range_t = typename range_interface<T>::range_t;
+    using range_ptr = range_t*;
+    using irange_t = range_interface<T>;
+    using irange_ptr = irange_t*;
+    using expression_ptr = expression_node<T>*;
+    using str_base_ptr = string_base_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit str_vararg_node(const Sequence<expression_ptr, Allocator>& arg_list)

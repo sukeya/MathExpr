@@ -40,8 +40,8 @@ namespace math_expr::details
 {
 template <typename T> struct range_pack
 {
-    typedef expression_node<T>* expression_node_ptr;
-    typedef std::pair<std::size_t, std::size_t> cached_range_t;
+    using expression_node_ptr = expression_node<T>*;
+    using cached_range_t = std::pair<std::size_t, std::size_t>;
 
     range_pack()
         : n0_e(std::make_pair(false, expression_node_ptr(0))),

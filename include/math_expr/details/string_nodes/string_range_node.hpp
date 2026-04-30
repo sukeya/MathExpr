@@ -44,7 +44,7 @@ class string_range_node final : public expression_node<T>,
                                 public range_interface<T>
 {
   public:
-    typedef typename range_interface<T>::range_t range_t;
+    using range_t = typename range_interface<T>::range_t;
 
     static std::string null_value;
 

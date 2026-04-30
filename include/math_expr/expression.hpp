@@ -44,9 +44,9 @@ namespace math_expr
 template <typename T> class expression
 {
   private:
-    typedef details::expression_node<T>* expression_ptr;
-    typedef details::vector_holder<T>* vector_holder_ptr;
-    typedef std::vector<symbol_table<T>> symtab_list_t;
+    using expression_ptr = details::expression_node<T>*;
+    using vector_holder_ptr = details::vector_holder<T>*;
+    using symtab_list_t = std::vector<symbol_table<T>>;
 
     struct control_block
     {
@@ -95,9 +95,9 @@ template <typename T> class expression
             std::size_t size;
         };
 
-        typedef std::vector<data_pack> local_data_list_t;
-        typedef results_context<T> results_context_t;
-        typedef control_block* cntrl_blck_ptr_t;
+        using local_data_list_t = std::vector<data_pack>;
+        using results_context_t = results_context<T>;
+        using cntrl_blck_ptr_t = control_block*;
 
         control_block()
             : ref_count(0), expr(0), results(0), retinv_null(false), return_invoked(&retinv_null)
@@ -297,7 +297,7 @@ template <typename T> class expression
         return symbol_table_list_.size();
     }
 
-    typedef results_context<T> results_context_t;
+    using results_context_t = results_context<T>;
 
     inline const results_context_t& results() const
     {

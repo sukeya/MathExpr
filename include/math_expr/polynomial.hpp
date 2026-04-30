@@ -42,15 +42,15 @@ namespace details
 {
 template <typename T> struct collector_helper
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef typename parser_t::dependent_entity_collector::symbol_t symbol_t;
-    typedef typename parser_t::unknown_symbol_resolver usr_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using symbol_t = typename parser_t::dependent_entity_collector::symbol_t;
+    using usr_t = typename parser_t::unknown_symbol_resolver;
 
     struct resolve_as_vector : public usr_t
     {
-        typedef math_expr::parser<T> parser_t;
+        using parser_t = math_expr::parser<T>;
 
         using usr_t::process;
 
@@ -116,8 +116,8 @@ template <typename Allocator, template <typename, typename> class Sequence>
 inline bool collect_variables(const std::string& expression,
                               Sequence<std::string, Allocator>& symbol_list)
 {
-    typedef double T;
-    typedef details::collector_helper<T> collect_t;
+    using T = double;
+    using collect_t = details::collector_helper<T>;
 
     collect_t::symbol_table_t null_symbol_table;
 
@@ -147,7 +147,7 @@ inline bool collect_variables(const std::string& expression,
                               math_expr::symbol_table<T>& extrnl_symbol_table,
                               Sequence<std::string, Allocator>& symbol_list)
 {
-    typedef details::collector_helper<T> collect_t;
+    using collect_t = details::collector_helper<T>;
 
     std::set<std::string> symbol_set;
 
@@ -174,8 +174,8 @@ template <typename Allocator, template <typename, typename> class Sequence>
 inline bool collect_functions(const std::string& expression,
                               Sequence<std::string, Allocator>& symbol_list)
 {
-    typedef double T;
-    typedef details::collector_helper<T> collect_t;
+    using T = double;
+    using collect_t = details::collector_helper<T>;
 
     collect_t::symbol_table_t null_symbol_table;
 
@@ -205,7 +205,7 @@ inline bool collect_functions(const std::string& expression,
                               math_expr::symbol_table<T>& extrnl_symbol_table,
                               Sequence<std::string, Allocator>& symbol_list)
 {
-    typedef details::collector_helper<T> collect_t;
+    using collect_t = details::collector_helper<T>;
 
     std::set<std::string> symbol_set;
 

@@ -45,7 +45,7 @@ namespace math_expr
 template <typename T> class stringvar_base
 {
   public:
-    typedef typename details::string_nodes::stringvar_node<T> stringvar_node_t;
+    using stringvar_node_t = typename details::string_nodes::stringvar_node<T>;
 
     stringvar_base(const std::string& name, stringvar_node_t* svn)
         : name_(name), string_varnode_(svn)

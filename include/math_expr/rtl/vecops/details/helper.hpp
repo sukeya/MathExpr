@@ -56,11 +56,11 @@ inline bool invalid_range(const Vector& v, const std::size_t r0, const std::size
 
 template <typename T> struct load_vector_range
 {
-    typedef typename math_expr::igeneric_function<T> igfun_t;
-    typedef typename igfun_t::parameter_list_t parameter_list_t;
-    typedef typename igfun_t::generic_type generic_type;
-    typedef typename generic_type::scalar_view scalar_t;
-    typedef typename generic_type::vector_view vector_t;
+    using igfun_t = typename math_expr::igeneric_function<T>;
+    using parameter_list_t = typename igfun_t::parameter_list_t;
+    using generic_type = typename igfun_t::generic_type;
+    using scalar_t = typename generic_type::scalar_view;
+    using vector_t = typename generic_type::vector_view;
 
     static inline bool process(parameter_list_t& parameters, std::size_t& r0, std::size_t& r1,
                                const std::size_t& r0_prmidx, const std::size_t& r1_prmidx,

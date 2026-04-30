@@ -70,11 +70,11 @@ template <typename T> inline void print_type(const std::string& fmt, const T v)
 
 template <typename T> struct print_impl
 {
-    typedef typename igeneric_function<T>::generic_type generic_type;
-    typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
-    typedef typename generic_type::scalar_view scalar_t;
-    typedef typename generic_type::vector_view vector_t;
-    typedef typename generic_type::string_view string_t;
+    using generic_type = typename igeneric_function<T>::generic_type;
+    using parameter_list_t = typename igeneric_function<T>::parameter_list_t;
+    using scalar_t = typename generic_type::scalar_view;
+    using vector_t = typename generic_type::vector_view;
+    using string_t = typename generic_type::string_view;
 
     static void process(const std::string& scalar_format, parameter_list_t parameters)
     {
@@ -128,7 +128,7 @@ template <typename T> struct print_impl
 
 template <typename T> struct print final : public math_expr::igeneric_function<T>
 {
-    typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
+    using parameter_list_t = typename igeneric_function<T>::parameter_list_t;
 
     using math_expr::igeneric_function<T>::operator();
 

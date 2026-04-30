@@ -46,14 +46,14 @@ class assignment_string_range_node final : public binary_node<T>,
                                            public range_interface<T>
 {
   public:
-    typedef typename range_interface<T>::range_t range_t;
-    typedef range_t* range_ptr;
-    typedef range_interface<T> irange_t;
-    typedef irange_t* irange_ptr;
-    typedef expression_node<T>* expression_ptr;
-    typedef stringvar_node<T>* strvar_node_ptr;
-    typedef string_range_node<T>* str_rng_node_ptr;
-    typedef string_base_node<T>* str_base_ptr;
+    using range_t = typename range_interface<T>::range_t;
+    using range_ptr = range_t*;
+    using irange_t = range_interface<T>;
+    using irange_ptr = irange_t*;
+    using expression_ptr = expression_node<T>*;
+    using strvar_node_ptr = stringvar_node<T>*;
+    using str_rng_node_ptr = string_range_node<T>*;
+    using str_base_ptr = string_base_node<T>*;
 
     using binary_node<T>::branch;
 

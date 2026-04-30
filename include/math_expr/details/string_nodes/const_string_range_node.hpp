@@ -44,7 +44,7 @@ class const_string_range_node final : public expression_node<T>,
                                       public range_interface<T>
 {
   public:
-    typedef typename range_interface<T>::range_t range_t;
+    using range_t = typename range_interface<T>::range_t;
 
     explicit const_string_range_node(const std::string& v, const range_t& rp) : value_(v), rp_(rp)
     {

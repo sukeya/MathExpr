@@ -42,8 +42,8 @@ namespace math_expr::lexer
 class parser_helper
 {
   public:
-    typedef token token_t;
-    typedef generator generator_t;
+    using token_t = token;
+    using generator_t = generator;
 
     inline bool init(const std::string& str)
     {

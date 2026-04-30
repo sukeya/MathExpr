@@ -83,7 +83,7 @@ struct loop_runtime_check
     virtual ~loop_runtime_check() {}
 };
 
-typedef loop_runtime_check* loop_runtime_check_ptr;
+using loop_runtime_check_ptr = loop_runtime_check*;
 
 } // namespace math_expr
 

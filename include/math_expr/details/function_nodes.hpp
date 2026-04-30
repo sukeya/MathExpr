@@ -45,7 +45,7 @@ namespace math_expr::details
 template <typename T, typename SpecialFunction> class sf3_var_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
 
     sf3_var_node(const T& v0, const T& v1, const T& v2) : v0_(v0), v1_(v1), v2_(v2) {}
 
@@ -71,7 +71,7 @@ template <typename T, typename SpecialFunction> class sf3_var_node final : publi
 template <typename T, typename SpecialFunction> class sf4_var_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
 
     sf4_var_node(const T& v0, const T& v1, const T& v2, const T& v3)
         : v0_(v0), v1_(v1), v2_(v2), v3_(v3)
@@ -101,8 +101,8 @@ template <typename T, typename SpecialFunction> class sf4_var_node final : publi
 template <typename T, typename VarArgFunction> class vararg_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit vararg_node(const Sequence<expression_ptr, Allocator>& arg_list) : initialised_(false)
@@ -170,7 +170,7 @@ template <typename T, typename VarArgFunction>
 class vararg_varnode final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit vararg_varnode(const Sequence<expression_ptr, Allocator>& arg_list)
@@ -219,8 +219,8 @@ class vararg_varnode final : public expression_node<T>
 template <typename T, typename VecFunction> class vectorize_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     explicit vectorize_node(const expression_ptr v) : ivec_ptr_(0)
     {
@@ -266,7 +266,7 @@ template <typename T, typename VecFunction> class vectorize_node final : public 
 template <typename T> class assignment_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -299,7 +299,7 @@ template <typename T> class assignment_node final : public binary_node<T>
 template <typename T> class assignment_vec_elem_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_vec_elem_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -334,7 +334,7 @@ template <typename T> class assignment_vec_elem_node final : public binary_node<
 template <typename T> class assignment_vec_elem_rtc_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_vec_elem_rtc_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -369,7 +369,7 @@ template <typename T> class assignment_vec_elem_rtc_node final : public binary_n
 template <typename T> class assignment_rebasevec_elem_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using expression_node<T>::branch;
 
     assignment_rebasevec_elem_node(const core::operators::operator_type& opr,
@@ -404,7 +404,7 @@ template <typename T> class assignment_rebasevec_elem_node final : public binary
 template <typename T> class assignment_rebasevec_elem_rtc_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using expression_node<T>::branch;
 
     assignment_rebasevec_elem_rtc_node(const core::operators::operator_type& opr,
@@ -439,7 +439,7 @@ template <typename T> class assignment_rebasevec_elem_rtc_node final : public bi
 template <typename T> class assignment_rebasevec_celem_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_rebasevec_celem_node(const core::operators::operator_type& opr,
@@ -485,9 +485,9 @@ template <typename T>
 class assignment_vec_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef core::vec_data_store<T> vds_t;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vds_t = core::vec_data_store<T>;
 
     using binary_node<T>::branch;
 
@@ -583,9 +583,9 @@ template <typename T>
 class assignment_vecvec_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef core::vec_data_store<T> vds_t;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vds_t = core::vec_data_store<T>;
 
     using binary_node<T>::branch;
 
@@ -715,7 +715,7 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
 template <typename T, typename Operation> class assignment_op_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -751,7 +751,7 @@ template <typename T, typename Operation>
 class assignment_vec_elem_op_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_vec_elem_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -787,7 +787,7 @@ template <typename T, typename Operation>
 class assignment_vec_elem_op_rtc_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_vec_elem_op_rtc_node(const core::operators::operator_type& opr,
@@ -823,7 +823,7 @@ template <typename T, typename Operation>
 class assignment_vec_celem_op_rtc_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_vec_celem_op_rtc_node(const core::operators::operator_type& opr,
@@ -859,7 +859,7 @@ template <typename T, typename Operation>
 class assignment_rebasevec_elem_op_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_rebasevec_elem_op_node(const core::operators::operator_type& opr,
@@ -895,7 +895,7 @@ template <typename T, typename Operation>
 class assignment_rebasevec_celem_op_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_rebasevec_celem_op_node(const core::operators::operator_type& opr,
@@ -931,7 +931,7 @@ template <typename T, typename Operation>
 class assignment_rebasevec_elem_op_rtc_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_rebasevec_elem_op_rtc_node(const core::operators::operator_type& opr,
@@ -967,7 +967,7 @@ template <typename T, typename Operation>
 class assignment_rebasevec_celem_op_rtc_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     assignment_rebasevec_celem_op_rtc_node(const core::operators::operator_type& opr,
@@ -1014,9 +1014,9 @@ template <typename T, typename Operation>
 class assignment_vec_op_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef core::vec_data_store<T> vds_t;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vds_t = core::vec_data_store<T>;
 
     using binary_node<T>::branch;
 
@@ -1116,9 +1116,9 @@ template <typename T, typename Operation>
 class assignment_vecvec_op_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef core::vec_data_store<T> vds_t;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vds_t = core::vec_data_store<T>;
 
     using binary_node<T>::branch;
 
@@ -1251,9 +1251,9 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
 
 template <typename T> struct memory_context_t
 {
-    typedef vector_node<T>* vector_node_ptr;
-    typedef vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
+    using vector_node_ptr = vector_node<T>*;
+    using vector_holder_t = vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
 
     memory_context_t() : temp_(0), temp_vec_node_(0) {}
 
@@ -1310,12 +1310,12 @@ template <typename T, typename Operation>
 class vec_binop_vecvec_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
-    typedef core::vec_data_store<T> vds_t;
-    typedef memory_context_t<T> memory_context;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vector_holder_t = vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
+    using vds_t = core::vec_data_store<T>;
+    using memory_context = memory_context_t<T>;
 
     using binary_node<T>::branch;
 
@@ -1482,12 +1482,12 @@ template <typename T, typename Operation>
 class vec_binop_vecval_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
-    typedef core::vec_data_store<T> vds_t;
-    typedef memory_context_t<T> memory_context;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vector_holder_t = vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
+    using vds_t = core::vec_data_store<T>;
+    using memory_context = memory_context_t<T>;
 
     using binary_node<T>::branch;
 
@@ -1619,12 +1619,12 @@ template <typename T, typename Operation>
 class vec_binop_valvec_node final : public binary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
-    typedef core::vec_data_store<T> vds_t;
-    typedef memory_context_t<T> memory_context;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vector_holder_t = vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
+    using vds_t = core::vec_data_store<T>;
+    using memory_context = memory_context_t<T>;
 
     using binary_node<T>::branch;
 
@@ -1757,12 +1757,12 @@ template <typename T, typename Operation>
 class unary_vector_node final : public unary_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
-    typedef core::vec_data_store<T> vds_t;
-    typedef memory_context_t<T> memory_context;
+    using expression_ptr = expression_node<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vector_holder_t = vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
+    using vds_t = core::vec_data_store<T>;
+    using memory_context = memory_context_t<T>;
 
     using expression_node<T>::branch;
 
@@ -1891,14 +1891,14 @@ template <typename T>
 class conditional_vector_node final : public expression_node<T>, public vector_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef vector_interface<T>* vec_interface_ptr;
-    typedef vector_node<T>* vector_node_ptr;
-    typedef vector_holder<T> vector_holder_t;
-    typedef vector_holder_t* vector_holder_ptr;
-    typedef math_expr::vector_view<T> vector_view_t;
-    typedef core::vec_data_store<T> vds_t;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using vec_interface_ptr = vector_interface<T>*;
+    using vector_node_ptr = vector_node<T>*;
+    using vector_holder_t = vector_holder<T>;
+    using vector_holder_ptr = vector_holder_t*;
+    using vector_view_t = math_expr::vector_view<T>;
+    using vds_t = core::vec_data_store<T>;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     conditional_vector_node(expression_ptr condition, expression_ptr consequent,
                             expression_ptr alternative)
@@ -2059,7 +2059,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
 template <typename T> class scand_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     scand_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -2080,7 +2080,7 @@ template <typename T> class scand_node final : public binary_node<T>
 template <typename T> class scor_node final : public binary_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
     scor_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -2103,9 +2103,9 @@ class function_N_node final : public expression_node<T>
 {
   public:
     // Function of N parameters.
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef IFunction ifunction;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using ifunction = IFunction;
 
     explicit function_N_node(ifunction* func)
         : function_((N == func->param_count) ? func : reinterpret_cast<ifunction*>(0)),
@@ -2446,8 +2446,8 @@ template <typename T, typename IFunction>
 class function_N_node<T, IFunction, 0> final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef IFunction ifunction;
+    using expression_ptr = expression_node<T>*;
+    using ifunction = IFunction;
 
     explicit function_N_node(ifunction* func)
         : function_((0 == func->param_count) ? func : reinterpret_cast<ifunction*>(0))
@@ -2483,7 +2483,7 @@ template <typename T, typename VarArgFunction>
 class vararg_function_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
+    using expression_ptr = expression_node<T>*;
 
     vararg_function_node(VarArgFunction* func, const std::vector<expression_ptr>& arg_list)
         : function_(func), arg_list_(arg_list)
@@ -2547,23 +2547,23 @@ template <typename T, typename GenericFunction>
 class generic_function_node : public expression_node<T>
 {
   public:
-    typedef type_store<T> type_store_t;
-    typedef expression_node<T>* expression_ptr;
-    typedef variable_node<T> variable_node_t;
-    typedef vector_node<T> vector_node_t;
-    typedef variable_node_t* variable_node_ptr_t;
-    typedef vector_node_t* vector_node_ptr_t;
-    typedef range_interface<T> range_interface_t;
-    typedef range_data_type<T> range_data_type_t;
-    typedef typename range_interface<T>::range_t range_t;
+    using type_store_t = type_store<T>;
+    using expression_ptr = expression_node<T>*;
+    using variable_node_t = variable_node<T>;
+    using vector_node_t = vector_node<T>;
+    using variable_node_ptr_t = variable_node_t*;
+    using vector_node_ptr_t = vector_node_t*;
+    using range_interface_t = range_interface<T>;
+    using range_data_type_t = range_data_type<T>;
+    using range_t = typename range_interface<T>::range_t;
 
-    typedef std::pair<expression_ptr, bool> branch_t;
-    typedef vector_holder<T>* vh_t;
-    typedef vector_view<T>* vecview_t;
+    using branch_t = std::pair<expression_ptr, bool>;
+    using vh_t = vector_holder<T>*;
+    using vecview_t = vector_view<T>*;
 
-    typedef std::vector<T> tmp_vs_t;
-    typedef std::vector<type_store_t> typestore_list_t;
-    typedef std::vector<range_data_type_t> range_list_t;
+    using tmp_vs_t = std::vector<T>;
+    using typestore_list_t = std::vector<type_store_t>;
+    using range_list_t = std::vector<range_data_type_t>;
 
     explicit generic_function_node(const std::vector<expression_ptr>& arg_list,
                                    GenericFunction* func = reinterpret_cast<GenericFunction*>(0))
@@ -2707,7 +2707,7 @@ class generic_function_node : public expression_node<T>
     {
         if (populate_value_list())
         {
-            typedef typename GenericFunction::parameter_list_t parameter_list_t;
+            using parameter_list_t = typename GenericFunction::parameter_list_t;
 
             return (*function_)(parameter_list_t(typestore_list_));
         }
@@ -2795,8 +2795,8 @@ class string_function_node : public generic_function_node<T, StringFunction>,
                              public range_interface<T>
 {
   public:
-    typedef generic_function_node<T, StringFunction> gen_function_t;
-    typedef typename range_interface<T>::range_t range_t;
+    using gen_function_t = generic_function_node<T, StringFunction>;
+    using range_t = typename range_interface<T>::range_t;
 
     string_function_node(StringFunction* func,
                          const std::vector<typename gen_function_t::expression_ptr>& arg_list)
@@ -2818,7 +2818,7 @@ class string_function_node : public generic_function_node<T, StringFunction>,
     {
         if (gen_function_t::populate_value_list())
         {
-            typedef typename StringFunction::parameter_list_t parameter_list_t;
+            using parameter_list_t = typename StringFunction::parameter_list_t;
 
             const T result = (*gen_function_t::function_)(
                 ret_string_, parameter_list_t(gen_function_t::typestore_list_));
@@ -2877,8 +2877,8 @@ template <typename T, typename GenericFunction>
 class multimode_genfunction_node : public generic_function_node<T, GenericFunction>
 {
   public:
-    typedef generic_function_node<T, GenericFunction> gen_function_t;
-    typedef typename gen_function_t::range_t range_t;
+    using gen_function_t = generic_function_node<T, GenericFunction>;
+    using range_t = typename gen_function_t::range_t;
 
     multimode_genfunction_node(GenericFunction* func, const std::size_t& param_seq_index,
                                const std::vector<typename gen_function_t::expression_ptr>& arg_list)
@@ -2892,7 +2892,7 @@ class multimode_genfunction_node : public generic_function_node<T, GenericFuncti
 
         if (gen_function_t::populate_value_list())
         {
-            typedef typename GenericFunction::parameter_list_t parameter_list_t;
+            using parameter_list_t = typename GenericFunction::parameter_list_t;
 
             return (*gen_function_t::function_)(param_seq_index_,
                                                 parameter_list_t(gen_function_t::typestore_list_));
@@ -2915,8 +2915,8 @@ template <typename T, typename StringFunction>
 class multimode_strfunction_node final : public string_function_node<T, StringFunction>
 {
   public:
-    typedef string_function_node<T, StringFunction> str_function_t;
-    typedef typename str_function_t::range_t range_t;
+    using str_function_t = string_function_node<T, StringFunction>;
+    using range_t = typename str_function_t::range_t;
 
     multimode_strfunction_node(StringFunction* func, const std::size_t& param_seq_index,
                                const std::vector<typename str_function_t::expression_ptr>& arg_list)
@@ -2928,7 +2928,7 @@ class multimode_strfunction_node final : public string_function_node<T, StringFu
     {
         if (str_function_t::populate_value_list())
         {
-            typedef typename StringFunction::parameter_list_t parameter_list_t;
+            using parameter_list_t = typename StringFunction::parameter_list_t;
 
             const T result =
                 (*str_function_t::function_)(param_seq_index_, str_function_t::ret_string_,

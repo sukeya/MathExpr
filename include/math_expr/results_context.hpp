@@ -50,10 +50,10 @@ template <typename T> class return_envelope_node;
 template <typename T> class results_context
 {
   public:
-    typedef type_store<T> type_store_t;
-    typedef typename type_store_t::scalar_view scalar_t;
-    typedef typename type_store_t::vector_view vector_t;
-    typedef typename type_store_t::string_view string_t;
+    using type_store_t = type_store<T>;
+    using scalar_t = typename type_store_t::scalar_view;
+    using vector_t = typename type_store_t::vector_view;
+    using string_t = typename type_store_t::string_view;
 
     results_context() : results_available_(false) {}
 
@@ -130,8 +130,8 @@ template <typename T> class results_context
         results_available_ = false;
     }
 
-    typedef std::vector<type_store_t> ts_list_t;
-    typedef typename type_store_t::parameter_list parameter_list_t;
+    using ts_list_t = std::vector<type_store_t>;
+    using parameter_list_t = typename type_store_t::parameter_list;
 
     inline void assign(const parameter_list_t& pl)
     {

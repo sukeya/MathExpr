@@ -42,10 +42,10 @@ namespace math_expr
 template <typename T> class function_compositor
 {
   public:
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef typename parser_t::settings_store settings_t;
+    using expression_t = math_expr::expression<T>;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using parser_t = math_expr::parser<T>;
+    using settings_t = typename parser_t::settings_store;
 
     struct function
     {
@@ -165,14 +165,14 @@ template <typename T> class function_compositor
   private:
     struct base_func : public math_expr::ifunction<T>
     {
-        typedef const T& type;
-        typedef math_expr::ifunction<T> function_t;
-        typedef std::vector<T*> varref_t;
-        typedef std::vector<T> var_t;
-        typedef std::vector<std::string> str_t;
-        typedef std::pair<T*, std::size_t> lvarref_t;
-        typedef std::vector<lvarref_t> lvr_vec_t;
-        typedef std::vector<std::string*> lstr_vec_t;
+        using type = const T&;
+        using function_t = math_expr::ifunction<T>;
+        using varref_t = std::vector<T*>;
+        using var_t = std::vector<T>;
+        using str_t = std::vector<std::string>;
+        using lvarref_t = std::pair<T*, std::size_t>;
+        using lvr_vec_t = std::vector<lvarref_t>;
+        using lstr_vec_t = std::vector<std::string*>;
 
         using math_expr::ifunction<T>::operator();
 
@@ -227,10 +227,10 @@ template <typename T> class function_compositor
         {
             expression = expr;
 
-            typedef typename expression_t::control_block ctrlblk_t;
-            typedef typename ctrlblk_t::local_data_list_t ldl_t;
-            typedef typename ctrlblk_t::data_type data_t;
-            typedef typename ldl_t::value_type ldl_value_type;
+            using ctrlblk_t = typename expression_t::control_block;
+            using ldl_t = typename ctrlblk_t::local_data_list_t;
+            using data_t = typename ctrlblk_t::data_type;
+            using ldl_value_type = typename ldl_t::value_type;
 
             const ldl_t ldl = expr.local_data_list();
 
@@ -374,7 +374,7 @@ template <typename T> class function_compositor
         void copy(const lvr_vec_t& src_v, var_t& dest_v)
         {
             typename var_t::iterator itr = dest_v.begin();
-            typedef typename std::iterator_traits<typename var_t::iterator>::difference_type diff_t;
+            using diff_t = typename std::iterator_traits<typename var_t::iterator>::difference_type;
 
             for (std::size_t i = 0; i < src_v.size(); ++i)
             {
@@ -393,7 +393,7 @@ template <typename T> class function_compositor
         void copy(const var_t& src_v, lvr_vec_t& dest_v)
         {
             typename var_t::const_iterator itr = src_v.begin();
-            typedef typename std::iterator_traits<typename var_t::iterator>::difference_type diff_t;
+            using diff_t = typename std::iterator_traits<typename var_t::iterator>::difference_type;
 
             for (std::size_t i = 0; i < dest_v.size(); ++i)
             {
@@ -446,9 +446,9 @@ template <typename T> class function_compositor
         std::deque<str_t> local_str_stack;
     };
 
-    typedef std::map<std::string, base_func*> funcparam_t;
+    using funcparam_t = std::map<std::string, base_func*>;
 
-    typedef const T& type;
+    using type = const T&;
 
     template <typename BaseFuncType> struct scoped_bft
     {
@@ -568,9 +568,9 @@ template <typename T> class function_compositor
 
     static T return_value(expression_t& e)
     {
-        typedef math_expr::results_context<T> results_context_t;
-        typedef typename results_context_t::type_store_t type_t;
-        typedef typename type_t::scalar_view scalar_t;
+        using results_context_t = math_expr::results_context<T>;
+        using type_t = typename results_context_t::type_store_t;
+        using scalar_t = typename type_t::scalar_view;
 
         const T result = e.value();
 
@@ -845,7 +845,7 @@ template <typename T> class function_compositor
         // Make sure every return point has a scalar as its first parameter
         if (parser_.dec().return_present())
         {
-            typedef std::vector<std::string> str_list_t;
+            using str_list_t = std::vector<std::string>;
 
             str_list_t ret_param_list = parser_.dec().return_param_type_list();
 

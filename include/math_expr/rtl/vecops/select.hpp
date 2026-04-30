@@ -41,10 +41,10 @@ namespace math_expr::rtl::vecops
 template <typename T> class select final : public math_expr::igeneric_function<T>
 {
   public:
-    typedef typename math_expr::igeneric_function<T> igfun_t;
-    typedef typename igfun_t::parameter_list_t parameter_list_t;
-    typedef typename igfun_t::generic_type generic_type;
-    typedef typename generic_type::vector_view vector_t;
+    using igfun_t = typename math_expr::igeneric_function<T>;
+    using parameter_list_t = typename igfun_t::parameter_list_t;
+    using generic_type = typename igfun_t::generic_type;
+    using vector_t = typename generic_type::vector_view;
 
     using igfun_t::operator();
 

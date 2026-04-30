@@ -41,9 +41,9 @@ namespace math_expr::details::string_nodes
 template <typename T> class string_size_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef string_base_node<T>* str_base_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using str_base_ptr = string_base_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     explicit string_size_node(expression_ptr branch) : str_base_ptr_(0)
     {

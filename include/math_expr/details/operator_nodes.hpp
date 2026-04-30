@@ -41,8 +41,8 @@ namespace math_expr::details
 template <typename T> class unary_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     unary_node(const core::operators::operator_type& opr, expression_ptr branch) : operation_(opr)
     {
@@ -98,8 +98,8 @@ template <typename T> class unary_node : public expression_node<T>
 template <typename T> class binary_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     binary_node(const core::operators::operator_type& opr, expression_ptr branch0,
                 expression_ptr branch1)
@@ -155,8 +155,8 @@ template <typename T> class binary_node : public expression_node<T>
 template <typename T, typename Operation> class binary_ext_node final : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     binary_ext_node(expression_ptr branch0, expression_ptr branch1)
     {
@@ -210,8 +210,8 @@ template <typename T, typename Operation> class binary_ext_node final : public e
 template <typename T> class trinary_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     trinary_node(const core::operators::operator_type& opr, expression_ptr branch0,
                  expression_ptr branch1, expression_ptr branch2)
@@ -278,8 +278,8 @@ template <typename T> class trinary_node : public expression_node<T>
 template <typename T> class quaternary_node : public expression_node<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     quaternary_node(const core::operators::operator_type& opr, expression_ptr branch0,
                     expression_ptr branch1, expression_ptr branch2, expression_ptr branch3)

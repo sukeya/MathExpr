@@ -153,7 +153,7 @@ template <typename T> class expression_helper
             return false;
         }
 
-        typedef details::vararg_node<T, math_expr::details::vararg_multi_op<T>> mo_vararg_t;
+        using mo_vararg_t = details::vararg_node<T, math_expr::details::vararg_multi_op<T>>;
 
         mo_vararg_t* vnode = dynamic_cast<mo_vararg_t*>(expr.control_block_->expr);
 

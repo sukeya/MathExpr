@@ -40,7 +40,7 @@ namespace math_expr::rtl::io
 {
 template <typename T> struct println final : public math_expr::igeneric_function<T>
 {
-    typedef typename igeneric_function<T>::parameter_list_t parameter_list_t;
+    using parameter_list_t = typename igeneric_function<T>::parameter_list_t;
 
     using math_expr::igeneric_function<T>::operator();
 

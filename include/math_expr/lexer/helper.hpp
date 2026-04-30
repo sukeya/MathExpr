@@ -433,8 +433,8 @@ template <typename T> class numeric_checker final : public lexer::token_scanner
 class symbol_replacer final : public lexer::token_modifier
 {
   private:
-    typedef std::map<std::string, std::pair<std::string, token::token_type>, core::ilesscompare>
-        replace_map_t;
+    using replace_map_t =
+        std::map<std::string, std::pair<std::string, token::token_type>, core::ilesscompare>;
 
   public:
     bool remove(const std::string& target_symbol)
@@ -497,8 +497,8 @@ class symbol_replacer final : public lexer::token_modifier
 class sequence_validator final : public lexer::token_scanner
 {
   private:
-    typedef std::pair<lexer::token::token_type, lexer::token::token_type> token_pair_t;
-    typedef std::set<token_pair_t> set_t;
+    using token_pair_t = std::pair<lexer::token::token_type, lexer::token::token_type>;
+    using set_t = std::set<token_pair_t>;
 
   public:
     using lexer::token_scanner::operator();
@@ -688,9 +688,9 @@ class sequence_validator final : public lexer::token_scanner
 class sequence_validator_3tokens final : public lexer::token_scanner
 {
   private:
-    typedef lexer::token::token_type token_t;
-    typedef std::pair<token_t, std::pair<token_t, token_t>> token_triplet_t;
-    typedef std::set<token_triplet_t> set_t;
+    using token_t = lexer::token::token_type;
+    using token_triplet_t = std::pair<token_t, std::pair<token_t, token_t>>;
+    using set_t = std::set<token_triplet_t>;
 
   public:
     using lexer::token_scanner::operator();

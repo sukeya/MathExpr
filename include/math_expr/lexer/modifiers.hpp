@@ -58,7 +58,7 @@ class token_inserter : public helper_interface
 
         std::size_t changes = 0;
 
-        typedef std::pair<std::size_t, token> insert_t;
+        using insert_t = std::pair<std::size_t, token>;
         std::vector<insert_t> insert_list;
         insert_list.reserve(10000);
 

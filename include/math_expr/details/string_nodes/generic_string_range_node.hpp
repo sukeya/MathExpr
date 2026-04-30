@@ -44,14 +44,14 @@ class generic_string_range_node final : public expression_node<T>,
                                         public range_interface<T>
 {
   public:
-    typedef expression_node<T>* expression_ptr;
-    typedef stringvar_node<T>* strvar_node_ptr;
-    typedef string_base_node<T>* str_base_ptr;
-    typedef typename range_interface<T>::range_t range_t;
-    typedef range_t* range_ptr;
-    typedef range_interface<T> irange_t;
-    typedef irange_t* irange_ptr;
-    typedef std::pair<expression_ptr, bool> branch_t;
+    using expression_ptr = expression_node<T>*;
+    using strvar_node_ptr = stringvar_node<T>*;
+    using str_base_ptr = string_base_node<T>*;
+    using range_t = typename range_interface<T>::range_t;
+    using range_ptr = range_t*;
+    using irange_t = range_interface<T>;
+    using irange_ptr = irange_t*;
+    using branch_t = std::pair<expression_ptr, bool>;
 
     generic_string_range_node(expression_ptr str_branch, const range_t& brange)
         : initialised_(false), str_base_ptr_(0), str_range_ptr_(0), base_range_(brange)
