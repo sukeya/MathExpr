@@ -37,6 +37,7 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
 #include "math_expr/core/numeric/constants.hpp"
+#include <cmath>
 
 namespace math_expr::core::numeric
 {
@@ -299,11 +300,11 @@ template <typename T> inline T hypot(const T v0, const T v1)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return std::sqrt((v0 * v0) + (v1 * v1));
+        return std::hypot(v0, v1);
     }
     else
     {
-        return static_cast<T>(std::sqrt(static_cast<double>((v0 * v0) + (v1 * v1))));
+        return static_cast<T>(std::hypot(static_cast<double>(v0, v1)));
     }
 }
 
