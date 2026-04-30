@@ -274,10 +274,8 @@ template <typename T> inline T roundn(const T v0, const T v1)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        const int index =
-            std::max<int>(0,
-                          std::min<int>(details::pow10_size - 1,
-                                        static_cast<int>(std::floor(v1))));
+        const int index = std::max<int>(
+            0, std::min<int>(details::pow10_size - 1, static_cast<int>(std::floor(v1))));
         const T p10 = T(details::pow10[index]);
 
         if (v0 < T(0))
