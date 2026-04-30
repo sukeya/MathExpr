@@ -1601,55 +1601,14 @@ template <typename T, typename Operation> class unary_branch_node final : public
     branch_t branch_;
 };
 
-template <typename T> struct is_const
-{
-    enum
-    {
-        result = 0
-    };
-};
-template <typename T> struct is_const<const T>
-{
-    enum
-    {
-        result = 1
-    };
-};
-template <typename T> struct is_const_ref
-{
-    enum
-    {
-        result = 0
-    };
-};
-template <typename T> struct is_const_ref<const T&>
-{
-    enum
-    {
-        result = 1
-    };
-};
-template <typename T> struct is_ref
-{
-    enum
-    {
-        result = 0
-    };
-};
-template <typename T> struct is_ref<T&>
-{
-    enum
-    {
-        result = 1
-    };
-};
-template <typename T> struct is_ref<const T&>
-{
-    enum
-    {
-        result = 0
-    };
-};
+template <typename T>
+inline constexpr bool is_const_ref_v =
+    std::is_lvalue_reference_v<T> && std::is_const_v<std::remove_reference_t<T>>;
+
+// Preserve the legacy is_ref semantics: true only for non-const lvalue references.
+template <typename T>
+inline constexpr bool is_ref_v =
+    std::is_lvalue_reference_v<T> && !std::is_const_v<std::remove_reference_t<T>>;
 
 template <std::size_t State> struct param_to_str
 {
@@ -1669,7 +1628,7 @@ template <> struct param_to_str<0>
     }
 };
 
-#define math_expr_crtype(Type) param_to_str<is_const_ref<Type>::result>::result()
+#define math_expr_crtype(Type) param_to_str<is_const_ref_v<Type> ? 0 : 1>::result()
 
 template <typename T> struct T0oT1oT2process
 {
