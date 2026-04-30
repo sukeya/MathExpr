@@ -230,7 +230,9 @@ template <typename T> class trinary_node : public expression_node<T>
         switch (operation_)
         {
         case core::operators::operator_type::inrange:
-            return (arg1 < arg0) ? T(0) : ((arg1 > arg2) ? T(0) : T(1));
+            return (arg1 < arg0)
+                       ? core::numeric::false_v<T>
+                       : ((arg1 > arg2) ? core::numeric::false_v<T> : core::numeric::true_v<T>);
 
         case core::operators::operator_type::clamp:
             return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);

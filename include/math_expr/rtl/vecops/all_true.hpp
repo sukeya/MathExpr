@@ -65,9 +65,9 @@ template <typename T> class all_true final : public math_expr::igeneric_function
         {
             for (std::size_t i = 0; i < parameters.size(); ++i)
             {
-                if (scalar_t(parameters[i])() == T(0))
+                if (math_expr::core::numeric::details::is_false_impl(scalar_t(parameters[i])()))
                 {
-                    return T(0);
+                    return math_expr::core::numeric::false_v<T>;
                 }
             }
         }
@@ -86,14 +86,14 @@ template <typename T> class all_true final : public math_expr::igeneric_function
 
             for (std::size_t i = r0; i <= r1; ++i)
             {
-                if (vec[i] == T(0))
+                if (math_expr::core::numeric::details::is_false_impl(vec[i]))
                 {
-                    return T(0);
+                    return math_expr::core::numeric::false_v<T>;
                 }
             }
         }
 
-        return T(1);
+        return math_expr::core::numeric::true_v<T>;
     }
 };
 

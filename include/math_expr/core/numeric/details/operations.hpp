@@ -38,6 +38,12 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
 
+namespace math_expr::core::numeric
+{
+template <typename T> inline constexpr T false_v = T(0);
+template <typename T> inline constexpr T true_v = T(1);
+} // namespace math_expr::core::numeric
+
 namespace math_expr::core::numeric::details
 {
 static const double pow10[] = {1.0,      1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005,
@@ -102,13 +108,13 @@ math_expr_define_epsilon_type(long double, 0.000000000001);
 template <typename T> inline bool is_true_impl(const T v)
 {
     validate_supported_numeric_type<T>();
-    return std::not_equal_to<T>()(T(0), v);
+    return std::not_equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
 }
 
 template <typename T> inline bool is_false_impl(const T v)
 {
     validate_supported_numeric_type<T>();
-    return std::equal_to<T>()(T(0), v);
+    return std::equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
 }
 
 template <typename T> inline T abs_value(const T v)
@@ -163,7 +169,6 @@ template <typename T> inline T erfc_real_impl(const T v)
     return erfc_native_impl(v);
 }
 
-#if __cplusplus >= 201103L
 template <typename T> inline T acosh_real_impl(const T v)
 {
     return std::acosh(v);
@@ -193,56 +198,6 @@ template <typename T> inline T log1p_real_impl(const T v)
 {
     return std::log1p(v);
 }
-#else
-template <typename T> inline T acosh_real_impl(const T v)
-{
-    return std::log(v + std::sqrt((v * v) - T(1)));
-}
-
-template <typename T> inline T asinh_real_impl(const T v)
-{
-    return std::log(v + std::sqrt((v * v) + T(1)));
-}
-
-template <typename T> inline T atanh_real_impl(const T v)
-{
-    return (std::log(T(1) + v) - std::log(T(1) - v)) / T(2);
-}
-
-template <typename T> inline T trunc_real_impl(const T v)
-{
-    return T(static_cast<long long>(v));
-}
-
-template <typename T> inline T expm1_real_impl(const T v)
-{
-    if (abs_value(v) < T(0.00001))
-    {
-        return v + (T(0.5) * v * v);
-    }
-    else
-    {
-        return std::exp(v) - T(1);
-    }
-}
-
-template <typename T> inline T log1p_real_impl(const T v)
-{
-    if (v > T(-1))
-    {
-        if (abs_value(v) > T(0.0001))
-        {
-            return std::log(T(1) + v);
-        }
-        else
-        {
-            return (T(-0.5) * v + T(1)) * v;
-        }
-    }
-
-    return quiet_nan_impl<T>();
-}
-#endif
 
 template <typename T> inline T const_pi_impl()
 {

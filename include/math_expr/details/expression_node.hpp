@@ -34,6 +34,7 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 #define MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 
+#include "math_expr/core/numeric/details/operations.hpp"
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/fwd.hpp"
 #include "math_expr/details/fwd.hpp"
@@ -234,39 +235,38 @@ class expression_node : public node_collector_interface<expression_node<T>>,
 
 template <typename T> inline bool is_generally_string_node(const expression_node<T>* node);
 
-inline bool is_true(const double v)
+template <typename T>
+inline std::enable_if_t<core::numeric::details::is_supported_numeric_type_v<T>, bool>
+is_true(const T v)
 {
-    return std::not_equal_to<double>()(0.0, v);
+    return core::numeric::details::is_true_impl(v);
 }
 
-inline bool is_true(const long double v)
+template <typename T>
+inline std::enable_if_t<core::numeric::details::is_supported_numeric_type_v<T>, bool>
+is_false(const T v)
 {
-    return std::not_equal_to<long double>()(0.0L, v);
-}
-
-inline bool is_true(const float v)
-{
-    return std::not_equal_to<float>()(0.0f, v);
+    return core::numeric::details::is_false_impl(v);
 }
 
 template <typename T> inline bool is_true(const expression_node<T>* node)
 {
-    return std::not_equal_to<T>()(T(0), node->value());
+    return is_true(node->value());
 }
 
 template <typename T> inline bool is_true(const std::pair<expression_node<T>*, bool>& node)
 {
-    return std::not_equal_to<T>()(T(0), node.first->value());
+    return is_true(node.first->value());
 }
 
 template <typename T> inline bool is_false(const expression_node<T>* node)
 {
-    return std::equal_to<T>()(T(0), node->value());
+    return is_false(node->value());
 }
 
 template <typename T> inline bool is_false(const std::pair<expression_node<T>*, bool>& node)
 {
-    return std::equal_to<T>()(T(0), node.first->value());
+    return is_false(node.first->value());
 }
 
 template <typename T> inline bool is_literal_node(const expression_node<T>* node)

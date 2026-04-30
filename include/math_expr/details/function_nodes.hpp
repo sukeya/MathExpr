@@ -2071,10 +2071,9 @@ template <typename T> class scand_node final : public binary_node<T>
 
     inline T value() const override
     {
-        return (std::not_equal_to<T>()(T(0), branch(0)->value()) &&
-                std::not_equal_to<T>()(T(0), branch(1)->value()))
-                   ? T(1)
-                   : T(0);
+        return (details::is_true(branch(0)->value()) && details::is_true(branch(1)->value()))
+                   ? core::numeric::true_v<T>
+                   : core::numeric::false_v<T>;
     }
 };
 
@@ -2093,10 +2092,9 @@ template <typename T> class scor_node final : public binary_node<T>
 
     inline T value() const override
     {
-        return (std::not_equal_to<T>()(T(0), branch(0)->value()) ||
-                std::not_equal_to<T>()(T(0), branch(1)->value()))
-                   ? T(1)
-                   : T(0);
+        return (details::is_true(branch(0)->value()) || details::is_true(branch(1)->value()))
+                   ? core::numeric::true_v<T>
+                   : core::numeric::false_v<T>;
     }
 };
 

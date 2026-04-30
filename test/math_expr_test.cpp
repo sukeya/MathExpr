@@ -59,15 +59,9 @@ inline bool not_equal(const T& t0, const T& t1, const T& epsilon = T(0.000000000
 
 inline bool not_equal(const float& t0, const float& t1, const float& epsilon = 0.000001f);
 
-#if __cplusplus >= 201103L
 #define math_expr_test_override override
 #define math_expr_test_final final
 #define math_expr_test_delete = delete
-#else
-#define math_expr_test_override
-#define math_expr_test_final
-#define math_expr_test_delete
-#endif
 
 typedef std::pair<std::string, numeric_type> test_t;
 
@@ -13823,12 +13817,18 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
                                   float_type(12.0));
         test_support::expect_near(math_expr::core::numeric::and_opr(float_type(1), float_type(0)),
                                   float_type(0.0));
+        test_support::expect_near(math_expr::core::numeric::nand_opr(float_type(1), float_type(1)),
+                                  float_type(0.0));
         test_support::expect_near(math_expr::core::numeric::or_opr(float_type(1), float_type(0)),
+                                  float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::nor_opr(float_type(0), float_type(0)),
                                   float_type(1.0));
         test_support::expect_near(math_expr::core::numeric::xor_opr(float_type(0), float_type(1)),
                                   float_type(1.0));
         test_support::expect_near(math_expr::core::numeric::xnor_opr(float_type(2), float_type(3)),
                                   float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::notl(float_type(0)), float_type(1.0));
+        test_support::expect_near(math_expr::core::numeric::notl(float_type(3)), float_type(0.0));
         CHECK_FALSE(math_expr::core::numeric::is_integer(float_type(2.5)));
         CHECK(math_expr::core::numeric::is_integer(float_type(2.0)));
     }
@@ -13850,9 +13850,13 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
         CHECK(math_expr::core::numeric::shr(int_type(16), int_type(2)) == int_type(4));
         CHECK(math_expr::core::numeric::shl(int_type(3), int_type(3)) == int_type(24));
         CHECK(math_expr::core::numeric::and_opr(int_type(2), int_type(4)) == int_type(1));
+        CHECK(math_expr::core::numeric::nand_opr(int_type(1), int_type(1)) == int_type(0));
         CHECK(math_expr::core::numeric::or_opr(int_type(0), int_type(4)) == int_type(1));
+        CHECK(math_expr::core::numeric::nor_opr(int_type(0), int_type(0)) == int_type(1));
         CHECK(math_expr::core::numeric::xor_opr(int_type(6), int_type(3)) == int_type(5));
         CHECK(math_expr::core::numeric::xnor_opr(int_type(0), int_type(0)) == int_type(1));
+        CHECK(math_expr::core::numeric::notl(int_type(0)) == int_type(1));
+        CHECK(math_expr::core::numeric::notl(int_type(7)) == int_type(0));
         CHECK(math_expr::core::numeric::is_integer(int_type(42)));
         CHECK(math_expr::core::numeric::acos(int_type(1)) ==
               std::numeric_limits<int_type>::quiet_NaN());
@@ -13864,5 +13868,44 @@ TEST_CASE("Numeric helpers preserve floating and integral dispatch behavior", "[
         CHECK(math_expr::core::numeric::to_int64(19.75) == std::int64_t{19});
         CHECK(math_expr::core::numeric::to_uint64(19.75) == std::uint64_t{19});
         CHECK(math_expr::core::numeric::to_uint64(3.0) == std::uint64_t{3});
+    }
+}
+
+TEST_CASE("Boolean literals remain built-in when the replacer is disabled", "[parser][bool]")
+{
+    using numeric_type = double;
+    using expression_t = math_expr::expression<numeric_type>;
+    using parser_t = math_expr::parser<numeric_type>;
+    using settings_t = parser_t::settings_t;
+
+    const std::array<std::pair<std::string, numeric_type>, 4> programs = {
+        std::pair<std::string, numeric_type>{"true == true", numeric_type(1.0)},
+        std::pair<std::string, numeric_type>{"false == false", numeric_type(1.0)},
+        std::pair<std::string, numeric_type>{"(true and false) == false", numeric_type(1.0)},
+        std::pair<std::string, numeric_type>{"if(true,1,0)", numeric_type(1.0)}};
+
+    math_expr::symbol_table<numeric_type> symbol_table;
+    symbol_table.add_constants();
+
+    const settings_t no_replacer_settings(settings_t::default_compile_all_opts &
+                                          ~settings_t::e_replacer);
+
+    parser_t default_parser;
+    parser_t no_replacer_parser(no_replacer_settings);
+
+    for (const auto& [program, expected] : programs)
+    {
+        SECTION(program)
+        {
+            expression_t default_expression;
+            default_expression.register_symbol_table(symbol_table);
+            REQUIRE(default_parser.compile(program, default_expression));
+            CHECK(default_expression.value() == expected);
+
+            expression_t no_replacer_expression;
+            no_replacer_expression.register_symbol_table(symbol_table);
+            REQUIRE(no_replacer_parser.compile(program, no_replacer_expression));
+            CHECK(no_replacer_expression.value() == expected);
+        }
     }
 }

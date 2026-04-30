@@ -174,7 +174,7 @@ template <typename T> inline T equal(const T v0, const T v1)
 
     if constexpr (details::is_supported_integral_type_v<T>)
     {
-        return (v0 == v1) ? T(1) : T(0);
+        return std::equal_to<T>()(v0, v1) ? true_v<T> : false_v<T>;
     }
     else
     {
@@ -182,8 +182,8 @@ template <typename T> inline T equal(const T v0, const T v1)
         return (details::abs_value(v0 - v1) <=
                 (std::max(T(1), std::max(details::abs_value(v0), details::abs_value(v1))) *
                  epsilon))
-                   ? T(1)
-                   : T(0);
+                   ? true_v<T>
+                   : false_v<T>;
     }
 }
 
@@ -193,7 +193,7 @@ template <typename T> inline T nequal(const T v0, const T v1)
 
     if constexpr (details::is_supported_integral_type_v<T>)
     {
-        return (v0 != v1) ? T(1) : T(0);
+        return std::not_equal_to<T>()(v0, v1) ? true_v<T> : false_v<T>;
     }
     else
     {
@@ -201,8 +201,8 @@ template <typename T> inline T nequal(const T v0, const T v1)
         return (details::abs_value(v0 - v1) >
                 (std::max(T(1), std::max(details::abs_value(v0), details::abs_value(v1))) *
                  epsilon))
-                   ? T(1)
-                   : T(0);
+                   ? true_v<T>
+                   : false_v<T>;
     }
 }
 
@@ -304,7 +304,7 @@ template <typename T> inline T hypot(const T v0, const T v1)
     }
     else
     {
-        return static_cast<T>(std::hypot(static_cast<double>(v0, v1)));
+        return static_cast<T>(std::hypot(static_cast<double>(v0), static_cast<double>(v1)));
     }
 }
 
@@ -356,56 +356,28 @@ template <typename T> inline T and_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    if constexpr (details::is_supported_real_type_v<T>)
-    {
-        return (details::is_true_impl(v0) && details::is_true_impl(v1)) ? T(1) : T(0);
-    }
-    else
-    {
-        return v0 && v1;
-    }
+    return (details::is_true_impl(v0) && details::is_true_impl(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T nand_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    if constexpr (details::is_supported_real_type_v<T>)
-    {
-        return (details::is_false_impl(v0) || details::is_false_impl(v1)) ? T(1) : T(0);
-    }
-    else
-    {
-        return !(v0 && v1);
-    }
+    return (details::is_false_impl(v0) || details::is_false_impl(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T or_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    if constexpr (details::is_supported_real_type_v<T>)
-    {
-        return (details::is_true_impl(v0) || details::is_true_impl(v1)) ? T(1) : T(0);
-    }
-    else
-    {
-        return (v0 || v1);
-    }
+    return (details::is_true_impl(v0) || details::is_true_impl(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T nor_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    if constexpr (details::is_supported_real_type_v<T>)
-    {
-        return (details::is_false_impl(v0) && details::is_false_impl(v1)) ? T(1) : T(0);
-    }
-    else
-    {
-        return !(v0 || v1);
-    }
+    return (details::is_false_impl(v0) && details::is_false_impl(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T xor_opr(const T v0, const T v1)
@@ -414,7 +386,7 @@ template <typename T> inline T xor_opr(const T v0, const T v1)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return (details::is_false_impl(v0) != details::is_false_impl(v1)) ? T(1) : T(0);
+        return (details::is_false_impl(v0) != details::is_false_impl(v1)) ? true_v<T> : false_v<T>;
     }
     else
     {
@@ -431,11 +403,11 @@ template <typename T> inline T xnor_opr(const T v0, const T v1)
 
     if ((v0_true && v1_true) || (!v0_true && !v1_true))
     {
-        return T(1);
+        return true_v<T>;
     }
     else
     {
-        return T(0);
+        return false_v<T>;
     }
 }
 
@@ -718,11 +690,7 @@ template <typename T> inline T expm1(const T v)
     }
     else
     {
-#if __cplusplus >= 201103L
         return std::expm1(v);
-#else
-        return T(std::exp<double>(v)) - T(1);
-#endif
     }
 }
 
@@ -767,16 +735,7 @@ template <typename T> inline T log1p(const T v)
     }
     else
     {
-#if __cplusplus >= 201103L
         return std::log1p(v);
-#else
-        if (v > T(-1))
-        {
-            return std::log(T(1) + v);
-        }
-
-        return details::quiet_nan_impl<T>();
-#endif
     }
 }
 
@@ -993,11 +952,11 @@ template <typename T> inline T notl(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return (std::not_equal_to<T>()(T(0), v) ? T(0) : T(1));
+        return details::is_true_impl(v) ? false_v<T> : true_v<T>;
     }
     else
     {
-        return !v;
+        return details::is_false_impl(v) ? true_v<T> : false_v<T>;
     }
 }
 

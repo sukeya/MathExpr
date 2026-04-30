@@ -114,9 +114,9 @@ template <typename T> class null_eq_node final : public expression_node<T>
         const bool result = core::numeric::is_nan(v);
 
         if (result)
-            return equality_ ? T(1) : T(0);
+            return equality_ ? core::numeric::true_v<T> : core::numeric::false_v<T>;
         else
-            return equality_ ? T(0) : T(1);
+            return equality_ ? core::numeric::false_v<T> : core::numeric::true_v<T>;
     }
 
     inline typename expression_node<T>::node_type type() const override

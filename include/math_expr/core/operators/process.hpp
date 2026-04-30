@@ -155,17 +155,23 @@ template <typename T> inline T process(const operator_type operation, const T ar
     case operator_type::logn:
         return ::math_expr::core::numeric::logn<T>(arg0, arg1);
     case operator_type::lt:
-        return (arg0 < arg1) ? T(1) : T(0);
+        return (arg0 < arg1) ? ::math_expr::core::numeric::true_v<T>
+                             : ::math_expr::core::numeric::false_v<T>;
     case operator_type::lte:
-        return (arg0 <= arg1) ? T(1) : T(0);
+        return (arg0 <= arg1) ? ::math_expr::core::numeric::true_v<T>
+                              : ::math_expr::core::numeric::false_v<T>;
     case operator_type::eq:
-        return std::equal_to<T>()(arg0, arg1) ? T(1) : T(0);
+        return std::equal_to<T>()(arg0, arg1) ? ::math_expr::core::numeric::true_v<T>
+                                              : ::math_expr::core::numeric::false_v<T>;
     case operator_type::ne:
-        return std::not_equal_to<T>()(arg0, arg1) ? T(1) : T(0);
+        return std::not_equal_to<T>()(arg0, arg1) ? ::math_expr::core::numeric::true_v<T>
+                                                  : ::math_expr::core::numeric::false_v<T>;
     case operator_type::gte:
-        return (arg0 >= arg1) ? T(1) : T(0);
+        return (arg0 >= arg1) ? ::math_expr::core::numeric::true_v<T>
+                              : ::math_expr::core::numeric::false_v<T>;
     case operator_type::gt:
-        return (arg0 > arg1) ? T(1) : T(0);
+        return (arg0 > arg1) ? ::math_expr::core::numeric::true_v<T>
+                             : ::math_expr::core::numeric::false_v<T>;
     case operator_type::logical_and:
         return ::math_expr::core::numeric::and_opr<T>(arg0, arg1);
     case operator_type::nand:

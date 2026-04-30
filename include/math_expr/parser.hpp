@@ -2360,8 +2360,6 @@ template <typename T> class parser : public lexer::parser_helper
         if (settings_.replacer_enabled())
         {
             symbol_replacer_.clear();
-            symbol_replacer_.add_replace("true", "1", lexer::token::e_number);
-            symbol_replacer_.add_replace("false", "0", lexer::token::e_number);
             helper_assembly_.token_modifier_list.clear();
             helper_assembly_.register_modifier(&symbol_replacer_);
         }
@@ -8796,6 +8794,8 @@ template <typename T> class parser : public lexer::parser_helper
         static const std::string symbol_return = "return";
         static const std::string symbol_not = "not";
         static const std::string symbol_assert = "assert";
+        static const std::string symbol_true = "true";
+        static const std::string symbol_false = "false";
 
         const std::string symbol = current_token().value;
 
@@ -8806,6 +8806,16 @@ template <typename T> class parser : public lexer::parser_helper
         else if (core::imatch(symbol, symbol_not))
         {
             return parse_not_statement();
+        }
+        else if (core::imatch(symbol, symbol_true))
+        {
+            next_token();
+            return expression_generator_(core::numeric::true_v<T>);
+        }
+        else if (core::imatch(symbol, symbol_false))
+        {
+            next_token();
+            return expression_generator_(core::numeric::false_v<T>);
         }
         else if (valid_base_operation(symbol))
         {
@@ -12492,21 +12502,21 @@ template <typename T> class parser : public lexer::parser_helper
             if (details::is_constant_node(branch[0]))
             {
                 if ((core::operators::operator_type::scand == operation) &&
-                    std::equal_to<T>()(T(0), branch[0]->value()))
-                    result = node_allocator_->allocate_c<literal_node_t>(T(0));
+                    details::is_false(branch[0]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::false_v<T>);
                 else if ((core::operators::operator_type::scor == operation) &&
-                         std::not_equal_to<T>()(T(0), branch[0]->value()))
-                    result = node_allocator_->allocate_c<literal_node_t>(T(1));
+                         details::is_true(branch[0]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
             }
 
             if (details::is_constant_node(branch[1]) && (0 == result))
             {
                 if ((core::operators::operator_type::scand == operation) &&
-                    std::equal_to<T>()(T(0), branch[1]->value()))
-                    result = node_allocator_->allocate_c<literal_node_t>(T(0));
+                    details::is_false(branch[1]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::false_v<T>);
                 else if ((core::operators::operator_type::scor == operation) &&
-                         std::not_equal_to<T>()(T(0), branch[1]->value()))
-                    result = node_allocator_->allocate_c<literal_node_t>(T(1));
+                         details::is_true(branch[1]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
             }
 
             if (result)

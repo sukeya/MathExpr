@@ -39,6 +39,11 @@ limitations under the License.
 
 namespace math_expr::details
 {
+template <typename T> inline T truth_value(const bool value)
+{
+    return value ? core::numeric::true_v<T> : core::numeric::false_v<T>;
+}
+
 template <typename T> struct opr_base
 {
     typedef typename core::numeric::functor_t<T>::Type Type;
@@ -210,11 +215,11 @@ template <typename T> struct lt_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return ((t1 < t2) ? T(1) : T(0));
+        return truth_value<T>(t1 < t2);
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 < t2) ? T(1) : T(0));
+        return truth_value<T>(t1 < t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -232,11 +237,11 @@ template <typename T> struct lte_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return ((t1 <= t2) ? T(1) : T(0));
+        return truth_value<T>(t1 <= t2);
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 <= t2) ? T(1) : T(0));
+        return truth_value<T>(t1 <= t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -254,11 +259,11 @@ template <typename T> struct gt_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return ((t1 > t2) ? T(1) : T(0));
+        return truth_value<T>(t1 > t2);
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 > t2) ? T(1) : T(0));
+        return truth_value<T>(t1 > t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -276,11 +281,11 @@ template <typename T> struct gte_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return ((t1 >= t2) ? T(1) : T(0));
+        return truth_value<T>(t1 >= t2);
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 >= t2) ? T(1) : T(0));
+        return truth_value<T>(t1 >= t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -297,11 +302,11 @@ template <typename T> struct eq_op : public opr_base<T>
     typedef typename opr_base<T>::Type Type;
     static inline T process(Type t1, Type t2)
     {
-        return (std::equal_to<T>()(t1, t2) ? T(1) : T(0));
+        return truth_value<T>(std::equal_to<T>()(t1, t2));
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 == t2) ? T(1) : T(0));
+        return truth_value<T>(t1 == t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -323,7 +328,7 @@ template <typename T> struct equal_op : public opr_base<T>
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 == t2) ? T(1) : T(0));
+        return truth_value<T>(t1 == t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -341,11 +346,11 @@ template <typename T> struct ne_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return (std::not_equal_to<T>()(t1, t2) ? T(1) : T(0));
+        return truth_value<T>(std::not_equal_to<T>()(t1, t2));
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((t1 != t2) ? T(1) : T(0));
+        return truth_value<T>(t1 != t2);
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -363,7 +368,7 @@ template <typename T> struct and_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return (details::is_true(t1) && details::is_true(t2)) ? T(1) : T(0);
+        return truth_value<T>(details::is_true(t1) && details::is_true(t2));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -381,7 +386,7 @@ template <typename T> struct nand_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return (details::is_true(t1) && details::is_true(t2)) ? T(0) : T(1);
+        return truth_value<T>(!(details::is_true(t1) && details::is_true(t2)));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -399,7 +404,7 @@ template <typename T> struct or_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return (details::is_true(t1) || details::is_true(t2)) ? T(1) : T(0);
+        return truth_value<T>(details::is_true(t1) || details::is_true(t2));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -417,7 +422,7 @@ template <typename T> struct nor_op : public opr_base<T>
 
     static inline T process(Type t1, Type t2)
     {
-        return (details::is_true(t1) || details::is_true(t2)) ? T(0) : T(1);
+        return truth_value<T>(!(details::is_true(t1) || details::is_true(t2)));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -475,7 +480,7 @@ template <typename T> struct in_op : public opr_base<T>
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return ((std::string::npos != t2.find(t1)) ? T(1) : T(0));
+        return truth_value<T>(std::string::npos != t2.find(t1));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -497,7 +502,7 @@ template <typename T> struct like_op : public opr_base<T>
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return (core::wc_match(t2, t1) ? T(1) : T(0));
+        return truth_value<T>(core::wc_match(t2, t1));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -519,7 +524,7 @@ template <typename T> struct ilike_op : public opr_base<T>
     }
     static inline T process(const std::string& t1, const std::string& t2)
     {
-        return (core::wc_imatch(t2, t1) ? T(1) : T(0));
+        return truth_value<T>(core::wc_imatch(t2, t1));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -537,11 +542,11 @@ template <typename T> struct inrange_op : public opr_base<T>
 
     static inline T process(const T& t0, const T& t1, const T& t2)
     {
-        return ((t0 <= t1) && (t1 <= t2)) ? T(1) : T(0);
+        return truth_value<T>((t0 <= t1) && (t1 <= t2));
     }
     static inline T process(const std::string& t0, const std::string& t1, const std::string& t2)
     {
-        return ((t0 <= t1) && (t1 <= t2)) ? T(1) : T(0);
+        return truth_value<T>((t0 <= t1) && (t1 <= t2));
     }
     static inline typename expression_node<T>::node_type type()
     {
@@ -909,56 +914,46 @@ template <typename T> struct vararg_mand_op final : public opr_base<T>
         {
             for (std::size_t i = 0; i < arg_list.size(); ++i)
             {
-                if (std::equal_to<T>()(T(0), value(arg_list[i])))
-                    return T(0);
+                if (details::is_false(value(arg_list[i])))
+                    return core::numeric::false_v<T>;
             }
 
-            return T(1);
+            return core::numeric::true_v<T>;
         }
         }
     }
 
     template <typename Sequence> static inline T process_1(const Sequence& arg_list)
     {
-        return std::not_equal_to<T>()(T(0), value(arg_list[0])) ? T(1) : T(0);
+        return truth_value<T>(details::is_true(value(arg_list[0])));
     }
 
     template <typename Sequence> static inline T process_2(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[1])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(details::is_true(value(arg_list[0])) &&
+                              details::is_true(value(arg_list[1])));
     }
 
     template <typename Sequence> static inline T process_3(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[1])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[2])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(details::is_true(value(arg_list[0])) &&
+                              details::is_true(value(arg_list[1])) &&
+                              details::is_true(value(arg_list[2])));
     }
 
     template <typename Sequence> static inline T process_4(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[1])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[2])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[3])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(
+            details::is_true(value(arg_list[0])) && details::is_true(value(arg_list[1])) &&
+            details::is_true(value(arg_list[2])) && details::is_true(value(arg_list[3])));
     }
 
     template <typename Sequence> static inline T process_5(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[1])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[2])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[3])) &&
-                std::not_equal_to<T>()(T(0), value(arg_list[4])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(
+            details::is_true(value(arg_list[0])) && details::is_true(value(arg_list[1])) &&
+            details::is_true(value(arg_list[2])) && details::is_true(value(arg_list[3])) &&
+            details::is_true(value(arg_list[4])));
     }
 };
 
@@ -985,56 +980,46 @@ template <typename T> struct vararg_mor_op final : public opr_base<T>
         {
             for (std::size_t i = 0; i < arg_list.size(); ++i)
             {
-                if (std::not_equal_to<T>()(T(0), value(arg_list[i])))
-                    return T(1);
+                if (details::is_true(value(arg_list[i])))
+                    return core::numeric::true_v<T>;
             }
 
-            return T(0);
+            return core::numeric::false_v<T>;
         }
         }
     }
 
     template <typename Sequence> static inline T process_1(const Sequence& arg_list)
     {
-        return std::not_equal_to<T>()(T(0), value(arg_list[0])) ? T(1) : T(0);
+        return truth_value<T>(details::is_true(value(arg_list[0])));
     }
 
     template <typename Sequence> static inline T process_2(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[1])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(details::is_true(value(arg_list[0])) ||
+                              details::is_true(value(arg_list[1])));
     }
 
     template <typename Sequence> static inline T process_3(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[1])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[2])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(details::is_true(value(arg_list[0])) ||
+                              details::is_true(value(arg_list[1])) ||
+                              details::is_true(value(arg_list[2])));
     }
 
     template <typename Sequence> static inline T process_4(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[1])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[2])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[3])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(
+            details::is_true(value(arg_list[0])) || details::is_true(value(arg_list[1])) ||
+            details::is_true(value(arg_list[2])) || details::is_true(value(arg_list[3])));
     }
 
     template <typename Sequence> static inline T process_5(const Sequence& arg_list)
     {
-        return (std::not_equal_to<T>()(T(0), value(arg_list[0])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[1])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[2])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[3])) ||
-                std::not_equal_to<T>()(T(0), value(arg_list[4])))
-                   ? T(1)
-                   : T(0);
+        return truth_value<T>(
+            details::is_true(value(arg_list[0])) || details::is_true(value(arg_list[1])) ||
+            details::is_true(value(arg_list[2])) || details::is_true(value(arg_list[3])) ||
+            details::is_true(value(arg_list[4])));
     }
 };
 
