@@ -15,4 +15,4 @@
 find_package(benchmark REQUIRED)
 
 add_executable(math_expr_bench math_expr_bench.cpp)
-target_link_libraries(math_expr_bench MathExpr benchmark::benchmark)
+target_link_libraries(math_expr_bench MathExpr benchmark::benchmark_main)

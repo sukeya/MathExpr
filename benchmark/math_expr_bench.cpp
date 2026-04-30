@@ -16,170 +16,29 @@
  **************************************************************
  */
 
-#include <cstdio>
+#include <array>
 #include <cmath>
-#include <fstream>
+#include <cstddef>
+#include <cstdint>
 #include <string>
-#include <deque>
 
 #include "math_expr.hpp"
+#include <benchmark/benchmark.h>
 
-const std::string global_expression_list[] = {
-    "(y + x)",
-    "2 * (y + x)",
-    "(2 * y + 2 * x)",
-    "((1.23 * x^2) / y) - 123.123",
-    "(y + x / y) * (x - y / x)",
-    "x / ((x + y) + (x - y)) / y",
-    "1 - ((x * y) + (y / x)) - 3",
-    "(5.5 + x) + (2 * x - 2 / 3 * y) * (x / 3 + y / 4) + (y + 7.7)",
-    "1.1x^1 + 2.2y^2 - 3.3x^3 + 4.4y^15 - 5.5x^23 + 6.6y^55",
-    "sin(2 * x) + cos(pi / y)",
-    "1 - sin(2 * x) + cos(pi / y)",
-    "sqrt(111.111 - sin(2 * x) + cos(pi / y) / 333.333)",
-    "(x^2 / sin(2 * pi / y)) - x / 2",
-    "x + (cos(y - sin(2 / x * pi)) - sin(x - cos(2 * y / pi))) - y",
-    "clamp(-1.0, sin(2 * pi * x) + cos(y / 2 * pi), +1.0)",
-    "max(3.33, min(sqrt(1 - sin(2 * x) + cos(pi / y) / 3), 1.11))",
-    "if((y + (x * 2.2)) <= (x + y + 1.1), x - y, x * y) + 2 * pi / x"};
-
-const std::size_t global_expression_list_size =
-    sizeof(global_expression_list) / sizeof(std::string);
-
-static const double global_lower_bound_x = -100.0;
-static const double global_lower_bound_y = -100.0;
-static const double global_upper_bound_x = +100.0;
-static const double global_upper_bound_y = +100.0;
-static const double global_delta = 0.0111;
-
-template <typename T, typename Allocator, template <typename, typename> class Sequence>
-bool load_expression(math_expr::symbol_table<T>& symbol_table,
-                     Sequence<math_expr::expression<T>, Allocator>& expr_seq)
+namespace
 {
-    math_expr::parser<double> parser;
 
-    for (std::size_t i = 0; i < global_expression_list_size; ++i)
-    {
-        math_expr::expression<double> expression;
-        expression.register_symbol_table(symbol_table);
-
-        if (!parser.compile(global_expression_list[i], expression))
-        {
-            printf("[load_expression] - Parser Error: %s\tExpression: %s\n", parser.error().c_str(),
-                   global_expression_list[i].c_str());
-
-            return false;
-        }
-
-        expr_seq.push_back(expression);
-    }
-
-    return true;
-}
-
-template <typename T>
-void run_math_expr_benchmark(T& x, T& y, math_expr::expression<T>& expression,
-                             const std::string& expr_string)
-{
-    T total = T(0);
-    unsigned int count = 0;
-
-    math_expr::timer timer;
-    timer.start();
-
-    for (x = global_lower_bound_x; x <= global_upper_bound_x; x += global_delta)
-    {
-        for (y = global_lower_bound_y; y <= global_upper_bound_y; y += global_delta)
-        {
-            total += expression.value();
-            ++count;
-        }
-    }
-
-    timer.stop();
-
-    if (T(0) != total)
-        printf("[math_expr] Total Time:%12.8f  Rate:%14.3fevals/sec Expression: %s\n", timer.time(),
-               count / timer.time(), expr_string.c_str());
-    else
-        printf("run_math_expr_benchmark() - Error running benchmark for expression: %s\n",
-               expr_string.c_str());
-}
-
-template <typename T> struct native;
-
-template <typename T, typename NativeFunction>
-void run_native_benchmark(T& x, T& y, NativeFunction f, const std::string& expr_string)
-{
-    T total = T(0);
-    unsigned int count = 0;
-
-    math_expr::timer timer;
-    timer.start();
-
-    for (x = global_lower_bound_x; x <= global_upper_bound_x; x += global_delta)
-    {
-        for (y = global_lower_bound_y; y <= global_upper_bound_y; y += global_delta)
-        {
-            total += f(x, y);
-            ++count;
-        }
-    }
-
-    timer.stop();
-
-    if (T(0) != total)
-        printf("[native] Total Time:%12.8f  Rate:%14.3fevals/sec Expression: %s\n", timer.time(),
-               count / timer.time(), expr_string.c_str());
-    else
-        printf("run_native_benchmark() - Error running benchmark for expression: %s\n",
-               expr_string.c_str());
-}
-
-template <typename T> bool run_parse_benchmark(math_expr::symbol_table<T>& symbol_table)
-{
-    static const std::size_t rounds = 100000;
-    math_expr::parser<double> parser;
-    math_expr::expression<double> expression;
-
-    expression.register_symbol_table(symbol_table);
-
-    for (std::size_t i = 0; i < global_expression_list_size; ++i)
-    {
-        math_expr::timer timer;
-        timer.start();
-
-        for (std::size_t r = 0; r < rounds; ++r)
-        {
-            if (!parser.compile(global_expression_list[i], expression))
-            {
-                printf("[run_parse_benchmark] - Parser Error: %s\tExpression: %s\n",
-                       parser.error().c_str(), global_expression_list[i].c_str());
-
-                return false;
-            }
-        }
-
-        timer.stop();
-
-        printf("[parse] Total Time:%12.8f  Rate:%14.3fparse/sec Expression: %s\n", timer.time(),
-               rounds / timer.time(), global_expression_list[i].c_str());
-    }
-
-    return true;
-}
-
-const double pi = 3.141592653589793238462643383279502;
+constexpr double kPi = 3.141592653589793238462643383279502;
+constexpr double kLowerBoundX = -100.0;
+constexpr double kLowerBoundY = -100.0;
+constexpr double kUpperBoundX = 100.0;
+constexpr double kUpperBoundY = 100.0;
+constexpr double kDelta = 0.0111;
 
 template <typename T> struct native
 {
-    typedef typename math_expr::details::functor_t<T> functor_t;
-    typedef typename functor_t::Type Type;
-
-    static inline T avg(Type x, Type y)
-    {
-        return (x + y) / T(2);
-    }
+    using functor_t = typename math_expr::core::numeric::functor_t<T>;
+    using Type = typename functor_t::Type;
 
     static inline T clamp(const Type l, const Type v, const Type u)
     {
@@ -188,7 +47,7 @@ template <typename T> struct native
 
     static inline T func00(Type x, Type y)
     {
-        return (y + x);
+        return y + x;
     }
 
     static inline T func01(Type x, Type y)
@@ -235,316 +94,208 @@ template <typename T> struct native
 
     static inline T func09(Type x, Type y)
     {
-        return std::sin(T(2) * x) + std::cos(pi / y);
+        return std::sin(T(2) * x) + std::cos(kPi / y);
     }
 
     static inline T func10(Type x, Type y)
     {
-        return T(1) - std::sin(T(2) * x) + std::cos(pi / y);
+        return T(1) - std::sin(T(2) * x) + std::cos(kPi / y);
     }
 
     static inline T func11(Type x, Type y)
     {
-        return std::sqrt(T(111.111) - std::sin(T(2) * x) + std::cos(pi / y) / T(333.333));
+        return std::sqrt(T(111.111) - std::sin(T(2) * x) + std::cos(kPi / y) / T(333.333));
     }
 
     static inline T func12(Type x, Type y)
     {
-        return ((x * x) / std::sin(T(2) * pi / y)) - x / T(2);
+        return ((x * x) / std::sin(T(2) * kPi / y)) - x / T(2);
     }
 
     static inline T func13(Type x, Type y)
     {
-        return (x +
-                (std::cos(y - std::sin(T(2) / x * pi)) - std::sin(x - std::cos(T(2) * y / pi))) -
-                y);
+        return x +
+               (std::cos(y - std::sin(T(2) / x * kPi)) - std::sin(x - std::cos(T(2) * y / kPi))) -
+               y;
     }
 
     static inline T func14(Type x, Type y)
     {
-        return clamp(T(-1), std::sin(T(2) * pi * x) + std::cos(y / T(2) * pi), +T(1));
+        return clamp(T(-1), std::sin(T(2) * kPi * x) + std::cos(y / T(2) * kPi), +T(1));
     }
 
     static inline T func15(Type x, Type y)
     {
         return std::max(
-            T(3.33), std::min(sqrt(T(1) - std::sin(T(2) * x) + std::cos(pi / y) / T(3)), T(1.11)));
+            T(3.33),
+            std::min(std::sqrt(T(1) - std::sin(T(2) * x) + std::cos(kPi / y) / T(3)), T(1.11)));
     }
 
     static inline T func16(Type x, Type y)
     {
-        return (((y + (x * T(2.2))) <= (x + y + T(1.1))) ? x - y : x * y) + T(2) * pi / x;
+        return (((y + (x * T(2.2))) <= (x + y + T(1.1))) ? x - y : x * y) + T(2) * kPi / x;
     }
 };
 
-double pgo_primer();
-void perform_file_based_benchmark(const std::string& file_name, const std::size_t& rounds = 100000);
+using NativeFunction = double (*)(const double&, const double&);
 
-int main(int argc, char* argv[])
+struct BenchmarkCase
 {
-    if (argc >= 2)
+    const char* expression;
+    NativeFunction native_function;
+};
+
+constexpr std::array<BenchmarkCase, 17> kBenchmarkCases{{
+    {"(y + x)", native<double>::func00},
+    {"2 * (y + x)", native<double>::func01},
+    {"(2 * y + 2 * x)", native<double>::func02},
+    {"((1.23 * x^2) / y) - 123.123", native<double>::func03},
+    {"(y + x / y) * (x - y / x)", native<double>::func04},
+    {"x / ((x + y) + (x - y)) / y", native<double>::func05},
+    {"1 - ((x * y) + (y / x)) - 3", native<double>::func06},
+    {"(5.5 + x) + (2 * x - 2 / 3 * y) * (x / 3 + y / 4) + (y + 7.7)", native<double>::func07},
+    {"1.1x^1 + 2.2y^2 - 3.3x^3 + 4.4y^15 - 5.5x^23 + 6.6y^55", native<double>::func08},
+    {"sin(2 * x) + cos(pi / y)", native<double>::func09},
+    {"1 - sin(2 * x) + cos(pi / y)", native<double>::func10},
+    {"sqrt(111.111 - sin(2 * x) + cos(pi / y) / 333.333)", native<double>::func11},
+    {"(x^2 / sin(2 * pi / y)) - x / 2", native<double>::func12},
+    {"x + (cos(y - sin(2 / x * pi)) - sin(x - cos(2 * y / pi))) - y", native<double>::func13},
+    {"clamp(-1.0, sin(2 * pi * x) + cos(y / 2 * pi), +1.0)", native<double>::func14},
+    {"max(3.33, min(sqrt(1 - sin(2 * x) + cos(pi / y) / 3), 1.11))", native<double>::func15},
+    {"if((y + (x * 2.2)) <= (x + y + 1.1), x - y, x * y) + 2 * pi / x", native<double>::func16},
+}};
+
+std::int64_t compute_axis_count(double lower, double upper, double delta)
+{
+    std::int64_t count = 0;
+
+    for (double value = lower; value <= upper; value += delta)
     {
-        const std::string file_name = argv[1];
-
-        if (argc == 2)
-            perform_file_based_benchmark(file_name);
-        else
-            perform_file_based_benchmark(file_name, atoi(argv[2]));
-
-        return 0;
+        ++count;
     }
 
-    pgo_primer();
+    return count;
+}
 
-    double x = 0;
-    double y = 0;
+const std::int64_t kGridEvalCount = compute_axis_count(kLowerBoundX, kUpperBoundX, kDelta) *
+                                    compute_axis_count(kLowerBoundY, kUpperBoundY, kDelta);
+
+void benchmark_math_expr(benchmark::State& state, const std::size_t index)
+{
+    double x = 0.0;
+    double y = 0.0;
 
     math_expr::symbol_table<double> symbol_table;
     symbol_table.add_constants();
     symbol_table.add_variable("x", x);
     symbol_table.add_variable("y", y);
 
-    std::deque<math_expr::expression<double>> compiled_expr_list;
+    math_expr::expression<double> expression;
+    expression.register_symbol_table(symbol_table);
 
-    if (!load_expression(symbol_table, compiled_expr_list))
+    math_expr::parser<double> parser;
+    if (!parser.compile(kBenchmarkCases[index].expression, expression))
     {
-        return 1;
-    }
-
-    {
-        printf("--- EXPRTK ---\n");
-        for (std::size_t i = 0; i < compiled_expr_list.size(); ++i)
-        {
-            run_math_expr_benchmark(x, y, compiled_expr_list[i], global_expression_list[i]);
-        }
-    }
-
-    {
-        printf("--- NATIVE ---\n");
-        run_native_benchmark(x, y, native<double>::func00, global_expression_list[0]);
-        run_native_benchmark(x, y, native<double>::func01, global_expression_list[1]);
-        run_native_benchmark(x, y, native<double>::func02, global_expression_list[2]);
-        run_native_benchmark(x, y, native<double>::func03, global_expression_list[3]);
-        run_native_benchmark(x, y, native<double>::func04, global_expression_list[4]);
-        run_native_benchmark(x, y, native<double>::func05, global_expression_list[5]);
-        run_native_benchmark(x, y, native<double>::func06, global_expression_list[6]);
-        run_native_benchmark(x, y, native<double>::func07, global_expression_list[7]);
-        run_native_benchmark(x, y, native<double>::func08, global_expression_list[8]);
-        run_native_benchmark(x, y, native<double>::func09, global_expression_list[9]);
-        run_native_benchmark(x, y, native<double>::func10, global_expression_list[10]);
-        run_native_benchmark(x, y, native<double>::func11, global_expression_list[11]);
-        run_native_benchmark(x, y, native<double>::func12, global_expression_list[12]);
-        run_native_benchmark(x, y, native<double>::func13, global_expression_list[13]);
-        run_native_benchmark(x, y, native<double>::func14, global_expression_list[14]);
-        run_native_benchmark(x, y, native<double>::func15, global_expression_list[15]);
-        run_native_benchmark(x, y, native<double>::func16, global_expression_list[16]);
-    }
-
-    {
-        printf("--- PARSE ----\n");
-        run_parse_benchmark(symbol_table);
-    }
-
-    return 0;
-}
-
-double pgo_primer()
-{
-    static const double lower_bound_x = -50.0;
-    static const double lower_bound_y = -50.0;
-    static const double upper_bound_x = +50.0;
-    static const double upper_bound_y = +50.0;
-    static const double delta = 0.07;
-
-    double total = 0.0;
-
-    for (double x = lower_bound_x; x <= upper_bound_x; x += delta)
-    {
-        for (double y = lower_bound_y; y <= upper_bound_y; y += delta)
-        {
-            total += native<double>::func00(x, y);
-            total += native<double>::func01(x, y);
-            total += native<double>::func02(x, y);
-            total += native<double>::func03(x, y);
-            total += native<double>::func04(x, y);
-            total += native<double>::func05(x, y);
-            total += native<double>::func06(x, y);
-            total += native<double>::func07(x, y);
-            total += native<double>::func08(x, y);
-            total += native<double>::func09(x, y);
-            total += native<double>::func10(x, y);
-            total += native<double>::func11(x, y);
-            total += native<double>::func12(x, y);
-            total += native<double>::func13(x, y);
-            total += native<double>::func14(x, y);
-            total += native<double>::func15(x, y);
-            total += native<double>::func16(x, y);
-        }
-    }
-
-    return total;
-}
-
-inline std::size_t load_expression_file(const std::string& file_name,
-                                        std::deque<std::string>& expression_list)
-{
-    std::ifstream stream(file_name.c_str());
-
-    if (!stream)
-        return 0;
-
-    std::string buffer;
-    buffer.reserve(1024);
-
-    while (std::getline(stream, buffer))
-    {
-        if (buffer.empty())
-            continue;
-        else if ('#' == buffer[0])
-            continue;
-
-        expression_list.push_back(buffer);
-    }
-
-    return expression_list.size();
-}
-
-void perform_file_based_benchmark(const std::string& file_name, const std::size_t& rounds)
-{
-    std::deque<std::string> expr_str_list;
-
-    if (0 == load_expression_file(file_name, expr_str_list))
-    {
-        printf("Failed to load any expressions from: %s\n", file_name.c_str());
+        std::string error = "compile failed: ";
+        error += parser.error();
+        state.SkipWithError(error.c_str());
         return;
     }
 
-    typedef math_expr::symbol_table<double> symbol_table_t;
-    typedef math_expr::expression<double> expression_t;
-    typedef math_expr::parser<double> parser_t;
+    state.SetLabel(kBenchmarkCases[index].expression);
 
-    std::deque<expression_t> expression_list;
+    for (auto _ : state)
+    {
+        double total = 0.0;
 
-    symbol_table_t symbol_table;
+        for (x = kLowerBoundX; x <= kUpperBoundX; x += kDelta)
+        {
+            for (y = kLowerBoundY; y <= kUpperBoundY; y += kDelta)
+            {
+                total += expression.value();
+            }
+        }
 
-    double a = 1.1;
-    double b = 2.2;
-    double c = 3.3;
-    double x = 2.123456;
-    double y = 3.123456;
-    double z = 4.123456;
-    double w = 5.123456;
+        benchmark::DoNotOptimize(total);
+        benchmark::ClobberMemory();
+    }
 
-    math_expr::rtl::vecops::package<double> vector_package;
+    state.SetItemsProcessed(state.iterations() * kGridEvalCount);
+}
 
-    symbol_table.add_variable("a", a);
-    symbol_table.add_variable("b", b);
-    symbol_table.add_variable("c", c);
+void benchmark_native(benchmark::State& state, const std::size_t index)
+{
+    state.SetLabel(kBenchmarkCases[index].expression);
 
+    for (auto _ : state)
+    {
+        double total = 0.0;
+
+        for (double x = kLowerBoundX; x <= kUpperBoundX; x += kDelta)
+        {
+            for (double y = kLowerBoundY; y <= kUpperBoundY; y += kDelta)
+            {
+                total += kBenchmarkCases[index].native_function(x, y);
+            }
+        }
+
+        benchmark::DoNotOptimize(total);
+        benchmark::ClobberMemory();
+    }
+
+    state.SetItemsProcessed(state.iterations() * kGridEvalCount);
+}
+
+void benchmark_parse(benchmark::State& state, const std::size_t index)
+{
+    double x = 0.0;
+    double y = 0.0;
+
+    math_expr::symbol_table<double> symbol_table;
+    symbol_table.add_constants();
     symbol_table.add_variable("x", x);
     symbol_table.add_variable("y", y);
-    symbol_table.add_variable("z", z);
-    symbol_table.add_variable("w", w);
 
-    math_expr::polynomial<double, 1> poly01;
-    math_expr::polynomial<double, 2> poly02;
-    math_expr::polynomial<double, 3> poly03;
-    math_expr::polynomial<double, 4> poly04;
-    math_expr::polynomial<double, 5> poly05;
-    math_expr::polynomial<double, 6> poly06;
-    math_expr::polynomial<double, 7> poly07;
-    math_expr::polynomial<double, 8> poly08;
-    math_expr::polynomial<double, 9> poly09;
-    math_expr::polynomial<double, 10> poly10;
-    math_expr::polynomial<double, 11> poly11;
-    math_expr::polynomial<double, 12> poly12;
+    math_expr::parser<double> parser;
+    math_expr::expression<double> expression;
+    expression.register_symbol_table(symbol_table);
 
-    symbol_table.add_function("poly01", poly01);
-    symbol_table.add_function("poly02", poly02);
-    symbol_table.add_function("poly03", poly03);
-    symbol_table.add_function("poly04", poly04);
-    symbol_table.add_function("poly05", poly05);
-    symbol_table.add_function("poly06", poly06);
-    symbol_table.add_function("poly07", poly07);
-    symbol_table.add_function("poly08", poly08);
-    symbol_table.add_function("poly09", poly09);
-    symbol_table.add_function("poly10", poly10);
-    symbol_table.add_function("poly11", poly11);
-    symbol_table.add_function("poly12", poly12);
+    state.SetLabel(kBenchmarkCases[index].expression);
 
-    symbol_table.add_package(vector_package);
-
-    static double e = math_expr::core::numeric::e;
-    symbol_table.add_variable("e", e, true);
-
-    symbol_table.add_constants();
-
+    for (auto _ : state)
     {
-        parser_t parser;
-
-        for (std::size_t i = 0; i < expr_str_list.size(); ++i)
+        if (!parser.compile(kBenchmarkCases[index].expression, expression))
         {
-            expression_t expression;
-            expression.register_symbol_table(symbol_table);
-
-            if (!parser.compile(expr_str_list[i], expression))
-            {
-                printf("[perform_file_based_benchmark] - Parser Error: %s\tExpression: %s\n",
-                       parser.error().c_str(), expr_str_list[i].c_str());
-
-                return;
-            }
-
-            expression_list.push_back(expression);
-        }
-    }
-
-    math_expr::timer total_timer;
-    math_expr::timer timer;
-
-    double single_eval_total_time = 0.0;
-
-    total_timer.start();
-
-    for (std::size_t i = 0; i < expression_list.size(); ++i)
-    {
-        expression_t& expression = expression_list[i];
-
-        a = 1.1;
-        b = 2.2;
-        c = 3.3;
-        x = 2.123456;
-        y = 3.123456;
-        z = 4.123456;
-        w = 5.123456;
-
-        timer.start();
-        double sum = 0.0;
-
-        for (std::size_t r = 0; r < rounds; ++r)
-        {
-            sum += expression.value();
-            std::swap(a, b);
-            std::swap(x, y);
+            std::string error = "parse failed: ";
+            error += parser.error();
+            state.SkipWithError(error.c_str());
+            return;
         }
 
-        timer.stop();
-
-        printf("Expression %3d of %3d %9.3f ns\t%10d ns\t(%30.10f)  '%s'\n",
-               static_cast<int>(i + 1), static_cast<int>(expression_list.size()),
-               (timer.time() * 1000000000.0) / (1.0 * rounds),
-               static_cast<int>(timer.time() * 1000000000.0), sum, expr_str_list[i].c_str());
-
-        fflush(stdout);
-
-        single_eval_total_time += (timer.time() * 1000000000.0) / (1.0 * rounds);
+        benchmark::DoNotOptimize(expression);
     }
 
-    total_timer.stop();
-
-    printf("[*] Number Of Evals:        %15.0f\n", rounds * (expression_list.size() * 1.0));
-
-    printf("[*] Total Time:             %9.3fsec\n", total_timer.time());
-
-    printf("[*] Total Single Eval Time: %9.3fms\n", single_eval_total_time / 1000000.0);
+    state.SetItemsProcessed(state.iterations());
 }
+
+bool register_benchmarks()
+{
+    for (std::size_t index = 0; index < kBenchmarkCases.size(); ++index)
+    {
+        benchmark::RegisterBenchmark(("math_expr/" + std::to_string(index)).c_str(),
+                                     [index](benchmark::State& state)
+                                     { benchmark_math_expr(state, index); });
+        benchmark::RegisterBenchmark(("native/" + std::to_string(index)).c_str(),
+                                     [index](benchmark::State& state)
+                                     { benchmark_native(state, index); });
+        benchmark::RegisterBenchmark(("parse/" + std::to_string(index)).c_str(),
+                                     [index](benchmark::State& state)
+                                     { benchmark_parse(state, index); });
+    }
+
+    return true;
+}
+
+[[maybe_unused]] const bool kRegisteredBenchmarks = register_benchmarks();
+
+} // namespace
