@@ -49,7 +49,7 @@ template <typename T> class getline final : public math_expr::igeneric_function<
 
     using igfun_t::operator();
 
-    getline() : igfun_t("T", igfun_t::e_rtrn_string)
+    getline() : igfun_t("T", igfun_t::return_type::e_rtrn_string)
     {
         details::perform_check<T>();
     }

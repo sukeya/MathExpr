@@ -108,7 +108,7 @@ class stringvar_node final : public expression_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_stringvar;
+        return expression_node<T>::node_type::e_stringvar;
     }
 
     void rebase(std::string& s)

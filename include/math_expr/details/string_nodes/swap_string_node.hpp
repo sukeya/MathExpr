@@ -110,7 +110,7 @@ class swap_string_node final : public binary_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strswap;
+        return expression_node<T>::node_type::e_strswap;
     }
 
     inline bool valid() const override

@@ -78,7 +78,7 @@ template <typename T> class results_context
     inline bool get_scalar(const std::size_t& index, T& out) const
     {
         if ((index < parameter_list_.size()) &&
-            (parameter_list_[index].type == type_store_t::e_scalar))
+            (parameter_list_[index].type == type_store_t::store_type::e_scalar))
         {
             const scalar_t scalar(parameter_list_[index]);
             out = scalar();
@@ -92,7 +92,7 @@ template <typename T> class results_context
     inline bool get_vector(const std::size_t& index, OutputIterator out_itr) const
     {
         if ((index < parameter_list_.size()) &&
-            (parameter_list_[index].type == type_store_t::e_vector))
+            (parameter_list_[index].type == type_store_t::store_type::e_vector))
         {
             const vector_t vector(parameter_list_[index]);
             for (std::size_t i = 0; i < vector.size(); ++i)
@@ -114,7 +114,7 @@ template <typename T> class results_context
     inline bool get_string(const std::size_t& index, std::string& out) const
     {
         if ((index < parameter_list_.size()) &&
-            (parameter_list_[index].type == type_store_t::e_string))
+            (parameter_list_[index].type == type_store_t::store_type::e_string))
         {
             const string_t str(parameter_list_[index]);
             out.assign(str.begin(), str.size());

@@ -43,7 +43,7 @@ namespace math_expr
 {
 namespace parser_error
 {
-enum error_mode
+enum class error_mode
 {
     e_unknown = 0,
     e_syntax = 1,
@@ -58,7 +58,7 @@ enum error_mode
 
 struct type
 {
-    type() : mode(parser_error::e_unknown), line_no(0), column_no(0) {}
+    type() : mode(parser_error::error_mode::e_unknown), line_no(0), column_no(0) {}
 
     lexer::token token;
     error_mode mode;
@@ -97,21 +97,21 @@ inline std::string to_str(error_mode mode)
 {
     switch (mode)
     {
-    case e_unknown:
+    case error_mode::e_unknown:
         return std::string("Unknown Error");
-    case e_syntax:
+    case error_mode::e_syntax:
         return std::string("Syntax Error");
-    case e_token:
+    case error_mode::e_token:
         return std::string("Token Error");
-    case e_numeric:
+    case error_mode::e_numeric:
         return std::string("Numeric Error");
-    case e_symtab:
+    case error_mode::e_symtab:
         return std::string("Symbol Error");
-    case e_lexer:
+    case error_mode::e_lexer:
         return std::string("Lexer Error");
-    case e_helper:
+    case error_mode::e_helper:
         return std::string("Helper Error");
-    case e_parser:
+    case error_mode::e_parser:
         return std::string("Parser Error");
     default:
         return std::string("Unknown Error");

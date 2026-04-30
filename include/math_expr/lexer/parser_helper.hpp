@@ -96,7 +96,7 @@ class parser_helper
         return lexer_.peek_next_token();
     }
 
-    enum token_advance_mode
+    enum class token_advance_mode
     {
         e_hold = 0,
         e_advance = 1
@@ -104,14 +104,14 @@ class parser_helper
 
     inline void advance_token(const token_advance_mode mode)
     {
-        if (e_advance == mode)
+        if (token_advance_mode::e_advance == mode)
         {
             next_token();
         }
     }
 
     inline bool token_is(const token_t::token_type& ttype,
-                         const token_advance_mode mode = e_advance)
+                         const token_advance_mode mode = token_advance_mode::e_advance)
     {
         if (current_token().type != ttype)
         {
@@ -124,7 +124,7 @@ class parser_helper
     }
 
     inline bool token_is(const token_t::token_type& ttype, const std::string& value,
-                         const token_advance_mode mode = e_advance)
+                         const token_advance_mode mode = token_advance_mode::e_advance)
     {
         if ((current_token().type != ttype) ||
             !math_expr::core::imatch(value, current_token().value))
@@ -137,7 +137,8 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is(const std::string& value, const token_advance_mode mode = e_advance)
+    inline bool token_is(const std::string& value,
+                         const token_advance_mode mode = token_advance_mode::e_advance)
     {
         if (!math_expr::core::imatch(value, current_token().value))
         {
@@ -149,7 +150,8 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is_arithmetic_opr(const token_advance_mode mode = e_advance)
+    inline bool
+    token_is_arithmetic_opr(const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
@@ -169,7 +171,7 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is_ineq_opr(const token_advance_mode mode = e_advance)
+    inline bool token_is_ineq_opr(const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
@@ -189,7 +191,7 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is_left_bracket(const token_advance_mode mode = e_advance)
+    inline bool token_is_left_bracket(const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
@@ -206,7 +208,8 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is_right_bracket(const token_advance_mode mode = e_advance)
+    inline bool
+    token_is_right_bracket(const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
@@ -223,7 +226,7 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is_bracket(const token_advance_mode mode = e_advance)
+    inline bool token_is_bracket(const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
@@ -243,7 +246,7 @@ class parser_helper
         return true;
     }
 
-    inline bool token_is_loop(const token_advance_mode mode = e_advance)
+    inline bool token_is_loop(const token_advance_mode mode = token_advance_mode::e_advance)
     {
         return token_is("for", mode) || token_is("while", mode) || token_is("repeat", mode);
     }

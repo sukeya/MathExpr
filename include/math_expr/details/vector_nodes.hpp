@@ -77,7 +77,7 @@ template <typename T> class variable_node final : public expression_node<T>, pub
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_variable;
+        return expression_node<T>::node_type::e_variable;
     }
 
   private:
@@ -170,7 +170,7 @@ class vector_node final : public expression_node<T>, public vector_interface<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vector;
+        return expression_node<T>::node_type::e_vector;
     }
 
     inline bool valid() const override
@@ -234,7 +234,7 @@ template <typename T> class vector_size_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecsize;
+        return expression_node<T>::node_type::e_vecsize;
     }
 
     inline bool valid() const override
@@ -284,7 +284,7 @@ template <typename T> class vector_elem_node final : public expression_node<T>, 
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecelem;
+        return expression_node<T>::node_type::e_vecelem;
     }
 
     inline bool valid() const override
@@ -355,7 +355,7 @@ template <typename T> class vector_celem_node final : public expression_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_veccelem;
+        return expression_node<T>::node_type::e_veccelem;
     }
 
     inline bool valid() const override
@@ -427,7 +427,7 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecelemrtc;
+        return expression_node<T>::node_type::e_vecelemrtc;
     }
 
     inline bool valid() const override
@@ -519,7 +519,7 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_veccelemrtc;
+        return expression_node<T>::node_type::e_veccelemrtc;
     }
 
     inline bool valid() const override
@@ -609,7 +609,7 @@ class rebasevector_elem_node final : public expression_node<T>, public ivariable
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_rbvecelem;
+        return expression_node<T>::node_type::e_rbvecelem;
     }
 
     inline bool valid() const override
@@ -681,7 +681,7 @@ class rebasevector_celem_node final : public expression_node<T>, public ivariabl
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_rbveccelem;
+        return expression_node<T>::node_type::e_rbveccelem;
     }
 
     inline bool valid() const override
@@ -746,7 +746,7 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_rbvecelemrtc;
+        return expression_node<T>::node_type::e_rbvecelemrtc;
     }
 
     inline bool valid() const override
@@ -837,7 +837,7 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_rbveccelemrtc;
+        return expression_node<T>::node_type::e_rbveccelemrtc;
     }
 
     inline bool valid() const override
@@ -970,7 +970,7 @@ template <typename T> class vector_initialisation_node final : public expression
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1020,7 +1020,7 @@ template <typename T> class vector_init_zero_value_node final : public expressio
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1072,7 +1072,7 @@ template <typename T> class vector_init_single_constvalue_node final : public ex
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1129,7 +1129,7 @@ template <typename T> class vector_init_single_value_node final : public express
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1186,7 +1186,7 @@ template <typename T> class vector_init_iota_constconst_node final : public expr
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1246,7 +1246,7 @@ template <typename T> class vector_init_iota_constnconst_node final : public exp
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1304,7 +1304,7 @@ template <typename T> class vector_init_iota_nconstconst_node final : public exp
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1361,7 +1361,7 @@ template <typename T> class vector_init_iota_nconstnconst_node final : public ex
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecinit;
+        return expression_node<T>::node_type::e_vecinit;
     }
 
     inline bool valid() const override
@@ -1407,7 +1407,7 @@ template <typename T> class swap_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_swap;
+        return expression_node<T>::node_type::e_swap;
     }
 
   private:
@@ -1435,7 +1435,7 @@ template <typename T> class swap_generic_node final : public binary_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_swap;
+        return expression_node<T>::node_type::e_swap;
     }
 
   private:
@@ -1517,7 +1517,7 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecvecswap;
+        return expression_node<T>::node_type::e_vecvecswap;
     }
 
     inline bool valid() const override
@@ -1601,7 +1601,7 @@ template <typename T> class assert_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_assert;
+        return expression_node<T>::node_type::e_assert;
     }
 
     inline bool valid() const override

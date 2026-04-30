@@ -138,7 +138,7 @@ class str_vararg_node final : public expression_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_stringvararg;
+        return expression_node<T>::node_type::e_stringvararg;
     }
 
     inline bool valid() const override

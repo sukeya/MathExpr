@@ -54,7 +54,7 @@ template <typename T> class stringvar_size_node final : public expression_node<T
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_stringvarsize;
+        return expression_node<T>::node_type::e_stringvarsize;
     }
 
   private:

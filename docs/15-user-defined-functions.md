@@ -130,17 +130,17 @@ inline T operator()(parameter_list_t parameters)
    {
       generic_type& gt = parameters[i];
 
-      if (generic_type::e_scalar == gt.type)
+      if (generic_type::store_type::e_scalar == gt.type)
       {
          scalar_t x(gt);
          ...
       }
-      else if (generic_type::e_vector == gt.type)
+      else if (generic_type::store_type::e_vector == gt.type)
       {
          vector_t vector(gt);
          ...
       }
-      else if (generic_type::e_string == gt.type)
+      else if (generic_type::store_type::e_string == gt.type)
       {
          string_t string(gt);
          ...
@@ -214,7 +214,7 @@ struct toupper final : public math_expr::igeneric_function<T>
    typedef typename generic_t::string_view string_t;
 
    toupper()
-   : math_expr::igeneric_function<T>("S",igenfunct_t::e_rtrn_string)
+   : math_expr::igeneric_function<T>("S",igenfunct_t::return_type::e_rtrn_string)
    {}
 
    inline T operator()(std::string& result,
@@ -342,7 +342,7 @@ struct foo final : public math_expr::igeneric_function<T>
    : math_expr::igeneric_function<T>
      (
        "T:T|S:TS",
-       igfun_t::e_rtrn_overload
+       igfun_t::return_type::e_rtrn_overload
      )
    {}
 

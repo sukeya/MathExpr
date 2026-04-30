@@ -49,7 +49,7 @@ namespace math_expr
 template <typename T> class symbol_table
 {
   public:
-    enum symtab_mutability_type
+    enum class symtab_mutability_type
     {
         e_unknown = 0,
         e_mutable = 1,
@@ -763,9 +763,15 @@ template <typename T> class symbol_table
             std::vector<ifunction<T>*> free_function_list_;
         };
 
-        control_block() : ref_count(1), data_(st_data::create()), mutability_(e_mutable) {}
+        control_block()
+            : ref_count(1), data_(st_data::create()), mutability_(symtab_mutability_type::e_mutable)
+        {
+        }
 
-        explicit control_block(st_data* data) : ref_count(1), data_(data), mutability_(e_mutable) {}
+        explicit control_block(st_data* data)
+            : ref_count(1), data_(data), mutability_(symtab_mutability_type::e_mutable)
+        {
+        }
 
         ~control_block()
         {
@@ -808,7 +814,8 @@ template <typename T> class symbol_table
     };
 
   public:
-    explicit symbol_table(const symtab_mutability_type mutability = e_mutable)
+    explicit symbol_table(
+        const symtab_mutability_type mutability = symtab_mutability_type::e_mutable)
         : control_block_(control_block::create())
     {
         control_block_->set_mutability(mutability);
@@ -847,7 +854,7 @@ template <typename T> class symbol_table
 
     inline symtab_mutability_type mutability() const
     {
-        return valid() ? control_block_->mutability_ : e_unknown;
+        return valid() ? control_block_->mutability_ : symtab_mutability_type::e_unknown;
     }
 
     inline void clear_variables(const bool delete_node = true)
@@ -1193,19 +1200,19 @@ template <typename T> class symbol_table
         {
             switch (function.rtrn_type)
             {
-            case generic_function_t::e_rtrn_scalar:
+            case generic_function_t::return_type::e_rtrn_scalar:
                 return (std::string::npos ==
                         function.parameter_sequence.find_first_not_of("STVZ*?|"))
                            ? local_data().generic_function_store.add(function_name, function)
                            : false;
 
-            case generic_function_t::e_rtrn_string:
+            case generic_function_t::return_type::e_rtrn_string:
                 return (std::string::npos ==
                         function.parameter_sequence.find_first_not_of("STVZ*?|"))
                            ? local_data().string_function_store.add(function_name, function)
                            : false;
 
-            case generic_function_t::e_rtrn_overload:
+            case generic_function_t::return_type::e_rtrn_overload:
                 return (std::string::npos ==
                         function.parameter_sequence.find_first_not_of("STVZ*?|:"))
                            ? local_data().overload_function_store.add(function_name, function)
@@ -1289,19 +1296,19 @@ template <typename T> class symbol_table
         {
             switch (function.rtrn_type)
             {
-            case generic_function_t::e_rtrn_scalar:
+            case generic_function_t::return_type::e_rtrn_scalar:
                 return (std::string::npos ==
                         function.parameter_sequence.find_first_not_of("STVZ*?|"))
                            ? local_data().generic_function_store.add(function_name, function)
                            : false;
 
-            case generic_function_t::e_rtrn_string:
+            case generic_function_t::return_type::e_rtrn_string:
                 return (std::string::npos ==
                         function.parameter_sequence.find_first_not_of("STVZ*?|"))
                            ? local_data().string_function_store.add(function_name, function)
                            : false;
 
-            case generic_function_t::e_rtrn_overload:
+            case generic_function_t::return_type::e_rtrn_overload:
                 return (std::string::npos ==
                         function.parameter_sequence.find_first_not_of("STVZ*?|:"))
                            ? local_data().overload_function_store.add(function_name, function)

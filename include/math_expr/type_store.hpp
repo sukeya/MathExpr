@@ -43,7 +43,7 @@ namespace math_expr
 {
 template <typename T> struct type_store
 {
-    enum store_type
+    enum class store_type
     {
         e_unknown,
         e_scalar,
@@ -51,7 +51,7 @@ template <typename T> struct type_store
         e_string
     };
 
-    type_store() : data(0), size(0), type(e_unknown), ivec(0) {}
+    type_store() : data(0), size(0), type(store_type::e_unknown), ivec(0) {}
 
     union
     {

@@ -135,7 +135,7 @@ class cons_conditional_str_node final : public binary_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strccondition;
+        return expression_node<T>::node_type::e_strccondition;
     }
 
     inline bool valid() const override

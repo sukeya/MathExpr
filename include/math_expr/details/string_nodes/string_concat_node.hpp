@@ -152,7 +152,7 @@ class string_concat_node final : public binary_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strconcat;
+        return expression_node<T>::node_type::e_strconcat;
     }
 
     inline bool valid() const override

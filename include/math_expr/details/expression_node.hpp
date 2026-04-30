@@ -47,7 +47,7 @@ class expression_node : public node_collector_interface<expression_node<T>>,
                         public node_depth_base<expression_node<T>>
 {
   public:
-    enum node_type
+    enum class node_type
     {
         e_none,
         e_null,
@@ -224,7 +224,7 @@ class expression_node : public node_collector_interface<expression_node<T>>,
 
     inline virtual node_type type() const
     {
-        return e_none;
+        return node_type::e_none;
     }
 
     inline virtual bool valid() const
@@ -271,85 +271,85 @@ template <typename T> inline bool is_false(const std::pair<expression_node<T>*, 
 
 template <typename T> inline bool is_literal_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_constant == node->type());
+    return node && (details::expression_node<T>::node_type::e_constant == node->type());
 }
 
 template <typename T> inline bool is_unary_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_unary == node->type());
+    return node && (details::expression_node<T>::node_type::e_unary == node->type());
 }
 
 template <typename T> inline bool is_neg_unary_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_neg == node->type());
+    return node && (details::expression_node<T>::node_type::e_neg == node->type());
 }
 
 template <typename T> inline bool is_binary_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_binary == node->type());
+    return node && (details::expression_node<T>::node_type::e_binary == node->type());
 }
 
 template <typename T> inline bool is_variable_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_variable == node->type());
+    return node && (details::expression_node<T>::node_type::e_variable == node->type());
 }
 
 template <typename T> inline bool is_ivariable_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_variable == node->type() ||
-                    details::expression_node<T>::e_vecelem == node->type() ||
-                    details::expression_node<T>::e_veccelem == node->type() ||
-                    details::expression_node<T>::e_vecelemrtc == node->type() ||
-                    details::expression_node<T>::e_veccelemrtc == node->type() ||
-                    details::expression_node<T>::e_rbvecelem == node->type() ||
-                    details::expression_node<T>::e_rbveccelem == node->type() ||
-                    details::expression_node<T>::e_rbvecelemrtc == node->type() ||
-                    details::expression_node<T>::e_rbveccelemrtc == node->type());
+    return node && (details::expression_node<T>::node_type::e_variable == node->type() ||
+                    details::expression_node<T>::node_type::e_vecelem == node->type() ||
+                    details::expression_node<T>::node_type::e_veccelem == node->type() ||
+                    details::expression_node<T>::node_type::e_vecelemrtc == node->type() ||
+                    details::expression_node<T>::node_type::e_veccelemrtc == node->type() ||
+                    details::expression_node<T>::node_type::e_rbvecelem == node->type() ||
+                    details::expression_node<T>::node_type::e_rbveccelem == node->type() ||
+                    details::expression_node<T>::node_type::e_rbvecelemrtc == node->type() ||
+                    details::expression_node<T>::node_type::e_rbveccelemrtc == node->type());
 }
 
 template <typename T> inline bool is_vector_elem_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_vecelem == node->type());
+    return node && (details::expression_node<T>::node_type::e_vecelem == node->type());
 }
 
 template <typename T> inline bool is_vector_celem_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_veccelem == node->type());
+    return node && (details::expression_node<T>::node_type::e_veccelem == node->type());
 }
 
 template <typename T> inline bool is_vector_elem_rtc_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_vecelemrtc == node->type());
+    return node && (details::expression_node<T>::node_type::e_vecelemrtc == node->type());
 }
 
 template <typename T> inline bool is_vector_celem_rtc_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_veccelemrtc == node->type());
+    return node && (details::expression_node<T>::node_type::e_veccelemrtc == node->type());
 }
 
 template <typename T> inline bool is_rebasevector_elem_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_rbvecelem == node->type());
+    return node && (details::expression_node<T>::node_type::e_rbvecelem == node->type());
 }
 
 template <typename T> inline bool is_rebasevector_elem_rtc_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_rbvecelemrtc == node->type());
+    return node && (details::expression_node<T>::node_type::e_rbvecelemrtc == node->type());
 }
 
 template <typename T> inline bool is_rebasevector_celem_rtc_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_rbveccelemrtc == node->type());
+    return node && (details::expression_node<T>::node_type::e_rbveccelemrtc == node->type());
 }
 
 template <typename T> inline bool is_rebasevector_celem_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_rbveccelem == node->type());
+    return node && (details::expression_node<T>::node_type::e_rbveccelem == node->type());
 }
 
 template <typename T> inline bool is_vector_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_vector == node->type());
+    return node && (details::expression_node<T>::node_type::e_vector == node->type());
 }
 
 template <typename T> inline bool is_ivector_node(const expression_node<T>* node)
@@ -358,17 +358,17 @@ template <typename T> inline bool is_ivector_node(const expression_node<T>* node
     {
         switch (node->type())
         {
-        case details::expression_node<T>::e_vector:
-        case details::expression_node<T>::e_vecvalass:
-        case details::expression_node<T>::e_vecvecass:
-        case details::expression_node<T>::e_vecopvalass:
-        case details::expression_node<T>::e_vecopvecass:
-        case details::expression_node<T>::e_vecvecswap:
-        case details::expression_node<T>::e_vecvecarith:
-        case details::expression_node<T>::e_vecvalarith:
-        case details::expression_node<T>::e_valvecarith:
-        case details::expression_node<T>::e_vecunaryop:
-        case details::expression_node<T>::e_vecondition:
+        case details::expression_node<T>::node_type::e_vector:
+        case details::expression_node<T>::node_type::e_vecvalass:
+        case details::expression_node<T>::node_type::e_vecvecass:
+        case details::expression_node<T>::node_type::e_vecopvalass:
+        case details::expression_node<T>::node_type::e_vecopvecass:
+        case details::expression_node<T>::node_type::e_vecvecswap:
+        case details::expression_node<T>::node_type::e_vecvecarith:
+        case details::expression_node<T>::node_type::e_vecvalarith:
+        case details::expression_node<T>::node_type::e_valvecarith:
+        case details::expression_node<T>::node_type::e_vecunaryop:
+        case details::expression_node<T>::node_type::e_vecondition:
             return true;
         default:
             return false;
@@ -384,10 +384,10 @@ template <typename T> inline bool amalgamated_vecop(const expression_node<T>* no
     {
         switch (node->type())
         {
-        case details::expression_node<T>::e_vecvecarith:
-        case details::expression_node<T>::e_vecvalarith:
-        case details::expression_node<T>::e_valvecarith:
-        case details::expression_node<T>::e_vecunaryop:
+        case details::expression_node<T>::node_type::e_vecvecarith:
+        case details::expression_node<T>::node_type::e_vecvalarith:
+        case details::expression_node<T>::node_type::e_valvecarith:
+        case details::expression_node<T>::node_type::e_vecunaryop:
             return true;
         default:
             return false;
@@ -399,43 +399,43 @@ template <typename T> inline bool amalgamated_vecop(const expression_node<T>* no
 
 template <typename T> inline bool is_constant_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_constant == node->type() ||
-                    details::expression_node<T>::e_stringconst == node->type());
+    return node && (details::expression_node<T>::node_type::e_constant == node->type() ||
+                    details::expression_node<T>::node_type::e_stringconst == node->type());
 }
 
 template <typename T> inline bool is_null_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_null == node->type());
+    return node && (details::expression_node<T>::node_type::e_null == node->type());
 }
 
 template <typename T> inline bool is_break_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_break == node->type());
+    return node && (details::expression_node<T>::node_type::e_break == node->type());
 }
 
 template <typename T> inline bool is_continue_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_continue == node->type());
+    return node && (details::expression_node<T>::node_type::e_continue == node->type());
 }
 
 template <typename T> inline bool is_swap_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_swap == node->type());
+    return node && (details::expression_node<T>::node_type::e_swap == node->type());
 }
 
 template <typename T> inline bool is_function(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_function == node->type());
+    return node && (details::expression_node<T>::node_type::e_function == node->type());
 }
 
 template <typename T> inline bool is_vararg_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_vararg == node->type());
+    return node && (details::expression_node<T>::node_type::e_vararg == node->type());
 }
 
 template <typename T> inline bool is_return_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_return == node->type());
+    return node && (details::expression_node<T>::node_type::e_return == node->type());
 }
 
 template <typename T> class unary_node;
@@ -453,7 +453,7 @@ template <typename T> inline bool is_negate_node(const expression_node<T>* node)
 
 template <typename T> inline bool is_assert_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::e_assert == node->type());
+    return node && (details::expression_node<T>::node_type::e_assert == node->type());
 }
 
 template <typename T> inline bool branch_deletable(const expression_node<T>* node)

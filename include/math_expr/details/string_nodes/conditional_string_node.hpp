@@ -168,7 +168,7 @@ class conditional_string_node final : public trinary_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strcondition;
+        return expression_node<T>::node_type::e_strcondition;
     }
 
     inline bool valid() const override

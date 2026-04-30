@@ -56,7 +56,7 @@ template <typename T, typename SpecialFunction> class sf3_var_node final : publi
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_trinary;
+        return expression_node<T>::node_type::e_trinary;
     }
 
   private:
@@ -85,7 +85,7 @@ template <typename T, typename SpecialFunction> class sf4_var_node final : publi
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_trinary;
+        return expression_node<T>::node_type::e_trinary;
     }
 
   private:
@@ -133,7 +133,7 @@ template <typename T, typename VarArgFunction> class vararg_node final : public 
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vararg;
+        return expression_node<T>::node_type::e_vararg;
     }
 
     inline bool valid() const override
@@ -203,7 +203,7 @@ class vararg_varnode final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vararg;
+        return expression_node<T>::node_type::e_vararg;
     }
 
     inline bool valid() const override
@@ -240,7 +240,7 @@ template <typename T, typename VecFunction> class vectorize_node final : public 
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecfunc;
+        return expression_node<T>::node_type::e_vecfunc;
     }
 
     inline bool valid() const override
@@ -545,7 +545,7 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecvalass;
+        return expression_node<T>::node_type::e_vecvalass;
     }
 
     inline bool valid() const override
@@ -675,7 +675,7 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecvecass;
+        return expression_node<T>::node_type::e_vecvecass;
     }
 
     inline bool valid() const override
@@ -1074,7 +1074,7 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecopvalass;
+        return expression_node<T>::node_type::e_vecopvalass;
     }
 
     inline bool valid() const override
@@ -1208,7 +1208,7 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecopvecass;
+        return expression_node<T>::node_type::e_vecopvecass;
     }
 
     inline bool valid() const override
@@ -1441,7 +1441,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecvecarith;
+        return expression_node<T>::node_type::e_vecvecarith;
     }
 
     inline bool valid() const override
@@ -1581,7 +1581,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecvalarith;
+        return expression_node<T>::node_type::e_vecvalarith;
     }
 
     inline bool valid() const override
@@ -1718,7 +1718,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecvalarith;
+        return expression_node<T>::node_type::e_vecvalarith;
     }
 
     inline bool valid() const override
@@ -1853,7 +1853,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecunaryop;
+        return expression_node<T>::node_type::e_vecunaryop;
     }
 
     inline bool valid() const override
@@ -2000,7 +2000,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vecondition;
+        return expression_node<T>::node_type::e_vecondition;
     }
 
     inline bool valid() const override
@@ -2167,7 +2167,7 @@ class function_N_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_function;
+        return expression_node<T>::node_type::e_function;
     }
 
     inline bool valid() const override
@@ -2467,7 +2467,7 @@ class function_N_node<T, IFunction, 0> final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_function;
+        return expression_node<T>::node_type::e_function;
     }
 
     inline bool valid() const override
@@ -2505,7 +2505,7 @@ class vararg_function_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_vafunction;
+        return expression_node<T>::node_type::e_vafunction;
     }
 
     inline bool valid() const override
@@ -2622,7 +2622,7 @@ class generic_function_node : public expression_node<T>
 
                 ts.size = vi->size();
                 ts.data = vi->vds().data();
-                ts.type = type_store_t::e_vector;
+                ts.type = type_store_t::store_type::e_vector;
                 ts.ivec = vi;
 
                 if (vi->vec()->vec_holder().rebaseable() &&
@@ -2647,7 +2647,7 @@ class generic_function_node : public expression_node<T>
 
                 ts.size = sbn->size();
                 ts.data = reinterpret_cast<void*>(const_cast<core::char_ptr>(sbn->base()));
-                ts.type = type_store_t::e_string;
+                ts.type = type_store_t::store_type::e_string;
 
                 range_list_[i].data = ts.data;
                 range_list_[i].size = ts.size;
@@ -2683,13 +2683,13 @@ class generic_function_node : public expression_node<T>
 
                 ts.size = 1;
                 ts.data = &var->ref();
-                ts.type = type_store_t::e_scalar;
+                ts.type = type_store_t::store_type::e_scalar;
             }
             else
             {
                 ts.size = 1;
                 ts.data = reinterpret_cast<void*>(&expr_as_vec1_store_[i]);
-                ts.type = type_store_t::e_scalar;
+                ts.type = type_store_t::store_type::e_scalar;
             }
 
             branch_[i] = std::make_pair(arg_list_[i], branch_deletable(arg_list_[i]));
@@ -2717,7 +2717,7 @@ class generic_function_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_genfunction;
+        return expression_node<T>::node_type::e_genfunction;
     }
 
     inline bool valid() const override
@@ -2764,7 +2764,7 @@ class generic_function_node : public expression_node<T>
 
                 ts.size = rp.cache_size();
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                if (ts.type == type_store_t::e_string)
+                if (ts.type == type_store_t::store_type::e_string)
                     ts.data = const_cast<core::char_ptr>(rdt.str_node->base()) + rp.cache.first;
                 else
 #endif
@@ -2834,7 +2834,7 @@ class string_function_node : public generic_function_node<T, StringFunction>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strfunction;
+        return expression_node<T>::node_type::e_strfunction;
     }
 
     inline bool valid() const override
@@ -2903,7 +2903,7 @@ class multimode_genfunction_node : public generic_function_node<T, GenericFuncti
 
     inline typename expression_node<T>::node_type type() const override final
     {
-        return expression_node<T>::e_genfunction;
+        return expression_node<T>::node_type::e_genfunction;
     }
 
   private:
@@ -2945,7 +2945,7 @@ class multimode_strfunction_node final : public string_function_node<T, StringFu
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strfunction;
+        return expression_node<T>::node_type::e_strfunction;
     }
 
   private:

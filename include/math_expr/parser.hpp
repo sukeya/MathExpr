@@ -77,7 +77,7 @@ namespace math_expr
 template <typename T> class parser : public lexer::parser_helper
 {
   private:
-    enum precedence_level
+    enum class precedence_level
     {
         e_level00,
         e_level01,
@@ -219,7 +219,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     struct scope_element
     {
-        enum element_type
+        enum class element_type
         {
             e_none,
             e_literal,
@@ -242,7 +242,7 @@ template <typename T> class parser : public lexer::parser_helper
             : name("???"), size(std::numeric_limits<std::size_t>::max()),
               index(std::numeric_limits<std::size_t>::max()),
               depth(std::numeric_limits<std::size_t>::max()), ref_count(0), ip_index(0),
-              type(e_none), active(false), data(0), var_node(0), vec_node(0)
+              type(element_type::e_none), active(false), data(0), var_node(0), vec_node(0)
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
               ,
               str_node(0)
@@ -274,7 +274,7 @@ template <typename T> class parser : public lexer::parser_helper
             size = std::numeric_limits<std::size_t>::max();
             index = std::numeric_limits<std::size_t>::max();
             depth = std::numeric_limits<std::size_t>::max();
-            type = e_none;
+            type = element_type::e_none;
             active = false;
             ref_count = 0;
             ip_index = 0;
@@ -384,15 +384,15 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (se.type)
             {
-            case scope_element::e_variable:
+            case scope_element::element_type::e_variable:
                 total_local_symb_size_bytes_ += sizeof(T);
                 break;
 
-            case scope_element::e_literal:
+            case scope_element::element_type::e_literal:
                 total_local_symb_size_bytes_ += sizeof(T);
                 break;
 
-            case scope_element::e_vector:
+            case scope_element::element_type::e_vector:
                 total_local_symb_size_bytes_ += sizeof(T) * se.size;
                 break;
 
@@ -431,27 +431,27 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (se.type)
             {
-            case scope_element::e_literal:
+            case scope_element::element_type::e_literal:
                 delete reinterpret_cast<T*>(se.data);
                 delete se.var_node;
                 break;
 
-            case scope_element::e_variable:
+            case scope_element::element_type::e_variable:
                 delete reinterpret_cast<T*>(se.data);
                 delete se.var_node;
                 break;
 
-            case scope_element::e_vector:
+            case scope_element::element_type::e_vector:
                 delete[] reinterpret_cast<T*>(se.data);
                 delete se.vec_node;
                 break;
 
-            case scope_element::e_vecelem:
+            case scope_element::element_type::e_vecelem:
                 delete se.var_node;
                 break;
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            case scope_element::e_string:
+            case scope_element::element_type::e_string:
                 delete reinterpret_cast<std::string*>(se.data);
                 delete se.str_node;
                 break;
@@ -698,7 +698,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (++parser_.state_.stack_depth > parser_.settings_.max_stack_depth_)
             {
                 limit_exceeded_ = true;
-                parser_.set_error(make_error(parser_error::e_parser,
+                parser_.set_error(make_error(parser_error::error_mode::e_parser,
                                              "ERR000 - Current stack depth " +
                                                  core::to_str(parser_.state_.stack_depth) +
                                                  " exceeds maximum allowed stack depth of " +
@@ -1303,14 +1303,14 @@ template <typename T> class parser : public lexer::parser_helper
     struct unknown_symbol_resolver
     {
 
-        enum usr_symbol_type
+        enum class usr_symbol_type
         {
             e_usr_unknown_type = 0,
             e_usr_variable_type = 1,
             e_usr_constant_type = 2
         };
 
-        enum usr_mode
+        enum class usr_mode
         {
             e_usrmode_default = 0,
             e_usrmode_extended = 1
@@ -1318,17 +1318,19 @@ template <typename T> class parser : public lexer::parser_helper
 
         usr_mode mode;
 
-        explicit unknown_symbol_resolver(const usr_mode m = e_usrmode_default) : mode(m) {}
+        explicit unknown_symbol_resolver(const usr_mode m = usr_mode::e_usrmode_default) : mode(m)
+        {
+        }
 
         virtual ~unknown_symbol_resolver() {}
 
         virtual bool process(const std::string& /*unknown_symbol*/, usr_symbol_type& st,
                              T& default_value, std::string& error_message)
         {
-            if (e_usrmode_default != mode)
+            if (usr_mode::e_usrmode_default != mode)
                 return false;
 
-            st = e_usr_variable_type;
+            st = usr_symbol_type::e_usr_variable_type;
             default_value = T(0);
             error_message.clear();
 
@@ -1350,7 +1352,7 @@ template <typename T> class parser : public lexer::parser_helper
         e_ct_assignments = 4
     };
 
-    enum symbol_type
+    enum class symbol_type
     {
         e_st_unknown = 0,
         e_st_variable = 1,
@@ -1465,17 +1467,17 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (st)
             {
-            case e_st_variable:
-            case e_st_vector:
-            case e_st_string:
-            case e_st_local_variable:
-            case e_st_local_vector:
-            case e_st_local_string:
+            case symbol_type::e_st_variable:
+            case symbol_type::e_st_vector:
+            case symbol_type::e_st_string:
+            case symbol_type::e_st_local_variable:
+            case symbol_type::e_st_local_vector:
+            case symbol_type::e_st_local_string:
                 if (collect_variables_)
                     symbol_name_list_.push_back(std::make_pair(symbol, st));
                 break;
 
-            case e_st_function:
+            case symbol_type::e_st_function:
                 if (collect_functions_)
                     symbol_name_list_.push_back(std::make_pair(symbol, st));
                 break;
@@ -1489,9 +1491,9 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (st)
             {
-            case e_st_variable:
-            case e_st_vector:
-            case e_st_string:
+            case symbol_type::e_st_variable:
+            case symbol_type::e_st_vector:
+            case symbol_type::e_st_string:
                 if (collect_assignments_)
                     assignment_name_list_.push_back(std::make_pair(symbol, st));
                 break;
@@ -2428,7 +2430,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (expression_string.empty())
         {
-            set_error(make_error(parser_error::e_syntax, "ERR001 - Empty expression!",
+            set_error(make_error(parser_error::error_mode::e_syntax, "ERR001 - Empty expression!",
                                  math_expr_error_location));
 
             return false;
@@ -2442,7 +2444,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (lexer().empty())
         {
-            set_error(make_error(parser_error::e_syntax, "ERR002 - Empty expression!",
+            set_error(make_error(parser_error::error_mode::e_syntax, "ERR002 - Empty expression!",
                                  math_expr_error_location));
 
             return false;
@@ -2500,7 +2502,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (error_list_.empty())
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR003 - Invalid expression encountered",
                                      math_expr_error_location));
             }
@@ -2561,7 +2563,7 @@ template <typename T> class parser : public lexer::parser_helper
                     diagnostic += "Unknown compiler error";
                 }
 
-                set_error(make_error(parser_error::e_lexer, lexer()[i],
+                set_error(make_error(parser_error::error_mode::e_lexer, lexer()[i],
                                      diagnostic + ": " + lexer()[i].value,
                                      math_expr_error_location));
             }
@@ -2600,7 +2602,7 @@ template <typename T> class parser : public lexer::parser_helper
                     if (0 != (bracket_checker_ptr = dynamic_cast<lexer::helper::bracket_checker*>(
                                   helper_assembly_.error_token_scanner)))
                     {
-                        set_error(make_error(parser_error::e_token,
+                        set_error(make_error(parser_error::error_mode::e_token,
                                              bracket_checker_ptr->error_token(),
                                              "ERR005 - Mismatched brackets: '" +
                                                  bracket_checker_ptr->error_token().value + "'",
@@ -2614,7 +2616,7 @@ template <typename T> class parser : public lexer::parser_helper
                         {
                             lexer::token error_token = lexer()[numeric_checker_ptr->error_index(i)];
 
-                            set_error(make_error(parser_error::e_token, error_token,
+                            set_error(make_error(parser_error::error_mode::e_token, error_token,
                                                  "ERR006 - Invalid numeric token: '" +
                                                      error_token.value + "'",
                                                  math_expr_error_location));
@@ -2634,11 +2636,11 @@ template <typename T> class parser : public lexer::parser_helper
                             std::pair<lexer::token, lexer::token> error_token =
                                 sequence_validator_ptr->error(i);
 
-                            set_error(make_error(parser_error::e_token, error_token.first,
-                                                 "ERR007 - Invalid token sequence: '" +
-                                                     error_token.first.value + "' and '" +
-                                                     error_token.second.value + "'",
-                                                 math_expr_error_location));
+                            set_error(make_error(
+                                parser_error::error_mode::e_token, error_token.first,
+                                "ERR007 - Invalid token sequence: '" + error_token.first.value +
+                                    "' and '" + error_token.second.value + "'",
+                                math_expr_error_location));
                         }
 
                         if (sequence_validator_ptr->error_count())
@@ -2655,11 +2657,11 @@ template <typename T> class parser : public lexer::parser_helper
                             std::pair<lexer::token, lexer::token> error_token =
                                 sequence_validator3_ptr->error(i);
 
-                            set_error(make_error(parser_error::e_token, error_token.first,
-                                                 "ERR008 - Invalid token sequence: '" +
-                                                     error_token.first.value + "' and '" +
-                                                     error_token.second.value + "'",
-                                                 math_expr_error_location));
+                            set_error(make_error(
+                                parser_error::error_mode::e_token, error_token.first,
+                                "ERR008 - Invalid token sequence: '" + error_token.first.value +
+                                    "' and '" + error_token.second.value + "'",
+                                math_expr_error_location));
                         }
 
                         if (sequence_validator3_ptr->error_count())
@@ -2898,7 +2900,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (error_list_.empty())
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR009 - Invalid expression encountered",
                                          math_expr_error_location));
                 }
@@ -2925,7 +2927,7 @@ template <typename T> class parser : public lexer::parser_helper
                 math_expr_debug(("-------------------------------------------------\n"));
             }
 
-            if (token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+            if (token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
             {
                 if (lexer().finished())
                     break;
@@ -2936,9 +2938,9 @@ template <typename T> class parser : public lexer::parser_helper
                      (current_token().type == token_t::e_symbol ||
                       current_token().type == token_t::e_number ||
                       current_token().type == token_t::e_string ||
-                      token_is_bracket(prsrhlpr_t::e_hold)))
+                      token_is_bracket(prsrhlpr_t::token_advance_mode::e_hold)))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR010 - Invalid syntax '" + current_token().value +
                                          "' possible missing operator or context",
                                      math_expr_error_location));
@@ -2975,7 +2977,7 @@ template <typename T> class parser : public lexer::parser_helper
         return result;
     }
 
-    static const precedence_level default_precedence = e_level00;
+    static const precedence_level default_precedence = precedence_level::e_level00;
 
     struct state_t
     {
@@ -2990,8 +2992,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         inline void reset()
         {
-            left = e_level00;
-            right = e_level00;
+            left = precedence_level::e_level00;
+            right = precedence_level::e_level00;
             operation = core::operators::operator_type::default_op;
         }
 
@@ -3028,7 +3030,7 @@ template <typename T> class parser : public lexer::parser_helper
             const std::string error_message =
                 !context.error_message.empty() ? " Details: " + context.error_message : "";
 
-            set_error(make_error(parser_error::e_parser, token_t(),
+            set_error(make_error(parser_error::error_mode::e_parser, token_t(),
                                  "ERR011 - Internal compilation check failed." + error_message,
                                  math_expr_error_location));
 
@@ -3038,7 +3040,8 @@ template <typename T> class parser : public lexer::parser_helper
         return false;
     }
 
-    inline expression_node_ptr parse_expression(precedence_level precedence = e_level00)
+    inline expression_node_ptr
+    parse_expression(precedence_level precedence = precedence_level::e_level00)
     {
         if (halt_compilation_check())
         {
@@ -3060,7 +3063,7 @@ template <typename T> class parser : public lexer::parser_helper
             return error_node();
         }
 
-        if (token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+        if (token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
         {
             return expression;
         }
@@ -3076,80 +3079,80 @@ template <typename T> class parser : public lexer::parser_helper
             switch (current_token().type)
             {
             case token_t::e_assign:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::assign,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::assign, current_token());
                 break;
             case token_t::e_addass:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::addass,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::addass, current_token());
                 break;
             case token_t::e_subass:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::subass,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::subass, current_token());
                 break;
             case token_t::e_mulass:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::mulass,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::mulass, current_token());
                 break;
             case token_t::e_divass:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::divass,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::divass, current_token());
                 break;
             case token_t::e_modass:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::modass,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::modass, current_token());
                 break;
             case token_t::e_swap:
-                current_state.set(e_level00, e_level00, core::operators::operator_type::swap,
-                                  current_token());
+                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                  core::operators::operator_type::swap, current_token());
                 break;
             case token_t::e_lt:
-                current_state.set(e_level05, e_level06, core::operators::operator_type::lt,
-                                  current_token());
+                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                  core::operators::operator_type::lt, current_token());
                 break;
             case token_t::e_lte:
-                current_state.set(e_level05, e_level06, core::operators::operator_type::lte,
-                                  current_token());
+                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                  core::operators::operator_type::lte, current_token());
                 break;
             case token_t::e_eq:
-                current_state.set(e_level05, e_level06, core::operators::operator_type::eq,
-                                  current_token());
+                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                  core::operators::operator_type::eq, current_token());
                 break;
             case token_t::e_ne:
-                current_state.set(e_level05, e_level06, core::operators::operator_type::ne,
-                                  current_token());
+                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                  core::operators::operator_type::ne, current_token());
                 break;
             case token_t::e_gte:
-                current_state.set(e_level05, e_level06, core::operators::operator_type::gte,
-                                  current_token());
+                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                  core::operators::operator_type::gte, current_token());
                 break;
             case token_t::e_gt:
-                current_state.set(e_level05, e_level06, core::operators::operator_type::gt,
-                                  current_token());
+                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                  core::operators::operator_type::gt, current_token());
                 break;
             case token_t::e_add:
-                current_state.set(e_level07, e_level08, core::operators::operator_type::add,
-                                  current_token());
+                current_state.set(precedence_level::e_level07, precedence_level::e_level08,
+                                  core::operators::operator_type::add, current_token());
                 break;
             case token_t::e_sub:
-                current_state.set(e_level07, e_level08, core::operators::operator_type::sub,
-                                  current_token());
+                current_state.set(precedence_level::e_level07, precedence_level::e_level08,
+                                  core::operators::operator_type::sub, current_token());
                 break;
             case token_t::e_div:
-                current_state.set(e_level10, e_level11, core::operators::operator_type::div,
-                                  current_token());
+                current_state.set(precedence_level::e_level10, precedence_level::e_level11,
+                                  core::operators::operator_type::div, current_token());
                 break;
             case token_t::e_mul:
-                current_state.set(e_level10, e_level11, core::operators::operator_type::mul,
-                                  current_token());
+                current_state.set(precedence_level::e_level10, precedence_level::e_level11,
+                                  core::operators::operator_type::mul, current_token());
                 break;
             case token_t::e_mod:
-                current_state.set(e_level10, e_level11, core::operators::operator_type::mod,
-                                  current_token());
+                current_state.set(precedence_level::e_level10, precedence_level::e_level11,
+                                  core::operators::operator_type::mod, current_token());
                 break;
             case token_t::e_pow:
-                current_state.set(e_level12, e_level12, core::operators::operator_type::pow,
-                                  current_token());
+                current_state.set(precedence_level::e_level12, precedence_level::e_level12,
+                                  core::operators::operator_type::pow, current_token());
                 break;
             default:
                 if (token_t::e_symbol == current_token().type)
@@ -3169,14 +3172,14 @@ template <typename T> class parser : public lexer::parser_helper
 
                     if (core::imatch(current_token().value, s_and))
                     {
-                        current_state.set(e_level03, e_level04,
+                        current_state.set(precedence_level::e_level03, precedence_level::e_level04,
                                           core::operators::operator_type::logical_and,
                                           current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_and1))
                     {
-                        current_state.set(e_level03, e_level04,
+                        current_state.set(precedence_level::e_level03, precedence_level::e_level04,
                                           ::math_expr::core::build_options::kDisableScAndOr
                                               ? core::operators::operator_type::logical_and
                                               : core::operators::operator_type::scand,
@@ -3185,20 +3188,20 @@ template <typename T> class parser : public lexer::parser_helper
                     }
                     else if (core::imatch(current_token().value, s_nand))
                     {
-                        current_state.set(e_level03, e_level04,
+                        current_state.set(precedence_level::e_level03, precedence_level::e_level04,
                                           core::operators::operator_type::nand, current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_or))
                     {
-                        current_state.set(e_level01, e_level02,
+                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
                                           core::operators::operator_type::logical_or,
                                           current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_or1))
                     {
-                        current_state.set(e_level01, e_level02,
+                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
                                           ::math_expr::core::build_options::kDisableScAndOr
                                               ? core::operators::operator_type::logical_or
                                               : core::operators::operator_type::scor,
@@ -3207,38 +3210,38 @@ template <typename T> class parser : public lexer::parser_helper
                     }
                     else if (core::imatch(current_token().value, s_nor))
                     {
-                        current_state.set(e_level01, e_level02, core::operators::operator_type::nor,
-                                          current_token());
+                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
+                                          core::operators::operator_type::nor, current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_xor))
                     {
-                        current_state.set(e_level01, e_level02,
+                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
                                           core::operators::operator_type::logical_xor,
                                           current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_xnor))
                     {
-                        current_state.set(e_level01, e_level02,
+                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
                                           core::operators::operator_type::xnor, current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_in))
                     {
-                        current_state.set(e_level04, e_level04, core::operators::operator_type::in,
-                                          current_token());
+                        current_state.set(precedence_level::e_level04, precedence_level::e_level04,
+                                          core::operators::operator_type::in, current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_like))
                     {
-                        current_state.set(e_level04, e_level04,
+                        current_state.set(precedence_level::e_level04, precedence_level::e_level04,
                                           core::operators::operator_type::like, current_token());
                         break;
                     }
                     else if (core::imatch(current_token().value, s_ilike))
                     {
-                        current_state.set(e_level04, e_level04,
+                        current_state.set(precedence_level::e_level04, precedence_level::e_level04,
                                           core::operators::operator_type::ilike, current_token());
                         break;
                     }
@@ -3270,7 +3273,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 free_node(node_allocator_, expression);
 
-                set_error(make_error(parser_error::e_syntax, prev_token,
+                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR012 - Invalid or disabled logic operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
                                      math_expr_error_location));
@@ -3281,7 +3284,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 free_node(node_allocator_, expression);
 
-                set_error(make_error(parser_error::e_syntax, prev_token,
+                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR013 - Invalid or disabled arithmetic operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
                                      math_expr_error_location));
@@ -3292,7 +3295,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 free_node(node_allocator_, expression);
 
-                set_error(make_error(parser_error::e_syntax, prev_token,
+                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR014 - Invalid inequality operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
                                      math_expr_error_location));
@@ -3303,7 +3306,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 free_node(node_allocator_, expression);
 
-                set_error(make_error(parser_error::e_syntax, prev_token,
+                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR015 - Invalid or disabled assignment operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
                                      math_expr_error_location));
@@ -3319,7 +3322,7 @@ template <typename T> class parser : public lexer::parser_helper
                     free_node(node_allocator_, right_branch);
 
                     set_error(
-                        make_error(parser_error::e_syntax, prev_token,
+                        make_error(parser_error::error_mode::e_syntax, prev_token,
                                    "ERR016 - Return statements cannot be part of sub-expressions",
                                    math_expr_error_location));
 
@@ -3338,7 +3341,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (error_list_.empty())
                 {
-                    set_error(make_error(parser_error::e_syntax, prev_token,
+                    set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                          !synthesis_error_.empty()
                                              ? synthesis_error_
                                              : "ERR017 - General parsing error at token: '" +
@@ -3353,7 +3356,8 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else
             {
-                if (token_is(token_t::e_ternary, prsrhlpr_t::e_hold) && (e_level00 == precedence))
+                if (token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
+                    (precedence_level::e_level00 == precedence))
                 {
                     expression = parse_ternary_conditional_statement(new_expression);
                 }
@@ -3366,7 +3370,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if ((0 != expression) && (expression->node_depth() > settings_.max_node_depth_))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR018 - Expression depth of " +
                                      core::to_str(static_cast<int>(expression->node_depth())) +
                                      " exceeds maximum allowed expression depth of " +
@@ -3384,7 +3388,7 @@ template <typename T> class parser : public lexer::parser_helper
                   current_token().type == token_t::e_number ||
                   current_token().type == token_t::e_string))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR019 - Invalid syntax '" + current_token().value +
                                      "' possible missing operator or context",
                                  math_expr_error_location));
@@ -3434,7 +3438,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
                 else
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR020 - Failed to find variable node in symbol table",
                                          math_expr_error_location));
 
@@ -3720,7 +3724,7 @@ template <typename T> class parser : public lexer::parser_helper
             break;
         default:
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR021 - Invalid number of parameters for function: '" +
                                      function_name + "'",
                                  math_expr_error_location));
@@ -3734,7 +3738,7 @@ template <typename T> class parser : public lexer::parser_helper
         else
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR022 - Failed to generate call to function: '" + function_name + "'",
                            math_expr_error_location));
 
@@ -3752,7 +3756,7 @@ template <typename T> class parser : public lexer::parser_helper
 #endif
         if (0 == NumberofParameters)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR023 - Expecting ifunction '" + function_name +
                                      "' to have non-zero parameter count",
                                  math_expr_error_location));
@@ -3775,7 +3779,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (!token_is(token_t::e_lbracket))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR024 - Expecting argument list for function: '" + function_name + "'",
                            math_expr_error_location));
 
@@ -3788,7 +3792,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == branch[i])
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR025 - Failed to parse argument " + core::to_str(i) +
                                          " for function: '" + function_name + "'",
                                      math_expr_error_location));
@@ -3799,7 +3803,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (!token_is(token_t::e_comma))
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR026 - Invalid number of arguments for function: '" +
                                              function_name + "'",
                                          math_expr_error_location));
@@ -3811,7 +3815,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR027 - Invalid number of arguments for function: '" +
                                      function_name + "'",
                                  math_expr_error_location));
@@ -3837,7 +3841,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (token_is(token_t::e_lbracket) && !token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR028 - Expecting '()' to proceed call to function: '" +
                                      function_name + "'",
                                  math_expr_error_location));
@@ -3863,7 +3867,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR029 - Expected a '(' at start of function call to '" +
                                      function_name + "', instead got: '" + current_token().value +
                                      "'",
@@ -3872,10 +3876,10 @@ template <typename T> class parser : public lexer::parser_helper
             return 0;
         }
 
-        if (token_is(token_t::e_rbracket, e_hold))
+        if (token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR030 - Expected at least one input parameter for function call '" +
                                function_name + "'",
                            math_expr_error_location));
@@ -3901,7 +3905,7 @@ template <typename T> class parser : public lexer::parser_helper
             else
             {
                 set_error(make_error(
-                    parser_error::e_syntax, current_token(),
+                    parser_error::error_mode::e_syntax, current_token(),
                     "ERR031 - Expected a ',' between function input parameters, instead got: '" +
                         current_token().value + "'",
                     math_expr_error_location));
@@ -3913,7 +3917,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (sd.delete_ptr)
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR032 - Invalid number of input parameters passed to function '" +
                                function_name + "'",
                            math_expr_error_location));
@@ -3935,7 +3939,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (0 == std::distance(itr_range.first, itr_range.second))
         {
-            set_error(make_error(parser_error::e_syntax, diagnostic_token,
+            set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
                                  "ERR033 - No entry found for base operation: " + operation_name,
                                  math_expr_error_location));
 
@@ -3962,7 +3966,7 @@ template <typename T> class parser : public lexer::parser_helper
     {                                                                                              \
         expression_node_ptr pl##N[N] = {0};                                                        \
         std::copy(param_list, param_list + N, pl##N);                                              \
-        lodge_symbol(operation_name, e_st_function);                                               \
+        lodge_symbol(operation_name, symbol_type::e_st_function);                                  \
         return expression_generator_(operation.type, pl##N);                                       \
     }
 
@@ -3978,7 +3982,7 @@ template <typename T> class parser : public lexer::parser_helper
             free_node(node_allocator_, param_list[i]);
         }
 
-        set_error(make_error(parser_error::e_syntax, diagnostic_token,
+        set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
                              "ERR034 - Invalid number of input parameters for call to function: '" +
                                  operation_name + "'",
                              math_expr_error_location));
@@ -3998,7 +4002,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (!token_is(token_t::e_comma))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR035 - Expected ',' between if-statement condition and consequent",
                            math_expr_error_location));
 
@@ -4006,7 +4010,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (consequent = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR036 - Failed to parse consequent for if-statement",
                                  math_expr_error_location));
 
@@ -4015,7 +4019,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (!token_is(token_t::e_comma))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR037 - Expected ',' between if-statement consequent and alternative",
                            math_expr_error_location));
 
@@ -4023,7 +4027,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (alternative = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR038 - Failed to parse alternative for if-statement",
                                  math_expr_error_location));
 
@@ -4031,7 +4035,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR039 - Expected ')' at the end of if-statement",
                                  math_expr_error_location));
 
@@ -4056,7 +4060,7 @@ template <typename T> class parser : public lexer::parser_helper
                         return result_node;
                     }
 
-                    set_error(make_error(parser_error::e_synthesis, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                                          "ERR040 - Failed to synthesize node: conditional_string",
                                          math_expr_error_location));
 
@@ -4065,7 +4069,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR041 - Return types of if-statement differ: string/non-string",
                                math_expr_error_location));
 
@@ -4088,7 +4092,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR042 - Return types of if-statement differ: vector/non-vector",
                                math_expr_error_location));
 
@@ -4115,26 +4119,27 @@ template <typename T> class parser : public lexer::parser_helper
 
         bool result = true;
 
-        if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::e_hold))
+        if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
             if (0 == (consequent = parse_multi_sequence("if-statement-01")))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR043 - Failed to parse body of consequent for if-statement",
                                      math_expr_error_location));
 
                 result = false;
             }
             else if (!settings_.commutative_check_enabled() &&
-                     !token_is("else", prsrhlpr_t::e_hold) && !token_is_loop(prsrhlpr_t::e_hold) &&
-                     !token_is_arithmetic_opr(prsrhlpr_t::e_hold) &&
-                     !token_is_right_bracket(prsrhlpr_t::e_hold) &&
-                     !token_is_ineq_opr(prsrhlpr_t::e_hold) &&
-                     !token_is(token_t::e_ternary, prsrhlpr_t::e_hold) &&
-                     !token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+                     !token_is("else", prsrhlpr_t::token_advance_mode::e_hold) &&
+                     !token_is_loop(prsrhlpr_t::token_advance_mode::e_hold) &&
+                     !token_is_arithmetic_opr(prsrhlpr_t::token_advance_mode::e_hold) &&
+                     !token_is_right_bracket(prsrhlpr_t::token_advance_mode::e_hold) &&
+                     !token_is_ineq_opr(prsrhlpr_t::token_advance_mode::e_hold) &&
+                     !token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
+                     !token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
             {
                 set_error(make_error(
-                    parser_error::e_syntax, current_token(),
+                    parser_error::error_mode::e_syntax, current_token(),
                     "ERR044 - Expected ';' at the end of the consequent for if-statement (1)",
                     math_expr_error_location));
 
@@ -4144,17 +4149,17 @@ template <typename T> class parser : public lexer::parser_helper
         else
         {
             if (settings_.commutative_check_enabled() &&
-                token_is(token_t::e_mul, prsrhlpr_t::e_hold))
+                token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold))
             {
                 next_token();
             }
 
             if (0 != (consequent = parse_expression()))
             {
-                if (!token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+                if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR045 - Expected ';' at the end of the consequent for if-statement (2)",
                         math_expr_error_location));
 
@@ -4163,7 +4168,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR046 - Failed to parse body of consequent for if-statement",
                                      math_expr_error_location));
 
@@ -4174,7 +4179,8 @@ template <typename T> class parser : public lexer::parser_helper
         if (result)
         {
             if (core::imatch(current_token().value, "else") ||
-                (token_is(token_t::e_eof, prsrhlpr_t::e_hold) && peek_token_is("else")))
+                (token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold) &&
+                 peek_token_is("else")))
             {
                 next_token();
 
@@ -4183,12 +4189,12 @@ template <typename T> class parser : public lexer::parser_helper
                     next_token();
                 }
 
-                if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::e_hold))
+                if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
                 {
                     if (0 == (alternative = parse_multi_sequence("else-statement-01")))
                     {
                         set_error(make_error(
-                            parser_error::e_syntax, current_token(),
+                            parser_error::error_mode::e_syntax, current_token(),
                             "ERR047 - Failed to parse body of the 'else' for if-statement",
                             math_expr_error_location));
 
@@ -4199,7 +4205,7 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     if (0 == (alternative = parse_conditional_statement()))
                     {
-                        set_error(make_error(parser_error::e_syntax, current_token(),
+                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR048 - Failed to parse body of if-else statement",
                                              math_expr_error_location));
 
@@ -4208,11 +4214,11 @@ template <typename T> class parser : public lexer::parser_helper
                 }
                 else if (0 != (alternative = parse_expression()))
                 {
-                    if (!token_is(token_t::e_ternary, prsrhlpr_t::e_hold) &&
-                        !token_is(token_t::e_rcrlbracket, prsrhlpr_t::e_hold) &&
+                    if (!token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
+                        !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
                         !token_is(token_t::e_eof))
                     {
-                        set_error(make_error(parser_error::e_syntax, current_token(),
+                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR049 - Expected ';' at the end of the 'else-if' "
                                              "for the if-statement",
                                              math_expr_error_location));
@@ -4223,7 +4229,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR050 - Failed to parse body of the 'else' for if-statement",
                                    math_expr_error_location));
 
@@ -4247,7 +4253,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR051 - Return types of if-statement differ: string/non-string",
                                math_expr_error_location));
 
@@ -4270,7 +4276,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR052 - Return types of if-statement differ: vector/non-vector",
                                math_expr_error_location));
 
@@ -4298,7 +4304,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR053 - Expected '(' at start of if-statement, instead got: '" +
                                      current_token().value + "'",
                                  math_expr_error_location));
@@ -4307,13 +4313,13 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (condition = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR054 - Failed to parse condition for if-statement",
                                  math_expr_error_location));
 
             return error_node();
         }
-        else if (token_is(token_t::e_comma, prsrhlpr_t::e_hold))
+        else if (token_is(token_t::e_comma, prsrhlpr_t::token_advance_mode::e_hold))
         {
             // if (x,y,z)
             return parse_conditional_statement_01(condition);
@@ -4339,7 +4345,7 @@ template <typename T> class parser : public lexer::parser_helper
             return parse_conditional_statement_02(condition);
         }
 
-        set_error(make_error(parser_error::e_syntax, current_token(),
+        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                              "ERR055 - Invalid if-statement", math_expr_error_location));
 
         free_node(node_allocator_, condition);
@@ -4358,7 +4364,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (0 == condition)
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR056 - Encountered invalid condition branch for ternary if-statement",
                            math_expr_error_location));
 
@@ -4366,7 +4372,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is(token_t::e_ternary))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR057 - Expected '?' after condition of ternary if-statement",
                                  math_expr_error_location));
 
@@ -4374,7 +4380,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (consequent = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR058 - Failed to parse consequent for ternary if-statement",
                                  math_expr_error_location));
 
@@ -4383,7 +4389,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (!token_is(token_t::e_colon))
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR059 - Expected ':' between ternary if-statement consequent and alternative",
                 math_expr_error_location));
 
@@ -4391,7 +4397,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (alternative = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR060 - Failed to parse alternative for ternary if-statement",
                                  math_expr_error_location));
 
@@ -4412,7 +4418,7 @@ template <typename T> class parser : public lexer::parser_helper
                                                                     alternative);
                 }
 
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR061 - Return types of ternary differ: string/non-string",
                                      math_expr_error_location));
 
@@ -4434,7 +4440,7 @@ template <typename T> class parser : public lexer::parser_helper
                                                                     alternative);
                 }
 
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR062 - Return types of ternary differ: vector/non-vector",
                                      math_expr_error_location));
 
@@ -4458,7 +4464,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (settings_.logic_disabled("not"))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR063 - Invalid or disabled logic operation 'not'",
                                  math_expr_error_location));
 
@@ -4487,7 +4493,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR064 - Expected '(' at start of while-loop condition statement",
                                  math_expr_error_location));
 
@@ -4495,7 +4501,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (condition = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR065 - Failed to parse condition for while-loop",
                                  math_expr_error_location));
 
@@ -4503,7 +4509,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR066 - Expected ')' at end of while-loop condition statement",
                                  math_expr_error_location));
 
@@ -4518,14 +4524,14 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == (branch = parse_multi_sequence("while-loop", true)))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR067 - Failed to parse body of while-loop"));
                 result = false;
             }
             else if (0 == (result_node = expression_generator_.while_loop(condition, branch,
                                                                           brkcnt_list_.front())))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR068 - Failed to synthesize while-loop",
                                      math_expr_error_location));
 
@@ -4549,7 +4555,7 @@ template <typename T> class parser : public lexer::parser_helper
             return result_node;
         }
 
-        set_error(make_error(parser_error::e_synthesis, current_token(),
+        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR069 - Failed to synthesize 'valid' while-loop",
                              math_expr_error_location));
 
@@ -4612,7 +4618,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 if (!token_is(separator) && is_next_until)
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR070 - Expected '" + token_t::to_str(separator) +
                                              "' in body of repeat until loop",
                                          math_expr_error_location));
@@ -4633,7 +4639,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (svd.delete_ptr)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR071 - Failed to parse body of repeat until loop",
                                      math_expr_error_location));
 
@@ -4644,7 +4650,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (!token_is(token_t::e_lbracket))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR072 - Expected '(' before condition statement of repeat until loop",
                            math_expr_error_location));
 
@@ -4653,7 +4659,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (condition = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR073 - Failed to parse condition for repeat until loop",
                                  math_expr_error_location));
 
@@ -4662,7 +4668,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR074 - Expected ')' after condition of repeat until loop",
                                  math_expr_error_location));
 
@@ -4677,7 +4683,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (0 == result_node)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR075 - Failed to synthesize repeat until loop",
                                  math_expr_error_location));
 
@@ -4693,7 +4699,7 @@ template <typename T> class parser : public lexer::parser_helper
             return result_node;
         }
 
-        set_error(make_error(parser_error::e_synthesis, current_token(),
+        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR076 - Failed to synthesize 'valid' repeat until loop",
                              math_expr_error_location));
 
@@ -4718,7 +4724,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR077 - Expected '(' at start of for-loop",
                                  math_expr_error_location));
 
@@ -4727,14 +4733,14 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_eof))
         {
-            if (!token_is(token_t::e_symbol, prsrhlpr_t::e_hold) &&
+            if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold) &&
                 core::imatch(current_token().value, "var"))
             {
                 next_token();
 
-                if (!token_is(token_t::e_symbol, prsrhlpr_t::e_hold))
+                if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR078 - Expected a variable at the start of initialiser "
                                          "section of for-loop",
                                          math_expr_error_location));
@@ -4744,7 +4750,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else if (!peek_token_is(token_t::e_assign))
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR079 - Expected variable assignment of initialiser section of for-loop",
                         math_expr_error_location));
 
@@ -4757,7 +4763,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 if ((se->name == loop_counter_symbol) && se->active)
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR080 - For-loop variable '" + loop_counter_symbol +
                                              "' is being shadowed by a previous declaration",
                                          math_expr_error_location));
@@ -4767,7 +4773,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else if (!symtab_store_.is_variable(loop_counter_symbol))
                 {
                     if (!se->active && (se->name == loop_counter_symbol) &&
-                        (se->type == scope_element::e_variable))
+                        (se->type == scope_element::element_type::e_variable))
                     {
                         se->active = true;
                         se->ref_count++;
@@ -4778,7 +4784,7 @@ template <typename T> class parser : public lexer::parser_helper
                         nse.name = loop_counter_symbol;
                         nse.active = true;
                         nse.ref_count = 1;
-                        nse.type = scope_element::e_variable;
+                        nse.type = scope_element::element_type::e_variable;
                         nse.depth = state_.scope_depth;
                         nse.data = new T(T(0));
                         nse.var_node = node_allocator_.allocate<variable_node_t>(
@@ -4786,7 +4792,8 @@ template <typename T> class parser : public lexer::parser_helper
 
                         if (!sem_.add_element(nse))
                         {
-                            set_error(make_error(parser_error::e_syntax, current_token(),
+                            set_error(make_error(parser_error::error_mode::e_syntax,
+                                                 current_token(),
                                                  "ERR081 - Failed to add new local variable '" +
                                                      loop_counter_symbol + "' to SEM",
                                                  math_expr_error_location));
@@ -4809,7 +4816,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == (initialiser = parse_expression()))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR082 - Failed to parse initialiser of for-loop",
                                      math_expr_error_location));
 
@@ -4817,7 +4824,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (!token_is(token_t::e_eof))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR083 - Expected ';' after initialiser of for-loop",
                                      math_expr_error_location));
 
@@ -4829,7 +4836,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (0 == (condition = parse_expression()))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR084 - Failed to parse condition of for-loop",
                                      math_expr_error_location));
 
@@ -4837,7 +4844,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (!token_is(token_t::e_eof))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR085 - Expected ';' after condition section of for-loop",
                                      math_expr_error_location));
 
@@ -4849,7 +4856,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (0 == (incrementor = parse_expression()))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR086 - Failed to parse incrementor of for-loop",
                                      math_expr_error_location));
 
@@ -4857,7 +4864,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (!token_is(token_t::e_rbracket))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR087 - Expected ')' after incrementor section of for-loop",
                                      math_expr_error_location));
 
@@ -4873,7 +4880,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == (loop_body = parse_multi_sequence("for-loop", true)))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR088 - Failed to parse body of for-loop",
                                      math_expr_error_location));
 
@@ -4904,7 +4911,7 @@ template <typename T> class parser : public lexer::parser_helper
             return result_node;
         }
 
-        set_error(make_error(parser_error::e_synthesis, current_token(),
+        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR089 - Failed to synthesize 'valid' for-loop",
                              math_expr_error_location));
 
@@ -4919,7 +4926,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!core::imatch(current_token().value, "switch"))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR090 - Expected keyword 'switch'", math_expr_error_location));
 
             return error_node();
@@ -4931,7 +4938,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lcrlbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR091 - Expected '{' for call to switch statement",
                                  math_expr_error_location));
 
@@ -4954,7 +4961,7 @@ template <typename T> class parser : public lexer::parser_helper
                     return error_node();
                 else if (!token_is(token_t::e_colon))
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR092 - Expected ':' for case of switch statement",
                                          math_expr_error_location));
 
@@ -4964,7 +4971,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 expression_node_ptr consequent =
-                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::e_hold))
+                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
                         ? parse_multi_sequence("switch-consequent")
                         : parse_expression();
 
@@ -4977,7 +4984,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else if (!token_is(token_t::e_eof))
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR093 - Expected ';' at end of case for switch statement",
                                    math_expr_error_location));
 
@@ -5003,7 +5010,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (0 != default_statement)
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR094 - Multiple default cases for switch statement",
                                          math_expr_error_location));
 
@@ -5014,23 +5021,24 @@ template <typename T> class parser : public lexer::parser_helper
 
                 if (!token_is(token_t::e_colon))
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR095 - Expected ':' for default of switch statement",
                                          math_expr_error_location));
 
                     return error_node();
                 }
 
-                default_statement = (token_is(token_t::e_lcrlbracket, prsrhlpr_t::e_hold))
-                                        ? parse_multi_sequence("switch-default")
-                                        : parse_expression();
+                default_statement =
+                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
+                        ? parse_multi_sequence("switch-default")
+                        : parse_expression();
 
                 if (0 == default_statement)
                     return error_node();
                 else if (!token_is(token_t::e_eof))
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR096 - Expected ';' at end of default for switch statement",
                                    math_expr_error_location));
 
@@ -5041,7 +5049,7 @@ template <typename T> class parser : public lexer::parser_helper
                 break;
             else
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR097 - Expected '}' at end of switch statement",
                                      math_expr_error_location));
 
@@ -5076,7 +5084,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!core::imatch(current_token().value, "[*]"))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR098 - Expected token '[*]'", math_expr_error_location));
 
             return error_node();
@@ -5088,7 +5096,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lcrlbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR099 - Expected '{' for call to [*] statement",
                                  math_expr_error_location));
 
@@ -5099,7 +5107,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (!core::imatch("case", current_token().value))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR100 - Expected a 'case' statement for multi-switch",
                                      math_expr_error_location));
 
@@ -5115,23 +5123,24 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!token_is(token_t::e_colon))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR101 - Expected ':' for case of [*] statement",
                                      math_expr_error_location));
 
                 return error_node();
             }
 
-            expression_node_ptr consequent = (token_is(token_t::e_lcrlbracket, prsrhlpr_t::e_hold))
-                                                 ? parse_multi_sequence("multi-switch-consequent")
-                                                 : parse_expression();
+            expression_node_ptr consequent =
+                (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
+                    ? parse_multi_sequence("multi-switch-consequent")
+                    : parse_expression();
 
             if (0 == consequent)
                 return error_node();
 
             if (!token_is(token_t::e_eof))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR102 - Expected ';' at end of case for [*] statement",
                                      math_expr_error_location));
 
@@ -5150,7 +5159,7 @@ template <typename T> class parser : public lexer::parser_helper
                 arg_list.push_back(consequent);
             }
 
-            if (token_is(token_t::e_rcrlbracket, prsrhlpr_t::e_hold))
+            if (token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
             {
                 break;
             }
@@ -5158,7 +5167,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_rcrlbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR103 - Expected '}' at end of [*] statement",
                                  math_expr_error_location));
 
@@ -5204,7 +5213,7 @@ template <typename T> class parser : public lexer::parser_helper
             opt_type = core::operators::operator_type::sum;
         else
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR104 - Unsupported built-in vararg function: " + symbol,
                                  math_expr_error_location));
 
@@ -5213,13 +5222,13 @@ template <typename T> class parser : public lexer::parser_helper
 
         scoped_vec_delete<expression_node_t> svd((*this), arg_list);
 
-        lodge_symbol(symbol, e_st_function);
+        lodge_symbol(symbol, symbol_type::e_st_function);
 
         next_token();
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR105 - Expected '(' for call to vararg function: " + symbol,
                                  math_expr_error_location));
 
@@ -5228,7 +5237,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR106 - vararg function: " + symbol +
                                      " requires at least one input parameter",
                                  math_expr_error_location));
@@ -5249,7 +5258,7 @@ template <typename T> class parser : public lexer::parser_helper
                 break;
             else if (!token_is(token_t::e_comma))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR107 - Expected ',' for call to vararg function: " + symbol,
                                      math_expr_error_location));
 
@@ -5269,7 +5278,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (!token_is(token_t::e_lsqrbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR108 - Expected '[' as start of string range definition",
                                  math_expr_error_location));
 
@@ -5295,7 +5304,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (0 == result)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR109 - Failed to generate string range node",
                                  math_expr_error_location));
 
@@ -5310,7 +5319,7 @@ template <typename T> class parser : public lexer::parser_helper
             return result;
         }
 
-        set_error(make_error(parser_error::e_synthesis, current_token(),
+        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR110 - Failed to synthesize node: string_range_node",
                              math_expr_error_location));
 
@@ -5334,7 +5343,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         while ((0 != expression) && (i++ < max_rangesize_parses) && error_list_.empty() &&
                is_generally_string_node(expression) &&
-               token_is(token_t::e_lsqrbracket, prsrhlpr_t::e_hold))
+               token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
             expression = parse_string_range_statement(expression);
         }
@@ -5347,17 +5356,17 @@ template <typename T> class parser : public lexer::parser_helper
         if ((0 != expression) && error_list_.empty() && is_ivector_node(expression))
         {
             if (settings_.commutative_check_enabled() &&
-                token_is(token_t::e_mul, prsrhlpr_t::e_hold) &&
+                token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold) &&
                 peek_token_is(token_t::e_lsqrbracket))
             {
                 token_is(token_t::e_mul);
                 token_is(token_t::e_lsqrbracket);
             }
-            else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::e_hold))
+            else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
             {
                 token_is(token_t::e_lsqrbracket);
             }
-            else if (token_is(token_t::e_rbracket, prsrhlpr_t::e_hold) &&
+            else if (token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
                      peek_token_is(token_t::e_lsqrbracket))
             {
                 token_is(token_t::e_rbracket);
@@ -5482,7 +5491,7 @@ template <typename T> class parser : public lexer::parser_helper
             else
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR111 - Expected '" + token_t::to_str(open_bracket) +
                                    "' for call to multi-sequence" +
                                    ((!source.empty()) ? std::string(" section of " + source) : ""),
@@ -5526,7 +5535,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!token_is(separator) && is_next_close)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR112 - Expected '" +
                                          lexer::token::seperator_to_str(separator) +
                                          "' for call to multi-sequence section of " + source,
@@ -5560,7 +5569,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!skip_lsqr && !token_is(token_t::e_lsqrbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR113 - Expected '[' for start of range",
                                  math_expr_error_location));
 
@@ -5579,7 +5588,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == r0)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR114 - Failed parse begin section of range",
                                      math_expr_error_location));
 
@@ -5601,7 +5610,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (r0_value < T(0))
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR115 - Range lower bound less than zero! Constraint: r0 >= 0",
                                    math_expr_error_location));
 
@@ -5616,7 +5625,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!token_is(token_t::e_colon))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR116 - Expected ':' for break  in range",
                                      math_expr_error_location));
 
@@ -5637,7 +5646,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == r1)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR117 - Failed parse end section of range",
                                      math_expr_error_location));
 
@@ -5661,7 +5670,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (r1_value < T(0))
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR118 - Range upper bound less than zero! Constraint: r1 >= 0",
                                    math_expr_error_location));
 
@@ -5678,7 +5687,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!token_is(token_t::e_rsqrbracket))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR119 - Expected ']' for start of range",
                                      math_expr_error_location));
 
@@ -5705,7 +5714,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!rp_result || (r0 > r1))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR120 - Invalid range, Constraint: r0 <= r1",
                                      math_expr_error_location));
 
@@ -5733,11 +5742,11 @@ template <typename T> class parser : public lexer::parser_helper
 
         scope_element& se = sem_.get_active_element(symbol);
 
-        if (scope_element::e_string == se.type)
+        if (scope_element::element_type::e_string == se.type)
         {
             se.active = true;
             result = se.str_node;
-            lodge_symbol(symbol, e_st_local_string);
+            lodge_symbol(symbol, symbol_type::e_st_local_string);
         }
         else
         {
@@ -5746,7 +5755,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if ((0 == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR121 - Unknown string symbol", math_expr_error_location));
 
                 return error_node();
@@ -5762,13 +5771,14 @@ template <typename T> class parser : public lexer::parser_helper
                 const_str_node = static_cast<strvar_node_t>(result);
                 result = expression_generator_(const_str_node->str());
             }
-            else if (symbol_table_t::e_immutable == str_ctx.symbol_table->mutability())
+            else if (symbol_table_t::symtab_mutability_type::e_immutable ==
+                     str_ctx.symbol_table->mutability())
             {
                 lodge_immutable_symbol(current_token(), make_memory_range(str_ctx.str_var->base(),
                                                                           str_ctx.str_var->size()));
             }
 
-            lodge_symbol(symbol, e_st_string);
+            lodge_symbol(symbol, symbol_type::e_st_string);
         }
 
         if (peek_token_is(token_t::e_lsqrbracket))
@@ -5865,7 +5875,7 @@ template <typename T> class parser : public lexer::parser_helper
                 (rp.n1_c.first && (rp.n1_c.second >= const_str.size())))
             {
                 set_error(make_error(
-                    parser_error::e_syntax, current_token(),
+                    parser_error::error_mode::e_syntax, current_token(),
                     "ERR122 - Overflow in range for string: '" + const_str + "'[" +
                         (rp.n0_c.first ? core::to_str(static_cast<int>(rp.n0_c.second)) : "?") +
                         ":" +
@@ -5901,7 +5911,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (0 == (index_expr = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR123 - Failed to parse index for vector: '" + vector_name + "'",
                                  math_expr_error_location));
 
@@ -5909,7 +5919,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is(token_t::e_rsqrbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR124 - Expected ']' for index of vector: '" + vector_name + "'",
                                  math_expr_error_location));
 
@@ -5930,14 +5940,14 @@ template <typename T> class parser : public lexer::parser_helper
         const scope_element& se = sem_.get_active_element(vector_name);
 
         if (!core::imatch(se.name, vector_name) || (se.depth > state_.scope_depth) ||
-            (scope_element::e_vector != se.type))
+            (scope_element::element_type::e_vector != se.type))
         {
             typedef typename symtab_store::vector_context vec_ctxt_t;
             vec_ctxt_t vec_ctx = symtab_store_.get_vector_context(vector_name);
 
             if (0 == vec_ctx.vector_holder)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR125 - Symbol '" + vector_name + " not a vector",
                                      math_expr_error_location));
 
@@ -5949,7 +5959,8 @@ template <typename T> class parser : public lexer::parser_helper
 
             vec = vec_ctx.vector_holder;
 
-            if (symbol_table_t::e_immutable == vec_ctx.symbol_table->mutability())
+            if (symbol_table_t::symtab_mutability_type::e_immutable ==
+                vec_ctx.symbol_table->mutability())
             {
                 lodge_immutable_symbol(current_token(),
                                        make_memory_range(vec->data(), vec->size()));
@@ -6000,7 +6011,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (index >= vec_size)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR126 - Index of " + core::to_str(index) +
                                          " out of range for "
                                          "vector '" +
@@ -6032,7 +6043,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (!vararg_function->allow_zero_parameters())
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR127 - Zero parameter call to vararg function: " +
                                              vararg_function_name + " not allowed",
                                          math_expr_error_location));
@@ -6055,7 +6066,7 @@ template <typename T> class parser : public lexer::parser_helper
                         break;
                     else if (!token_is(token_t::e_comma))
                     {
-                        set_error(make_error(parser_error::e_syntax, current_token(),
+                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR128 - Expected ',' for call to vararg function: " +
                                                  vararg_function_name,
                                              math_expr_error_location));
@@ -6067,7 +6078,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!vararg_function->allow_zero_parameters())
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR129 - Zero parameter call to vararg function: " +
                                      vararg_function_name + " not allowed",
                                  math_expr_error_location));
@@ -6078,7 +6089,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (arg_list.size() < vararg_function->min_num_args())
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR130 - Invalid number of parameters to call to vararg function: " +
                     vararg_function_name + ", require at least " +
                     core::to_str(static_cast<int>(vararg_function->min_num_args())) + " parameters",
@@ -6089,7 +6100,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (arg_list.size() > vararg_function->max_num_args())
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR131 - Invalid number of parameters to call to vararg function: " +
                     vararg_function_name + ", require no more than " +
                     core::to_str(static_cast<int>(vararg_function->max_num_args())) + " parameters",
@@ -6160,7 +6171,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (1 == error_list.size())
             {
                 parser_.set_error(make_error(
-                    parser_error::e_syntax, parser_.current_token(),
+                    parser_error::error_mode::e_syntax, parser_.current_token(),
                     "ERR132 - Failed parameter type check for function '" + function_name_ +
                         "', "
                         "Expected '" +
@@ -6181,7 +6192,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_.set_error(make_error(
-                    parser_error::e_syntax, parser_.current_token(),
+                    parser_error::error_mode::e_syntax, parser_.current_token(),
                     "ERR133 - Failed parameter type check for function '" + function_name_ +
                         "', "
                         "Best match: '" +
@@ -6320,11 +6331,11 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     invalid_state_ = false;
 
-                    parser_.set_error(make_error(parser_error::e_syntax, parser_.current_token(),
-                                                 "ERR134 - Invalid parameter sequence of '" +
-                                                     param_seq_list[i] +
-                                                     "' for function: " + function_name_,
-                                                 math_expr_error_location));
+                    parser_.set_error(
+                        make_error(parser_error::error_mode::e_syntax, parser_.current_token(),
+                                   "ERR134 - Invalid parameter sequence of '" + param_seq_list[i] +
+                                       "' for function: " + function_name_,
+                                   math_expr_error_location));
                     return;
                 }
 
@@ -6335,7 +6346,7 @@ template <typename T> class parser : public lexer::parser_helper
                     invalid_state_ = false;
 
                     parser_.set_error(make_error(
-                        parser_error::e_syntax, parser_.current_token(),
+                        parser_error::error_mode::e_syntax, parser_.current_token(),
                         "ERR135 - Function '" + function_name_ +
                             "' has a parameter sequence conflict between " + "pseq_idx[" +
                             core::to_str(seq_itr->second) + "] and" + "pseq_idx[" +
@@ -6375,7 +6386,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (tc.invalid())
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR136 - Type checker instantiation failure for generic function: " +
                                function_name,
                            math_expr_error_location));
@@ -6389,7 +6400,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (!function->allow_zero_parameters() && !tc.allow_zero_parameters())
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR137 - Zero parameter call to generic function: " +
                                              function_name + " not allowed",
                                          math_expr_error_location));
@@ -6420,7 +6431,7 @@ template <typename T> class parser : public lexer::parser_helper
                     else if (!token_is(token_t::e_comma))
                     {
                         set_error(make_error(
-                            parser_error::e_syntax, current_token(),
+                            parser_error::error_mode::e_syntax, current_token(),
                             "ERR138 - Expected ',' for call to generic function: " + function_name,
                             math_expr_error_location));
 
@@ -6432,7 +6443,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (!function->parameter_sequence.empty() && function->allow_zero_parameters() &&
                  !tc.allow_zero_parameters())
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR139 - Zero parameter call to generic function: " +
                                      function_name + " not allowed",
                                  math_expr_error_location));
@@ -6445,7 +6456,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (state_.type_check_enabled && !tc.verify(param_type_list, param_seq_index))
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR140 - Invalid input parameter sequence for call to generic function: " +
                     function_name,
                 math_expr_error_location));
@@ -6475,7 +6486,7 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (!function->allow_zero_parameters() && !tc.allow_zero_parameters())
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR141 - Zero parameter call to generic function: " +
                                              function_name + " not allowed",
                                          math_expr_error_location));
@@ -6505,7 +6516,7 @@ template <typename T> class parser : public lexer::parser_helper
                         break;
                     else if (!token_is(token_t::e_comma))
                     {
-                        set_error(make_error(parser_error::e_syntax, current_token(),
+                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR142 - Expected ',' for call to string function: " +
                                                  function_name,
                                              math_expr_error_location));
@@ -6551,7 +6562,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (!tc.verify(param_type_list, param_seq_index))
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR143 - Invalid input parameter sequence for call to string function: " +
                     function_name,
                 math_expr_error_location));
@@ -6598,7 +6609,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (!tc.verify(param_type_list, param_seq_index))
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR144 - Invalid input parameter sequence for call to overloaded function: " +
                     function_name,
                 math_expr_error_location));
@@ -6626,7 +6637,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR145 - Invalid return type for call to overloaded function: " +
                                      function_name,
                                  math_expr_error_location));
@@ -6655,7 +6666,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!p.token_is(token_t::e_lbracket))
             {
                 p.set_error(
-                    make_error(parser_error::e_syntax, p.current_token(),
+                    make_error(parser_error::error_mode::e_syntax, p.current_token(),
                                "ERR146 - Expected '(' for special function '" + sf_name + "'",
                                math_expr_error_location));
 
@@ -6675,7 +6686,7 @@ template <typename T> class parser : public lexer::parser_helper
                     if (!p.token_is(token_t::e_comma))
                     {
                         p.set_error(make_error(
-                            parser_error::e_syntax, p.current_token(),
+                            parser_error::error_mode::e_syntax, p.current_token(),
                             "ERR147 - Expected ',' before next parameter of special function '" +
                                 sf_name + "'",
                             math_expr_error_location));
@@ -6688,7 +6699,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!p.token_is(token_t::e_rbracket))
             {
                 p.set_error(make_error(
-                    parser_error::e_syntax, p.current_token(),
+                    parser_error::error_mode::e_syntax, p.current_token(),
                     "ERR148 - Invalid number of parameters for special function '" + sf_name + "'",
                     math_expr_error_location));
 
@@ -6710,7 +6721,7 @@ template <typename T> class parser : public lexer::parser_helper
         // Expect: $fDD(expr0,expr1,expr2) or $fDD(expr0,expr1,expr2,expr3)
         if (!core::is_digit(sf_name[2]) || !core::is_digit(sf_name[3]))
         {
-            set_error(make_error(parser_error::e_token, current_token(),
+            set_error(make_error(parser_error::error_mode::e_token, current_token(),
                                  "ERR149 - Invalid special function[1]: " + sf_name,
                                  math_expr_error_location));
 
@@ -6721,7 +6732,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (id >= static_cast<int>(core::operators::operator_type::sffinal))
         {
-            set_error(make_error(parser_error::e_token, current_token(),
+            set_error(make_error(parser_error::error_mode::e_token, current_token(),
                                  "ERR150 - Invalid special function[2]: " + sf_name,
                                  math_expr_error_location));
 
@@ -6755,7 +6766,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (state_.parsing_break_stmt)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR151 - Invoking 'break' within a break call is not allowed",
                                  math_expr_error_location));
 
@@ -6764,7 +6775,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (0 == state_.parsing_loop_stmt_count)
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR152 - Invalid use of 'break', allowed only in the scope of a loop",
                            math_expr_error_location));
 
@@ -6786,7 +6797,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (0 == (return_expr = parse_expression()))
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR153 - Failed to parse return expression for 'break' statement",
                         math_expr_error_location));
 
@@ -6795,7 +6806,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else if (!token_is(token_t::e_rsqrbracket))
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR154 - Expected ']' at the completion of break's return expression",
                         math_expr_error_location));
 
@@ -6812,7 +6823,7 @@ template <typename T> class parser : public lexer::parser_helper
         else
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR155 - Invalid use of 'break', allowed only in the scope of a loop",
                            math_expr_error_location));
         }
@@ -6825,7 +6836,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (0 == state_.parsing_loop_stmt_count)
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR156 - Invalid use of 'continue', allowed only in the scope of a loop",
                 math_expr_error_location));
 
@@ -6849,7 +6860,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lsqrbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR157 - Expected '[' as part of vector size definition",
                                  math_expr_error_location));
 
@@ -6857,7 +6868,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (0 == (size_expression_node = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR158 - Failed to determine size of vector '" + vec_name + "'",
                                  math_expr_error_location));
 
@@ -6866,7 +6877,8 @@ template <typename T> class parser : public lexer::parser_helper
         else if (!is_constant_node(size_expression_node))
         {
             const bool is_rebaseble_vector =
-                (size_expression_node->type() == details::expression_node<T>::e_vecsize) &&
+                (size_expression_node->type() ==
+                 details::expression_node<T>::node_type::e_vecsize) &&
                 static_cast<details::vector_size_node<T>*>(size_expression_node)
                     ->vec_holder()
                     ->rebaseable();
@@ -6878,7 +6890,7 @@ template <typename T> class parser : public lexer::parser_helper
                     ? std::string(
                           "Rebasable/Resizable vector cannot be used to define the size of vector")
                     : std::string("Expected a constant literal number as size of vector");
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR159 - " + error_msg + " '" + vec_name + "'",
                                  math_expr_error_location));
 
@@ -6896,7 +6908,7 @@ template <typename T> class parser : public lexer::parser_helper
             (static_cast<std::size_t>(vector_size) > max_vector_size))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR160 - Invalid vector size. Must be an integer in the "
                            "range [0," +
                                core::to_str(static_cast<std::size_t>(max_vector_size)) +
@@ -6915,7 +6927,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR161 - Adding vector '" + vec_name + "' of size " +
                                      core::to_str(vec_size) +
                                      " bytes "
@@ -6936,13 +6948,13 @@ template <typename T> class parser : public lexer::parser_helper
             if (se.active)
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR162 - Illegal redefinition of local vector: '" + vec_name + "'",
                                math_expr_error_location));
 
                 return error_node();
             }
-            else if ((se.size == vec_size) && (scope_element::e_vector == se.type))
+            else if ((se.size == vec_size) && (scope_element::element_type::e_vector == se.type))
             {
                 vec_holder = se.vec_node;
                 se.active = true;
@@ -6957,7 +6969,7 @@ template <typename T> class parser : public lexer::parser_helper
             nse.name = vec_name;
             nse.active = true;
             nse.ref_count = 1;
-            nse.type = scope_element::e_vector;
+            nse.type = scope_element::element_type::e_vector;
             nse.depth = state_.scope_depth;
             nse.size = vec_size;
             nse.data = new T[vec_size];
@@ -6969,7 +6981,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!sem_.add_element(nse))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR163 - Failed to add new local vector '" + vec_name + "' to SEM",
                                math_expr_error_location));
 
@@ -6990,7 +7002,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         state_.activate_side_effect("parse_define_vector_statement()");
 
-        lodge_symbol(vec_name, e_st_local_vector);
+        lodge_symbol(vec_name, symbol_type::e_st_local_vector);
 
         std::vector<expression_node_ptr> vec_initilizer_list;
 
@@ -7003,17 +7015,17 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_rsqrbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR164 - Expected ']' as part of vector size definition",
                                  math_expr_error_location));
 
             return error_node();
         }
-        else if (!token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+        else if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
         {
             if (!token_is(token_t::e_assign))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR165 - Expected ':=' as part of vector definition",
                                      math_expr_error_location));
 
@@ -7025,7 +7037,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 if (0 == initialiser_component)
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR166 - Failed to parse first component of vector "
                                          "initialiser for vector: " +
                                              vec_name,
@@ -7042,7 +7054,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                     if (0 == initialiser_component)
                     {
-                        set_error(make_error(parser_error::e_syntax, current_token(),
+                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR167 - Failed to parse second component of vector "
                                              "initialiser for vector: " +
                                                  vec_name,
@@ -7057,7 +7069,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (!token_is(token_t::e_rsqrbracket))
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR168 - Expected ']' to close single value vector initialiser",
                                    math_expr_error_location));
 
@@ -7084,7 +7096,7 @@ template <typename T> class parser : public lexer::parser_helper
                     // Is it a locally defined vector?
                     const scope_element& lcl_se = sem_.get_active_element(current_token().value);
 
-                    if (scope_element::e_vector == lcl_se.type)
+                    if (scope_element::element_type::e_vector == lcl_se.type)
                     {
                         if (0 != (initialiser = parse_expression()))
                             vec_initilizer_list.push_back(initialiser);
@@ -7094,7 +7106,7 @@ template <typename T> class parser : public lexer::parser_helper
                     // Are we dealing with a user defined vector?
                     else if (symtab_store_.is_vector(current_token().value))
                     {
-                        lodge_symbol(current_token().value, e_st_vector);
+                        lodge_symbol(current_token().value, symbol_type::e_st_vector);
 
                         if (0 != (initialiser = parse_expression()))
                             vec_initilizer_list.push_back(initialiser);
@@ -7111,7 +7123,7 @@ template <typename T> class parser : public lexer::parser_helper
                     if (0 == initialiser)
                     {
                         set_error(
-                            make_error(parser_error::e_syntax, current_token(),
+                            make_error(parser_error::error_mode::e_syntax, current_token(),
                                        "ERR169 - Expected '{' as part of vector initialiser list",
                                        math_expr_error_location));
 
@@ -7130,7 +7142,7 @@ template <typename T> class parser : public lexer::parser_helper
                     if (0 == initialiser)
                     {
                         set_error(
-                            make_error(parser_error::e_syntax, current_token(),
+                            make_error(parser_error::error_mode::e_syntax, current_token(),
                                        "ERR170 - Expected '{' as part of vector initialiser list",
                                        math_expr_error_location));
 
@@ -7146,7 +7158,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                     if (!token_is(token_t::e_comma) && is_next_close)
                     {
-                        set_error(make_error(parser_error::e_syntax, current_token(),
+                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR171 - Expected ',' between vector initialisers",
                                              math_expr_error_location));
 
@@ -7158,13 +7170,13 @@ template <typename T> class parser : public lexer::parser_helper
                 }
             }
 
-            if (!token_is(token_t::e_rbracket, prsrhlpr_t::e_hold) &&
-                !token_is(token_t::e_rcrlbracket, prsrhlpr_t::e_hold) &&
-                !token_is(token_t::e_rsqrbracket, prsrhlpr_t::e_hold))
+            if (!token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
+                !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
+                !token_is(token_t::e_rsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
             {
-                if (!token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+                if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR172 - Expected ';' at end of vector definition",
                                          math_expr_error_location));
 
@@ -7175,7 +7187,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!single_value_initialiser && !range_value_initialiser &&
                 (T(vec_initilizer_list.size()) > vector_size))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR173 - Initialiser list larger than the number of elements "
                                      "in the vector: '" +
                                          vec_name + "'",
@@ -7267,7 +7279,7 @@ template <typename T> class parser : public lexer::parser_helper
         details::free_node(node_allocator_, result);
 
         set_error(
-            make_error(parser_error::e_synthesis, current_token(),
+            make_error(parser_error::error_mode::e_synthesis, current_token(),
                        "ERR174 - Failed to generate initialisation node for vector: " + vec_name,
                        math_expr_error_location));
 
@@ -7287,7 +7299,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR175 - Illegal redefinition of local variable: '" +
                                          str_name + "'",
                                      math_expr_error_location));
@@ -7296,7 +7308,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (scope_element::e_string == se.type)
+            else if (scope_element::element_type::e_string == se.type)
             {
                 str_node = se.str_node;
                 se.active = true;
@@ -7311,14 +7323,14 @@ template <typename T> class parser : public lexer::parser_helper
             nse.name = str_name;
             nse.active = true;
             nse.ref_count = 1;
-            nse.type = scope_element::e_string;
+            nse.type = scope_element::element_type::e_string;
             nse.depth = state_.scope_depth;
             nse.data = new std::string;
             nse.str_node = new stringvar_node_t(*reinterpret_cast<std::string*>(nse.data));
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR176 - Failed to add new local string variable '" +
                                          str_name + "' to SEM",
                                      math_expr_error_location));
@@ -7340,7 +7352,7 @@ template <typename T> class parser : public lexer::parser_helper
                  nse.name.c_str()));
         }
 
-        lodge_symbol(str_name, e_st_local_string);
+        lodge_symbol(str_name, symbol_type::e_st_local_string);
 
         state_.activate_side_effect("parse_define_string_statement()");
 
@@ -7369,7 +7381,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (settings_.vardef_disabled())
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR177 - Illegal variable definition", math_expr_error_location));
 
             return error_node();
@@ -7387,7 +7399,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_symbol))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR178 - Expected a symbol for variable definition",
                                  math_expr_error_location));
 
@@ -7396,7 +7408,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (core::is_reserved_symbol(var_name))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR179 - Illegal redefinition of reserved keyword: '" + var_name + "'",
                            math_expr_error_location));
 
@@ -7404,7 +7416,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (symtab_store_.symbol_exists(var_name))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR180 - Illegal redefinition of variable '" + var_name + "'",
                                  math_expr_error_location));
 
@@ -7413,17 +7425,17 @@ template <typename T> class parser : public lexer::parser_helper
         else if (local_variable_is_shadowed(var_name))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR181 - Illegal redefinition of local variable: '" + var_name + "'",
                            math_expr_error_location));
 
             return error_node();
         }
-        else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::e_hold))
+        else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
             return parse_define_vector_statement(var_name);
         }
-        else if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::e_hold))
+        else if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
             return parse_uninitialised_var_statement(var_name);
         }
@@ -7432,7 +7444,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (0 == (initialisation_expression = parse_expression()))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR182 - Failed to parse initialisation expression for variable '" +
                                    var_name + "'",
                                math_expr_error_location));
@@ -7441,14 +7453,14 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        if (!token_is(token_t::e_rbracket, prsrhlpr_t::e_hold) &&
-            !token_is(token_t::e_rcrlbracket, prsrhlpr_t::e_hold) &&
-            !token_is(token_t::e_rsqrbracket, prsrhlpr_t::e_hold))
+        if (!token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
+            !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
+            !token_is(token_t::e_rsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
-            if (!token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+            if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR183 - Expected ';' after variable '" + var_name + "' definition",
                                math_expr_error_location));
 
@@ -7472,7 +7484,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR184 - Illegal redefinition of local variable: '" +
                                          var_name + "'",
                                      math_expr_error_location));
@@ -7481,7 +7493,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (scope_element::e_variable == se.type)
+            else if (scope_element::element_type::e_variable == se.type)
             {
                 var_node = se.var_node;
                 se.active = true;
@@ -7498,7 +7510,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR185 - Adding variable '" + var_name +
                                    "' "
                                    "will exceed max total local symbol size of: " +
@@ -7517,7 +7529,7 @@ template <typename T> class parser : public lexer::parser_helper
             nse.name = var_name;
             nse.active = true;
             nse.ref_count = 1;
-            nse.type = scope_element::e_variable;
+            nse.type = scope_element::element_type::e_variable;
             nse.depth = state_.scope_depth;
             nse.data = new T(T(0));
             nse.var_node =
@@ -7525,7 +7537,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR186 - Failed to add new local variable '" + var_name +
                                          "' to SEM",
                                      math_expr_error_location));
@@ -7548,7 +7560,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         state_.activate_side_effect("parse_define_var_statement()");
 
-        lodge_symbol(var_name, e_st_local_variable);
+        lodge_symbol(var_name, symbol_type::e_st_local_variable);
 
         expression_node_ptr branch[2] = {0};
 
@@ -7563,7 +7575,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (settings_.vardef_disabled())
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR187 - Illegal const variable definition",
                                  math_expr_error_location));
 
@@ -7571,7 +7583,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is("const"))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR188 - Expected 'const' keyword for const-variable definition",
                                  math_expr_error_location));
 
@@ -7579,7 +7591,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is("var"))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR189 - Expected 'var' keyword for const-variable definition",
                                  math_expr_error_location));
 
@@ -7592,7 +7604,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_symbol))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR190 - Expected a symbol for const-variable definition",
                                  math_expr_error_location));
 
@@ -7601,7 +7613,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (core::is_reserved_symbol(var_name))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR191 - Illegal redefinition of reserved keyword: '" + var_name + "'",
                            math_expr_error_location));
 
@@ -7609,7 +7621,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (symtab_store_.symbol_exists(var_name))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR192 - Illegal redefinition of variable '" + var_name + "'",
                                  math_expr_error_location));
 
@@ -7618,7 +7630,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (local_variable_is_shadowed(var_name))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR193 - Illegal redefinition of local variable: '" + var_name + "'",
                            math_expr_error_location));
 
@@ -7626,7 +7638,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (!token_is(token_t::e_assign))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR194 - Expected assignment operator after const-variable: '" +
                                      var_name + "' definition",
                                  math_expr_error_location));
@@ -7636,7 +7648,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (0 == (initialisation_expression = parse_expression()))
         {
             set_error(make_error(
-                parser_error::e_syntax, current_token(),
+                parser_error::error_mode::e_syntax, current_token(),
                 "ERR195 - Failed to parse initialisation expression for const-variable: '" +
                     var_name + "'",
                 math_expr_error_location));
@@ -7646,7 +7658,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!details::is_literal_node(initialisation_expression))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR196 - initialisation expression for const-variable: '" +
                                      var_name + "' must be a constant/literal",
                                  math_expr_error_location));
@@ -7670,14 +7682,14 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR197 - Illegal redefinition of local variable: '" +
                                          var_name + "'",
                                      math_expr_error_location));
 
                 return error_node();
             }
-            else if (scope_element::e_literal == se.type)
+            else if (scope_element::element_type::e_literal == se.type)
             {
                 var_node = se.var_node;
                 se.active = true;
@@ -7694,7 +7706,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR198 - Adding variable '" + var_name +
                                    "' "
                                    "will exceed max total local symbol size of: " +
@@ -7711,14 +7723,14 @@ template <typename T> class parser : public lexer::parser_helper
             nse.name = var_name;
             nse.active = true;
             nse.ref_count = 1;
-            nse.type = scope_element::e_literal;
+            nse.type = scope_element::element_type::e_literal;
             nse.depth = state_.scope_depth;
             nse.data = 0;
             nse.var_node = node_allocator_.allocate<literal_node_t>(init_value);
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR199 - Failed to add new local const-variable '" +
                                          var_name + "' to SEM",
                                      math_expr_error_location));
@@ -7740,7 +7752,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         state_.activate_side_effect("parse_define_constvar_statement()");
 
-        lodge_symbol(var_name, e_st_local_variable);
+        lodge_symbol(var_name, symbol_type::e_st_local_variable);
 
         return expression_generator_(var_node->value());
     }
@@ -7749,15 +7761,15 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (!token_is(token_t::e_lcrlbracket) || !token_is(token_t::e_rcrlbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR200 - Expected a '{}' for uninitialised var definition",
                                  math_expr_error_location));
 
             return error_node();
         }
-        else if (!token_is(token_t::e_eof, prsrhlpr_t::e_hold))
+        else if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR201 - Expected ';' after uninitialised variable definition",
                                  math_expr_error_location));
 
@@ -7772,14 +7784,14 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR202 - Illegal redefinition of local variable: '" +
                                          var_name + "'",
                                      math_expr_error_location));
 
                 return error_node();
             }
-            else if (scope_element::e_variable == se.type)
+            else if (scope_element::element_type::e_variable == se.type)
             {
                 var_node = se.var_node;
                 se.active = true;
@@ -7795,7 +7807,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR203 - Adding variable '" + var_name +
                                    "' "
                                    "will exceed max total local symbol size of: " +
@@ -7812,7 +7824,7 @@ template <typename T> class parser : public lexer::parser_helper
             nse.name = var_name;
             nse.active = true;
             nse.ref_count = 1;
-            nse.type = scope_element::e_variable;
+            nse.type = scope_element::element_type::e_variable;
             nse.depth = state_.scope_depth;
             nse.ip_index = sem_.next_ip_index();
             nse.data = new T(T(0));
@@ -7821,7 +7833,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR204 - Failed to add new local variable '" + var_name +
                                          "' to SEM",
                                      math_expr_error_location));
@@ -7839,7 +7851,7 @@ template <typename T> class parser : public lexer::parser_helper
                  nse.name.c_str()));
         }
 
-        lodge_symbol(var_name, e_st_local_variable);
+        lodge_symbol(var_name, symbol_type::e_st_local_variable);
 
         state_.activate_side_effect("parse_uninitialised_var_statement()");
 
@@ -7857,7 +7869,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR205 - Expected '(' at start of swap statement",
                                  math_expr_error_location));
 
@@ -7872,10 +7884,10 @@ template <typename T> class parser : public lexer::parser_helper
 
         const std::string var0_name = current_token().value;
 
-        if (!token_is(token_t::e_symbol, prsrhlpr_t::e_hold))
+        if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR206 - Expected a symbol for variable or vector element definition",
                            math_expr_error_location));
 
@@ -7886,7 +7898,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (0 == (variable0 = parse_vector()))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR207 - First parameter to swap is an invalid vector element: '" +
                                    var0_name + "'",
                                math_expr_error_location));
@@ -7905,16 +7917,17 @@ template <typename T> class parser : public lexer::parser_helper
 
             const scope_element& se = sem_.get_element(var0_name);
 
-            if ((se.active) && (se.name == var0_name) && (scope_element::e_variable == se.type))
+            if ((se.active) && (se.name == var0_name) &&
+                (scope_element::element_type::e_variable == se.type))
             {
                 variable0 = se.var_node;
             }
 
-            lodge_symbol(var0_name, e_st_variable);
+            lodge_symbol(var0_name, symbol_type::e_st_variable);
 
             if (0 == variable0)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR208 - First parameter to swap is an invalid variable: '" +
                                          var0_name + "'",
                                      math_expr_error_location));
@@ -7927,7 +7940,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_comma))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR209 - Expected ',' between parameters to swap",
                                  math_expr_error_location));
 
@@ -7941,10 +7954,10 @@ template <typename T> class parser : public lexer::parser_helper
 
         const std::string var1_name = current_token().value;
 
-        if (!token_is(token_t::e_symbol, prsrhlpr_t::e_hold))
+        if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR210 - Expected a symbol for variable or vector element definition",
                            math_expr_error_location));
 
@@ -7960,7 +7973,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (0 == (variable1 = parse_vector()))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR211 - Second parameter to swap is an invalid vector element: '" +
                                    var1_name + "'",
                                math_expr_error_location));
@@ -7984,16 +7997,17 @@ template <typename T> class parser : public lexer::parser_helper
 
             const scope_element& se = sem_.get_element(var1_name);
 
-            if ((se.active) && (se.name == var1_name) && (scope_element::e_variable == se.type))
+            if ((se.active) && (se.name == var1_name) &&
+                (scope_element::element_type::e_variable == se.type))
             {
                 variable1 = se.var_node;
             }
 
-            lodge_symbol(var1_name, e_st_variable);
+            lodge_symbol(var1_name, symbol_type::e_st_variable);
 
             if (0 == variable1)
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR212 - Second parameter to swap is an invalid variable: '" +
                                          var1_name + "'",
                                      math_expr_error_location));
@@ -8011,7 +8025,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR213 - Expected ')' at end of swap statement",
                                  math_expr_error_location));
 
@@ -8063,7 +8077,7 @@ template <typename T> class parser : public lexer::parser_helper
     {
         if (state_.parsing_return_stmt)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR214 - Return call within a return call is not allowed",
                                  math_expr_error_location));
 
@@ -8085,7 +8099,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lsqrbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR215 - Expected '[' at start of return statement",
                                  math_expr_error_location));
 
@@ -8107,7 +8121,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else if (!token_is(token_t::e_comma))
                 {
                     set_error(
-                        make_error(parser_error::e_syntax, current_token(),
+                        make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR216 - Expected ',' between values during call to return",
                                    math_expr_error_location));
 
@@ -8117,7 +8131,7 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else if (settings_.zero_return_disabled())
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR217 - Zero parameter return statement not allowed",
                                  math_expr_error_location));
 
@@ -8130,7 +8144,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (!arg_list.empty())
             {
-                set_error(make_error(parser_error::e_syntax, prev_token,
+                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR218 - Invalid ']' found during return call",
                                      math_expr_error_location));
 
@@ -8178,7 +8192,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (state_.parsing_assert_stmt)
         {
             set_error(
-                make_error(parser_error::e_syntax, current_token(),
+                make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR219 - Assert statement within an assert statement is not allowed",
                            math_expr_error_location));
 
@@ -8198,7 +8212,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_lbracket))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR220 - Expected '(' at start of assert statement",
                                  math_expr_error_location));
 
@@ -8210,7 +8224,7 @@ template <typename T> class parser : public lexer::parser_helper
         // Parse the assert condition
         if (0 == (assert_condition = parse_expression()))
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR221 - Failed to parse condition for assert statement",
                                  math_expr_error_location));
 
@@ -8224,7 +8238,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!token_is(token_t::e_comma))
             {
                 set_error(make_error(
-                    parser_error::e_syntax, current_token(),
+                    parser_error::error_mode::e_syntax, current_token(),
                     "ERR222 - Expected ',' between condition and message for assert statement",
                     math_expr_error_location));
 
@@ -8235,7 +8249,7 @@ template <typename T> class parser : public lexer::parser_helper
                      !details::is_generally_string_node(assert_message))
             {
                 set_error(make_error(
-                    parser_error::e_syntax, current_token(),
+                    parser_error::error_mode::e_syntax, current_token(),
                     "ERR223 - " +
                         (assert_message
                              ? std::string("Expected string for assert message")
@@ -8249,7 +8263,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (!token_is(token_t::e_comma))
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR224 - Expected ',' between message and ID for assert statement",
                         math_expr_error_location));
 
@@ -8260,7 +8274,7 @@ template <typename T> class parser : public lexer::parser_helper
                          !details::is_const_string_node(assert_id))
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR225 - " + (assert_id
                                            ? std::string("Expected literal string for assert ID")
                                            : std::string("Failed to parse string for assert ID")),
@@ -8270,7 +8284,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
                 else if (!token_is(token_t::e_rbracket))
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR226 - Expected ')' at start of assert statement",
                                          math_expr_error_location));
 
@@ -8304,7 +8318,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (assert_ids_.end() != assert_ids_.find(context.id))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR227 - Duplicate assert ID: " + context.id,
                                      math_expr_error_location));
 
@@ -8330,7 +8344,7 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (0 == result_node)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR228 - Failed to synthesize assert", math_expr_error_location));
 
             return error_node();
@@ -8348,7 +8362,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!settings_.commutative_check_enabled())
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR229 - Invalid sequence of variable '" + symbol + "' and bracket",
                                math_expr_error_location));
 
@@ -8372,7 +8386,8 @@ template <typename T> class parser : public lexer::parser_helper
         if (details::is_ivector_node(branch))
             return true;
 
-        const lexer::parser_helper::token_advance_mode hold = prsrhlpr_t::e_hold;
+        const lexer::parser_helper::token_advance_mode hold =
+            prsrhlpr_t::token_advance_mode::e_hold;
 
         switch (token)
         {
@@ -8402,7 +8417,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (!settings_.commutative_check_enabled())
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR230 - Invalid sequence of brackets",
                                      math_expr_error_location));
 
@@ -8464,7 +8479,8 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 result_variable = expression_generator_(var_ctx.variable->value());
             }
-            else if (symbol_table_t::e_immutable == var_ctx.symbol_table->mutability())
+            else if (symbol_table_t::symtab_mutability_type::e_immutable ==
+                     var_ctx.symbol_table->mutability())
             {
                 lodge_immutable_symbol(current_token(), make_memory_range(var_ctx.variable->ref()));
                 result_variable = var_ctx.variable;
@@ -8473,7 +8489,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!post_variable_process(symbol))
                 return error_node();
 
-            lodge_symbol(symbol, e_st_variable);
+            lodge_symbol(symbol, symbol_type::e_st_variable);
 
             next_token();
 
@@ -8487,26 +8503,27 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (se.active && core::imatch(se.name, symbol))
             {
-                if ((scope_element::e_variable == se.type) || (scope_element::e_literal == se.type))
+                if ((scope_element::element_type::e_variable == se.type) ||
+                    (scope_element::element_type::e_literal == se.type))
                 {
                     se.active = true;
-                    lodge_symbol(symbol, e_st_local_variable);
+                    lodge_symbol(symbol, symbol_type::e_st_local_variable);
 
                     if (!post_variable_process(symbol))
                         return error_node();
 
                     next_token();
 
-                    return (scope_element::e_variable == se.type)
+                    return (scope_element::element_type::e_variable == se.type)
                                ? se.var_node
                                : expression_generator_(se.var_node->value());
                 }
-                else if (scope_element::e_vector == se.type)
+                else if (scope_element::element_type::e_vector == se.type)
                 {
                     return parse_vector();
                 }
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                else if (scope_element::e_string == se.type)
+                else if (scope_element::element_type::e_string == se.type)
                 {
                     return parse_string();
                 }
@@ -8528,7 +8545,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (function)
             {
-                lodge_symbol(symbol, e_st_function);
+                lodge_symbol(symbol, symbol_type::e_st_function);
 
                 expression_node_ptr func_node = parse_function_invocation(function, symbol);
 
@@ -8536,7 +8553,7 @@ template <typename T> class parser : public lexer::parser_helper
                     return func_node;
                 else
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR231 - Failed to generate node for function: '" +
                                              symbol + "'",
                                          math_expr_error_location));
@@ -8552,7 +8569,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (vararg_function)
             {
-                lodge_symbol(symbol, e_st_function);
+                lodge_symbol(symbol, symbol_type::e_st_function);
 
                 expression_node_ptr vararg_func_node =
                     parse_vararg_function_call(vararg_function, symbol);
@@ -8561,7 +8578,7 @@ template <typename T> class parser : public lexer::parser_helper
                     return vararg_func_node;
                 else
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR232 - Failed to generate node for vararg function: '" +
                                              symbol + "'",
                                          math_expr_error_location));
@@ -8577,7 +8594,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (generic_function)
             {
-                lodge_symbol(symbol, e_st_function);
+                lodge_symbol(symbol, symbol_type::e_st_function);
 
                 expression_node_ptr genericfunc_node =
                     parse_generic_function_call(generic_function, symbol);
@@ -8587,7 +8604,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR233 - Failed to generate node for generic function: '" + symbol + "'",
                         math_expr_error_location));
 
@@ -8603,7 +8620,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (string_function)
             {
-                lodge_symbol(symbol, e_st_function);
+                lodge_symbol(symbol, symbol_type::e_st_function);
 
                 expression_node_ptr stringfunc_node =
                     parse_string_function_call(string_function, symbol);
@@ -8612,7 +8629,7 @@ template <typename T> class parser : public lexer::parser_helper
                     return stringfunc_node;
                 else
                 {
-                    set_error(make_error(parser_error::e_syntax, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR234 - Failed to generate node for string function: '" +
                                              symbol + "'",
                                          math_expr_error_location));
@@ -8628,7 +8645,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (overload_function)
             {
-                lodge_symbol(symbol, e_st_function);
+                lodge_symbol(symbol, symbol_type::e_st_function);
 
                 expression_node_ptr overloadfunc_node =
                     parse_overload_function_call(overload_function, symbol);
@@ -8638,7 +8655,7 @@ template <typename T> class parser : public lexer::parser_helper
                 else
                 {
                     set_error(make_error(
-                        parser_error::e_syntax, current_token(),
+                        parser_error::error_mode::e_syntax, current_token(),
                         "ERR235 - Failed to generate node for overload function: '" + symbol + "'",
                         math_expr_error_location));
 
@@ -8651,7 +8668,7 @@ template <typename T> class parser : public lexer::parser_helper
         // Are we dealing with a vector?
         if (symtab_store_.is_vector(symbol))
         {
-            lodge_symbol(symbol, e_st_vector);
+            lodge_symbol(symbol, symbol_type::e_st_vector);
             return parse_vector();
         }
 
@@ -8659,7 +8676,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (settings_.function_enabled(symbol) || !core::is_base_function(symbol))
             {
-                set_error(make_error(parser_error::e_syntax, current_token(),
+                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR236 - Invalid use of reserved symbol '" + symbol + "'",
                                      math_expr_error_location));
 
@@ -8676,12 +8693,13 @@ template <typename T> class parser : public lexer::parser_helper
 
                 std::string error_message;
 
-                if (unknown_symbol_resolver::e_usrmode_default == unknown_symbol_resolver_->mode)
+                if (unknown_symbol_resolver::usr_mode::e_usrmode_default ==
+                    unknown_symbol_resolver_->mode)
                 {
                     T default_value = T(0);
 
                     typename unknown_symbol_resolver::usr_symbol_type usr_symbol_type =
-                        unknown_symbol_resolver::e_usr_unknown_type;
+                        unknown_symbol_resolver::usr_symbol_type::e_usr_unknown_type;
 
                     if (unknown_symbol_resolver_->process(symbol, usr_symbol_type, default_value,
                                                           error_message))
@@ -8690,11 +8708,11 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (usr_symbol_type)
                         {
-                        case unknown_symbol_resolver::e_usr_variable_type:
+                        case unknown_symbol_resolver::usr_symbol_type::e_usr_variable_type:
                             create_result = symtab.create_variable(symbol, default_value);
                             break;
 
-                        case unknown_symbol_resolver::e_usr_constant_type:
+                        case unknown_symbol_resolver::usr_symbol_type::e_usr_constant_type:
                             create_result = symtab.add_constant(symbol, default_value);
                             break;
 
@@ -8713,7 +8731,7 @@ template <typename T> class parser : public lexer::parser_helper
                                     var = expression_generator_(var->value());
                                 }
 
-                                lodge_symbol(symbol, e_st_variable);
+                                lodge_symbol(symbol, symbol_type::e_st_variable);
 
                                 if (!post_variable_process(symbol))
                                     return error_node();
@@ -8725,12 +8743,12 @@ template <typename T> class parser : public lexer::parser_helper
                         }
                     }
 
-                    set_error(make_error(parser_error::e_symtab, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
                                          "ERR237 - Failed to create variable: '" + symbol + "'" +
                                              (error_message.empty() ? "" : " - " + error_message),
                                          math_expr_error_location));
                 }
-                else if (unknown_symbol_resolver::e_usrmode_extended ==
+                else if (unknown_symbol_resolver::usr_mode::e_usrmode_extended ==
                          unknown_symbol_resolver_->mode)
                 {
                     if (unknown_symbol_resolver_->process(symbol, symtab, error_message))
@@ -8743,7 +8761,7 @@ template <typename T> class parser : public lexer::parser_helper
                         }
                     }
 
-                    set_error(make_error(parser_error::e_symtab, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
                                          "ERR238 - Failed to resolve symbol: '" + symbol + "'" +
                                              (error_message.empty() ? "" : " - " + error_message),
                                          math_expr_error_location));
@@ -8753,7 +8771,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        set_error(make_error(parser_error::e_syntax, current_token(),
+        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                              "ERR239 - Undefined symbol: '" + symbol + "'",
                              math_expr_error_location));
 
@@ -8767,7 +8785,7 @@ template <typename T> class parser : public lexer::parser_helper
         {
             free_node(node_allocator_, expression);
 
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR240 - Invalid syntax '" + current_token().value +
                                      "' possible missing operator or context",
                                  math_expr_error_location));
@@ -8888,7 +8906,7 @@ template <typename T> class parser : public lexer::parser_helper
         else
         {
             set_error(
-                make_error(parser_error::e_symtab, current_token(),
+                make_error(parser_error::error_mode::e_symtab, current_token(),
                            "ERR241 - Unknown variable or function encountered. Symbol table(s) "
                            "is either invalid or does not contain symbol: '" +
                                symbol + "'",
@@ -8898,7 +8916,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
     }
 
-    inline expression_node_ptr parse_branch(precedence_level precedence = e_level00)
+    inline expression_node_ptr
+    parse_branch(precedence_level precedence = precedence_level::e_level00)
     {
         stack_limit_handler slh(*this);
 
@@ -8919,7 +8938,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 if (0 == literal_exp)
                 {
-                    set_error(make_error(parser_error::e_numeric, current_token(),
+                    set_error(make_error(parser_error::error_mode::e_numeric, current_token(),
                                          "ERR242 - Failed generate node for scalar: '" +
                                              current_token().value + "'",
                                          math_expr_error_location));
@@ -8932,7 +8951,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else
             {
-                set_error(make_error(parser_error::e_numeric, current_token(),
+                set_error(make_error(parser_error::error_mode::e_numeric, current_token(),
                                      "ERR243 - Failed to convert '" + current_token().value +
                                          "' to a number",
                                      math_expr_error_location));
@@ -8964,7 +8983,7 @@ template <typename T> class parser : public lexer::parser_helper
             if (!token_is(token_t::e_rbracket))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR244 - Expected ')' instead of: '" + current_token().value + "'",
                                math_expr_error_location));
 
@@ -8990,7 +9009,7 @@ template <typename T> class parser : public lexer::parser_helper
             else if (!token_is(token_t::e_rsqrbracket))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR245 - Expected ']' instead of: '" + current_token().value + "'",
                                math_expr_error_location));
 
@@ -9014,7 +9033,7 @@ template <typename T> class parser : public lexer::parser_helper
             else if (!token_is(token_t::e_rcrlbracket))
             {
                 set_error(
-                    make_error(parser_error::e_syntax, current_token(),
+                    make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR246 - Expected '}' instead of: '" + current_token().value + "'",
                                math_expr_error_location));
 
@@ -9032,7 +9051,7 @@ template <typename T> class parser : public lexer::parser_helper
         else if (token_t::e_sub == current_token().type)
         {
             next_token();
-            branch = parse_expression(e_level11);
+            branch = parse_expression(precedence_level::e_level11);
 
             if (branch &&
                 !(details::is_neg_unary_node(branch) && simplify_unary_negation_branch(branch)))
@@ -9053,11 +9072,11 @@ template <typename T> class parser : public lexer::parser_helper
         else if (token_t::e_add == current_token().type)
         {
             next_token();
-            branch = parse_expression(e_level13);
+            branch = parse_expression(precedence_level::e_level13);
         }
         else if (token_t::e_eof == current_token().type)
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR247 - Premature end of expression[1]",
                                  math_expr_error_location));
 
@@ -9065,14 +9084,15 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else
         {
-            set_error(make_error(parser_error::e_syntax, current_token(),
+            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR248 - Premature end of expression[2]",
                                  math_expr_error_location));
 
             return error_node();
         }
 
-        if (branch && (e_level00 == precedence) && token_is(token_t::e_ternary, prsrhlpr_t::e_hold))
+        if (branch && (precedence_level::e_level00 == precedence) &&
+            token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold))
         {
             branch = parse_ternary_conditional_statement(branch);
         }
@@ -9839,28 +9859,28 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if ((0 == branch[0]) || (0 == branch[1]))
             {
-                parser_->set_error(
-                    parser_error::make_error(parser_error::e_syntax, parser_->current_state().token,
-                                             "ERR249 - Invalid branches received for operator '" +
-                                                 core::operators::to_str(operation) + "'",
-                                             math_expr_error_location));
+                parser_->set_error(parser_error::make_error(
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
+                    "ERR249 - Invalid branches received for operator '" +
+                        core::operators::to_str(operation) + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
             else if (is_invalid_string_op(operation, branch))
             {
-                parser_->set_error(
-                    parser_error::make_error(parser_error::e_syntax, parser_->current_state().token,
-                                             "ERR250 - Invalid branch pair for string operator '" +
-                                                 core::operators::to_str(operation) + "'",
-                                             math_expr_error_location));
+                parser_->set_error(parser_error::make_error(
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
+                    "ERR250 - Invalid branch pair for string operator '" +
+                        core::operators::to_str(operation) + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
             else if (is_invalid_assignment_op(operation, branch))
             {
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_syntax, parser_->current_state().token,
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR251 - Invalid branch pair for assignment operator '" +
                         core::operators::to_str(operation) + "'",
                     math_expr_error_location));
@@ -9870,7 +9890,7 @@ template <typename T> class parser : public lexer::parser_helper
             else if (is_invalid_break_continue_op(branch))
             {
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_syntax, parser_->current_state().token,
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR252 - Invalid branch pair for break/continue operator '" +
                         core::operators::to_str(operation) + "'",
                     math_expr_error_location));
@@ -9988,21 +10008,21 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 details::free_all_nodes(*node_allocator_, branch);
 
-                parser_->set_error(
-                    parser_error::make_error(parser_error::e_syntax, parser_->current_state().token,
-                                             "ERR253 - Invalid branches operator '" +
-                                                 core::operators::to_str(operation) + "'",
-                                             math_expr_error_location));
+                parser_->set_error(parser_error::make_error(
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
+                    "ERR253 - Invalid branches operator '" + core::operators::to_str(operation) +
+                        "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
             else if (is_invalid_string_op(operation, branch))
             {
-                parser_->set_error(
-                    parser_error::make_error(parser_error::e_syntax, parser_->current_state().token,
-                                             "ERR254 - Invalid branches for string operator '" +
-                                                 core::operators::to_str(operation) + "'",
-                                             math_expr_error_location));
+                parser_->set_error(parser_error::make_error(
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
+                    "ERR254 - Invalid branches for string operator '" +
+                        core::operators::to_str(operation) + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -10058,7 +10078,7 @@ template <typename T> class parser : public lexer::parser_helper
                     ((0 == consequent) ? std::string("consequent") : "");
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_parser, parser_->current_state().token,
+                    parser_error::error_mode::e_parser, parser_->current_state().token,
                     "ERR255 - Invalid " + invalid_branches + " for conditional statement",
                     math_expr_error_location));
 
@@ -10109,7 +10129,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_parser, token_t(),
+                parser_error::error_mode::e_parser, token_t(),
                 "ERR256 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
             details::free_node(*node_allocator_, result);
@@ -10132,7 +10152,7 @@ template <typename T> class parser : public lexer::parser_helper
                     ((0 == consequent) ? std::string("consequent") : "");
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_parser, parser_->current_state().token,
+                    parser_error::error_mode::e_parser, parser_->current_state().token,
                     "ERR257 - Invalid " + invalid_branches + " for string conditional statement",
                     math_expr_error_location));
 
@@ -10172,7 +10192,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_parser, token_t(),
+                    parser_error::error_mode::e_parser, token_t(),
                     "ERR258 - Failed to synthesize node: conditional_string_node_t",
                     math_expr_error_location));
 
@@ -10204,7 +10224,7 @@ template <typename T> class parser : public lexer::parser_helper
                     ((0 == consequent) ? std::string("consequent") : "");
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_parser, parser_->current_state().token,
+                    parser_error::error_mode::e_parser, parser_->current_state().token,
                     "ERR259 - Invalid " + invalid_branches + " for vector conditional statement",
                     math_expr_error_location));
 
@@ -10272,7 +10292,7 @@ template <typename T> class parser : public lexer::parser_helper
                     // Infinite loops are not allowed.
 
                     parser_->set_error(parser_error::make_error(
-                        parser_error::e_parser, parser_->current_state().token,
+                        parser_error::error_mode::e_parser, parser_->current_state().token,
                         "ERR260 - Infinite loop condition without 'break' or 'return' not allowed "
                         "in while-loops",
                         math_expr_error_location));
@@ -10384,7 +10404,7 @@ template <typename T> class parser : public lexer::parser_helper
                     // Infinite loops are not allowed.
 
                     parser_->set_error(parser_error::make_error(
-                        parser_error::e_parser, parser_->current_state().token,
+                        parser_error::error_mode::e_parser, parser_->current_state().token,
                         "ERR261 - Infinite loop condition without 'break' or 'return' not allowed "
                         "in for-loop",
                         math_expr_error_location));
@@ -11164,7 +11184,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_synthesis, token_t(),
+                    parser_error::error_mode::e_synthesis, token_t(),
                     "ERR262 - Failed to synthesize node: str_vararg_node<vararg_multi_op>",
                     math_expr_error_location));
 
@@ -11205,7 +11225,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_synthesis, token_t(),
+                    parser_error::error_mode::e_synthesis, token_t(),
                     "ERR263 - Failed to synthesize node: vararg_node", math_expr_error_location));
 
                 details::free_node(*node_allocator_, result);
@@ -11258,7 +11278,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_synthesis, token_t(),
+                    parser_error::error_mode::e_synthesis, token_t(),
                     "ERR264 - Failed to synthesize node: function_N_node_t",
                     math_expr_error_location));
 
@@ -11302,7 +11322,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_synthesis, token_t(),
+                parser_error::error_mode::e_synthesis, token_t(),
                 "ERR265 - Failed to synthesize node: vararg_function_node<ivararg_function_t>",
                 math_expr_error_location));
 
@@ -11363,7 +11383,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_synthesis, token_t(),
+                    parser_error::error_mode::e_synthesis, token_t(),
                     "ERR266 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
                 details::free_node(*node_allocator_, result);
@@ -11431,7 +11451,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_synthesis, token_t(),
+                    parser_error::error_mode::e_synthesis, token_t(),
                     "ERR267 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
                 details::free_node(*node_allocator_, result);
@@ -11474,7 +11494,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_synthesis, token_t(),
+                    parser_error::error_mode::e_synthesis, token_t(),
                     "ERR268 - Failed to synthesize node: return_node", math_expr_error_location));
 
                 details::free_node(*node_allocator_, result);
@@ -11530,7 +11550,7 @@ template <typename T> class parser : public lexer::parser_helper
                 if (vec_index >= vector_base->size())
                 {
                     parser_->set_error(parser_error::make_error(
-                        parser_error::e_parser, token_t(),
+                        parser_error::error_mode::e_parser, token_t(),
                         "ERR269 - Index of " + core::to_str(vec_index) +
                             " out of range for "
                             "vector '" +
@@ -11559,7 +11579,7 @@ template <typename T> class parser : public lexer::parser_helper
                     }
 
                     parser_->set_error(parser_error::make_error(
-                        parser_error::e_synthesis, token_t(),
+                        parser_error::error_mode::e_synthesis, token_t(),
                         "ERR270 - Failed to synthesize node: " + node_name +
                             " for vector: " + symbol,
                         math_expr_error_location));
@@ -11584,7 +11604,7 @@ template <typename T> class parser : public lexer::parser_helper
                     }
 
                     parser_->set_error(parser_error::make_error(
-                        parser_error::e_synthesis, token_t(),
+                        parser_error::error_mode::e_synthesis, token_t(),
                         "ERR271 - Failed to synthesize node: " + node_name +
                             " for vector: " + symbol,
                         math_expr_error_location));
@@ -11606,7 +11626,7 @@ template <typename T> class parser : public lexer::parser_helper
                     nse.name = symbol;
                     nse.active = true;
                     nse.ref_count = 1;
-                    nse.type = scope_element::e_vecelem;
+                    nse.type = scope_element::element_type::e_vecelem;
                     nse.index = vec_index;
                     nse.depth = parser_->state_.scope_depth;
                     nse.data = 0;
@@ -11668,7 +11688,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_synthesis, token_t(),
+                parser_error::error_mode::e_synthesis, token_t(),
                 "ERR272 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
             details::free_node(*node_allocator_, result);
@@ -11716,17 +11736,17 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (cst)
             {
-            case e_st_variable:
+            case symbol_type::e_st_variable:
                 symbol_name = parser_->symtab_store_.get_variable_name(node);
                 break;
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            case e_st_string:
+            case symbol_type::e_st_string:
                 symbol_name = parser_->symtab_store_.get_stringvar_name(node);
                 break;
 #endif
 
-            case e_st_vector:
+            case symbol_type::e_st_vector:
             {
                 typedef details::vector_holder<T> vector_holder_t;
 
@@ -11736,7 +11756,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             break;
 
-            case e_st_vecelem:
+            case symbol_type::e_st_vecelem:
             {
                 typedef details::vector_holder<T> vector_holder_t;
 
@@ -11744,7 +11764,7 @@ template <typename T> class parser : public lexer::parser_helper
 
                 symbol_name = parser_->symtab_store_.get_vector_name(&vh);
 
-                cst = e_st_vector;
+                cst = symbol_type::e_st_vector;
             }
             break;
 
@@ -11764,52 +11784,52 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 switch (node->type())
                 {
-                case details::expression_node<T>::e_variable:
+                case details::expression_node<T>::node_type::e_variable:
                     return reinterpret_cast<const void*>(
                         &static_cast<variable_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_vecelem:
+                case details::expression_node<T>::node_type::e_vecelem:
                     return reinterpret_cast<const void*>(
                         &static_cast<vector_elem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_veccelem:
+                case details::expression_node<T>::node_type::e_veccelem:
                     return reinterpret_cast<const void*>(
                         &static_cast<vector_celem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_vecelemrtc:
+                case details::expression_node<T>::node_type::e_vecelemrtc:
                     return reinterpret_cast<const void*>(
                         &static_cast<vector_elem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_veccelemrtc:
+                case details::expression_node<T>::node_type::e_veccelemrtc:
                     return reinterpret_cast<const void*>(
                         &static_cast<vector_celem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_rbvecelem:
+                case details::expression_node<T>::node_type::e_rbvecelem:
                     return reinterpret_cast<const void*>(
                         &static_cast<rebasevector_elem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_rbvecelemrtc:
+                case details::expression_node<T>::node_type::e_rbvecelemrtc:
                     return reinterpret_cast<const void*>(
                         &static_cast<rebasevector_elem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_rbveccelem:
+                case details::expression_node<T>::node_type::e_rbveccelem:
                     return reinterpret_cast<const void*>(
                         &static_cast<rebasevector_celem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_rbveccelemrtc:
+                case details::expression_node<T>::node_type::e_rbveccelemrtc:
                     return reinterpret_cast<const void*>(
                         &static_cast<rebasevector_celem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::e_vector:
+                case details::expression_node<T>::node_type::e_vector:
                     return reinterpret_cast<const void*>(
                         static_cast<vector_node_t*>(node)->vec_holder().data());
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                case details::expression_node<T>::e_stringvar:
+                case details::expression_node<T>::node_type::e_stringvar:
                     return reinterpret_cast<const void*>(
                         (static_cast<stringvar_node_t*>(node)->base()));
 
-                case details::expression_node<T>::e_stringvarrng:
+                case details::expression_node<T>::node_type::e_stringvarrng:
                     return reinterpret_cast<const void*>(
                         (static_cast<string_range_node_t*>(node)->base()));
 #endif
@@ -11837,7 +11857,7 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     token_t& token = itr->second;
                     parser_->set_error(
-                        parser_error::make_error(parser_error::e_parser, token,
+                        parser_error::make_error(parser_error::error_mode::e_parser, token,
                                                  "ERR273 - Symbol '" + token.value +
                                                      "' cannot be assigned-to as it is immutable.",
                                                  math_expr_error_location));
@@ -11861,54 +11881,54 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_variable_node(branch[0]))
             {
-                lodge_assignment(e_st_variable, branch[0]);
+                lodge_assignment(symbol_type::e_st_variable, branch[0]);
                 return synthesize_expression<assignment_node_t, 2>(operation, branch);
             }
             else if (details::is_vector_elem_node(branch[0]) ||
                      details::is_vector_celem_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
                 return synthesize_expression<assignment_vec_elem_node_t, 2>(operation, branch);
             }
             else if (details::is_vector_elem_rtc_node(branch[0]) ||
                      details::is_vector_celem_rtc_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
                 return synthesize_expression<assignment_vec_elem_rtc_node_t, 2>(operation, branch);
             }
             else if (details::is_rebasevector_elem_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
                 return synthesize_expression<assignment_rebasevec_elem_node_t, 2>(operation,
                                                                                   branch);
             }
             else if (details::is_rebasevector_elem_rtc_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
                 return synthesize_expression<assignment_rebasevec_elem_rtc_node_t, 2>(operation,
                                                                                       branch);
             }
             else if (details::is_rebasevector_celem_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
                 return synthesize_expression<assignment_rebasevec_celem_node_t, 2>(operation,
                                                                                    branch);
             }
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (details::is_string_node(branch[0]))
             {
-                lodge_assignment(e_st_string, branch[0]);
+                lodge_assignment(symbol_type::e_st_string, branch[0]);
                 return synthesize_expression<assignment_string_node_t, 2>(operation, branch);
             }
             else if (details::is_string_range_node(branch[0]))
             {
-                lodge_assignment(e_st_string, branch[0]);
+                lodge_assignment(symbol_type::e_st_string, branch[0]);
                 return synthesize_expression<assignment_string_range_node_t, 2>(operation, branch);
             }
 #endif
             else if (details::is_vector_node(branch[0]))
             {
-                lodge_assignment(e_st_vector, branch[0]);
+                lodge_assignment(symbol_type::e_st_vector, branch[0]);
 
                 if (details::is_ivector_node(branch[1]))
                     return synthesize_expression<assignment_vecvec_node_t, 2>(operation, branch);
@@ -11918,18 +11938,18 @@ template <typename T> class parser : public lexer::parser_helper
             else if (details::is_literal_node(branch[0]))
             {
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_syntax, parser_->current_state().token,
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR274 - Cannot assign value to const variable", math_expr_error_location));
 
                 return error_node();
             }
             else
             {
-                parser_->set_error(
-                    parser_error::make_error(parser_error::e_syntax, parser_->current_state().token,
-                                             "ERR275 - Invalid branches for assignment operator '" +
-                                                 core::operators::to_str(operation) + "'",
-                                             math_expr_error_location));
+                parser_->set_error(parser_error::make_error(
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
+                    "ERR275 - Invalid branches for assignment operator '" +
+                        core::operators::to_str(operation) + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -11949,7 +11969,7 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (details::is_variable_node(branch[0]))
             {
-                lodge_assignment(e_st_variable, branch[0]);
+                lodge_assignment(symbol_type::e_st_variable, branch[0]);
 
                 switch (operation)
                 {
@@ -11973,7 +11993,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_vector_elem_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -11996,7 +12016,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_vector_elem_rtc_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -12019,7 +12039,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_vector_celem_rtc_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -12042,7 +12062,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_rebasevector_elem_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -12065,7 +12085,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_rebasevector_celem_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -12088,7 +12108,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_rebasevector_elem_rtc_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -12111,7 +12131,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_rebasevector_celem_rtc_node(branch[0]))
             {
-                lodge_assignment(e_st_vecelem, branch[0]);
+                lodge_assignment(symbol_type::e_st_vecelem, branch[0]);
 
                 switch (operation)
                 {
@@ -12134,7 +12154,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else if (details::is_vector_node(branch[0]))
             {
-                lodge_assignment(e_st_vector, branch[0]);
+                lodge_assignment(symbol_type::e_st_vector, branch[0]);
 
                 if (details::is_ivector_node(branch[1]))
                 {
@@ -12191,7 +12211,7 @@ template <typename T> class parser : public lexer::parser_helper
                     T, details::string_nodes::asn_addassignment>
                     addass_t;
 
-                lodge_assignment(e_st_string, branch[0]);
+                lodge_assignment(symbol_type::e_st_string, branch[0]);
 
                 result = synthesize_expression<addass_t, 2>(operation, branch);
                 node_name = "assignment_string_node<T,details::string_nodes::asn_addassignment>";
@@ -12199,11 +12219,11 @@ template <typename T> class parser : public lexer::parser_helper
 #endif
             else
             {
-                parser_->set_error(
-                    parser_error::make_error(parser_error::e_syntax, parser_->current_state().token,
-                                             "ERR276 - Invalid branches for assignment operator '" +
-                                                 core::operators::to_str(operation) + "'",
-                                             math_expr_error_location));
+                parser_->set_error(parser_error::make_error(
+                    parser_error::error_mode::e_syntax, parser_->current_state().token,
+                    "ERR276 - Invalid branches for assignment operator '" +
+                        core::operators::to_str(operation) + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -12214,7 +12234,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_synthesis, token_t(),
+                parser_error::error_mode::e_synthesis, token_t(),
                 "ERR277 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
             details::free_node(*node_allocator_, result);
@@ -12310,7 +12330,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_synthesis, token_t(),
+                parser_error::error_mode::e_synthesis, token_t(),
                 "ERR278 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
             details::free_node(*node_allocator_, result);
@@ -12398,7 +12418,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_synthesis, token_t(),
+                parser_error::error_mode::e_synthesis, token_t(),
                 "ERR279 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
             details::free_node(*node_allocator_, result);
@@ -12481,7 +12501,7 @@ template <typename T> class parser : public lexer::parser_helper
             }
 
             parser_->set_error(parser_error::make_error(
-                parser_error::e_synthesis, token_t(),
+                parser_error::error_mode::e_synthesis, token_t(),
                 "ERR280 - Failed to synthesize node: " + node_name, math_expr_error_location));
 
             details::free_node(*node_allocator_, result);
@@ -13968,23 +13988,23 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (n->type())
                 {
-                case details::expression_node<Type>::e_covoc:
+                case details::expression_node<Type>::node_type::e_covoc:
                     return compile_right_impl<typename covoc_t::sf3_type_node, ExternalType, ctype,
                                               vtype, ctype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_covov:
+                case details::expression_node<Type>::node_type::e_covov:
                     return compile_right_impl<typename covov_t::sf3_type_node, ExternalType, ctype,
                                               vtype, vtype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_vocov:
+                case details::expression_node<Type>::node_type::e_vocov:
                     return compile_right_impl<typename vocov_t::sf3_type_node, ExternalType, vtype,
                                               ctype, vtype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_vovoc:
+                case details::expression_node<Type>::node_type::e_vovoc:
                     return compile_right_impl<typename vovoc_t::sf3_type_node, ExternalType, vtype,
                                               vtype, ctype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_vovov:
+                case details::expression_node<Type>::node_type::e_vovov:
                     return compile_right_impl<typename vovov_t::sf3_type_node, ExternalType, vtype,
                                               vtype, vtype>(expr_gen, id, t, sf3node, result);
 
@@ -14011,23 +14031,23 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (n->type())
                 {
-                case details::expression_node<Type>::e_covoc:
+                case details::expression_node<Type>::node_type::e_covoc:
                     return compile_left_impl<typename covoc_t::sf3_type_node, ExternalType, ctype,
                                              vtype, ctype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_covov:
+                case details::expression_node<Type>::node_type::e_covov:
                     return compile_left_impl<typename covov_t::sf3_type_node, ExternalType, ctype,
                                              vtype, vtype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_vocov:
+                case details::expression_node<Type>::node_type::e_vocov:
                     return compile_left_impl<typename vocov_t::sf3_type_node, ExternalType, vtype,
                                              ctype, vtype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_vovoc:
+                case details::expression_node<Type>::node_type::e_vovoc:
                     return compile_left_impl<typename vovoc_t::sf3_type_node, ExternalType, vtype,
                                              vtype, ctype>(expr_gen, id, t, sf3node, result);
 
-                case details::expression_node<Type>::e_vovov:
+                case details::expression_node<Type>::node_type::e_vovov:
                     return compile_left_impl<typename vovov_t::sf3_type_node, ExternalType, vtype,
                                              vtype, vtype>(expr_gen, id, t, sf3node, result);
 
@@ -19653,7 +19673,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
 
                 parser_->set_error(parser_error::make_error(
-                    parser_error::e_parser, token_t(),
+                    parser_error::error_mode::e_parser, token_t(),
                     "ERR281 - Failed to synthesize node: NodeType", math_expr_error_location));
 
                 details::free_node(*node_allocator_, expression_point);
@@ -19741,8 +19761,9 @@ template <typename T> class parser : public lexer::parser_helper
 
             math_expr_debug(("register_local_vars() - se[%s]\n", se.name.c_str()));
 
-            if ((scope_element::e_variable == se.type) || (scope_element::e_literal == se.type) ||
-                (scope_element::e_vecelem == se.type))
+            if ((scope_element::element_type::e_variable == se.type) ||
+                (scope_element::element_type::e_literal == se.type) ||
+                (scope_element::element_type::e_vecelem == se.type))
             {
                 if (se.var_node)
                 {
@@ -19754,7 +19775,7 @@ template <typename T> class parser : public lexer::parser_helper
                     e.register_local_data(se.data, 1, 0);
                 }
             }
-            else if (scope_element::e_vector == se.type)
+            else if (scope_element::element_type::e_vector == se.type)
             {
                 if (se.vec_node)
                 {
@@ -19767,7 +19788,7 @@ template <typename T> class parser : public lexer::parser_helper
                 }
             }
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            else if (scope_element::e_string == se.type)
+            else if (scope_element::element_type::e_string == se.type)
             {
                 if (se.str_node)
                 {
@@ -20131,7 +20152,7 @@ template <typename T> class parser : public lexer::parser_helper
         if (max_local_vector_size_bytes > settings_.max_total_local_symbol_size_bytes())
         {
             set_error(make_error(
-                parser_error::e_parser,
+                parser_error::error_mode::e_parser,
                 "ERR282 - Max local vector size of " + core::to_str(max_local_vector_size_bytes) +
                     " bytes "
                     "is larger than max total local symbol size of " +

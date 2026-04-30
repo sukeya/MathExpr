@@ -74,7 +74,7 @@ template <typename T> struct add_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_add;
+        return expression_node<T>::node_type::e_add;
     }
     static inline core::operators::operator_type operation()
     {
@@ -101,7 +101,7 @@ template <typename T> struct mul_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_mul;
+        return expression_node<T>::node_type::e_mul;
     }
     static inline core::operators::operator_type operation()
     {
@@ -128,7 +128,7 @@ template <typename T> struct sub_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_sub;
+        return expression_node<T>::node_type::e_sub;
     }
     static inline core::operators::operator_type operation()
     {
@@ -155,7 +155,7 @@ template <typename T> struct div_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_div;
+        return expression_node<T>::node_type::e_div;
     }
     static inline core::operators::operator_type operation()
     {
@@ -178,7 +178,7 @@ template <typename T> struct mod_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_mod;
+        return expression_node<T>::node_type::e_mod;
     }
     static inline core::operators::operator_type operation()
     {
@@ -201,7 +201,7 @@ template <typename T> struct pow_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_pow;
+        return expression_node<T>::node_type::e_pow;
     }
     static inline core::operators::operator_type operation()
     {
@@ -223,7 +223,7 @@ template <typename T> struct lt_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_lt;
+        return expression_node<T>::node_type::e_lt;
     }
     static inline core::operators::operator_type operation()
     {
@@ -245,7 +245,7 @@ template <typename T> struct lte_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_lte;
+        return expression_node<T>::node_type::e_lte;
     }
     static inline core::operators::operator_type operation()
     {
@@ -267,7 +267,7 @@ template <typename T> struct gt_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_gt;
+        return expression_node<T>::node_type::e_gt;
     }
     static inline core::operators::operator_type operation()
     {
@@ -289,7 +289,7 @@ template <typename T> struct gte_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_gte;
+        return expression_node<T>::node_type::e_gte;
     }
     static inline core::operators::operator_type operation()
     {
@@ -310,7 +310,7 @@ template <typename T> struct eq_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_eq;
+        return expression_node<T>::node_type::e_eq;
     }
     static inline core::operators::operator_type operation()
     {
@@ -332,7 +332,7 @@ template <typename T> struct equal_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_eq;
+        return expression_node<T>::node_type::e_eq;
     }
     static inline core::operators::operator_type operation()
     {
@@ -354,7 +354,7 @@ template <typename T> struct ne_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_ne;
+        return expression_node<T>::node_type::e_ne;
     }
     static inline core::operators::operator_type operation()
     {
@@ -372,7 +372,7 @@ template <typename T> struct and_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_and;
+        return expression_node<T>::node_type::e_and;
     }
     static inline core::operators::operator_type operation()
     {
@@ -390,7 +390,7 @@ template <typename T> struct nand_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_nand;
+        return expression_node<T>::node_type::e_nand;
     }
     static inline core::operators::operator_type operation()
     {
@@ -408,7 +408,7 @@ template <typename T> struct or_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_or;
+        return expression_node<T>::node_type::e_or;
     }
     static inline core::operators::operator_type operation()
     {
@@ -426,7 +426,7 @@ template <typename T> struct nor_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_nor;
+        return expression_node<T>::node_type::e_nor;
     }
     static inline core::operators::operator_type operation()
     {
@@ -444,7 +444,7 @@ template <typename T> struct xor_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_nor;
+        return expression_node<T>::node_type::e_nor;
     }
     static inline core::operators::operator_type operation()
     {
@@ -462,7 +462,7 @@ template <typename T> struct xnor_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_nor;
+        return expression_node<T>::node_type::e_nor;
     }
     static inline core::operators::operator_type operation()
     {
@@ -484,7 +484,7 @@ template <typename T> struct in_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_in;
+        return expression_node<T>::node_type::e_in;
     }
     static inline core::operators::operator_type operation()
     {
@@ -506,7 +506,7 @@ template <typename T> struct like_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_like;
+        return expression_node<T>::node_type::e_like;
     }
     static inline core::operators::operator_type operation()
     {
@@ -528,7 +528,7 @@ template <typename T> struct ilike_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_ilike;
+        return expression_node<T>::node_type::e_ilike;
     }
     static inline core::operators::operator_type operation()
     {
@@ -550,7 +550,7 @@ template <typename T> struct inrange_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::e_inranges;
+        return expression_node<T>::node_type::e_inranges;
     }
     static inline core::operators::operator_type operation()
     {
@@ -1503,7 +1503,7 @@ template <typename T> class uvouv_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_uvouv;
+        return expression_node<T>::node_type::e_uvouv;
     }
 
     inline const T& v0()
@@ -1601,14 +1601,7 @@ template <typename T, typename Operation> class unary_branch_node final : public
     branch_t branch_;
 };
 
-template <typename T>
-inline constexpr bool is_const_ref_v =
-    std::is_lvalue_reference_v<T> && std::is_const_v<std::remove_reference_t<T>>;
-
-// Preserve the legacy is_ref semantics: true only for non-const lvalue references.
-template <typename T>
-inline constexpr bool is_ref_v =
-    std::is_lvalue_reference_v<T> && !std::is_const_v<std::remove_reference_t<T>>;
+template <typename T> inline constexpr bool is_variable_param_v = std::is_lvalue_reference_v<T>;
 
 template <std::size_t State> struct param_to_str
 {
@@ -1628,7 +1621,7 @@ template <> struct param_to_str<0>
     }
 };
 
-#define math_expr_crtype(Type) param_to_str<is_const_ref_v<Type> ? 0 : 1>::result()
+#define math_expr_crtype(Type) param_to_str<is_variable_param_v<Type> ? 1 : 0>::result()
 
 template <typename T> struct T0oT1oT2process
 {
@@ -1775,7 +1768,7 @@ template <typename T, typename T0, typename T1> struct nodetype_T0oT1
 };
 template <typename T, typename T0, typename T1>
 const typename expression_node<T>::node_type nodetype_T0oT1<T, T0, T1>::result =
-    expression_node<T>::e_none;
+    expression_node<T>::node_type::e_none;
 
 #define synthesis_node_type_define(T0_, T1_, v_)                                                   \
     template <typename T, typename T0, typename T1> struct nodetype_T0oT1<T, T0_, T1_>             \
@@ -1784,7 +1777,7 @@ const typename expression_node<T>::node_type nodetype_T0oT1<T, T0, T1>::result =
     };                                                                                             \
     template <typename T, typename T0, typename T1>                                                \
     const typename expression_node<T>::node_type nodetype_T0oT1<T, T0_, T1_>::result =             \
-        expression_node<T>::v_;
+        expression_node<T>::node_type::v_;
 
 synthesis_node_type_define(const T0&, const T1&, e_vov)
     synthesis_node_type_define(const T0&, const T1, e_voc)
@@ -1804,7 +1797,7 @@ synthesis_node_type_define(const T0&, const T1&, e_vov)
 };
 template <typename T, typename T0, typename T1, typename T2>
 const typename expression_node<T>::node_type nodetype_T0oT1oT2<T, T0, T1, T2>::result =
-    expression_node<T>::e_none;
+    expression_node<T>::node_type::e_none;
 
 #define synthesis_node_type_define(T0_, T1_, T2_, v_)                                              \
     template <typename T, typename T0, typename T1, typename T2>                                   \
@@ -1814,7 +1807,7 @@ const typename expression_node<T>::node_type nodetype_T0oT1oT2<T, T0, T1, T2>::r
     };                                                                                             \
     template <typename T, typename T0, typename T1, typename T2>                                   \
     const typename expression_node<T>::node_type nodetype_T0oT1oT2<T, T0_, T1_, T2_>::result =     \
-        expression_node<T>::v_;
+        expression_node<T>::node_type::v_;
 
 synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
     synthesis_node_type_define(const T0&, const T1&, const T2, e_vovoc) synthesis_node_type_define(
@@ -1835,7 +1828,7 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
 };
 template <typename T, typename T0, typename T1, typename T2, typename T3>
 const typename expression_node<T>::node_type nodetype_T0oT1oT2oT3<T, T0, T1, T2, T3>::result =
-    expression_node<T>::e_none;
+    expression_node<T>::node_type::e_none;
 
 #define synthesis_node_type_define(T0_, T1_, T2_, T3_, v_)                                         \
     template <typename T, typename T0, typename T1, typename T2, typename T3>                      \
@@ -1845,7 +1838,7 @@ const typename expression_node<T>::node_type nodetype_T0oT1oT2oT3<T, T0, T1, T2,
     };                                                                                             \
     template <typename T, typename T0, typename T1, typename T2, typename T3>                      \
     const typename expression_node<T>::node_type                                                   \
-        nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>::result = expression_node<T>::v_;
+        nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>::result = expression_node<T>::node_type::v_;
 
 synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
                            e_vovovov) synthesis_node_type_define(const T0&, const T1&, const T2&,
@@ -2271,15 +2264,15 @@ template <typename T> inline bool is_sf3ext_node(const expression_node<T>* n)
 {
     switch (n->type())
     {
-    case expression_node<T>::e_vovov:
+    case expression_node<T>::node_type::e_vovov:
         return true;
-    case expression_node<T>::e_vovoc:
+    case expression_node<T>::node_type::e_vovoc:
         return true;
-    case expression_node<T>::e_vocov:
+    case expression_node<T>::node_type::e_vocov:
         return true;
-    case expression_node<T>::e_covov:
+    case expression_node<T>::node_type::e_covov:
         return true;
-    case expression_node<T>::e_covoc:
+    case expression_node<T>::node_type::e_covoc:
         return true;
     default:
         return false;
@@ -2442,23 +2435,23 @@ template <typename T> inline bool is_sf4ext_node(const expression_node<T>* n)
 {
     switch (n->type())
     {
-    case expression_node<T>::e_vovovov:
+    case expression_node<T>::node_type::e_vovovov:
         return true;
-    case expression_node<T>::e_vovovoc:
+    case expression_node<T>::node_type::e_vovovoc:
         return true;
-    case expression_node<T>::e_vovocov:
+    case expression_node<T>::node_type::e_vovocov:
         return true;
-    case expression_node<T>::e_vocovov:
+    case expression_node<T>::node_type::e_vocovov:
         return true;
-    case expression_node<T>::e_covovov:
+    case expression_node<T>::node_type::e_covovov:
         return true;
-    case expression_node<T>::e_covocov:
+    case expression_node<T>::node_type::e_covocov:
         return true;
-    case expression_node<T>::e_vocovoc:
+    case expression_node<T>::node_type::e_vocovoc:
         return true;
-    case expression_node<T>::e_covovoc:
+    case expression_node<T>::node_type::e_covovoc:
         return true;
-    case expression_node<T>::e_vococov:
+    case expression_node<T>::node_type::e_vococov:
         return true;
     default:
         return false;
@@ -3245,7 +3238,7 @@ template <typename T, typename PowOp> class ipow_node final : public expression_
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_ipow;
+        return expression_node<T>::node_type::e_ipow;
     }
 
   private:
@@ -3275,7 +3268,7 @@ template <typename T, typename PowOp> class bipow_node final : public expression
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_ipow;
+        return expression_node<T>::node_type::e_ipow;
     }
 
     inline bool valid() const override
@@ -3315,7 +3308,7 @@ template <typename T, typename PowOp> class ipowinv_node final : public expressi
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_ipowinv;
+        return expression_node<T>::node_type::e_ipowinv;
     }
 
   private:
@@ -3345,7 +3338,7 @@ template <typename T, typename PowOp> class bipowinv_node final : public express
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_ipowinv;
+        return expression_node<T>::node_type::e_ipowinv;
     }
 
     inline bool valid() const override
@@ -3412,57 +3405,57 @@ template <typename T> inline bool is_uv_node(const expression_node<T>* node)
 
 template <typename T> inline bool is_string_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_stringvar == node->type());
+    return node && (expression_node<T>::node_type::e_stringvar == node->type());
 }
 
 template <typename T> inline bool is_string_range_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_stringvarrng == node->type());
+    return node && (expression_node<T>::node_type::e_stringvarrng == node->type());
 }
 
 template <typename T> inline bool is_const_string_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_stringconst == node->type());
+    return node && (expression_node<T>::node_type::e_stringconst == node->type());
 }
 
 template <typename T> inline bool is_const_string_range_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_cstringvarrng == node->type());
+    return node && (expression_node<T>::node_type::e_cstringvarrng == node->type());
 }
 
 template <typename T> inline bool is_string_assignment_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_strass == node->type());
+    return node && (expression_node<T>::node_type::e_strass == node->type());
 }
 
 template <typename T> inline bool is_string_concat_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_strconcat == node->type());
+    return node && (expression_node<T>::node_type::e_strconcat == node->type());
 }
 
 template <typename T> inline bool is_string_function_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_strfunction == node->type());
+    return node && (expression_node<T>::node_type::e_strfunction == node->type());
 }
 
 template <typename T> inline bool is_string_condition_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_strcondition == node->type());
+    return node && (expression_node<T>::node_type::e_strcondition == node->type());
 }
 
 template <typename T> inline bool is_string_ccondition_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_strccondition == node->type());
+    return node && (expression_node<T>::node_type::e_strccondition == node->type());
 }
 
 template <typename T> inline bool is_string_vararg_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_stringvararg == node->type());
+    return node && (expression_node<T>::node_type::e_stringvararg == node->type());
 }
 
 template <typename T> inline bool is_genricstring_range_node(const expression_node<T>* node)
 {
-    return node && (expression_node<T>::e_strgenrange == node->type());
+    return node && (expression_node<T>::node_type::e_strgenrange == node->type());
 }
 
 template <typename T> inline bool is_generally_string_node(const expression_node<T>* node)
@@ -3471,17 +3464,17 @@ template <typename T> inline bool is_generally_string_node(const expression_node
     {
         switch (node->type())
         {
-        case expression_node<T>::e_stringvar:
-        case expression_node<T>::e_stringconst:
-        case expression_node<T>::e_stringvarrng:
-        case expression_node<T>::e_cstringvarrng:
-        case expression_node<T>::e_strgenrange:
-        case expression_node<T>::e_strass:
-        case expression_node<T>::e_strconcat:
-        case expression_node<T>::e_strfunction:
-        case expression_node<T>::e_strcondition:
-        case expression_node<T>::e_strccondition:
-        case expression_node<T>::e_stringvararg:
+        case expression_node<T>::node_type::e_stringvar:
+        case expression_node<T>::node_type::e_stringconst:
+        case expression_node<T>::node_type::e_stringvarrng:
+        case expression_node<T>::node_type::e_cstringvarrng:
+        case expression_node<T>::node_type::e_strgenrange:
+        case expression_node<T>::node_type::e_strass:
+        case expression_node<T>::node_type::e_strconcat:
+        case expression_node<T>::node_type::e_strfunction:
+        case expression_node<T>::node_type::e_strcondition:
+        case expression_node<T>::node_type::e_strccondition:
+        case expression_node<T>::node_type::e_stringvararg:
             return true;
         default:
             return false;
@@ -3497,9 +3490,9 @@ template <typename T> inline bool is_loop_node(const expression_node<T>* node)
     {
         switch (node->type())
         {
-        case expression_node<T>::e_for:
-        case expression_node<T>::e_repeat:
-        case expression_node<T>::e_while:
+        case expression_node<T>::node_type::e_for:
+        case expression_node<T>::node_type::e_repeat:
+        case expression_node<T>::node_type::e_while:
             return true;
         default:
             return false;
@@ -3520,10 +3513,10 @@ template <typename T> inline bool is_block_node(const expression_node<T>* node)
 
         switch (node->type())
         {
-        case expression_node<T>::e_conditional:
-        case expression_node<T>::e_mswitch:
-        case expression_node<T>::e_switch:
-        case expression_node<T>::e_vararg:
+        case expression_node<T>::node_type::e_conditional:
+        case expression_node<T>::node_type::e_mswitch:
+        case expression_node<T>::node_type::e_switch:
+        case expression_node<T>::node_type::e_vararg:
             return true;
         default:
             return false;

@@ -50,7 +50,7 @@ struct loop_runtime_check
         e_all_loops = 7
     };
 
-    enum violation_type
+    enum class violation_type
     {
         e_unknown = 0,
         e_iteration_count = 1,

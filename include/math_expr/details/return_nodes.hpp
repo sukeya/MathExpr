@@ -91,7 +91,7 @@ template <typename T> class return_node final : public generic_function_node<T, 
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_return;
+        return expression_node<T>::node_type::e_return;
     }
 
     inline bool valid() const override
@@ -149,7 +149,7 @@ template <typename T> class return_envelope_node final : public expression_node<
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_retenv;
+        return expression_node<T>::node_type::e_retenv;
     }
 
     inline bool valid() const override
@@ -192,7 +192,7 @@ template <typename T> class return_envelope_node final : public expression_node<
                                                                                                    \
         static inline node_t type()                                                                \
         {                                                                                          \
-            return expression_node<T>::e_##OpName;                                                 \
+            return expression_node<T>::node_type::e_##OpName;                                      \
         }                                                                                          \
                                                                                                    \
         static inline core::operators::operator_type operation()                                   \

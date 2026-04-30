@@ -92,7 +92,7 @@ class const_string_range_node final : public expression_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_cstringvarrng;
+        return expression_node<T>::node_type::e_cstringvarrng;
     }
 
   private:

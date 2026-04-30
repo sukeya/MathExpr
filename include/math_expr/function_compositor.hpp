@@ -245,11 +245,11 @@ template <typename T> class function_compositor
 
                 switch (ldl[i].type)
                 {
-                case ctrlblk_t::e_unknown:
+                case ctrlblk_t::data_type::e_unknown:
                     continue;
-                case ctrlblk_t::e_expr:
+                case ctrlblk_t::data_type::e_expr:
                     continue;
-                case ctrlblk_t::e_vecholder:
+                case ctrlblk_t::data_type::e_vecholder:
                     continue;
                 default:
                     break;
@@ -272,12 +272,12 @@ template <typename T> class function_compositor
 
                 if (i < (index_list.size() - v.size()))
                 {
-                    if (local_var.type == ctrlblk_t::e_string)
+                    if (local_var.type == ctrlblk_t::data_type::e_string)
                     {
                         local_str_vars.push_back(reinterpret_cast<std::string*>(local_var.pointer));
                     }
-                    else if ((local_var.type == ctrlblk_t::e_data) ||
-                             (local_var.type == ctrlblk_t::e_vecdata))
+                    else if ((local_var.type == ctrlblk_t::data_type::e_data) ||
+                             (local_var.type == ctrlblk_t::data_type::e_vecdata))
                     {
                         local_vars.push_back(std::make_pair(reinterpret_cast<T*>(local_var.pointer),
                                                             local_var.size));
@@ -791,7 +791,7 @@ template <typename T> class function_compositor
         if (!valid(name, input_var_list.size()))
         {
             parser_error::type error =
-                parser_error::make_error(parser_error::e_parser, lexer::token(),
+                parser_error::make_error(parser_error::error_mode::e_parser, lexer::token(),
                                          "ERR283 - Function '" + name + "' is an invalid overload",
                                          math_expr_error_location);
 

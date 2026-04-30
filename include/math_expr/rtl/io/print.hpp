@@ -84,15 +84,15 @@ template <typename T> struct print_impl
 
             switch (gt.type)
             {
-            case generic_type::e_scalar:
+            case generic_type::store_type::e_scalar:
                 print(scalar_format, scalar_t(gt));
                 break;
 
-            case generic_type::e_vector:
+            case generic_type::store_type::e_vector:
                 print(scalar_format, vector_t(gt));
                 break;
 
-            case generic_type::e_string:
+            case generic_type::store_type::e_string:
                 print(string_t(gt));
                 break;
 

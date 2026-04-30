@@ -134,7 +134,7 @@ class assignment_string_node final : public binary_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_strass;
+        return expression_node<T>::node_type::e_strass;
     }
 
     inline bool valid() const override

@@ -66,10 +66,10 @@ for (std::size_t i = 0; i < symbol_list.size(); ++i)
 
    switch (symbol.second)
    {
-      case parser_t::e_st_variable : ... break;
-      case parser_t::e_st_vector   : ... break;
-      case parser_t::e_st_string   : ... break;
-      case parser_t::e_st_function : ... break;
+      case parser_t::symbol_type::e_st_variable : ... break;
+      case parser_t::symbol_type::e_st_vector   : ... break;
+      case parser_t::symbol_type::e_st_string   : ... break;
+      case parser_t::symbol_type::e_st_function : ... break;
    }
 }
 ```
@@ -109,9 +109,9 @@ for (std::size_t i = 0; i < symbol_list.size(); ++i)
 
    switch (symbol.second)
    {
-      case parser_t::e_st_variable : ... break;
-      case parser_t::e_st_vector   : ... break;
-      case parser_t::e_st_string   : ... break;
+      case parser_t::symbol_type::e_st_variable : ... break;
+      case parser_t::symbol_type::e_st_vector   : ... break;
+      case parser_t::symbol_type::e_st_string   : ... break;
    }
 }
 ```

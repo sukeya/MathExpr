@@ -77,7 +77,7 @@ template <typename T> class break_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_break;
+        return expression_node<T>::node_type::e_break;
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
@@ -107,7 +107,7 @@ template <typename T> class continue_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_break;
+        return expression_node<T>::node_type::e_break;
     }
 };
 #endif
@@ -138,7 +138,7 @@ struct loop_runtime_checker
 
         loop_runtime_check::violation_context ctxt;
         ctxt.loop = loop_type_;
-        ctxt.violation = loop_runtime_check::e_iteration_count;
+        ctxt.violation = loop_runtime_check::violation_type::e_iteration_count;
 
         loop_runtime_check_->handle_runtime_violation(ctxt);
 
@@ -183,7 +183,7 @@ template <typename T> class while_loop_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_while;
+        return expression_node<T>::node_type::e_while;
     }
 
     inline bool valid() const override
@@ -273,7 +273,7 @@ template <typename T> class repeat_until_loop_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_repeat;
+        return expression_node<T>::node_type::e_repeat;
     }
 
     inline bool valid() const override
@@ -380,7 +380,7 @@ template <typename T> class for_loop_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_for;
+        return expression_node<T>::node_type::e_for;
     }
 
     inline bool valid() const override
@@ -812,7 +812,7 @@ template <typename T> class switch_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override final
     {
-        return expression_node<T>::e_switch;
+        return expression_node<T>::node_type::e_switch;
     }
 
     inline bool valid() const override
@@ -903,7 +903,7 @@ template <typename T> class multi_switch_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_mswitch;
+        return expression_node<T>::node_type::e_mswitch;
     }
 
     inline bool valid() const override

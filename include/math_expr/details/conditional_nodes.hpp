@@ -63,7 +63,7 @@ template <typename T> class conditional_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_conditional;
+        return expression_node<T>::node_type::e_conditional;
     }
 
     inline bool valid() const override
@@ -114,7 +114,7 @@ template <typename T> class cons_conditional_node final : public expression_node
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_conditional;
+        return expression_node<T>::node_type::e_conditional;
     }
 
     inline bool valid() const override

@@ -41,7 +41,7 @@ namespace math_expr
 template <typename T> class expression_helper
 {
   public:
-    enum node_types
+    enum class node_types
     {
         e_literal,
         e_variable,
@@ -120,25 +120,25 @@ template <typename T> class expression_helper
 
         switch (node_type)
         {
-        case e_literal:
+        case node_types::e_literal:
             return is_literal_node(expr);
-        case e_variable:
+        case node_types::e_variable:
             return is_variable(expr);
-        case e_string:
+        case node_types::e_string:
             return is_string(expr);
-        case e_unary:
+        case node_types::e_unary:
             return is_unary(expr);
-        case e_binary:
+        case node_types::e_binary:
             return is_binary(expr);
-        case e_function:
+        case node_types::e_function:
             return is_function(expr);
-        case e_null:
+        case node_types::e_null:
             return is_null(expr);
-        case e_assert:
+        case node_types::e_assert:
             return is_assert(expr);
-        case e_sf3ext:
+        case node_types::e_sf3ext:
             return is_sf3ext(expr);
-        case e_sf4ext:
+        case node_types::e_sf4ext:
             return is_sf4ext(expr);
         };
 
@@ -168,67 +168,67 @@ template <typename T> class expression_helper
 
             switch (type_seq[i])
             {
-            case e_literal:
+            case node_types::e_literal:
             {
                 if (details::is_literal_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_variable:
+            case node_types::e_variable:
             {
                 if (details::is_variable_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_string:
+            case node_types::e_string:
             {
                 if (details::is_generally_string_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_unary:
+            case node_types::e_unary:
             {
                 if (details::is_unary_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_binary:
+            case node_types::e_binary:
             {
                 if (details::is_binary_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_function:
+            case node_types::e_function:
             {
                 if (details::is_function((*vnode)[i]))
                     continue;
             }
             break;
-            case e_null:
+            case node_types::e_null:
             {
                 if (details::is_null_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_assert:
+            case node_types::e_assert:
             {
                 if (details::is_assert_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_sf3ext:
+            case node_types::e_sf3ext:
             {
                 if (details::is_sf3ext_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_sf4ext:
+            case node_types::e_sf4ext:
             {
                 if (details::is_sf4ext_node((*vnode)[i]))
                     continue;
             }
             break;
-            case e_vararg:
+            case node_types::e_vararg:
                 break;
             }
 

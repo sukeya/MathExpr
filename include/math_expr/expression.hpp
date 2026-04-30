@@ -50,7 +50,7 @@ template <typename T> class expression
 
     struct control_block
     {
-        enum data_type
+        enum class data_type
         {
             e_unknown,
             e_expr,
@@ -64,17 +64,17 @@ template <typename T> class expression
         {
             switch (dt)
             {
-            case e_unknown:
+            case data_type::e_unknown:
                 return "e_unknown  ";
-            case e_expr:
+            case data_type::e_expr:
                 return "e_expr";
-            case e_vecholder:
+            case data_type::e_vecholder:
                 return "e_vecholder";
-            case e_data:
+            case data_type::e_data:
                 return "e_data";
-            case e_vecdata:
+            case data_type::e_vecdata:
                 return "e_vecdata";
-            case e_string:
+            case data_type::e_string:
                 return "e_string";
             }
 
@@ -83,7 +83,7 @@ template <typename T> class expression
 
         struct data_pack
         {
-            data_pack() : pointer(0), type(e_unknown), size(0) {}
+            data_pack() : pointer(0), type(data_type::e_unknown), size(0) {}
 
             data_pack(void* ptr, const data_type dt, const std::size_t sz = 0)
                 : pointer(ptr), type(dt), size(sz)
@@ -122,23 +122,23 @@ template <typename T> class expression
                 {
                     switch (local_data_list[i].type)
                     {
-                    case e_expr:
+                    case data_type::e_expr:
                         delete reinterpret_cast<expression_ptr>(local_data_list[i].pointer);
                         break;
 
-                    case e_vecholder:
+                    case data_type::e_vecholder:
                         delete reinterpret_cast<vector_holder_ptr>(local_data_list[i].pointer);
                         break;
 
-                    case e_data:
+                    case data_type::e_data:
                         delete reinterpret_cast<T*>(local_data_list[i].pointer);
                         break;
 
-                    case e_vecdata:
+                    case data_type::e_vecdata:
                         delete[] reinterpret_cast<T*>(local_data_list[i].pointer);
                         break;
 
-                    case e_string:
+                    case data_type::e_string:
                         delete reinterpret_cast<std::string*>(local_data_list[i].pointer);
                         break;
 
@@ -347,8 +347,8 @@ template <typename T> class expression
             if (control_block_)
             {
                 control_block_->local_data_list.push_back(
-                    typename expression<T>::control_block::data_pack(reinterpret_cast<void*>(expr),
-                                                                     control_block::e_expr));
+                    typename expression<T>::control_block::data_pack(
+                        reinterpret_cast<void*>(expr), control_block::data_type::e_expr));
             }
         }
     }
@@ -361,7 +361,8 @@ template <typename T> class expression
             {
                 control_block_->local_data_list.push_back(
                     typename expression<T>::control_block::data_pack(
-                        reinterpret_cast<void*>(vec_holder), control_block::e_vecholder));
+                        reinterpret_cast<void*>(vec_holder),
+                        control_block::data_type::e_vecholder));
             }
         }
     }
@@ -373,18 +374,18 @@ template <typename T> class expression
         {
             if (control_block_)
             {
-                typename control_block::data_type dt = control_block::e_data;
+                typename control_block::data_type dt = control_block::data_type::e_data;
 
                 switch (data_mode)
                 {
                 case 0:
-                    dt = control_block::e_data;
+                    dt = control_block::data_type::e_data;
                     break;
                 case 1:
-                    dt = control_block::e_vecdata;
+                    dt = control_block::data_type::e_vecdata;
                     break;
                 case 2:
-                    dt = control_block::e_string;
+                    dt = control_block::data_type::e_string;
                     break;
                 }
 

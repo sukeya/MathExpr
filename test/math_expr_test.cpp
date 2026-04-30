@@ -4154,11 +4154,11 @@ template <typename T> bool run_test10()
 
         std::deque<symbol_t> expected_symbol_list;
 
-        expected_symbol_list.push_back(symbol_t("a", parser_t::e_st_variable));
-        expected_symbol_list.push_back(symbol_t("b", parser_t::e_st_variable));
-        expected_symbol_list.push_back(symbol_t("c", parser_t::e_st_variable));
-        expected_symbol_list.push_back(symbol_t("e", parser_t::e_st_string));
-        expected_symbol_list.push_back(symbol_t("sin", parser_t::e_st_function));
+        expected_symbol_list.push_back(symbol_t("a", parser_t::symbol_type::e_st_variable));
+        expected_symbol_list.push_back(symbol_t("b", parser_t::symbol_type::e_st_variable));
+        expected_symbol_list.push_back(symbol_t("c", parser_t::symbol_type::e_st_variable));
+        expected_symbol_list.push_back(symbol_t("e", parser_t::symbol_type::e_st_string));
+        expected_symbol_list.push_back(symbol_t("sin", parser_t::symbol_type::e_st_function));
 
         bool result =
             (symbol_list.size() == expected_symbol_list.size()) &&
@@ -4217,10 +4217,10 @@ template <typename T> bool run_test10()
 
         std::deque<symbol_t> expected_assignment_list;
 
-        expected_assignment_list.push_back(symbol_t("a", parser_t::e_st_variable));
-        expected_assignment_list.push_back(symbol_t("b", parser_t::e_st_variable));
-        expected_assignment_list.push_back(symbol_t("c", parser_t::e_st_variable));
-        expected_assignment_list.push_back(symbol_t("e", parser_t::e_st_string));
+        expected_assignment_list.push_back(symbol_t("a", parser_t::symbol_type::e_st_variable));
+        expected_assignment_list.push_back(symbol_t("b", parser_t::symbol_type::e_st_variable));
+        expected_assignment_list.push_back(symbol_t("c", parser_t::symbol_type::e_st_variable));
+        expected_assignment_list.push_back(symbol_t("e", parser_t::symbol_type::e_st_string));
 
         bool result = (variable_list.size() == expected_assignment_list.size()) &&
                       std::equal(variable_list.begin(), variable_list.end(),
@@ -6120,15 +6120,15 @@ template <typename T> struct gen_func math_expr_test_final : public math_expr::i
 
             switch (gt.type)
             {
-            case generic_type::e_scalar:
+            case generic_type::store_type::e_scalar:
                 scalar_count++;
                 break;
 
-            case generic_type::e_vector:
+            case generic_type::store_type::e_vector:
                 vector_count++;
                 break;
 
-            case generic_type::e_string:
+            case generic_type::store_type::e_string:
             {
                 if (("CdEf" != math_expr::to_str(string_t(gt))) &&
                     ("abc123" != math_expr::to_str(string_t(gt))))
@@ -6193,14 +6193,14 @@ template <typename T> struct inc_func math_expr_test_final : public math_expr::i
 
             switch (gt.type)
             {
-            case generic_type::e_scalar:
+            case generic_type::store_type::e_scalar:
             {
                 scalar_t scalar(gt);
                 scalar() += T(1);
             }
             break;
 
-            case generic_type::e_vector:
+            case generic_type::store_type::e_vector:
             {
                 vector_t vector(gt);
 
@@ -6211,7 +6211,7 @@ template <typename T> struct inc_func math_expr_test_final : public math_expr::i
             }
             break;
 
-            case generic_type::e_string:
+            case generic_type::store_type::e_string:
             {
                 string_t string(gt);
 
@@ -6246,7 +6246,7 @@ struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric
 
     using math_expr::igeneric_function<T>::operator();
 
-    rem_space_and_uppercase() : igenfunc_t("S", igenfunc_t::e_rtrn_string) {}
+    rem_space_and_uppercase() : igenfunc_t("S", igenfunc_t::return_type::e_rtrn_string) {}
 
     inline T operator()(std::string& result, parameter_list_t params) math_expr_test_override
     {
@@ -6337,7 +6337,7 @@ template <typename T> struct overload_func math_expr_test_final : math_expr::ige
     using math_expr::igeneric_function<T>::operator();
 
     overload_func(const std::string& param_seq_list)
-        : math_expr::igeneric_function<T>(param_seq_list, igfun_t::e_rtrn_overload),
+        : math_expr::igeneric_function<T>(param_seq_list, igfun_t::return_type::e_rtrn_overload),
           current_ps_index(std::numeric_limits<std::size_t>::max())
     {
         clear();
@@ -6376,15 +6376,15 @@ template <typename T> struct overload_func math_expr_test_final : math_expr::ige
 
             switch (gt.type)
             {
-            case generic_type::e_scalar:
+            case generic_type::store_type::e_scalar:
                 current_param_seq += "T";
                 break;
 
-            case generic_type::e_vector:
+            case generic_type::store_type::e_vector:
                 current_param_seq += "V";
                 break;
 
-            case generic_type::e_string:
+            case generic_type::store_type::e_string:
                 current_param_seq += "S";
                 break;
 
@@ -8498,7 +8498,9 @@ struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T
     typedef typename igenfunct_t::parameter_list_t parameter_list_t;
     typedef typename generic_t::scalar_view scalar_t;
 
-    depth_to_str() : math_expr::igeneric_function<T>("T", igenfunct_t::e_rtrn_string) {}
+    depth_to_str() : math_expr::igeneric_function<T>("T", igenfunct_t::return_type::e_rtrn_string)
+    {
+    }
 
     using igenfunct_t::operator();
 
@@ -9684,7 +9686,7 @@ struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol
     {
         if (unknown_symbol[0] == 'v')
         {
-            st = usr_t::e_usr_variable_type;
+            st = usr_t::usr_symbol_type::e_usr_variable_type;
             default_value = next_value();
             error_message.clear();
 
@@ -9692,7 +9694,7 @@ struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol
         }
         else if (unknown_symbol[0] == 'c')
         {
-            st = usr_t::e_usr_constant_type;
+            st = usr_t::usr_symbol_type::e_usr_constant_type;
             default_value = next_value();
             error_message.clear();
 
@@ -9724,7 +9726,7 @@ struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_sy
 
     using usr_t::process;
 
-    my_usr_ext() : usr_t(usr_t::e_usrmode_extended) {}
+    my_usr_ext() : usr_t(usr_t::usr_mode::e_usrmode_extended) {}
 
     bool process(const std::string& unknown_symbol, symbol_table_t& symbol_table,
                  std::string& error_message) math_expr_test_override
@@ -10111,15 +10113,15 @@ inline std::string results_to_string(const math_expr::results_context<T>& result
 
         switch (t.type)
         {
-        case type_t::e_scalar:
+        case type_t::store_type::e_scalar:
             res_str += 'T';
             break;
 
-        case type_t::e_vector:
+        case type_t::store_type::e_vector:
             res_str += 'V';
             break;
 
-        case type_t::e_string:
+        case type_t::store_type::e_string:
             res_str += 'S';
             break;
 
@@ -10140,7 +10142,7 @@ inline bool result_equal(const math_expr::results_context<T>& results, const T& 
 
     if (1 != results.count())
         return false;
-    else if (type_t::e_scalar != results[0].type)
+    else if (type_t::store_type::e_scalar != results[0].type)
         return false;
     else
         return (value == scalar_t(results[0])());
@@ -10520,7 +10522,8 @@ template <typename T> bool run_test21()
         for (std::size_t i = 0; i < invalid_expressions_size; ++i)
         {
             symbol_table_t mutable_symbol_table;
-            symbol_table_t immutable_symbol_table(symbol_table_t::e_immutable);
+            symbol_table_t immutable_symbol_table(
+                symbol_table_t::symtab_mutability_type::e_immutable);
 
             T x = 0.0;
             T v[5];
@@ -10572,7 +10575,7 @@ template <typename T> bool run_test21()
         T w = 4.4;
 
         symbol_table_t mutable_symbol_table;
-        symbol_table_t immutable_symbol_table(symbol_table_t::e_immutable);
+        symbol_table_t immutable_symbol_table(symbol_table_t::symtab_mutability_type::e_immutable);
 
         mutable_symbol_table.add_variable("x", x);
         mutable_symbol_table.add_variable("y", y);
@@ -11666,7 +11669,8 @@ template <typename T> bool run_test21()
                     continue;
                 }
 
-                if (results[0].type != math_expr::results_context<T>::type_store_t::e_vector)
+                if (results[0].type !=
+                    math_expr::results_context<T>::type_store_t::store_type::e_vector)
                 {
                     printf("run_test21() - Error: expected vector type for return value for "
                            "expression: %s\n",
@@ -11840,7 +11844,8 @@ template <typename T> bool run_test21()
                     continue;
                 }
 
-                if (results[0].type != math_expr::results_context<T>::type_store_t::e_vector)
+                if (results[0].type !=
+                    math_expr::results_context<T>::type_store_t::store_type::e_vector)
                 {
                     printf("run_test21() - Error: expected vector type for return value for "
                            "expression: %s\n",
@@ -12007,12 +12012,12 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12068,8 +12073,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_literal);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_literal);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12125,8 +12130,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_literal);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_literal);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12182,8 +12187,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_string);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_string);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12244,8 +12249,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_string);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_string);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12394,12 +12399,12 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12463,8 +12468,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_literal);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_literal);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12528,8 +12533,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_literal);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_literal);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12593,8 +12598,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_string);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_string);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12663,8 +12668,8 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_string);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_string);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12720,13 +12725,13 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_literal);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_literal);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12782,13 +12787,13 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_string);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_string);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12852,13 +12857,13 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_sf3ext);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_sf3ext);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
@@ -12927,13 +12932,13 @@ template <typename T> bool run_test22()
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
             typedef typename math_expr::expression_helper<T> et_t;
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_assert);
-            type_sequence.push_back(et_t::e_string);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_assert);
+            type_sequence.push_back(et_t::node_types::e_string);
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {

@@ -73,7 +73,7 @@ template <typename T> void compute_european_option_implied_volatility()
 
     std::string callput_flag;
 
-    symbol_table_t symbol_table(symbol_table_t::e_immutable);
+    symbol_table_t symbol_table(symbol_table_t::symtab_mutability_type::e_immutable);
     symbol_table.add_variable("s", s);
     symbol_table.add_variable("k", k);
     symbol_table.add_variable("t", t);

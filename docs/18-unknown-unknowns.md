@@ -124,7 +124,7 @@ struct my_usr final : public parser_t::unknown_symbol_resolver
          return false;
       }
 
-      st = usr_t::e_usr_variable_type;
+      st = usr_t::usr_symbol_type::e_usr_variable_type;
       default_value = T(123.123);
 
       return true;
@@ -169,7 +169,7 @@ struct my_usr final : public parser_t::unknown_symbol_resolver
   typedef typename parser_t::unknown_symbol_resolver usr_t;
 
   my_usr()
-  : usr_t(usr_t::e_usrmode_extended)
+  : usr_t(usr_t::usr_mode::e_usrmode_extended)
   {}
 
   bool process(const std::string& unknown_symbol,

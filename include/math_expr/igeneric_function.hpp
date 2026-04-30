@@ -44,7 +44,7 @@ namespace math_expr
 template <typename T> class igeneric_function : public function_traits
 {
   public:
-    enum return_type
+    enum class return_type
     {
         e_rtrn_scalar = 0,
         e_rtrn_string = 1,
@@ -56,7 +56,7 @@ template <typename T> class igeneric_function : public function_traits
     typedef typename generic_type::parameter_list parameter_list_t;
 
     explicit igeneric_function(const std::string& param_seq = "",
-                               const return_type rtr_type = e_rtrn_scalar)
+                               const return_type rtr_type = return_type::e_rtrn_scalar)
         : parameter_sequence(param_seq), rtrn_type(rtr_type)
     {
     }

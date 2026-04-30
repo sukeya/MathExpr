@@ -57,7 +57,7 @@ template <typename T> class unary_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_unary;
+        return expression_node<T>::node_type::e_unary;
     }
 
     inline core::operators::operator_type operation()
@@ -117,7 +117,7 @@ template <typename T> class binary_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_binary;
+        return expression_node<T>::node_type::e_binary;
     }
 
     inline core::operators::operator_type operation()
@@ -173,7 +173,7 @@ template <typename T, typename Operation> class binary_ext_node final : public e
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_binary_ext;
+        return expression_node<T>::node_type::e_binary_ext;
     }
 
     inline core::operators::operator_type operation()
@@ -251,7 +251,7 @@ template <typename T> class trinary_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_trinary;
+        return expression_node<T>::node_type::e_trinary;
     }
 
     inline bool valid() const override
@@ -295,7 +295,7 @@ template <typename T> class quaternary_node : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_quaternary;
+        return expression_node<T>::node_type::e_quaternary;
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override

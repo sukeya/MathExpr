@@ -54,7 +54,7 @@ template <typename T> struct collector_helper
 
         using usr_t::process;
 
-        resolve_as_vector() : usr_t(usr_t::e_usrmode_extended) {}
+        resolve_as_vector() : usr_t(usr_t::usr_mode::e_usrmode_extended) {}
 
         virtual bool process(const std::string& unknown_symbol, symbol_table_t& symbol_table,
                              std::string&) override

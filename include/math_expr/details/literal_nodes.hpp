@@ -48,7 +48,7 @@ template <typename T> class null_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_null;
+        return expression_node<T>::node_type::e_null;
     }
 };
 
@@ -121,7 +121,7 @@ template <typename T> class null_eq_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_nulleq;
+        return expression_node<T>::node_type::e_nulleq;
     }
 
     inline expression_node<T>* branch(const std::size_t&) const override
@@ -161,7 +161,7 @@ template <typename T> class literal_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_constant;
+        return expression_node<T>::node_type::e_constant;
     }
 
     inline expression_node<T>* branch(const std::size_t&) const override
@@ -230,7 +230,7 @@ class string_literal_node final : public expression_node<T>,
 
     inline typename expression_node<T>::node_type type() const override
     {
-        return expression_node<T>::e_stringconst;
+        return expression_node<T>::node_type::e_stringconst;
     }
 
     inline expression_node<T>* branch(const std::size_t&) const override
