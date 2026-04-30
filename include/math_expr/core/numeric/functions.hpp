@@ -37,7 +37,6 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
 #include "math_expr/core/numeric/constants.hpp"
-#include <cmath>
 
 namespace math_expr::core::numeric
 {
@@ -86,52 +85,6 @@ template <typename T> inline void set_zero_value(std::vector<T>& v)
 
 namespace math_expr::core::numeric
 {
-template <typename Type> struct numeric_info
-{
-    enum
-    {
-        length = 0,
-        size = 32,
-        bound_length = 0,
-        min_exp = 0,
-        max_exp = 0
-    };
-};
-
-template <> struct numeric_info<std::int32_t>
-{
-    enum
-    {
-        length = 10,
-        size = 16,
-        bound_length = 9
-    };
-};
-template <> struct numeric_info<float>
-{
-    enum
-    {
-        min_exp = -38,
-        max_exp = +38
-    };
-};
-template <> struct numeric_info<double>
-{
-    enum
-    {
-        min_exp = -308,
-        max_exp = +308
-    };
-};
-template <> struct numeric_info<long double>
-{
-    enum
-    {
-        min_exp = -308,
-        max_exp = +308
-    };
-};
-
 template <typename T> inline std::int32_t to_int32(const T v)
 {
     details::validate_supported_real_type<T>();
@@ -1291,7 +1244,8 @@ static inline bool parse_inf(Iterator& itr, const Iterator end, T& t, const bool
 template <typename T> inline bool valid_exponent(const int exponent)
 {
     ::math_expr::core::numeric::details::validate_supported_real_type<T>();
-    return (numeric_info<T>::min_exp <= exponent) && (exponent <= numeric_info<T>::max_exp);
+    return (std::numeric_limits<T>::min_exponent10 <= exponent) &&
+           (exponent <= std::numeric_limits<T>::max_exponent10);
 }
 
 template <typename Iterator, typename T>

@@ -303,10 +303,7 @@ template <typename T> class symbol_table
         typedef typename type_map_t::iterator tm_itr_t;
         typedef typename type_map_t::const_iterator tm_const_itr_t;
 
-        enum
-        {
-            lut_size = 256
-        };
+        static constexpr std::int32_t lut_size = 256;
 
         type_map_t map;
         std::size_t size;
