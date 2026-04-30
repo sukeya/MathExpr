@@ -80,11 +80,6 @@ template <typename T> inline constexpr void validate_supported_real_type()
                   "math_expr real-only helpers support float, double, and long double only.");
 }
 
-template <typename T> inline T quiet_nan_impl()
-{
-    return std::numeric_limits<T>::quiet_NaN();
-}
-
 template <typename T> struct epsilon_type
 {
 };
@@ -105,18 +100,6 @@ math_expr_define_epsilon_type(long double, 0.000000000001);
 
 #undef math_expr_define_epsilon_type
 
-template <typename T> inline bool is_true_impl(const T v)
-{
-    validate_supported_numeric_type<T>();
-    return std::not_equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
-}
-
-template <typename T> inline bool is_false_impl(const T v)
-{
-    validate_supported_numeric_type<T>();
-    return std::equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
-}
-
 template <typename T> inline T abs_value(const T v)
 {
     validate_supported_numeric_type<T>();
@@ -133,88 +116,6 @@ template <typename T> inline T abs_value(const T v)
     {
         return ((v >= T(0)) ? v : -v);
     }
-}
-
-#define math_expr_define_erf(TT, impl)                                                             \
-    inline TT erf_native_impl(const TT v)                                                          \
-    {                                                                                              \
-        return impl(v);                                                                            \
-    }
-
-math_expr_define_erf(float, ::erff);
-math_expr_define_erf(double, ::erf);
-math_expr_define_erf(long double, ::erfl);
-#undef math_expr_define_erf
-
-template <typename T> inline T erf_real_impl(const T v)
-{
-    validate_supported_real_type<T>();
-    return erf_native_impl(v);
-}
-
-#define math_expr_define_erfc(TT, impl)                                                            \
-    inline TT erfc_native_impl(const TT v)                                                         \
-    {                                                                                              \
-        return impl(v);                                                                            \
-    }
-
-math_expr_define_erfc(float, ::erfcf);
-math_expr_define_erfc(double, ::erfc);
-math_expr_define_erfc(long double, ::erfcl);
-#undef math_expr_define_erfc
-
-template <typename T> inline T erfc_real_impl(const T v)
-{
-    validate_supported_real_type<T>();
-    return erfc_native_impl(v);
-}
-
-template <typename T> inline T acosh_real_impl(const T v)
-{
-    return std::acosh(v);
-}
-
-template <typename T> inline T asinh_real_impl(const T v)
-{
-    return std::asinh(v);
-}
-
-template <typename T> inline T atanh_real_impl(const T v)
-{
-    return std::atanh(v);
-}
-
-template <typename T> inline T trunc_real_impl(const T v)
-{
-    return std::trunc(v);
-}
-
-template <typename T> inline T expm1_real_impl(const T v)
-{
-    return std::expm1(v);
-}
-
-template <typename T> inline T log1p_real_impl(const T v)
-{
-    return std::log1p(v);
-}
-
-template <typename T> inline T const_pi_impl()
-{
-    validate_supported_real_type<T>();
-    return T(pi);
-}
-
-template <typename T> inline T const_e_impl()
-{
-    validate_supported_real_type<T>();
-    return T(e);
-}
-
-template <typename T> inline T const_qnan_impl()
-{
-    validate_supported_real_type<T>();
-    return std::numeric_limits<T>::quiet_NaN();
 }
 
 } // namespace math_expr::core::numeric::details

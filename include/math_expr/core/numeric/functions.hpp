@@ -156,6 +156,41 @@ template <typename T> inline bool is_nan(const T v)
     return std::not_equal_to<T>()(v, v);
 }
 
+template <typename T> inline T quiet_nan()
+{
+    return std::numeric_limits<T>::quiet_NaN();
+}
+
+template <typename T> inline bool is_true(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::not_equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
+}
+
+template <typename T> inline bool is_false(const T v)
+{
+    details::validate_supported_numeric_type<T>();
+    return std::equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
+}
+
+template <typename T> inline T const_pi()
+{
+    details::validate_supported_real_type<T>();
+    return T(pi);
+}
+
+template <typename T> inline T const_e()
+{
+    details::validate_supported_real_type<T>();
+    return T(e);
+}
+
+template <typename T> inline T const_qnan()
+{
+    details::validate_supported_real_type<T>();
+    return std::numeric_limits<T>::quiet_NaN();
+}
+
 template <typename T> inline T min(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
@@ -258,7 +293,7 @@ template <typename T> inline T root(const T v0, const T v1)
         {
             return (v1 == std::trunc(v1)) && (std::fmod(v1, T(2)) != T(0))
                        ? -std::pow(details::abs_value(v0), T(1) / v1)
-                       : details::quiet_nan_impl<T>();
+                       : quiet_nan<T>();
         }
 
         return std::pow(v0, T(1) / v1);
@@ -356,28 +391,28 @@ template <typename T> inline T and_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    return (details::is_true_impl(v0) && details::is_true_impl(v1)) ? true_v<T> : false_v<T>;
+    return (is_true(v0) && is_true(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T nand_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    return (details::is_false_impl(v0) || details::is_false_impl(v1)) ? true_v<T> : false_v<T>;
+    return (is_false(v0) || is_false(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T or_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    return (details::is_true_impl(v0) || details::is_true_impl(v1)) ? true_v<T> : false_v<T>;
+    return (is_true(v0) || is_true(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T nor_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    return (details::is_false_impl(v0) && details::is_false_impl(v1)) ? true_v<T> : false_v<T>;
+    return (is_false(v0) && is_false(v1)) ? true_v<T> : false_v<T>;
 }
 
 template <typename T> inline T xor_opr(const T v0, const T v1)
@@ -386,7 +421,7 @@ template <typename T> inline T xor_opr(const T v0, const T v1)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return (details::is_false_impl(v0) != details::is_false_impl(v1)) ? true_v<T> : false_v<T>;
+        return (is_false(v0) != is_false(v1)) ? true_v<T> : false_v<T>;
     }
     else
     {
@@ -398,8 +433,8 @@ template <typename T> inline T xnor_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
-    const bool v0_true = details::is_true_impl(v0);
-    const bool v1_true = details::is_true_impl(v1);
+    const bool v0_true = is_true(v0);
+    const bool v1_true = is_true(v1);
 
     if ((v0_true && v1_true) || (!v0_true && !v1_true))
     {
@@ -559,7 +594,7 @@ template <typename T> inline T acos(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -568,12 +603,12 @@ template <typename T> inline T acosh(const T v)
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::acosh_real_impl(v);
+        return std::acosh(v);
     }
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -587,7 +622,7 @@ template <typename T> inline T asin(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -596,12 +631,12 @@ template <typename T> inline T asinh(const T v)
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::asinh_real_impl(v);
+        return std::asinh(v);
     }
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -615,7 +650,7 @@ template <typename T> inline T atan(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -624,12 +659,12 @@ template <typename T> inline T atanh(const T v)
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::atanh_real_impl(v);
+        return std::atanh(v);
     }
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -656,7 +691,7 @@ template <typename T> inline T cos(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -670,7 +705,7 @@ template <typename T> inline T cosh(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -686,7 +721,7 @@ template <typename T> inline T expm1(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::expm1_real_impl(v);
+        return std::expm1(v);
     }
     else
     {
@@ -731,7 +766,7 @@ template <typename T> inline T log1p(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::log1p_real_impl(v);
+        return std::log1p(v);
     }
     else
     {
@@ -775,7 +810,7 @@ template <typename T> inline T sin(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -810,7 +845,7 @@ template <typename T> inline T sinh(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -830,7 +865,7 @@ template <typename T> inline T tan(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -844,7 +879,7 @@ template <typename T> inline T tanh(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -858,7 +893,7 @@ template <typename T> inline T cot(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -872,7 +907,7 @@ template <typename T> inline T sec(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -886,7 +921,7 @@ template <typename T> inline T csc(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -900,7 +935,7 @@ template <typename T> inline T r2d(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -914,7 +949,7 @@ template <typename T> inline T d2r(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -928,7 +963,7 @@ template <typename T> inline T d2g(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -942,7 +977,7 @@ template <typename T> inline T g2d(const T v)
     else
     {
         static_cast<void>(v);
-        return details::quiet_nan_impl<T>();
+        return quiet_nan<T>();
     }
 }
 
@@ -952,11 +987,11 @@ template <typename T> inline T notl(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::is_true_impl(v) ? false_v<T> : true_v<T>;
+        return is_true(v) ? false_v<T> : true_v<T>;
     }
     else
     {
-        return details::is_false_impl(v) ? true_v<T> : false_v<T>;
+        return is_false(v) ? true_v<T> : false_v<T>;
     }
 }
 
@@ -984,11 +1019,11 @@ template <typename T> inline T erf(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::erf_real_impl(v);
+        return std::erf(v);
     }
     else
     {
-        return static_cast<T>(details::erf_real_impl(static_cast<double>(v)));
+        return static_cast<T>(std::erf(static_cast<double>(v)));
     }
 }
 
@@ -998,11 +1033,11 @@ template <typename T> inline T erfc(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::erfc_real_impl(v);
+        return std::erfc(v);
     }
     else
     {
-        return static_cast<T>(details::erfc_real_impl(static_cast<double>(v)));
+        return static_cast<T>(std::erfc(static_cast<double>(v)));
     }
 }
 
@@ -1012,7 +1047,7 @@ template <typename T> inline T ncdf(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return T(0.5) * details::erfc_real_impl(-(v / T(sqrt2)));
+        return T(0.5) * erfc(-(v / T(sqrt2)));
     }
     else
     {
@@ -1026,11 +1061,10 @@ template <typename T> inline T frac(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return (v - details::trunc_real_impl(v));
+        return (v - trunc(v));
     }
     else
     {
-        static_cast<void>(v);
         return T(0);
     }
 }
@@ -1041,7 +1075,7 @@ template <typename T> inline T trunc(const T v)
 
     if constexpr (details::is_supported_real_type_v<T>)
     {
-        return details::trunc_real_impl(v);
+        return std::trunc(v);
     }
     else
     {

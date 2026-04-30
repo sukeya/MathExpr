@@ -1458,7 +1458,7 @@ template <typename T> class symbol_table
 
     inline bool add_pi()
     {
-        static const T local_pi = core::numeric::details::const_pi_impl<T>();
+        static const T local_pi = core::numeric::const_pi<T>();
         return add_constant("pi", local_pi);
     }
 

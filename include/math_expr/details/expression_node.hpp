@@ -34,7 +34,7 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 #define MATH_EXPR_DETAILS_EXPRESSION_NODE_HPP
 
-#include "math_expr/core/numeric/details/operations.hpp"
+#include "math_expr/core/numeric/functions.hpp"
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/fwd.hpp"
 #include "math_expr/details/fwd.hpp"
@@ -239,14 +239,14 @@ template <typename T>
 inline std::enable_if_t<core::numeric::details::is_supported_numeric_type_v<T>, bool>
 is_true(const T v)
 {
-    return core::numeric::details::is_true_impl(v);
+    return core::numeric::is_true(v);
 }
 
 template <typename T>
 inline std::enable_if_t<core::numeric::details::is_supported_numeric_type_v<T>, bool>
 is_false(const T v)
 {
-    return core::numeric::details::is_false_impl(v);
+    return core::numeric::is_false(v);
 }
 
 template <typename T> inline bool is_true(const expression_node<T>* node)
