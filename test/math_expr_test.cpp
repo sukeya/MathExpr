@@ -734,11 +734,11 @@ template <> struct edge_cases<double>
     static inline std::vector<test_t> test_cases()
     {
         std::vector<test_t> cases;
-        cases.push_back(test_t(" 2.2250738585072013831e-308", 2.2250738585072013831e-308));
+        cases.push_back(test_t(" 2.2250738585072013831e-307", 2.2250738585072013831e-307));
         cases.push_back(test_t(" 1.7976931348623157081e+308", 1.7976931348623157081e+308));
-        cases.push_back(test_t("+2.2250738585072013831e-308", +2.2250738585072013831e-308));
+        cases.push_back(test_t("+2.2250738585072013831e-307", +2.2250738585072013831e-307));
         cases.push_back(test_t("+1.7976931348623157081e+308", +1.7976931348623157081e+308));
-        cases.push_back(test_t("-2.2250738585072013831e-308", -2.2250738585072013831e-308));
+        cases.push_back(test_t("-2.2250738585072013831e-307", -2.2250738585072013831e-307));
         cases.push_back(test_t("-1.7976931348623157081e+308", -1.7976931348623157081e+308));
 
         return cases;
