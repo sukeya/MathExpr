@@ -8,7 +8,7 @@ ExprTk has been built error and warning free using the following set of C++ comp
 
 1. GNU Compiler Collection (3.5+)
 1. Clang/LLVM (1.1+)
-1. Microsoft Visual Studio C++ Compiler (7.1+)
+1. Microsoft Visual Studio C++ Compiler (_MSC_VER 1930+, Visual Studio 2022+)
 1. Intel C++ Compiler (8.x+)
 1. AMD Optimizing C++ Compiler (1.2+)
 1. Nvidia C++ Compiler (19.x+)

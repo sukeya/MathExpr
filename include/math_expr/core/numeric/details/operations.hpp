@@ -129,7 +129,6 @@ template <typename T> inline T abs_value(const T v)
     }
 }
 
-#if (defined(_MSC_VER) && (_MSC_VER >= 1900)) || !defined(_MSC_VER)
 #define math_expr_define_erf(TT, impl)                                                             \
     inline TT erf_native_impl(const TT v)                                                          \
     {                                                                                              \
@@ -140,38 +139,13 @@ math_expr_define_erf(float, ::erff);
 math_expr_define_erf(double, ::erf);
 math_expr_define_erf(long double, ::erfl);
 #undef math_expr_define_erf
-#endif
 
 template <typename T> inline T erf_real_impl(const T v)
 {
     validate_supported_real_type<T>();
-
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-    // Credits: Abramowitz & Stegun Equations 7.1.25-28
-    static const T c[] = {T(1.26551223),  T(1.00002368), T(0.37409196),  T(0.09678418),
-                          T(-0.18628806), T(0.27886807), T(-1.13520398), T(1.48851587),
-                          T(-0.82215223), T(0.17087277)};
-
-    const T t = T(1) / (T(1) + T(0.5) * abs_value(v));
-
-    const T result =
-        T(1) -
-        t * std::exp(
-                (-v * v) - c[0] +
-                t * (c[1] +
-                     t * (c[2] +
-                          t * (c[3] +
-                               t * (c[4] +
-                                    t * (c[5] +
-                                         t * (c[6] + t * (c[7] + t * (c[8] + t * (c[9]))))))))));
-
-    return (v >= T(0)) ? result : -result;
-#else
     return erf_native_impl(v);
-#endif
 }
 
-#if (defined(_MSC_VER) && (_MSC_VER >= 1900)) || !defined(_MSC_VER)
 #define math_expr_define_erfc(TT, impl)                                                            \
     inline TT erfc_native_impl(const TT v)                                                         \
     {                                                                                              \
@@ -182,17 +156,11 @@ math_expr_define_erfc(float, ::erfcf);
 math_expr_define_erfc(double, ::erfc);
 math_expr_define_erfc(long double, ::erfcl);
 #undef math_expr_define_erfc
-#endif
 
 template <typename T> inline T erfc_real_impl(const T v)
 {
     validate_supported_real_type<T>();
-
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-    return T(1) - erf_real_impl(v);
-#else
     return erfc_native_impl(v);
-#endif
 }
 
 #if __cplusplus >= 201103L
