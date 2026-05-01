@@ -7,8 +7,8 @@ on:
   pull_request:
 
 jobs:
-  if: "false"
   deploy:
+    if: "false"
     runs-on: ubuntu-latest
     permissions:
       contents: write
