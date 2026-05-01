@@ -20097,133 +20097,47 @@ class parser : public lexer::parser_helper
 
     inline void load_unary_operations_map(unary_op_map_t& m)
     {
-#define register_unary_op(Op, UnaryFunctor) m.insert(std::make_pair(Op, UnaryFunctor<T>::process));
+#define register_unary_op(Op, UnaryFunctor) m.insert(std::make_pair(Op, UnaryFunctor<T>::process))
 
-        register_unary_op(core::operators::operator_type::abs, details::abs_op) register_unary_op(
-            core::operators::operator_type::acos,
-            details::acos_op) register_unary_op(core::operators::operator_type::acosh,
-                                                details::
-                                                    acosh_op) register_unary_op(core::operators::
-                                                                                    operator_type::
-                                                                                        asin,
-                                                                                details::asin_op)
-            register_unary_op(
-                core::operators::operator_type::asinh,
-                details::
-                    asinh_op) register_unary_op(core::operators::operator_type::atanh,
-                                                details::
-                                                    atanh_op) register_unary_op(core::operators::
-                                                                                    operator_type::
-                                                                                        ceil,
-                                                                                details::ceil_op)
-                register_unary_op(core::operators::operator_type::cos, details::cos_op) register_unary_op(
-                    core::operators::operator_type::cosh,
-                    details::
-                        cosh_op) register_unary_op(core::operators::operator_type::exp,
-                                                   details::
-                                                       exp_op) register_unary_op(core::operators::
-                                                                                     operator_type::
-                                                                                         expm1,
-                                                                                 details::expm1_op)
-                    register_unary_op(
-                        core::operators::operator_type::floor,
-                        details::floor_op) register_unary_op(core::operators::operator_type::log,
-                                                             details::log_op)
-                        register_unary_op(
-                            core::operators::operator_type::log10,
-                            details::
-                                log10_op) register_unary_op(core::operators::operator_type::log2,
-                                                            details::log2_op)
-                            register_unary_op(
-                                core::operators::operator_type::log1p,
-                                details::
-                                    log1p_op) register_unary_op(core::operators::operator_type::neg,
-                                                                details::neg_op)
-                                register_unary_op(
-                                    core::operators::operator_type::pos,
-                                    details::pos_op) register_unary_op(core::operators::
-                                                                           operator_type::round,
-                                                                       details::round_op)
-                                    register_unary_op(
-                                        core::operators::operator_type::sin,
-                                        details::sin_op) register_unary_op(core::operators::
-                                                                               operator_type::sinc,
-                                                                           details::sinc_op)
-                                        register_unary_op(
-                                            core::operators::operator_type::sinh,
-                                            details::sinh_op) register_unary_op(core::operators::
-                                                                                    operator_type::
-                                                                                        sqrt,
-                                                                                details::sqrt_op)
-                                            register_unary_op(
-                                                core::operators::operator_type::tan,
-                                                details::
-                                                    tan_op) register_unary_op(core::operators::
-                                                                                  operator_type::
-                                                                                      tanh,
-                                                                              details::tanh_op)
-                                                register_unary_op(
-                                                    core::operators::operator_type::cot,
-                                                    details::
-                                                        cot_op) register_unary_op(core::operators::
-                                                                                      operator_type::
-                                                                                          sec,
-                                                                                  details::sec_op)
-                                                    register_unary_op(
-                                                        core::operators::operator_type::csc,
-                                                        details::
-                                                            csc_op) register_unary_op(core::operators::
-                                                                                          operator_type::
-                                                                                              r2d,
-                                                                                      details::
-                                                                                          r2d_op)
-                                                        register_unary_op(
-                                                            core::operators::operator_type::d2r,
-                                                            details::d2r_op)
-                                                            register_unary_op(
-                                                                core::operators::operator_type::d2g,
-                                                                details::d2g_op)
-                                                                register_unary_op(
-                                                                    core::operators::operator_type::
-                                                                        g2d,
-                                                                    details::g2d_op)
-                                                                    register_unary_op(
-                                                                        core::operators::
-                                                                            operator_type::notl,
-                                                                        details::notl_op)
-                                                                        register_unary_op(
-                                                                            core::operators::
-                                                                                operator_type::sgn,
-                                                                            details::sgn_op)
-                                                                            register_unary_op(
-                                                                                core::operators::
-                                                                                    operator_type::
-                                                                                        erf,
-                                                                                details::erf_op)
-                                                                                register_unary_op(
-                                                                                    core::operators::
-                                                                                        operator_type::
-                                                                                            erfc,
-                                                                                    details::
-                                                                                        erfc_op)
-                                                                                    register_unary_op(
-                                                                                        core::operators::
-                                                                                            operator_type::
-                                                                                                ncdf,
-                                                                                        details::
-                                                                                            ncdf_op)
-                                                                                        register_unary_op(
-                                                                                            core::operators::
-                                                                                                operator_type::
-                                                                                                    frac,
-                                                                                            details::
-                                                                                                frac_op)
-                                                                                            register_unary_op(
-                                                                                                core::operators::
-                                                                                                    operator_type::
-                                                                                                        trunc,
-                                                                                                details::
-                                                                                                    trunc_op)
+        register_unary_op(core::operators::operator_type::abs, details::abs_op);
+        register_unary_op(core::operators::operator_type::acos, details::acos_op);
+        register_unary_op(core::operators::operator_type::acosh, details::acosh_op);
+        register_unary_op(core::operators::operator_type::asin, details::asin_op);
+        register_unary_op(core::operators::operator_type::asinh, details::asinh_op);
+        register_unary_op(core::operators::operator_type::atanh, details::atanh_op);
+        register_unary_op(core::operators::operator_type::ceil, details::ceil_op);
+        register_unary_op(core::operators::operator_type::cos, details::cos_op);
+        register_unary_op(core::operators::operator_type::cosh, details::cosh_op);
+        register_unary_op(core::operators::operator_type::exp, details::exp_op);
+        register_unary_op(core::operators::operator_type::expm1, details::expm1_op);
+        register_unary_op(core::operators::operator_type::floor, details::floor_op);
+        register_unary_op(core::operators::operator_type::log, details::log_op);
+        register_unary_op(core::operators::operator_type::log10, details::log10_op);
+        register_unary_op(core::operators::operator_type::log2, details::log2_op);
+        register_unary_op(core::operators::operator_type::log1p, details::log1p_op);
+        register_unary_op(core::operators::operator_type::neg, details::neg_op);
+        register_unary_op(core::operators::operator_type::pos, details::pos_op);
+        register_unary_op(core::operators::operator_type::round, details::round_op);
+        register_unary_op(core::operators::operator_type::sin, details::sin_op);
+        register_unary_op(core::operators::operator_type::sinc, details::sinc_op);
+        register_unary_op(core::operators::operator_type::sinh, details::sinh_op);
+        register_unary_op(core::operators::operator_type::sqrt, details::sqrt_op);
+        register_unary_op(core::operators::operator_type::tan, details::tan_op);
+        register_unary_op(core::operators::operator_type::tanh, details::tanh_op);
+        register_unary_op(core::operators::operator_type::cot, details::cot_op);
+        register_unary_op(core::operators::operator_type::sec, details::sec_op);
+        register_unary_op(core::operators::operator_type::csc, details::csc_op);
+        register_unary_op(core::operators::operator_type::r2d, details::r2d_op);
+        register_unary_op(core::operators::operator_type::d2r, details::d2r_op);
+        register_unary_op(core::operators::operator_type::d2g, details::d2g_op);
+        register_unary_op(core::operators::operator_type::g2d, details::g2d_op);
+        register_unary_op(core::operators::operator_type::notl, details::notl_op);
+        register_unary_op(core::operators::operator_type::sgn, details::sgn_op);
+        register_unary_op(core::operators::operator_type::erf, details::erf_op);
+        register_unary_op(core::operators::operator_type::erfc, details::erfc_op);
+        register_unary_op(core::operators::operator_type::ncdf, details::ncdf_op);
+        register_unary_op(core::operators::operator_type::frac, details::frac_op);
+        register_unary_op(core::operators::operator_type::trunc, details::trunc_op);
 #undef register_unary_op
     }
 
@@ -20231,44 +20145,26 @@ class parser : public lexer::parser_helper
     {
         using value_type = typename binary_op_map_t::value_type;
 
-#define register_binary_op(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process));
+#define register_binary_op(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process))
 
-        register_binary_op(core::operators::operator_type::add, details::add_op) register_binary_op(
-            core::operators::operator_type::sub,
-            details::sub_op) register_binary_op(core::operators::operator_type::mul,
-                                                details::mul_op)
-            register_binary_op(core::operators::operator_type::div, details::div_op)
-                register_binary_op(
-                    core::operators::operator_type::mod,
-                    details::mod_op) register_binary_op(core::operators::operator_type::pow,
-                                                        details::pow_op)
-                    register_binary_op(
-                        core::operators::operator_type::lt,
-                        details::lt_op) register_binary_op(core::operators::operator_type::lte,
-                                                           details::lte_op)
-                        register_binary_op(
-                            core::operators::operator_type::gt,
-                            details::gt_op) register_binary_op(core::operators::operator_type::gte,
-                                                               details::gte_op)
-                            register_binary_op(core::operators::operator_type::eq, details::eq_op)
-                                register_binary_op(core::operators::operator_type::ne,
-                                                   details::ne_op)
-                                    register_binary_op(core::operators::operator_type::logical_and,
-                                                       details::and_op)
-                                        register_binary_op(core::operators::operator_type::nand,
-                                                           details::nand_op)
-                                            register_binary_op(
-                                                core::operators::operator_type::logical_or,
-                                                details::or_op)
-                                                register_binary_op(
-                                                    core::operators::operator_type::nor,
-                                                    details::nor_op)
-                                                    register_binary_op(
-                                                        core::operators::operator_type::logical_xor,
-                                                        details::xor_op)
-                                                        register_binary_op(
-                                                            core::operators::operator_type::xnor,
-                                                            details::xnor_op)
+        register_binary_op(core::operators::operator_type::add, details::add_op);
+        register_binary_op(core::operators::operator_type::sub, details::sub_op);
+        register_binary_op(core::operators::operator_type::mul, details::mul_op);
+        register_binary_op(core::operators::operator_type::div, details::div_op);
+        register_binary_op(core::operators::operator_type::mod, details::mod_op);
+        register_binary_op(core::operators::operator_type::pow, details::pow_op);
+        register_binary_op(core::operators::operator_type::lt, details::lt_op);
+        register_binary_op(core::operators::operator_type::lte, details::lte_op);
+        register_binary_op(core::operators::operator_type::gt, details::gt_op);
+        register_binary_op(core::operators::operator_type::gte, details::gte_op);
+        register_binary_op(core::operators::operator_type::eq, details::eq_op);
+        register_binary_op(core::operators::operator_type::ne, details::ne_op);
+        register_binary_op(core::operators::operator_type::logical_and, details::and_op);
+        register_binary_op(core::operators::operator_type::nand, details::nand_op);
+        register_binary_op(core::operators::operator_type::logical_or, details::or_op);
+        register_binary_op(core::operators::operator_type::nor, details::nor_op);
+        register_binary_op(core::operators::operator_type::logical_xor, details::xor_op);
+        register_binary_op(core::operators::operator_type::xnor, details::xnor_op);
 #undef register_binary_op
     }
 
@@ -20276,44 +20172,26 @@ class parser : public lexer::parser_helper
     {
         using value_type = typename inv_binary_op_map_t::value_type;
 
-#define register_binary_op(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op));
+#define register_binary_op(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op))
 
-        register_binary_op(core::operators::operator_type::add, details::add_op) register_binary_op(
-            core::operators::operator_type::sub,
-            details::sub_op) register_binary_op(core::operators::operator_type::mul,
-                                                details::mul_op)
-            register_binary_op(core::operators::operator_type::div, details::div_op)
-                register_binary_op(
-                    core::operators::operator_type::mod,
-                    details::mod_op) register_binary_op(core::operators::operator_type::pow,
-                                                        details::pow_op)
-                    register_binary_op(
-                        core::operators::operator_type::lt,
-                        details::lt_op) register_binary_op(core::operators::operator_type::lte,
-                                                           details::lte_op)
-                        register_binary_op(
-                            core::operators::operator_type::gt,
-                            details::gt_op) register_binary_op(core::operators::operator_type::gte,
-                                                               details::gte_op)
-                            register_binary_op(core::operators::operator_type::eq, details::eq_op)
-                                register_binary_op(core::operators::operator_type::ne,
-                                                   details::ne_op)
-                                    register_binary_op(core::operators::operator_type::logical_and,
-                                                       details::and_op)
-                                        register_binary_op(core::operators::operator_type::nand,
-                                                           details::nand_op)
-                                            register_binary_op(
-                                                core::operators::operator_type::logical_or,
-                                                details::or_op)
-                                                register_binary_op(
-                                                    core::operators::operator_type::nor,
-                                                    details::nor_op)
-                                                    register_binary_op(
-                                                        core::operators::operator_type::logical_xor,
-                                                        details::xor_op)
-                                                        register_binary_op(
-                                                            core::operators::operator_type::xnor,
-                                                            details::xnor_op)
+        register_binary_op(core::operators::operator_type::add, details::add_op);
+        register_binary_op(core::operators::operator_type::sub, details::sub_op);
+        register_binary_op(core::operators::operator_type::mul, details::mul_op);
+        register_binary_op(core::operators::operator_type::div, details::div_op);
+        register_binary_op(core::operators::operator_type::mod, details::mod_op);
+        register_binary_op(core::operators::operator_type::pow, details::pow_op);
+        register_binary_op(core::operators::operator_type::lt, details::lt_op);
+        register_binary_op(core::operators::operator_type::lte, details::lte_op);
+        register_binary_op(core::operators::operator_type::gt, details::gt_op);
+        register_binary_op(core::operators::operator_type::gte, details::gte_op);
+        register_binary_op(core::operators::operator_type::eq, details::eq_op);
+        register_binary_op(core::operators::operator_type::ne, details::ne_op);
+        register_binary_op(core::operators::operator_type::logical_and, details::and_op);
+        register_binary_op(core::operators::operator_type::nand, details::nand_op);
+        register_binary_op(core::operators::operator_type::logical_or, details::or_op);
+        register_binary_op(core::operators::operator_type::nor, details::nor_op);
+        register_binary_op(core::operators::operator_type::logical_xor, details::xor_op);
+        register_binary_op(core::operators::operator_type::xnor, details::xnor_op);
 #undef register_binary_op
     }
 
@@ -20323,21 +20201,45 @@ class parser : public lexer::parser_helper
 
 #define register_sf3(Op)                     \
     sf3_map[details::sf##Op##_op<T>::id()] = \
-        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
+        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
 
-        register_sf3(00) register_sf3(01) register_sf3(02) register_sf3(03) register_sf3(04)
-            register_sf3(05) register_sf3(06) register_sf3(07) register_sf3(08) register_sf3(09)
-                register_sf3(10) register_sf3(11) register_sf3(12) register_sf3(13) register_sf3(14)
-                    register_sf3(15) register_sf3(16) register_sf3(17) register_sf3(18)
-                        register_sf3(19) register_sf3(20) register_sf3(21) register_sf3(22)
-                            register_sf3(23) register_sf3(24) register_sf3(25) register_sf3(26)
-                                register_sf3(27) register_sf3(28) register_sf3(29) register_sf3(30)
+        register_sf3(00);
+        register_sf3(01);
+        register_sf3(02);
+        register_sf3(03);
+        register_sf3(04);
+        register_sf3(05);
+        register_sf3(06);
+        register_sf3(07);
+        register_sf3(08);
+        register_sf3(09);
+        register_sf3(10);
+        register_sf3(11);
+        register_sf3(12);
+        register_sf3(13);
+        register_sf3(14);
+        register_sf3(15);
+        register_sf3(16);
+        register_sf3(17);
+        register_sf3(18);
+        register_sf3(19);
+        register_sf3(20);
+        register_sf3(21);
+        register_sf3(22);
+        register_sf3(23);
+        register_sf3(24);
+        register_sf3(25);
+        register_sf3(26);
+        register_sf3(27);
+        register_sf3(28);
+        register_sf3(29);
+        register_sf3(30);
 #undef register_sf3
 
 #define register_sf3_extid(Id, Op) \
     sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
 
-                                    register_sf3_extid("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
+        register_sf3_extid("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
 #undef register_sf3_extid
     }
 
@@ -20347,53 +20249,112 @@ class parser : public lexer::parser_helper
 
 #define register_sf4(Op)                     \
     sf4_map[details::sf##Op##_op<T>::id()] = \
-        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
+        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
 
-        register_sf4(48) register_sf4(49) register_sf4(50) register_sf4(51) register_sf4(
-            52) register_sf4(53) register_sf4(54) register_sf4(55) register_sf4(56) register_sf4(57)
-            register_sf4(58) register_sf4(59) register_sf4(60) register_sf4(61) register_sf4(
-                62) register_sf4(63) register_sf4(64) register_sf4(65) register_sf4(66)
-                register_sf4(67) register_sf4(68) register_sf4(69) register_sf4(70) register_sf4(
-                    71) register_sf4(72) register_sf4(73) register_sf4(74) register_sf4(75)
-                    register_sf4(76) register_sf4(77) register_sf4(78) register_sf4(
-                        79) register_sf4(80) register_sf4(81) register_sf4(82) register_sf4(83)
+        register_sf4(48);
+        register_sf4(49);
+        register_sf4(50);
+        register_sf4(51);
+        register_sf4(52);
+        register_sf4(53);
+        register_sf4(54);
+        register_sf4(55);
+        register_sf4(56);
+        register_sf4(57);
+        register_sf4(58);
+        register_sf4(59);
+        register_sf4(60);
+        register_sf4(61);
+        register_sf4(62);
+        register_sf4(63);
+        register_sf4(64);
+        register_sf4(65);
+        register_sf4(66);
+        register_sf4(67);
+        register_sf4(68);
+        register_sf4(69);
+        register_sf4(70);
+        register_sf4(71);
+        register_sf4(72);
+        register_sf4(73);
+        register_sf4(74);
+        register_sf4(75);
+        register_sf4(76);
+        register_sf4(77);
+        register_sf4(78);
+        register_sf4(79);
+        register_sf4(80);
+        register_sf4(81);
+        register_sf4(82);
+        register_sf4(83);
 #undef register_sf4
 
 #define register_sf4ext(Op)                     \
     sf4_map[details::sfext##Op##_op<T>::id()] = \
-        pair_t(details::sfext##Op##_op<T>::process, core::operators::operator_type::sf4ext##Op);
+        pair_t(details::sfext##Op##_op<T>::process, core::operators::operator_type::sf4ext##Op)
 
-                        register_sf4ext(00) register_sf4ext(01) register_sf4ext(02) register_sf4ext(
-                            03) register_sf4ext(04) register_sf4ext(05) register_sf4ext(06)
-                            register_sf4ext(07) register_sf4ext(08) register_sf4ext(
-                                09) register_sf4ext(10) register_sf4ext(11) register_sf4ext(12)
-                                register_sf4ext(13) register_sf4ext(14) register_sf4ext(
-                                    15) register_sf4ext(16) register_sf4ext(17) register_sf4ext(18)
-                                    register_sf4ext(19) register_sf4ext(20) register_sf4ext(
-                                        21) register_sf4ext(22) register_sf4ext(23) register_sf4ext(24)
-                                        register_sf4ext(25) register_sf4ext(26) register_sf4ext(
-                                            27) register_sf4ext(28) register_sf4ext(29)
-                                            register_sf4ext(30) register_sf4ext(31) register_sf4ext(
-                                                32) register_sf4ext(33) register_sf4ext(34)
-                                                register_sf4ext(35) register_sf4ext(
-                                                    36) register_sf4ext(36) register_sf4ext(38)
-                                                    register_sf4ext(39) register_sf4ext(
-                                                        40) register_sf4ext(41) register_sf4ext(42)
-                                                        register_sf4ext(43) register_sf4ext(
-                                                            44) register_sf4ext(45) register_sf4ext(46)
-                                                            register_sf4ext(47) register_sf4ext(
-                                                                48) register_sf4ext(49)
-                                                                register_sf4ext(50) register_sf4ext(
-                                                                    51) register_sf4ext(52)
-                                                                    register_sf4ext(53) register_sf4ext(
-                                                                        54) register_sf4ext(55)
-                                                                        register_sf4ext(
-                                                                            56) register_sf4ext(57)
-                                                                            register_sf4ext(
-                                                                                58) register_sf4ext(59)
-                                                                                register_sf4ext(60)
-                                                                                    register_sf4ext(
-                                                                                        61)
+        register_sf4ext(00);
+        register_sf4ext(01);
+        register_sf4ext(02);
+        register_sf4ext(03);
+        register_sf4ext(04);
+        register_sf4ext(05);
+        register_sf4ext(06);
+        register_sf4ext(07);
+        register_sf4ext(08);
+        register_sf4ext(09);
+        register_sf4ext(10);
+        register_sf4ext(11);
+        register_sf4ext(12);
+        register_sf4ext(13);
+        register_sf4ext(14);
+        register_sf4ext(15);
+        register_sf4ext(16);
+        register_sf4ext(17);
+        register_sf4ext(18);
+        register_sf4ext(19);
+        register_sf4ext(20);
+        register_sf4ext(21);
+        register_sf4ext(22);
+        register_sf4ext(23);
+        register_sf4ext(24);
+        register_sf4ext(25);
+        register_sf4ext(26);
+        register_sf4ext(27);
+        register_sf4ext(28);
+        register_sf4ext(29);
+        register_sf4ext(30);
+        register_sf4ext(31);
+        register_sf4ext(32);
+        register_sf4ext(33);
+        register_sf4ext(34);
+        register_sf4ext(35);
+        register_sf4ext(36);
+        register_sf4ext(36);
+        register_sf4ext(38);
+        register_sf4ext(39);
+        register_sf4ext(40);
+        register_sf4ext(41);
+        register_sf4ext(42);
+        register_sf4ext(43);
+        register_sf4ext(44);
+        register_sf4ext(45);
+        register_sf4ext(46);
+        register_sf4ext(47);
+        register_sf4ext(48);
+        register_sf4ext(49);
+        register_sf4ext(50);
+        register_sf4ext(51);
+        register_sf4ext(52);
+        register_sf4ext(53);
+        register_sf4ext(54);
+        register_sf4ext(55);
+        register_sf4ext(56);
+        register_sf4ext(57);
+        register_sf4ext(58);
+        register_sf4ext(59);
+        register_sf4ext(60);
+        register_sf4ext(61);
 #undef register_sf4ext
     }
 
