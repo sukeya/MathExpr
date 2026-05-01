@@ -33,10 +33,11 @@ struct vector_access_rtc : public math_expr::vector_access_runtime_check
         const map_t::iterator itr = vector_map.find(static_cast<void*>(context.base_ptr));
         const std::string vector_name = (itr != vector_map.end()) ? itr->second : "Unknown";
 
-        printf("Runtime vector access violation\n"
-               "Vector: %s base: %p end: %p access: %p typesize: %d\n",
-               vector_name.c_str(), context.base_ptr, context.end_ptr, context.access_ptr,
-               static_cast<unsigned int>(context.type_size));
+        printf(
+            "Runtime vector access violation\n"
+            "Vector: %s base: %p end: %p access: %p typesize: %d\n",
+            vector_name.c_str(), context.base_ptr, context.end_ptr, context.access_ptr,
+            static_cast<unsigned int>(context.type_size));
 
         throw std::runtime_error("Runtime vector access violation. Vector: " + vector_name);
 
@@ -44,16 +45,18 @@ struct vector_access_rtc : public math_expr::vector_access_runtime_check
     }
 };
 
-template <typename T> void vector_overflow_example()
+template <typename T>
+void vector_overflow_example()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
     typedef math_expr::parser<T> parser_t;
 
-    const std::string expression_str = " for (var i := 0; i < max(v0[],v1[]); i += 1) "
-                                       " {                                            "
-                                       "    v0[i] := (2 * v0[i]) + (v1[i] / 3);       "
-                                       " }                                            ";
+    const std::string expression_str =
+        " for (var i := 0; i < max(v0[],v1[]); i += 1) "
+        " {                                            "
+        "    v0[i] := (2 * v0[i]) + (v1[i] / 3);       "
+        " }                                            ";
 
     T v0[5] = {0, 1, 2, 3, 4};
     T v1[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

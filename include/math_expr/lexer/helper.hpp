@@ -56,7 +56,7 @@ inline void dump(const lexer::generator& generator)
 
 class commutative_inserter : public lexer::token_inserter
 {
-  public:
+   public:
     using lexer::token_inserter::insert;
 
     commutative_inserter() : lexer::token_inserter(2) {}
@@ -121,13 +121,13 @@ class commutative_inserter : public lexer::token_inserter
         return (match) ? 1 : -1;
     }
 
-  private:
+   private:
     std::set<std::string, core::ilesscompare> ignore_set_;
 };
 
 class operator_joiner final : public token_joiner
 {
-  public:
+   public:
     explicit operator_joiner(const std::size_t& stride) : token_joiner(stride) {}
 
     inline bool join(const lexer::token& t0, const lexer::token& t1, lexer::token& t) override
@@ -295,7 +295,7 @@ class operator_joiner final : public token_joiner
 
 class bracket_checker final : public lexer::token_scanner
 {
-  public:
+   public:
     using lexer::token_scanner::operator();
 
     bracket_checker() : token_scanner(1), state_(true) {}
@@ -366,15 +366,16 @@ class bracket_checker final : public lexer::token_scanner
         return true;
     }
 
-  private:
+   private:
     bool state_;
     std::stack<std::pair<char, std::size_t>> stack_;
     lexer::token error_token_;
 };
 
-template <typename T> class numeric_checker final : public lexer::token_scanner
+template <typename T>
+class numeric_checker final : public lexer::token_scanner
 {
-  public:
+   public:
     using lexer::token_scanner::operator();
 
     numeric_checker() : token_scanner(1), current_index_(0) {}
@@ -425,18 +426,18 @@ template <typename T> class numeric_checker final : public lexer::token_scanner
         error_list_.clear();
     }
 
-  private:
+   private:
     std::size_t current_index_;
     std::vector<std::size_t> error_list_;
 };
 
 class symbol_replacer final : public lexer::token_modifier
 {
-  private:
+   private:
     using replace_map_t =
         std::map<std::string, std::pair<std::string, token::token_type>, core::ilesscompare>;
 
-  public:
+   public:
     bool remove(const std::string& target_symbol)
     {
         const replace_map_t::iterator itr = replace_map_.find(target_symbol);
@@ -469,7 +470,7 @@ class symbol_replacer final : public lexer::token_modifier
         replace_map_.clear();
     }
 
-  private:
+   private:
     bool modify(lexer::token& t) override
     {
         if (lexer::token::e_symbol == t.type)
@@ -496,11 +497,11 @@ class symbol_replacer final : public lexer::token_modifier
 
 class sequence_validator final : public lexer::token_scanner
 {
-  private:
+   private:
     using token_pair_t = std::pair<lexer::token::token_type, lexer::token::token_type>;
     using set_t = std::set<token_pair_t>;
 
-  public:
+   public:
     using lexer::token_scanner::operator();
 
     sequence_validator() : lexer::token_scanner(2)
@@ -574,7 +575,7 @@ class sequence_validator final : public lexer::token_scanner
         error_list_.clear();
     }
 
-  private:
+   private:
     void add_invalid(const lexer::token::token_type base, const lexer::token::token_type t)
     {
         invalid_comb_.insert(std::make_pair(base, t));
@@ -606,12 +607,12 @@ class sequence_validator final : public lexer::token_scanner
         {
             switch (t)
             {
-            case lexer::token::e_assign:
-                return (']' != base);
-            case lexer::token::e_string:
-                return (')' != base);
-            default:
-                return false;
+                case lexer::token::e_assign:
+                    return (']' != base);
+                case lexer::token::e_string:
+                    return (')' != base);
+                default:
+                    return false;
             }
         }
         else if (core::is_left_bracket(static_cast<core::char_t>(base)))
@@ -624,22 +625,22 @@ class sequence_validator final : public lexer::token_scanner
             {
                 switch (t)
                 {
-                case lexer::token::e_number:
-                    return false;
-                case lexer::token::e_symbol:
-                    return false;
-                case lexer::token::e_string:
-                    return false;
-                case lexer::token::e_add:
-                    return false;
-                case lexer::token::e_sub:
-                    return false;
-                case lexer::token::e_colon:
-                    return false;
-                case lexer::token::e_ternary:
-                    return false;
-                default:
-                    return true;
+                    case lexer::token::e_number:
+                        return false;
+                    case lexer::token::e_symbol:
+                        return false;
+                    case lexer::token::e_string:
+                        return false;
+                    case lexer::token::e_add:
+                        return false;
+                    case lexer::token::e_sub:
+                        return false;
+                    case lexer::token::e_colon:
+                        return false;
+                    case lexer::token::e_ternary:
+                        return false;
+                    default:
+                        return true;
                 }
             }
         }
@@ -647,34 +648,34 @@ class sequence_validator final : public lexer::token_scanner
         {
             switch (base)
             {
-            case lexer::token::e_number:
-                return false;
-            case lexer::token::e_symbol:
-                return false;
-            case lexer::token::e_string:
-                return false;
-            case lexer::token::e_eof:
-                return false;
-            case lexer::token::e_colon:
-                return false;
-            case lexer::token::e_ternary:
-                return false;
-            default:
-                return true;
+                case lexer::token::e_number:
+                    return false;
+                case lexer::token::e_symbol:
+                    return false;
+                case lexer::token::e_string:
+                    return false;
+                case lexer::token::e_eof:
+                    return false;
+                case lexer::token::e_colon:
+                    return false;
+                case lexer::token::e_ternary:
+                    return false;
+                default:
+                    return true;
             }
         }
         else if (core::is_left_bracket(static_cast<core::char_t>(t)))
         {
             switch (base)
             {
-            case lexer::token::e_rbracket:
-                return true;
-            case lexer::token::e_rsqrbracket:
-                return true;
-            case lexer::token::e_rcrlbracket:
-                return true;
-            default:
-                return false;
+                case lexer::token::e_rbracket:
+                    return true;
+                case lexer::token::e_rsqrbracket:
+                    return true;
+                case lexer::token::e_rcrlbracket:
+                    return true;
+                default:
+                    return false;
             }
         }
 
@@ -687,12 +688,12 @@ class sequence_validator final : public lexer::token_scanner
 
 class sequence_validator_3tokens final : public lexer::token_scanner
 {
-  private:
+   private:
     using token_t = lexer::token::token_type;
     using token_triplet_t = std::pair<token_t, std::pair<token_t, token_t>>;
     using set_t = std::set<token_triplet_t>;
 
-  public:
+   public:
     using lexer::token_scanner::operator();
 
     sequence_validator_3tokens() : lexer::token_scanner(3)
@@ -756,7 +757,7 @@ class sequence_validator_3tokens final : public lexer::token_scanner
         error_list_.clear();
     }
 
-  private:
+   private:
     void add_invalid(const token_t t0, const token_t t1, const token_t t2)
     {
         invalid_comb_.insert(std::make_pair(t0, std::make_pair(t1, t2)));
@@ -918,8 +919,8 @@ struct helper_assembly
     lexer::token_joiner* error_token_joiner;
     lexer::token_inserter* error_token_inserter;
 };
-} // namespace helper
+}  // namespace helper
 
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

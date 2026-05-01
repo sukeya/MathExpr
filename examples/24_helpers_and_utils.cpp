@@ -40,17 +40,20 @@ struct char_process : public math_expr::igeneric_function<T>
     }
 };
 
-template <typename T> T is_digit_func(const unsigned char c)
+template <typename T>
+T is_digit_func(const unsigned char c)
 {
     return (('0' <= c) && (c <= '9')) ? T(1) : T(0);
 }
 
-template <typename T> T to_num_func(const unsigned char c)
+template <typename T>
+T to_num_func(const unsigned char c)
 {
     return static_cast<T>(c - '0');
 }
 
-template <typename T> void rpn_example()
+template <typename T>
+void rpn_example()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -115,10 +118,10 @@ template <typename T> void rpn_example()
     parser.compile(rpn_program, expression);
 
     const std::string rpn_expressions[] = {
-        "2 3 8 / ^ 4 6 * + 3 9 / -", // 2 ^ (3 / 8) + 4 * 6 - 3 / 9
-        "1 2 / 6 5 2 - / * 7 +",     // (1 / 2) * (6 / (5 - 2)) + 7
-        "1 2 * 3 / 4 * 5 / 6 *",     // ((((1 * 2) / 3) * 4) / 5) * 6
-        "8 6 4 + * 2 /"              // (8 * (6 + 4)) / 2
+        "2 3 8 / ^ 4 6 * + 3 9 / -",  // 2 ^ (3 / 8) + 4 * 6 - 3 / 9
+        "1 2 / 6 5 2 - / * 7 +",      // (1 / 2) * (6 / (5 - 2)) + 7
+        "1 2 * 3 / 4 * 5 / 6 *",      // ((((1 * 2) / 3) * 4) / 5) * 6
+        "8 6 4 + * 2 /"               // (8 * (6 + 4)) / 2
     };
 
     for (std::size_t i = 0; i < sizeof(rpn_expressions) / sizeof(std::string); ++i)

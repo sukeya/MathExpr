@@ -21,20 +21,22 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void square_wave2()
+template <typename T>
+void square_wave2()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
     typedef math_expr::parser<T> parser_t;
 
-    const std::string wave_program = " var r := 0;                                          "
-                                     "                                                      "
-                                     " for (var i := 0; i < 1000; i += 1)                   "
-                                     " {                                                    "
-                                     "    r += (1 / (2i + 1)) * sin((4i + 2) * pi * f * t); "
-                                     " };                                                   "
-                                     "                                                      "
-                                     " r *= a * (4 / pi);                                   ";
+    const std::string wave_program =
+        " var r := 0;                                          "
+        "                                                      "
+        " for (var i := 0; i < 1000; i += 1)                   "
+        " {                                                    "
+        "    r += (1 / (2i + 1)) * sin((4i + 2) * pi * f * t); "
+        " };                                                   "
+        "                                                      "
+        " r *= a * (4 / pi);                                   ";
 
     static const T pi = T(3.141592653589793238462643383279502);
 

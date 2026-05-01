@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> class conditional_node final : public expression_node<T>
+template <typename T>
+class conditional_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -84,15 +85,16 @@ template <typename T> class conditional_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(condition_, consequent_, alternative_);
     }
 
-  private:
+   private:
     branch_t condition_;
     branch_t consequent_;
     branch_t alternative_;
 };
 
-template <typename T> class cons_conditional_node final : public expression_node<T>
+template <typename T>
+class cons_conditional_node final : public expression_node<T>
 {
-  public:
+   public:
     // Consequent only conditional statement node
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
@@ -134,11 +136,11 @@ template <typename T> class cons_conditional_node final : public expression_node
         return expression_node<T>::ndb_t::compute_node_depth(condition_, consequent_);
     }
 
-  private:
+   private:
     branch_t condition_;
     branch_t consequent_;
 };
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

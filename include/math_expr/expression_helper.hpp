@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class expression_helper
+template <typename T>
+class expression_helper
 {
-  public:
+   public:
     enum class node_types
     {
         e_literal,
@@ -120,26 +121,26 @@ template <typename T> class expression_helper
 
         switch (node_type)
         {
-        case node_types::e_literal:
-            return is_literal_node(expr);
-        case node_types::e_variable:
-            return is_variable(expr);
-        case node_types::e_string:
-            return is_string(expr);
-        case node_types::e_unary:
-            return is_unary(expr);
-        case node_types::e_binary:
-            return is_binary(expr);
-        case node_types::e_function:
-            return is_function(expr);
-        case node_types::e_null:
-            return is_null(expr);
-        case node_types::e_assert:
-            return is_assert(expr);
-        case node_types::e_sf3ext:
-            return is_sf3ext(expr);
-        case node_types::e_sf4ext:
-            return is_sf4ext(expr);
+            case node_types::e_literal:
+                return is_literal_node(expr);
+            case node_types::e_variable:
+                return is_variable(expr);
+            case node_types::e_string:
+                return is_string(expr);
+            case node_types::e_unary:
+                return is_unary(expr);
+            case node_types::e_binary:
+                return is_binary(expr);
+            case node_types::e_function:
+                return is_function(expr);
+            case node_types::e_null:
+                return is_null(expr);
+            case node_types::e_assert:
+                return is_assert(expr);
+            case node_types::e_sf3ext:
+                return is_sf3ext(expr);
+            case node_types::e_sf4ext:
+                return is_sf4ext(expr);
         };
 
         return false;
@@ -168,68 +169,68 @@ template <typename T> class expression_helper
 
             switch (type_seq[i])
             {
-            case node_types::e_literal:
-            {
-                if (details::is_literal_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_variable:
-            {
-                if (details::is_variable_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_string:
-            {
-                if (details::is_generally_string_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_unary:
-            {
-                if (details::is_unary_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_binary:
-            {
-                if (details::is_binary_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_function:
-            {
-                if (details::is_function((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_null:
-            {
-                if (details::is_null_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_assert:
-            {
-                if (details::is_assert_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_sf3ext:
-            {
-                if (details::is_sf3ext_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_sf4ext:
-            {
-                if (details::is_sf4ext_node((*vnode)[i]))
-                    continue;
-            }
-            break;
-            case node_types::e_vararg:
+                case node_types::e_literal:
+                {
+                    if (details::is_literal_node((*vnode)[i]))
+                        continue;
+                }
                 break;
+                case node_types::e_variable:
+                {
+                    if (details::is_variable_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_string:
+                {
+                    if (details::is_generally_string_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_unary:
+                {
+                    if (details::is_unary_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_binary:
+                {
+                    if (details::is_binary_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_function:
+                {
+                    if (details::is_function((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_null:
+                {
+                    if (details::is_null_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_assert:
+                {
+                    if (details::is_assert_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_sf3ext:
+                {
+                    if (details::is_sf3ext_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_sf4ext:
+                {
+                    if (details::is_sf4ext_node((*vnode)[i]))
+                        continue;
+                }
+                break;
+                case node_types::e_vararg:
+                    break;
             }
 
             return false;
@@ -239,11 +240,12 @@ template <typename T> class expression_helper
     }
 };
 
-template <typename T> inline bool is_valid(const expression<T>& expr)
+template <typename T>
+inline bool is_valid(const expression<T>& expr)
 {
     return expr.control_block_ && !expression_helper<T>::is_null(expr);
 }
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

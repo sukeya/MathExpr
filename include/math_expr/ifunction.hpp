@@ -40,17 +40,18 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class ifunction : public function_traits
+template <typename T>
+class ifunction : public function_traits
 {
-  public:
+   public:
     explicit ifunction(const std::size_t& pc) : param_count(pc) {}
 
     virtual ~ifunction() {}
 
-#define empty_method_body(N)                                                                       \
-    {                                                                                              \
-        math_expr_debug(("ifunction::operator() - Operator(" #N ") has not been overridden\n"));   \
-        return std::numeric_limits<T>::quiet_NaN();                                                \
+#define empty_method_body(N)                                                                     \
+    {                                                                                            \
+        math_expr_debug(("ifunction::operator() - Operator(" #N ") has not been overridden\n")); \
+        return std::numeric_limits<T>::quiet_NaN();                                              \
     }
 
     inline virtual T operator()() empty_method_body(0)
@@ -74,39 +75,38 @@ template <typename T> class ifunction : public function_traits
                                                             const T&, const T&,
                                                             const T&) empty_method_body(7)
 
-                                    inline virtual T
-                                    operator()(const T&, const T&, const T&, const T&, const T&,
-                                               const T&, const T&, const T&) empty_method_body(8)
+                                    inline virtual T operator()(const T&, const T&, const T&,
+                                                                const T&, const T&, const T&,
+                                                                const T&,
+                                                                const T&) empty_method_body(8)
 
                                         inline virtual T operator()(const T&, const T&, const T&,
                                                                     const T&, const T&, const T&,
                                                                     const T&, const T&,
                                                                     const T&) empty_method_body(9)
 
-                                            inline virtual T
-                                            operator()(const T&, const T&, const T&, const T&,
-                                                       const T&, const T&, const T&, const T&,
-                                                       const T&, const T&) empty_method_body(10)
+                                            inline virtual T operator()(
+                                                const T&, const T&, const T&, const T&, const T&,
+                                                const T&, const T&, const T&, const T&,
+                                                const T&) empty_method_body(10)
 
-                                                inline virtual T
-                                                operator()(const T&, const T&, const T&, const T&,
-                                                           const T&, const T&, const T&, const T&,
-                                                           const T&, const T&,
-                                                           const T&) empty_method_body(11)
+                                                inline virtual T operator()(
+                                                    const T&, const T&, const T&, const T&,
+                                                    const T&, const T&, const T&, const T&,
+                                                    const T&, const T&,
+                                                    const T&) empty_method_body(11)
 
-                                                    inline virtual T
-                                                    operator()(const T&, const T&, const T&,
-                                                               const T&, const T&, const T&,
-                                                               const T&, const T&, const T&,
-                                                               const T&, const T&,
-                                                               const T&) empty_method_body(12)
+                                                    inline virtual T operator()(
+                                                        const T&, const T&, const T&, const T&,
+                                                        const T&, const T&, const T&, const T&,
+                                                        const T&, const T&, const T&,
+                                                        const T&) empty_method_body(12)
 
-                                                        inline virtual T
-                                                        operator()(const T&, const T&, const T&,
-                                                                   const T&, const T&, const T&,
-                                                                   const T&, const T&, const T&,
-                                                                   const T&, const T&, const T&,
-                                                                   const T&) empty_method_body(13)
+                                                        inline virtual T operator()(
+                                                            const T&, const T&, const T&, const T&,
+                                                            const T&, const T&, const T&, const T&,
+                                                            const T&, const T&, const T&, const T&,
+                                                            const T&) empty_method_body(13)
 
                                                             inline virtual T operator()(
                                                                 const T&, const T&, const T&,
@@ -214,6 +214,6 @@ template <typename T> class ifunction : public function_traits
         param_count;
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

@@ -54,7 +54,8 @@ inline bool invalid_range(const Vector& v, const std::size_t r0, const std::size
         return false;
 }
 
-template <typename T> struct load_vector_range
+template <typename T>
+struct load_vector_range
 {
     using igfun_t = typename math_expr::igeneric_function<T>;
     using parameter_list_t = typename igfun_t::parameter_list_t;
@@ -82,13 +83,14 @@ template <typename T> struct load_vector_range
     }
 };
 
-template <typename T> inline void kahan_sum(T& sum, T& error, const T v)
+template <typename T>
+inline void kahan_sum(T& sum, T& error, const T v)
 {
     const T x = v - error;
     const T y = sum + x;
     error = (y - sum) - x;
     sum = y;
 }
-} // namespace math_expr::rtl::vecops::details
+}  // namespace math_expr::rtl::vecops::details
 
 #endif

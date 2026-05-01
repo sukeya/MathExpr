@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-template <typename T> class stringvar_size_node final : public expression_node<T>
+template <typename T>
+class stringvar_size_node final : public expression_node<T>
 {
-  public:
+   public:
     static const std::string null_value;
 
     explicit stringvar_size_node() : value_(&null_value) {}
@@ -57,11 +58,12 @@ template <typename T> class stringvar_size_node final : public expression_node<T
         return expression_node<T>::node_type::e_stringvarsize;
     }
 
-  private:
+   private:
     const std::string* value_;
 };
 
-template <typename T> const std::string stringvar_size_node<T>::null_value = std::string("");
-} // namespace math_expr::details::string_nodes
+template <typename T>
+const std::string stringvar_size_node<T>::null_value = std::string("");
+}  // namespace math_expr::details::string_nodes
 
 #endif

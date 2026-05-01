@@ -46,9 +46,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class symbol_table
+template <typename T>
+class symbol_table
 {
-  public:
+   public:
     enum class symtab_mutability_type
     {
         e_unknown = 0,
@@ -73,7 +74,7 @@ template <typename T> class symbol_table
     typedef T (*ff14_functor)(T, T, T, T, T, T, T, T, T, T, T, T, T, T);
     typedef T (*ff15_functor)(T, T, T, T, T, T, T, T, T, T, T, T, T, T, T);
 
-  protected:
+   protected:
     struct freefunc00 final : public math_expr::ifunction<T>
     {
         using math_expr::ifunction<T>::operator();
@@ -284,7 +285,8 @@ template <typename T> class symbol_table
         ff15_functor f;
     };
 
-    template <typename Type, typename RawType> struct type_store
+    template <typename Type, typename RawType>
+    struct type_store
     {
         typedef details::expression_node<T>* expression_ptr;
         typedef typename details::variable_node<T> variable_node_t;
@@ -312,10 +314,10 @@ template <typename T> class symbol_table
 
         struct deleter
         {
-#define math_expr_define_process(Type)                                                             \
-    static inline void process(std::pair<bool, Type*>& n)                                          \
-    {                                                                                              \
-        delete n.second;                                                                           \
+#define math_expr_define_process(Type)                    \
+    static inline void process(std::pair<bool, Type*>& n) \
+    {                                                     \
+        delete n.second;                                  \
     }
 
             math_expr_define_process(variable_node_t) math_expr_define_process(vector_t)
@@ -341,7 +343,8 @@ template <typename T> class symbol_table
                 return false;
         }
 
-        template <typename PtrType> inline std::string entity_name(const PtrType& ptr) const
+        template <typename PtrType>
+        inline std::string entity_name(const PtrType& ptr) const
         {
             if (map.empty())
                 return std::string();
@@ -484,8 +487,8 @@ template <typename T> class symbol_table
                 }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                static inline std::pair<bool, stringvar_node_t*>
-                make(std::string& t, const bool is_constant = false)
+                static inline std::pair<bool, stringvar_node_t*> make(
+                    std::string& t, const bool is_constant = false)
                 {
                     return std::make_pair(is_constant, new stringvar_node_t(t));
                 }
@@ -497,14 +500,14 @@ template <typename T> class symbol_table
                     return std::make_pair(is_constant, &t);
                 }
 
-                static inline std::pair<bool, vararg_function_t*>
-                make(vararg_function_t& t, const bool is_constant = false)
+                static inline std::pair<bool, vararg_function_t*> make(
+                    vararg_function_t& t, const bool is_constant = false)
                 {
                     return std::make_pair(is_constant, &t);
                 }
 
-                static inline std::pair<bool, generic_function_t*>
-                make(generic_function_t& t, const bool is_constant = false)
+                static inline std::pair<bool, generic_function_t*> make(
+                    generic_function_t& t, const bool is_constant = false)
                 {
                     return std::make_pair(is_constant, &t);
                 }
@@ -531,7 +534,8 @@ template <typename T> class symbol_table
                 return itr->second.second;
         }
 
-        template <typename TType, typename TRawType, typename PtrType> struct ptr_match
+        template <typename TType, typename TRawType, typename PtrType>
+        struct ptr_match
         {
             static inline bool test(const PtrType, const void*)
             {
@@ -644,8 +648,8 @@ template <typename T> class symbol_table
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline std::size_t
-        get_list(Sequence<std::pair<std::string, RawType>, Allocator>& list) const
+        inline std::size_t get_list(
+            Sequence<std::pair<std::string, RawType>, Allocator>& list) const
         {
             std::size_t count = 0;
 
@@ -813,7 +817,7 @@ template <typename T> class symbol_table
         symtab_mutability_type mutability_;
     };
 
-  public:
+   public:
     explicit symbol_table(
         const symtab_mutability_type mutability = symtab_mutability_type::e_mutable)
         : control_block_(control_block::create())
@@ -1200,50 +1204,50 @@ template <typename T> class symbol_table
         {
             switch (function.rtrn_type)
             {
-            case generic_function_t::return_type::e_rtrn_scalar:
-                return (std::string::npos ==
-                        function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                           ? local_data().generic_function_store.add(function_name, function)
-                           : false;
+                case generic_function_t::return_type::e_rtrn_scalar:
+                    return (std::string::npos ==
+                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
+                               ? local_data().generic_function_store.add(function_name, function)
+                               : false;
 
-            case generic_function_t::return_type::e_rtrn_string:
-                return (std::string::npos ==
-                        function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                           ? local_data().string_function_store.add(function_name, function)
-                           : false;
+                case generic_function_t::return_type::e_rtrn_string:
+                    return (std::string::npos ==
+                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
+                               ? local_data().string_function_store.add(function_name, function)
+                               : false;
 
-            case generic_function_t::return_type::e_rtrn_overload:
-                return (std::string::npos ==
-                        function.parameter_sequence.find_first_not_of("STVZ*?|:"))
-                           ? local_data().overload_function_store.add(function_name, function)
-                           : false;
+                case generic_function_t::return_type::e_rtrn_overload:
+                    return (std::string::npos ==
+                            function.parameter_sequence.find_first_not_of("STVZ*?|:"))
+                               ? local_data().overload_function_store.add(function_name, function)
+                               : false;
             }
         }
 
         return false;
     }
 
-#define math_expr_define_freefunction(NN)                                                          \
-    inline bool add_function(const std::string& function_name, ff##NN##_functor function)          \
-    {                                                                                              \
-        if (!valid())                                                                              \
-        {                                                                                          \
-            return false;                                                                          \
-        }                                                                                          \
-        if (!valid_symbol(function_name))                                                          \
-        {                                                                                          \
-            return false;                                                                          \
-        }                                                                                          \
-        if (symbol_exists(function_name))                                                          \
-        {                                                                                          \
-            return false;                                                                          \
-        }                                                                                          \
-                                                                                                   \
-        math_expr::ifunction<T>* ifunc = new freefunc##NN(function);                               \
-                                                                                                   \
-        local_data().free_function_list_.push_back(ifunc);                                         \
-                                                                                                   \
-        return add_function(function_name, (*local_data().free_function_list_.back()));            \
+#define math_expr_define_freefunction(NN)                                                 \
+    inline bool add_function(const std::string& function_name, ff##NN##_functor function) \
+    {                                                                                     \
+        if (!valid())                                                                     \
+        {                                                                                 \
+            return false;                                                                 \
+        }                                                                                 \
+        if (!valid_symbol(function_name))                                                 \
+        {                                                                                 \
+            return false;                                                                 \
+        }                                                                                 \
+        if (symbol_exists(function_name))                                                 \
+        {                                                                                 \
+            return false;                                                                 \
+        }                                                                                 \
+                                                                                          \
+        math_expr::ifunction<T>* ifunc = new freefunc##NN(function);                      \
+                                                                                          \
+        local_data().free_function_list_.push_back(ifunc);                                \
+                                                                                          \
+        return add_function(function_name, (*local_data().free_function_list_.back()));   \
     }
 
     math_expr_define_freefunction(00) math_expr_define_freefunction(01)
@@ -1296,23 +1300,23 @@ template <typename T> class symbol_table
         {
             switch (function.rtrn_type)
             {
-            case generic_function_t::return_type::e_rtrn_scalar:
-                return (std::string::npos ==
-                        function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                           ? local_data().generic_function_store.add(function_name, function)
-                           : false;
+                case generic_function_t::return_type::e_rtrn_scalar:
+                    return (std::string::npos ==
+                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
+                               ? local_data().generic_function_store.add(function_name, function)
+                               : false;
 
-            case generic_function_t::return_type::e_rtrn_string:
-                return (std::string::npos ==
-                        function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                           ? local_data().string_function_store.add(function_name, function)
-                           : false;
+                case generic_function_t::return_type::e_rtrn_string:
+                    return (std::string::npos ==
+                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
+                               ? local_data().string_function_store.add(function_name, function)
+                               : false;
 
-            case generic_function_t::return_type::e_rtrn_overload:
-                return (std::string::npos ==
-                        function.parameter_sequence.find_first_not_of("STVZ*?|:"))
-                           ? local_data().overload_function_store.add(function_name, function)
-                           : false;
+                case generic_function_t::return_type::e_rtrn_overload:
+                    return (std::string::npos ==
+                            function.parameter_sequence.find_first_not_of("STVZ*?|:"))
+                               ? local_data().overload_function_store.add(function_name, function)
+                               : false;
             }
         }
 
@@ -1478,14 +1482,15 @@ template <typename T> class symbol_table
         return add_constant("inf", local_infinity);
     }
 
-    template <typename Package> inline bool add_package(Package& package)
+    template <typename Package>
+    inline bool add_package(Package& package)
     {
         return package.register_package(*this);
     }
 
     template <typename Allocator, template <typename, typename> class Sequence>
-    inline std::size_t
-    get_variable_list(Sequence<std::pair<std::string, T>, Allocator>& vlist) const
+    inline std::size_t get_variable_list(
+        Sequence<std::pair<std::string, T>, Allocator>& vlist) const
     {
         if (!valid())
             return 0;
@@ -1504,8 +1509,8 @@ template <typename T> class symbol_table
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     template <typename Allocator, template <typename, typename> class Sequence>
-    inline std::size_t
-    get_stringvar_list(Sequence<std::pair<std::string, std::string>, Allocator>& svlist) const
+    inline std::size_t get_stringvar_list(
+        Sequence<std::pair<std::string, std::string>, Allocator>& svlist) const
     {
         if (!valid())
             return 0;
@@ -1786,7 +1791,7 @@ template <typename T> class symbol_table
         }
     }
 
-  private:
+   private:
     inline bool valid_symbol(const std::string& symbol, const bool check_reserved_symb = true) const
     {
         if (symbol.empty())
@@ -1848,10 +1853,11 @@ template <typename T> class symbol_table
     control_block* control_block_;
 
     friend class parser<T>;
-}; // class symbol_table
+};  // class symbol_table
 
-template <typename T> class function_compositor;
+template <typename T>
+class function_compositor;
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

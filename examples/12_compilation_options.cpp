@@ -20,29 +20,31 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void bubble_sort()
+template <typename T>
+void bubble_sort()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
     typedef math_expr::parser<T> parser_t;
 
-    const std::string bubblesort_program = " var upper_bound := v[];                      "
-                                           "                                              "
-                                           " repeat                                       "
-                                           "    var new_upper_bound := 0;                 "
-                                           "                                              "
-                                           "    for (var i := 1; i < upper_bound; i += 1) "
-                                           "    {                                         "
-                                           "       if (v[i - 1] > v[i])                   "
-                                           "       {                                      "
-                                           "          v[i - 1] <=> v[i];                  "
-                                           "          new_upper_bound := i;               "
-                                           "       };                                     "
-                                           "    };                                        "
-                                           "                                              "
-                                           "    upper_bound := new_upper_bound;           "
-                                           "                                              "
-                                           " until (upper_bound <= 1);                    ";
+    const std::string bubblesort_program =
+        " var upper_bound := v[];                      "
+        "                                              "
+        " repeat                                       "
+        "    var new_upper_bound := 0;                 "
+        "                                              "
+        "    for (var i := 1; i < upper_bound; i += 1) "
+        "    {                                         "
+        "       if (v[i - 1] > v[i])                   "
+        "       {                                      "
+        "          v[i - 1] <=> v[i];                  "
+        "          new_upper_bound := i;               "
+        "       };                                     "
+        "    };                                        "
+        "                                              "
+        "    upper_bound := new_upper_bound;           "
+        "                                              "
+        " until (upper_bound <= 1);                    ";
 
     T v[] = {T(9.1), T(2.2), T(1.3), T(5.4), T(7.5), T(4.6), T(3.7)};
 

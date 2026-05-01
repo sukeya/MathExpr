@@ -43,7 +43,7 @@ class str_vararg_node final : public expression_node<T>,
                               public string_base_node<T>,
                               public range_interface<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
     using range_ptr = range_t*;
     using irange_t = range_interface<T>;
@@ -158,13 +158,13 @@ class str_vararg_node final : public expression_node<T>,
                         expression_node<T>::ndb_t::compute_node_depth(arg_list_));
     }
 
-  private:
+   private:
     bool initialised_;
     branch_t final_node_;
     str_base_ptr str_base_ptr_;
     irange_ptr str_range_ptr_;
     std::vector<branch_t> arg_list_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

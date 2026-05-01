@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void square_wave()
+template <typename T>
+void square_wave()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;

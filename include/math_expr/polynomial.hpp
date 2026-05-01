@@ -40,7 +40,8 @@ namespace math_expr
 {
 namespace details
 {
-template <typename T> struct collector_helper
+template <typename T>
+struct collector_helper
 {
     using symbol_table_t = math_expr::symbol_table<T>;
     using expression_t = math_expr::expression<T>;
@@ -110,7 +111,7 @@ template <typename T> struct collector_helper
         return pass_result;
     }
 };
-} // namespace details
+}  // namespace details
 
 template <typename Allocator, template <typename, typename> class Sequence>
 inline bool collect_variables(const std::string& expression,
@@ -279,7 +280,8 @@ inline T integrate(const expression<T>& e, const std::string& variable_name, con
     return std::numeric_limits<T>::quiet_NaN();
 }
 
-template <typename T> inline T derivative(const expression<T>& e, T& x, const T& h = T(0.00000001))
+template <typename T>
+inline T derivative(const expression<T>& e, T& x, const T& h = T(0.00000001))
 {
     const T x_init = x;
     const T _2h = T(2) * h;
@@ -424,7 +426,8 @@ inline T third_derivative(const expression<T>& e, const std::string& variable_na
    Furthermore they only assume a small sub set of variables,
    no string variables or user defined functions.
 */
-template <typename T> inline bool compute(const std::string& expression_string, T& result)
+template <typename T>
+inline bool compute(const std::string& expression_string, T& result)
 {
     // No variables
     symbol_table<T> symbol_table;
@@ -527,14 +530,17 @@ inline bool compute(const std::string& expression_string, const T& x, const T& y
         return false;
 }
 
-template <typename T, std::size_t N> class polynomial : public ifunction<T>
+template <typename T, std::size_t N>
+class polynomial : public ifunction<T>
 {
-  private:
-    template <typename Type, std::size_t NumberOfCoefficients> struct poly_impl
+   private:
+    template <typename Type, std::size_t NumberOfCoefficients>
+    struct poly_impl
     {
     };
 
-    template <typename Type> struct poly_impl<Type, 12>
+    template <typename Type>
+    struct poly_impl<Type, 12>
     {
         static inline T evaluate(const Type x, const Type c12, const Type c11, const Type c10,
                                  const Type c9, const Type c8, const Type c7, const Type c6,
@@ -559,7 +565,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 11>
+    template <typename Type>
+    struct poly_impl<Type, 11>
     {
         static inline T evaluate(const Type x, const Type c11, const Type c10, const Type c9,
                                  const Type c8, const Type c7, const Type c6, const Type c5,
@@ -581,7 +588,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 10>
+    template <typename Type>
+    struct poly_impl<Type, 10>
     {
         static inline T evaluate(const Type x, const Type c10, const Type c9, const Type c8,
                                  const Type c7, const Type c6, const Type c5, const Type c4,
@@ -600,7 +608,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 9>
+    template <typename Type>
+    struct poly_impl<Type, 9>
     {
         static inline T evaluate(const Type x, const Type c9, const Type c8, const Type c7,
                                  const Type c6, const Type c5, const Type c4, const Type c3,
@@ -617,7 +626,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 8>
+    template <typename Type>
+    struct poly_impl<Type, 8>
     {
         static inline T evaluate(const Type x, const Type c8, const Type c7, const Type c6,
                                  const Type c5, const Type c4, const Type c3, const Type c2,
@@ -631,7 +641,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 7>
+    template <typename Type>
+    struct poly_impl<Type, 7>
     {
         static inline T evaluate(const Type x, const Type c7, const Type c6, const Type c5,
                                  const Type c4, const Type c3, const Type c2, const Type c1,
@@ -642,7 +653,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 6>
+    template <typename Type>
+    struct poly_impl<Type, 6>
     {
         static inline T evaluate(const Type x, const Type c6, const Type c5, const Type c4,
                                  const Type c3, const Type c2, const Type c1, const Type c0)
@@ -652,7 +664,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 5>
+    template <typename Type>
+    struct poly_impl<Type, 5>
     {
         static inline T evaluate(const Type x, const Type c5, const Type c4, const Type c3,
                                  const Type c2, const Type c1, const Type c0)
@@ -662,7 +675,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 4>
+    template <typename Type>
+    struct poly_impl<Type, 4>
     {
         static inline T evaluate(const Type x, const Type c4, const Type c3, const Type c2,
                                  const Type c1, const Type c0)
@@ -672,7 +686,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 3>
+    template <typename Type>
+    struct poly_impl<Type, 3>
     {
         static inline T evaluate(const Type x, const Type c3, const Type c2, const Type c1,
                                  const Type c0)
@@ -682,7 +697,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 2>
+    template <typename Type>
+    struct poly_impl<Type, 2>
     {
         static inline T evaluate(const Type x, const Type c2, const Type c1, const Type c0)
         {
@@ -691,7 +707,8 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-    template <typename Type> struct poly_impl<Type, 1>
+    template <typename Type>
+    struct poly_impl<Type, 1>
     {
         static inline T evaluate(const Type x, const Type c1, const Type c0)
         {
@@ -700,7 +717,7 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
         }
     };
 
-  public:
+   public:
     using ifunction<T>::operator();
 
     polynomial() : ifunction<T>((N + 2 <= 20) ? (N + 2) : std::numeric_limits<std::size_t>::max())
@@ -807,6 +824,6 @@ template <typename T, std::size_t N> class polynomial : public ifunction<T>
     }
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

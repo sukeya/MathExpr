@@ -42,14 +42,17 @@ namespace math_expr
 #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
 namespace details
 {
-template <typename T> class return_node;
-template <typename T> class return_envelope_node;
-} // namespace details
+template <typename T>
+class return_node;
+template <typename T>
+class return_envelope_node;
+}  // namespace details
 #endif
 
-template <typename T> class results_context
+template <typename T>
+class results_context
 {
-  public:
+   public:
     using type_store_t = type_store<T>;
     using scalar_t = typename type_store_t::scalar_view;
     using vector_t = typename type_store_t::vector_view;
@@ -124,7 +127,7 @@ template <typename T> class results_context
         return false;
     }
 
-  private:
+   private:
     inline void clear()
     {
         results_available_ = false;
@@ -148,6 +151,6 @@ template <typename T> class results_context
 #endif
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void composite()
+template <typename T>
+void composite()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -40,11 +41,11 @@ template <typename T> void composite()
     symbol_table.add_variable("x", x);
     symbol_table.add_variable("y", y);
 
-    compositor.add(function_t("f") // f(x) = sin(x / pi)
+    compositor.add(function_t("f")  // f(x) = sin(x / pi)
                        .var("x")
                        .expression("sin(x / pi)"));
 
-    compositor.add(function_t("g") // g(x,y) = 3[f(x) + f(y)]
+    compositor.add(function_t("g")  // g(x,y) = 3[f(x) + f(y)]
                        .vars("x", "y")
                        .expression("3*[f(x) + f(y)]"));
 

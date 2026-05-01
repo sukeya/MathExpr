@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void compute_european_option_implied_volatility()
+template <typename T>
+void compute_european_option_implied_volatility()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -65,10 +66,10 @@ template <typename T> void compute_european_option_implied_volatility()
         "                                                                    "
         " itr <= max_iters ? vola : null;                                    ";
 
-    T s = T(100.00); // Spot / Stock / Underlying / Base price
-    T k = T(110.00); // Strike price
-    T t = T(2.22);   // Years to maturity
-    T r = T(0.05);   // Risk free rate
+    T s = T(100.00);  // Spot / Stock / Underlying / Base price
+    T k = T(110.00);  // Strike price
+    T t = T(2.22);    // Years to maturity
+    T r = T(0.05);    // Risk free rate
     T target_price = T(0.00);
 
     std::string callput_flag;
@@ -116,9 +117,10 @@ template <typename T> void compute_european_option_implied_volatility()
 
         const T call_option_implied_vola = expression.value();
 
-        printf("Call Option(s: %5.3f, k: %5.3f, t: %5.3f, r: %5.3f) "
-               "@ $%8.6f Implied volatility = %10.8f\n",
-               s, k, t, r, target_price, call_option_implied_vola);
+        printf(
+            "Call Option(s: %5.3f, k: %5.3f, t: %5.3f, r: %5.3f) "
+            "@ $%8.6f Implied volatility = %10.8f\n",
+            s, k, t, r, target_price, call_option_implied_vola);
     }
 
     {
@@ -127,9 +129,10 @@ template <typename T> void compute_european_option_implied_volatility()
 
         const T put_option_implied_vola = expression.value();
 
-        printf("Put  Option(s: %5.3f, k: %5.3f, t: %5.3f, r: %5.3f) "
-               "@ $%8.6f Implied volatility = %10.8f\n",
-               s, k, t, r, target_price, put_option_implied_vola);
+        printf(
+            "Put  Option(s: %5.3f, k: %5.3f, t: %5.3f, r: %5.3f) "
+            "@ $%8.6f Implied volatility = %10.8f\n",
+            s, k, t, r, target_price, put_option_implied_vola);
     }
 }
 

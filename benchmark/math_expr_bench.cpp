@@ -35,7 +35,8 @@ constexpr double kUpperBoundX = 100.0;
 constexpr double kUpperBoundY = 100.0;
 constexpr double kDelta = 0.0111;
 
-template <typename T> struct native
+template <typename T>
+struct native
 {
     using functor_t = typename math_expr::core::numeric::functor_t<T>;
     using Type = typename functor_t::Type;
@@ -298,4 +299,4 @@ bool register_benchmarks()
 
 [[maybe_unused]] const bool kRegisteredBenchmarks = register_benchmarks();
 
-} // namespace
+}  // namespace

@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::rtl::vecops
 {
-template <typename T> class min_elemwise final : public math_expr::igeneric_function<T>
+template <typename T>
+class min_elemwise final : public math_expr::igeneric_function<T>
 {
-  public:
+   public:
     using igfun_t = typename math_expr::igeneric_function<T>;
     using parameter_list_t = typename igfun_t::parameter_list_t;
     using generic_type = typename igfun_t::generic_type;
@@ -81,18 +82,18 @@ template <typename T> class min_elemwise final : public math_expr::igeneric_func
 
             switch (ps_index)
             {
-            case 2:
-            {
-                rng_idx0 = 1;
-                rng_idx1 = 2;
-            };
-            break;
-            case 3:
-            {
-                rng_idx0 = 2;
-                rng_idx1 = 3;
-            };
-            break;
+                case 2:
+                {
+                    rng_idx0 = 1;
+                    rng_idx1 = 2;
+                };
+                break;
+                case 3:
+                {
+                    rng_idx0 = 2;
+                    rng_idx1 = 3;
+                };
+                break;
             }
 
             if (!details::load_vector_range<T>::process(parameters, r0, r1, rng_idx0, rng_idx1, 0))
@@ -110,6 +111,6 @@ template <typename T> class min_elemwise final : public math_expr::igeneric_func
     }
 };
 
-} // namespace math_expr::rtl::vecops
+}  // namespace math_expr::rtl::vecops
 
 #endif

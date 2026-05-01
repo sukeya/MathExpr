@@ -40,7 +40,8 @@ limitations under the License.
 
 namespace math_expr::core::numeric
 {
-template <typename T> struct set_zero_value_impl
+template <typename T>
+struct set_zero_value_impl
 {
     static inline void process(T* base_ptr, const std::size_t size)
     {
@@ -52,13 +53,14 @@ template <typename T> struct set_zero_value_impl
     }
 };
 
-#define pod_set_zero_value(T)                                                                      \
-    template <> struct set_zero_value_impl<T>                                                      \
-    {                                                                                              \
-        static inline void process(T* base_ptr, const std::size_t size)                            \
-        {                                                                                          \
-            std::memset(base_ptr, 0x00, size * sizeof(T));                                         \
-        }                                                                                          \
+#define pod_set_zero_value(T)                                           \
+    template <>                                                         \
+    struct set_zero_value_impl<T>                                       \
+    {                                                                   \
+        static inline void process(T* base_ptr, const std::size_t size) \
+        {                                                               \
+            std::memset(base_ptr, 0x00, size * sizeof(T));              \
+        }                                                               \
     }
 
 pod_set_zero_value(float);
@@ -69,94 +71,109 @@ pod_set_zero_value(long double);
 #undef pod_set_zero_value
 #endif
 
-template <typename T> inline void set_zero_value(T* data, const std::size_t size)
+template <typename T>
+inline void set_zero_value(T* data, const std::size_t size)
 {
     set_zero_value_impl<T>::process(data, size);
 }
 
-template <typename T> inline void set_zero_value(std::vector<T>& v)
+template <typename T>
+inline void set_zero_value(std::vector<T>& v)
 {
     set_zero_value(v.data(), v.size());
 }
 
-} // namespace math_expr::core::numeric
+}  // namespace math_expr::core::numeric
 
 #include "math_expr/core/numeric/details/operations.hpp"
 
 namespace math_expr::core::numeric
 {
-template <typename T> inline std::int32_t to_int32(const T v)
+template <typename T>
+inline std::int32_t to_int32(const T v)
 {
     details::validate_supported_real_type<T>();
     return static_cast<std::int32_t>(v);
 }
 
-template <typename T> inline std::int64_t to_int64(const T v)
+template <typename T>
+inline std::int64_t to_int64(const T v)
 {
     details::validate_supported_real_type<T>();
     return static_cast<std::int64_t>(v);
 }
 
-template <typename T> inline std::uint64_t to_uint64(const T v)
+template <typename T>
+inline std::uint64_t to_uint64(const T v)
 {
     details::validate_supported_real_type<T>();
     return static_cast<std::uint64_t>(v);
 }
 
-template <typename T> inline bool is_nan(const T v)
+template <typename T>
+inline bool is_nan(const T v)
 {
     details::validate_supported_real_type<T>();
     return std::not_equal_to<T>()(v, v);
 }
 
-template <typename T> inline T quiet_nan()
+template <typename T>
+inline T quiet_nan()
 {
     return std::numeric_limits<T>::quiet_NaN();
 }
 
-template <typename T> inline bool is_true(const T v)
+template <typename T>
+inline bool is_true(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::not_equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
 }
 
-template <typename T> inline bool is_false(const T v)
+template <typename T>
+inline bool is_false(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::equal_to<T>()(::math_expr::core::numeric::false_v<T>, v);
 }
 
-template <typename T> inline constexpr T const_pi()
+template <typename T>
+inline constexpr T const_pi()
 {
     details::validate_supported_real_type<T>();
     return T(pi);
 }
 
-template <typename T> inline constexpr T const_e()
+template <typename T>
+inline constexpr T const_e()
 {
     details::validate_supported_real_type<T>();
     return T(e);
 }
 
-template <typename T> inline T const_qnan()
+template <typename T>
+inline T const_qnan()
 {
     details::validate_supported_real_type<T>();
     return std::numeric_limits<T>::quiet_NaN();
 }
 
-template <typename T> inline T min(const T v0, const T v1)
+template <typename T>
+inline T min(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
     return std::min<T>(v0, v1);
 }
 
-template <typename T> inline T max(const T v0, const T v1)
+template <typename T>
+inline T max(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
     return std::max<T>(v0, v1);
 }
 
-template <typename T> inline T equal(const T v0, const T v1)
+template <typename T>
+inline T equal(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -175,7 +192,8 @@ template <typename T> inline T equal(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T nequal(const T v0, const T v1)
+template <typename T>
+inline T nequal(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -194,7 +212,8 @@ template <typename T> inline T nequal(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T modulus(const T v0, const T v1)
+template <typename T>
+inline T modulus(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -208,7 +227,8 @@ template <typename T> inline T modulus(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T pow(const T v0, const T v1)
+template <typename T>
+inline T pow(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -222,7 +242,8 @@ template <typename T> inline T pow(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T logn(const T v0, const T v1)
+template <typename T>
+inline T logn(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -236,7 +257,8 @@ template <typename T> inline T logn(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T root(const T v0, const T v1)
+template <typename T>
+inline T root(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -257,7 +279,8 @@ template <typename T> inline T root(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T roundn(const T v0, const T v1)
+template <typename T>
+inline T roundn(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -282,7 +305,8 @@ template <typename T> inline T roundn(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T hypot(const T v0, const T v1)
+template <typename T>
+inline T hypot(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -296,7 +320,8 @@ template <typename T> inline T hypot(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T atan2(const T v0, const T v1)
+template <typename T>
+inline T atan2(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -312,7 +337,8 @@ template <typename T> inline T atan2(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T shr(const T v0, const T v1)
+template <typename T>
+inline T shr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -326,7 +352,8 @@ template <typename T> inline T shr(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T shl(const T v0, const T v1)
+template <typename T>
+inline T shl(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -340,35 +367,40 @@ template <typename T> inline T shl(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T and_opr(const T v0, const T v1)
+template <typename T>
+inline T and_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
     return (is_true(v0) && is_true(v1)) ? true_v<T> : false_v<T>;
 }
 
-template <typename T> inline T nand_opr(const T v0, const T v1)
+template <typename T>
+inline T nand_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
     return (is_false(v0) || is_false(v1)) ? true_v<T> : false_v<T>;
 }
 
-template <typename T> inline T or_opr(const T v0, const T v1)
+template <typename T>
+inline T or_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
     return (is_true(v0) || is_true(v1)) ? true_v<T> : false_v<T>;
 }
 
-template <typename T> inline T nor_opr(const T v0, const T v1)
+template <typename T>
+inline T nor_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
     return (is_false(v0) && is_false(v1)) ? true_v<T> : false_v<T>;
 }
 
-template <typename T> inline T xor_opr(const T v0, const T v1)
+template <typename T>
+inline T xor_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -382,7 +414,8 @@ template <typename T> inline T xor_opr(const T v0, const T v1)
     }
 }
 
-template <typename T> inline T xnor_opr(const T v0, const T v1)
+template <typename T>
+inline T xnor_opr(const T v0, const T v1)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -399,7 +432,8 @@ template <typename T> inline T xnor_opr(const T v0, const T v1)
     }
 }
 
-template <typename T> inline bool is_integer(const T v)
+template <typename T>
+inline bool is_integer(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -414,7 +448,8 @@ template <typename T> inline bool is_integer(const T v)
     }
 }
 
-template <typename T, unsigned int N> struct fast_exp
+template <typename T, unsigned int N>
+struct fast_exp
 {
     static inline T result(T v)
     {
@@ -437,7 +472,8 @@ template <typename T, unsigned int N> struct fast_exp
     }
 };
 
-template <typename T> struct fast_exp<T, 10>
+template <typename T>
+struct fast_exp<T, 10>
 {
     static inline T result(const T v)
     {
@@ -445,14 +481,16 @@ template <typename T> struct fast_exp<T, 10>
         return v_5 * v_5;
     }
 };
-template <typename T> struct fast_exp<T, 9>
+template <typename T>
+struct fast_exp<T, 9>
 {
     static inline T result(const T v)
     {
         return fast_exp<T, 8>::result(v) * v;
     }
 };
-template <typename T> struct fast_exp<T, 8>
+template <typename T>
+struct fast_exp<T, 8>
 {
     static inline T result(const T v)
     {
@@ -460,14 +498,16 @@ template <typename T> struct fast_exp<T, 8>
         return v_4 * v_4;
     }
 };
-template <typename T> struct fast_exp<T, 7>
+template <typename T>
+struct fast_exp<T, 7>
 {
     static inline T result(const T v)
     {
         return fast_exp<T, 6>::result(v) * v;
     }
 };
-template <typename T> struct fast_exp<T, 6>
+template <typename T>
+struct fast_exp<T, 6>
 {
     static inline T result(const T v)
     {
@@ -475,14 +515,16 @@ template <typename T> struct fast_exp<T, 6>
         return v_3 * v_3;
     }
 };
-template <typename T> struct fast_exp<T, 5>
+template <typename T>
+struct fast_exp<T, 5>
 {
     static inline T result(const T v)
     {
         return fast_exp<T, 4>::result(v) * v;
     }
 };
-template <typename T> struct fast_exp<T, 4>
+template <typename T>
+struct fast_exp<T, 4>
 {
     static inline T result(const T v)
     {
@@ -490,28 +532,32 @@ template <typename T> struct fast_exp<T, 4>
         return v_2 * v_2;
     }
 };
-template <typename T> struct fast_exp<T, 3>
+template <typename T>
+struct fast_exp<T, 3>
 {
     static inline T result(const T v)
     {
         return v * v * v;
     }
 };
-template <typename T> struct fast_exp<T, 2>
+template <typename T>
+struct fast_exp<T, 2>
 {
     static inline T result(const T v)
     {
         return v * v;
     }
 };
-template <typename T> struct fast_exp<T, 1>
+template <typename T>
+struct fast_exp<T, 1>
 {
     static inline T result(const T v)
     {
         return v;
     }
 };
-template <typename T> struct fast_exp<T, 0>
+template <typename T>
+struct fast_exp<T, 0>
 {
     static inline T result(const T)
     {
@@ -519,7 +565,8 @@ template <typename T> struct fast_exp<T, 0>
     }
 };
 
-template <typename T> inline T abs(const T v)
+template <typename T>
+inline T abs(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -537,7 +584,8 @@ template <typename T> inline T abs(const T v)
     }
 }
 
-template <typename T> inline T acos(const T v)
+template <typename T>
+inline T acos(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -551,7 +599,8 @@ template <typename T> inline T acos(const T v)
     }
 }
 
-template <typename T> inline T acosh(const T v)
+template <typename T>
+inline T acosh(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -565,7 +614,8 @@ template <typename T> inline T acosh(const T v)
     }
 }
 
-template <typename T> inline T asin(const T v)
+template <typename T>
+inline T asin(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -579,7 +629,8 @@ template <typename T> inline T asin(const T v)
     }
 }
 
-template <typename T> inline T asinh(const T v)
+template <typename T>
+inline T asinh(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -593,7 +644,8 @@ template <typename T> inline T asinh(const T v)
     }
 }
 
-template <typename T> inline T atan(const T v)
+template <typename T>
+inline T atan(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -607,7 +659,8 @@ template <typename T> inline T atan(const T v)
     }
 }
 
-template <typename T> inline T atanh(const T v)
+template <typename T>
+inline T atanh(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -621,7 +674,8 @@ template <typename T> inline T atanh(const T v)
     }
 }
 
-template <typename T> inline T ceil(const T v)
+template <typename T>
+inline T ceil(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -634,7 +688,8 @@ template <typename T> inline T ceil(const T v)
     }
 }
 
-template <typename T> inline T cos(const T v)
+template <typename T>
+inline T cos(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -648,7 +703,8 @@ template <typename T> inline T cos(const T v)
     }
 }
 
-template <typename T> inline T cosh(const T v)
+template <typename T>
+inline T cosh(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -662,13 +718,15 @@ template <typename T> inline T cosh(const T v)
     }
 }
 
-template <typename T> inline T exp(const T v)
+template <typename T>
+inline T exp(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::exp(v);
 }
 
-template <typename T> inline T expm1(const T v)
+template <typename T>
+inline T expm1(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -682,7 +740,8 @@ template <typename T> inline T expm1(const T v)
     }
 }
 
-template <typename T> inline T floor(const T v)
+template <typename T>
+inline T floor(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -695,25 +754,29 @@ template <typename T> inline T floor(const T v)
     }
 }
 
-template <typename T> inline T log(const T v)
+template <typename T>
+inline T log(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::log(v);
 }
 
-template <typename T> inline T log10(const T v)
+template <typename T>
+inline T log10(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::log10(v);
 }
 
-template <typename T> inline T log2(const T v)
+template <typename T>
+inline T log2(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::log(v) / T(log2_value);
 }
 
-template <typename T> inline T log1p(const T v)
+template <typename T>
+inline T log1p(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -727,19 +790,22 @@ template <typename T> inline T log1p(const T v)
     }
 }
 
-template <typename T> inline T neg(const T v)
+template <typename T>
+inline T neg(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return -v;
 }
 
-template <typename T> inline T pos(const T v)
+template <typename T>
+inline T pos(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return +v;
 }
 
-template <typename T> inline T round(const T v)
+template <typename T>
+inline T round(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -753,7 +819,8 @@ template <typename T> inline T round(const T v)
     }
 }
 
-template <typename T> inline T sin(const T v)
+template <typename T>
+inline T sin(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -767,7 +834,8 @@ template <typename T> inline T sin(const T v)
     }
 }
 
-template <typename T> inline T sinc(const T v)
+template <typename T>
+inline T sinc(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -788,7 +856,8 @@ template <typename T> inline T sinc(const T v)
     }
 }
 
-template <typename T> inline T sinh(const T v)
+template <typename T>
+inline T sinh(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -802,13 +871,15 @@ template <typename T> inline T sinh(const T v)
     }
 }
 
-template <typename T> inline T sqrt(const T v)
+template <typename T>
+inline T sqrt(const T v)
 {
     details::validate_supported_numeric_type<T>();
     return std::sqrt(v);
 }
 
-template <typename T> inline T tan(const T v)
+template <typename T>
+inline T tan(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -822,7 +893,8 @@ template <typename T> inline T tan(const T v)
     }
 }
 
-template <typename T> inline T tanh(const T v)
+template <typename T>
+inline T tanh(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -836,7 +908,8 @@ template <typename T> inline T tanh(const T v)
     }
 }
 
-template <typename T> inline T cot(const T v)
+template <typename T>
+inline T cot(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -850,7 +923,8 @@ template <typename T> inline T cot(const T v)
     }
 }
 
-template <typename T> inline T sec(const T v)
+template <typename T>
+inline T sec(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -864,7 +938,8 @@ template <typename T> inline T sec(const T v)
     }
 }
 
-template <typename T> inline T csc(const T v)
+template <typename T>
+inline T csc(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -878,7 +953,8 @@ template <typename T> inline T csc(const T v)
     }
 }
 
-template <typename T> inline T r2d(const T v)
+template <typename T>
+inline T r2d(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -892,7 +968,8 @@ template <typename T> inline T r2d(const T v)
     }
 }
 
-template <typename T> inline T d2r(const T v)
+template <typename T>
+inline T d2r(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -906,7 +983,8 @@ template <typename T> inline T d2r(const T v)
     }
 }
 
-template <typename T> inline T d2g(const T v)
+template <typename T>
+inline T d2g(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -920,7 +998,8 @@ template <typename T> inline T d2g(const T v)
     }
 }
 
-template <typename T> inline T g2d(const T v)
+template <typename T>
+inline T g2d(const T v)
 {
     details::validate_supported_numeric_type<T>();
     if constexpr (details::is_supported_real_type_v<T>)
@@ -934,7 +1013,8 @@ template <typename T> inline T g2d(const T v)
     }
 }
 
-template <typename T> inline T notl(const T v)
+template <typename T>
+inline T notl(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -948,7 +1028,8 @@ template <typename T> inline T notl(const T v)
     }
 }
 
-template <typename T> inline T sgn(const T v)
+template <typename T>
+inline T sgn(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -966,7 +1047,8 @@ template <typename T> inline T sgn(const T v)
     }
 }
 
-template <typename T> inline T erf(const T v)
+template <typename T>
+inline T erf(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -980,7 +1062,8 @@ template <typename T> inline T erf(const T v)
     }
 }
 
-template <typename T> inline T erfc(const T v)
+template <typename T>
+inline T erfc(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -994,7 +1077,8 @@ template <typename T> inline T erfc(const T v)
     }
 }
 
-template <typename T> inline T ncdf(const T v)
+template <typename T>
+inline T ncdf(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -1008,7 +1092,8 @@ template <typename T> inline T ncdf(const T v)
     }
 }
 
-template <typename T> inline T frac(const T v)
+template <typename T>
+inline T frac(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -1022,7 +1107,8 @@ template <typename T> inline T frac(const T v)
     }
 }
 
-template <typename T> inline T trunc(const T v)
+template <typename T>
+inline T trunc(const T v)
 {
     details::validate_supported_numeric_type<T>();
 
@@ -1036,7 +1122,8 @@ template <typename T> inline T trunc(const T v)
     }
 }
 
-template <typename T> inline T compute_pow10(T d, const int exponent)
+template <typename T>
+inline T compute_pow10(T d, const int exponent)
 {
     static constexpr double fract10[] = {
         0.0,      1.0E+001, 1.0E+002, 1.0E+003, 1.0E+004, 1.0E+005, 1.0E+006, 1.0E+007, 1.0E+008,
@@ -1114,8 +1201,7 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
 
     static constexpr ::math_expr::core::uchar_t zero = static_cast<::math_expr::core::uchar_t>('0');
 
-    while ((end != itr) && (zero == (*itr)))
-        ++itr;
+    while ((end != itr) && (zero == (*itr))) ++itr;
 
     bool return_result = true;
     unsigned int digit = 0;
@@ -1127,42 +1213,42 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
         {
 #ifdef math_expr_use_lut
 
-#define math_expr_process_digit                                                                    \
-    if ((digit = details::digit_table[(int)*itr++]) < 10)                                          \
-        result = result * 10 + (digit);                                                            \
-    else                                                                                           \
-    {                                                                                              \
-        return_result = false;                                                                     \
-        break;                                                                                     \
-    }                                                                                              \
+#define math_expr_process_digit                           \
+    if ((digit = details::digit_table[(int)*itr++]) < 10) \
+        result = result * 10 + (digit);                   \
+    else                                                  \
+    {                                                     \
+        return_result = false;                            \
+        break;                                            \
+    }                                                     \
     [[fallthrough]];
 
 #else
 
-#define math_expr_process_digit                                                                    \
-    if ((digit = (*itr++ - zero)) < 10)                                                            \
-        result = result * T(10) + digit;                                                           \
-    else                                                                                           \
-    {                                                                                              \
-        return_result = false;                                                                     \
-        break;                                                                                     \
-    }                                                                                              \
+#define math_expr_process_digit          \
+    if ((digit = (*itr++ - zero)) < 10)  \
+        result = result * T(10) + digit; \
+    else                                 \
+    {                                    \
+        return_result = false;           \
+        break;                           \
+    }                                    \
     [[fallthrough]];
 
 #endif
 
-        case 4:
-            math_expr_process_digit;
-        case 3:
-            math_expr_process_digit;
-        case 2:
-            math_expr_process_digit;
-        case 1:
-            if ((digit = (*itr - zero)) >= 10)
-            {
-                digit = 0;
-                return_result = false;
-            }
+            case 4:
+                math_expr_process_digit;
+            case 3:
+                math_expr_process_digit;
+            case 2:
+                math_expr_process_digit;
+            case 1:
+                if ((digit = (*itr - zero)) >= 10)
+                {
+                    digit = 0;
+                    return_result = false;
+                }
 
 #undef math_expr_process_digit
         }
@@ -1241,7 +1327,8 @@ static inline bool parse_inf(Iterator& itr, const Iterator end, T& t, const bool
     return true;
 }
 
-template <typename T> inline bool valid_exponent(const int exponent)
+template <typename T>
+inline bool valid_exponent(const int exponent)
 {
     ::math_expr::core::numeric::details::validate_supported_real_type<T>();
     return (std::numeric_limits<T>::min_exponent10 <= exponent) &&
@@ -1272,35 +1359,34 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
     static constexpr ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
 
-#define parse_digit_1(d)                                                                           \
-    if ((digit = (*itr - zero)) < 10)                                                              \
-    {                                                                                              \
-        d = d * T(10) + digit;                                                                     \
-    }                                                                                              \
-    else                                                                                           \
-    {                                                                                              \
-        break;                                                                                     \
-    }                                                                                              \
-    if (end == ++itr)                                                                              \
+#define parse_digit_1(d)              \
+    if ((digit = (*itr - zero)) < 10) \
+    {                                 \
+        d = d * T(10) + digit;        \
+    }                                 \
+    else                              \
+    {                                 \
+        break;                        \
+    }                                 \
+    if (end == ++itr)                 \
         break;
 
-#define parse_digit_2(d)                                                                           \
-    if ((digit = (*itr - zero)) < 10)                                                              \
-    {                                                                                              \
-        d = d * T(10) + digit;                                                                     \
-    }                                                                                              \
-    else                                                                                           \
-    {                                                                                              \
-        break;                                                                                     \
-    }                                                                                              \
+#define parse_digit_2(d)              \
+    if ((digit = (*itr - zero)) < 10) \
+    {                                 \
+        d = d * T(10) + digit;        \
+    }                                 \
+    else                              \
+    {                                 \
+        break;                        \
+    }                                 \
     ++itr;
 
     if ('.' != (*itr))
     {
         const Iterator curr = itr;
 
-        while ((end != itr) && (zero == (*itr)))
-            ++itr;
+        while ((end != itr) && (zero == (*itr))) ++itr;
 
         while (end != itr)
         {
@@ -1421,7 +1507,8 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
     return true;
 }
 
-template <typename T> inline bool string_to_real(const std::string& s, T& t)
+template <typename T>
+inline bool string_to_real(const std::string& s, T& t)
 {
     ::math_expr::core::char_cptr begin = s.data();
     ::math_expr::core::char_cptr end = s.data() + s.size();
@@ -1429,7 +1516,8 @@ template <typename T> inline bool string_to_real(const std::string& s, T& t)
     return string_to_real(begin, end, t);
 }
 
-template <typename T> struct functor_t
+template <typename T>
+struct functor_t
 {
     /*
        Note: The following definitions for Type, may require tweaking
@@ -1446,6 +1534,6 @@ template <typename T> struct functor_t
     using ufunc_t = T (*)(Type t0);
 };
 
-} // namespace math_expr::core::numeric
+}  // namespace math_expr::core::numeric
 
 #endif

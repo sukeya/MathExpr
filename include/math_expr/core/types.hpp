@@ -105,6 +105,6 @@ inline bool is_valid_string_char(const char_t c)
     return std::isprint(static_cast<uchar_t>(c)) || is_whitespace(c);
 }
 
-} // namespace math_expr::core
+}  // namespace math_expr::core
 
 #endif

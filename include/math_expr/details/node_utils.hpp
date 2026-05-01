@@ -39,12 +39,14 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> inline T truth_value(const bool value)
+template <typename T>
+inline T truth_value(const bool value)
 {
     return value ? core::numeric::true_v<T> : core::numeric::false_v<T>;
 }
 
-template <typename T> struct opr_base
+template <typename T>
+struct opr_base
 {
     using Type = typename core::numeric::functor_t<T>::Type;
     using RefType = typename core::numeric::functor_t<T>::RefType;
@@ -55,7 +57,8 @@ template <typename T> struct opr_base
     using unary_functor_t = typename functor_t::ufunc_t;
 };
 
-template <typename T> struct add_op : public opr_base<T>
+template <typename T>
+struct add_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     using RefType = typename opr_base<T>::RefType;
@@ -82,7 +85,8 @@ template <typename T> struct add_op : public opr_base<T>
     }
 };
 
-template <typename T> struct mul_op : public opr_base<T>
+template <typename T>
+struct mul_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     using RefType = typename opr_base<T>::RefType;
@@ -109,7 +113,8 @@ template <typename T> struct mul_op : public opr_base<T>
     }
 };
 
-template <typename T> struct sub_op : public opr_base<T>
+template <typename T>
+struct sub_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     using RefType = typename opr_base<T>::RefType;
@@ -136,7 +141,8 @@ template <typename T> struct sub_op : public opr_base<T>
     }
 };
 
-template <typename T> struct div_op : public opr_base<T>
+template <typename T>
+struct div_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     using RefType = typename opr_base<T>::RefType;
@@ -163,7 +169,8 @@ template <typename T> struct div_op : public opr_base<T>
     }
 };
 
-template <typename T> struct mod_op : public opr_base<T>
+template <typename T>
+struct mod_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     using RefType = typename opr_base<T>::RefType;
@@ -186,7 +193,8 @@ template <typename T> struct mod_op : public opr_base<T>
     }
 };
 
-template <typename T> struct pow_op : public opr_base<T>
+template <typename T>
+struct pow_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     using RefType = typename opr_base<T>::RefType;
@@ -209,7 +217,8 @@ template <typename T> struct pow_op : public opr_base<T>
     }
 };
 
-template <typename T> struct lt_op : public opr_base<T>
+template <typename T>
+struct lt_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -231,7 +240,8 @@ template <typename T> struct lt_op : public opr_base<T>
     }
 };
 
-template <typename T> struct lte_op : public opr_base<T>
+template <typename T>
+struct lte_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -253,7 +263,8 @@ template <typename T> struct lte_op : public opr_base<T>
     }
 };
 
-template <typename T> struct gt_op : public opr_base<T>
+template <typename T>
+struct gt_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -275,7 +286,8 @@ template <typename T> struct gt_op : public opr_base<T>
     }
 };
 
-template <typename T> struct gte_op : public opr_base<T>
+template <typename T>
+struct gte_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -297,7 +309,8 @@ template <typename T> struct gte_op : public opr_base<T>
     }
 };
 
-template <typename T> struct eq_op : public opr_base<T>
+template <typename T>
+struct eq_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
     static inline T process(Type t1, Type t2)
@@ -318,7 +331,8 @@ template <typename T> struct eq_op : public opr_base<T>
     }
 };
 
-template <typename T> struct equal_op : public opr_base<T>
+template <typename T>
+struct equal_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -340,7 +354,8 @@ template <typename T> struct equal_op : public opr_base<T>
     }
 };
 
-template <typename T> struct ne_op : public opr_base<T>
+template <typename T>
+struct ne_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -362,7 +377,8 @@ template <typename T> struct ne_op : public opr_base<T>
     }
 };
 
-template <typename T> struct and_op : public opr_base<T>
+template <typename T>
+struct and_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -380,7 +396,8 @@ template <typename T> struct and_op : public opr_base<T>
     }
 };
 
-template <typename T> struct nand_op : public opr_base<T>
+template <typename T>
+struct nand_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -398,7 +415,8 @@ template <typename T> struct nand_op : public opr_base<T>
     }
 };
 
-template <typename T> struct or_op : public opr_base<T>
+template <typename T>
+struct or_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -416,7 +434,8 @@ template <typename T> struct or_op : public opr_base<T>
     }
 };
 
-template <typename T> struct nor_op : public opr_base<T>
+template <typename T>
+struct nor_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -434,7 +453,8 @@ template <typename T> struct nor_op : public opr_base<T>
     }
 };
 
-template <typename T> struct xor_op : public opr_base<T>
+template <typename T>
+struct xor_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -452,7 +472,8 @@ template <typename T> struct xor_op : public opr_base<T>
     }
 };
 
-template <typename T> struct xnor_op : public opr_base<T>
+template <typename T>
+struct xnor_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -470,7 +491,8 @@ template <typename T> struct xnor_op : public opr_base<T>
     }
 };
 
-template <typename T> struct in_op : public opr_base<T>
+template <typename T>
+struct in_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -492,7 +514,8 @@ template <typename T> struct in_op : public opr_base<T>
     }
 };
 
-template <typename T> struct like_op : public opr_base<T>
+template <typename T>
+struct like_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -514,7 +537,8 @@ template <typename T> struct like_op : public opr_base<T>
     }
 };
 
-template <typename T> struct ilike_op : public opr_base<T>
+template <typename T>
+struct ilike_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -536,7 +560,8 @@ template <typename T> struct ilike_op : public opr_base<T>
     }
 };
 
-template <typename T> struct inrange_op : public opr_base<T>
+template <typename T>
+struct inrange_op : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -558,27 +583,32 @@ template <typename T> struct inrange_op : public opr_base<T>
     }
 };
 
-template <typename T> inline T value(details::expression_node<T>* n)
+template <typename T>
+inline T value(details::expression_node<T>* n)
 {
     return n->value();
 }
 
-template <typename T> inline T value(std::pair<details::expression_node<T>*, bool> n)
+template <typename T>
+inline T value(std::pair<details::expression_node<T>*, bool> n)
 {
     return n.first->value();
 }
 
-template <typename T> inline T value(const T* t)
+template <typename T>
+inline T value(const T* t)
 {
     return (*t);
 }
 
-template <typename T> inline T value(const T& t)
+template <typename T>
+inline T value(const T& t)
 {
     return t;
 }
 
-template <typename T> struct vararg_add_op final : public opr_base<T>
+template <typename T>
+struct vararg_add_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -587,60 +617,66 @@ template <typename T> struct vararg_add_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 0:
-            return T(0);
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-        {
-            T result = T(0);
-
-            for (std::size_t i = 0; i < arg_list.size(); ++i)
+            case 0:
+                return T(0);
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
             {
-                result += value(arg_list[i]);
-            }
+                T result = T(0);
 
-            return result;
-        }
+                for (std::size_t i = 0; i < arg_list.size(); ++i)
+                {
+                    result += value(arg_list[i]);
+                }
+
+                return result;
+            }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return value(arg_list[0]);
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return value(arg_list[0]) + value(arg_list[1]);
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return value(arg_list[0]) + value(arg_list[1]) + value(arg_list[2]);
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return value(arg_list[0]) + value(arg_list[1]) + value(arg_list[2]) + value(arg_list[3]);
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return value(arg_list[0]) + value(arg_list[1]) + value(arg_list[2]) + value(arg_list[3]) +
                value(arg_list[4]);
     }
 };
 
-template <typename T> struct vararg_mul_op final : public opr_base<T>
+template <typename T>
+struct vararg_mul_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -649,60 +685,66 @@ template <typename T> struct vararg_mul_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 0:
-            return T(0);
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-        {
-            T result = T(value(arg_list[0]));
-
-            for (std::size_t i = 1; i < arg_list.size(); ++i)
+            case 0:
+                return T(0);
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
             {
-                result *= value(arg_list[i]);
-            }
+                T result = T(value(arg_list[0]));
 
-            return result;
-        }
+                for (std::size_t i = 1; i < arg_list.size(); ++i)
+                {
+                    result *= value(arg_list[i]);
+                }
+
+                return result;
+            }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return value(arg_list[0]);
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return value(arg_list[0]) * value(arg_list[1]);
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return value(arg_list[0]) * value(arg_list[1]) * value(arg_list[2]);
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return value(arg_list[0]) * value(arg_list[1]) * value(arg_list[2]) * value(arg_list[3]);
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return value(arg_list[0]) * value(arg_list[1]) * value(arg_list[2]) * value(arg_list[3]) *
                value(arg_list[4]);
     }
 };
 
-template <typename T> struct vararg_avg_op final : public opr_base<T>
+template <typename T>
+struct vararg_avg_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -711,45 +753,50 @@ template <typename T> struct vararg_avg_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 0:
-            return T(0);
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-            return vararg_add_op<T>::process(arg_list) / T(arg_list.size());
+            case 0:
+                return T(0);
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
+                return vararg_add_op<T>::process(arg_list) / T(arg_list.size());
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return value(arg_list[0]);
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return (value(arg_list[0]) + value(arg_list[1])) / T(2);
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return (value(arg_list[0]) + value(arg_list[1]) + value(arg_list[2])) / T(3);
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return (value(arg_list[0]) + value(arg_list[1]) + value(arg_list[2]) + value(arg_list[3])) /
                T(4);
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return (value(arg_list[0]) + value(arg_list[1]) + value(arg_list[2]) + value(arg_list[3]) +
                 value(arg_list[4])) /
@@ -757,7 +804,8 @@ template <typename T> struct vararg_avg_op final : public opr_base<T>
     }
 };
 
-template <typename T> struct vararg_min_op final : public opr_base<T>
+template <typename T>
+struct vararg_min_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -766,57 +814,62 @@ template <typename T> struct vararg_min_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 0:
-            return T(0);
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-        {
-            T result = T(value(arg_list[0]));
-
-            for (std::size_t i = 1; i < arg_list.size(); ++i)
+            case 0:
+                return T(0);
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
             {
-                const T v = value(arg_list[i]);
+                T result = T(value(arg_list[0]));
 
-                if (v < result)
-                    result = v;
+                for (std::size_t i = 1; i < arg_list.size(); ++i)
+                {
+                    const T v = value(arg_list[i]);
+
+                    if (v < result)
+                        result = v;
+                }
+
+                return result;
             }
-
-            return result;
-        }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return value(arg_list[0]);
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return std::min<T>(value(arg_list[0]), value(arg_list[1]));
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return std::min<T>(std::min<T>(value(arg_list[0]), value(arg_list[1])), value(arg_list[2]));
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return std::min<T>(std::min<T>(value(arg_list[0]), value(arg_list[1])),
                            std::min<T>(value(arg_list[2]), value(arg_list[3])));
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return std::min<T>(std::min<T>(std::min<T>(value(arg_list[0]), value(arg_list[1])),
                                        std::min<T>(value(arg_list[2]), value(arg_list[3]))),
@@ -824,7 +877,8 @@ template <typename T> struct vararg_min_op final : public opr_base<T>
     }
 };
 
-template <typename T> struct vararg_max_op final : public opr_base<T>
+template <typename T>
+struct vararg_max_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -833,57 +887,62 @@ template <typename T> struct vararg_max_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 0:
-            return T(0);
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-        {
-            T result = T(value(arg_list[0]));
-
-            for (std::size_t i = 1; i < arg_list.size(); ++i)
+            case 0:
+                return T(0);
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
             {
-                const T v = value(arg_list[i]);
+                T result = T(value(arg_list[0]));
 
-                if (v > result)
-                    result = v;
+                for (std::size_t i = 1; i < arg_list.size(); ++i)
+                {
+                    const T v = value(arg_list[i]);
+
+                    if (v > result)
+                        result = v;
+                }
+
+                return result;
             }
-
-            return result;
-        }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return value(arg_list[0]);
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return std::max<T>(value(arg_list[0]), value(arg_list[1]));
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return std::max<T>(std::max<T>(value(arg_list[0]), value(arg_list[1])), value(arg_list[2]));
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return std::max<T>(std::max<T>(value(arg_list[0]), value(arg_list[1])),
                            std::max<T>(value(arg_list[2]), value(arg_list[3])));
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return std::max<T>(std::max<T>(std::max<T>(value(arg_list[0]), value(arg_list[1])),
                                        std::max<T>(value(arg_list[2]), value(arg_list[3]))),
@@ -891,7 +950,8 @@ template <typename T> struct vararg_max_op final : public opr_base<T>
     }
 };
 
-template <typename T> struct vararg_mand_op final : public opr_base<T>
+template <typename T>
+struct vararg_mand_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -900,55 +960,60 @@ template <typename T> struct vararg_mand_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-        {
-            for (std::size_t i = 0; i < arg_list.size(); ++i)
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
             {
-                if (details::is_false(value(arg_list[i])))
-                    return core::numeric::false_v<T>;
-            }
+                for (std::size_t i = 0; i < arg_list.size(); ++i)
+                {
+                    if (details::is_false(value(arg_list[i])))
+                        return core::numeric::false_v<T>;
+                }
 
-            return core::numeric::true_v<T>;
-        }
+                return core::numeric::true_v<T>;
+            }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return truth_value<T>(details::is_true(value(arg_list[0])));
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return truth_value<T>(details::is_true(value(arg_list[0])) &&
                               details::is_true(value(arg_list[1])));
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return truth_value<T>(details::is_true(value(arg_list[0])) &&
                               details::is_true(value(arg_list[1])) &&
                               details::is_true(value(arg_list[2])));
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return truth_value<T>(
             details::is_true(value(arg_list[0])) && details::is_true(value(arg_list[1])) &&
             details::is_true(value(arg_list[2])) && details::is_true(value(arg_list[3])));
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return truth_value<T>(
             details::is_true(value(arg_list[0])) && details::is_true(value(arg_list[1])) &&
@@ -957,7 +1022,8 @@ template <typename T> struct vararg_mand_op final : public opr_base<T>
     }
 };
 
-template <typename T> struct vararg_mor_op final : public opr_base<T>
+template <typename T>
+struct vararg_mor_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -966,55 +1032,60 @@ template <typename T> struct vararg_mor_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        default:
-        {
-            for (std::size_t i = 0; i < arg_list.size(); ++i)
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            default:
             {
-                if (details::is_true(value(arg_list[i])))
-                    return core::numeric::true_v<T>;
-            }
+                for (std::size_t i = 0; i < arg_list.size(); ++i)
+                {
+                    if (details::is_true(value(arg_list[i])))
+                        return core::numeric::true_v<T>;
+                }
 
-            return core::numeric::false_v<T>;
-        }
+                return core::numeric::false_v<T>;
+            }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return truth_value<T>(details::is_true(value(arg_list[0])));
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         return truth_value<T>(details::is_true(value(arg_list[0])) ||
                               details::is_true(value(arg_list[1])));
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         return truth_value<T>(details::is_true(value(arg_list[0])) ||
                               details::is_true(value(arg_list[1])) ||
                               details::is_true(value(arg_list[2])));
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         return truth_value<T>(
             details::is_true(value(arg_list[0])) || details::is_true(value(arg_list[1])) ||
             details::is_true(value(arg_list[2])) || details::is_true(value(arg_list[3])));
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         return truth_value<T>(
             details::is_true(value(arg_list[0])) || details::is_true(value(arg_list[1])) ||
@@ -1023,7 +1094,8 @@ template <typename T> struct vararg_mor_op final : public opr_base<T>
     }
 };
 
-template <typename T> struct vararg_multi_op final : public opr_base<T>
+template <typename T>
+struct vararg_multi_op final : public opr_base<T>
 {
     using Type = typename opr_base<T>::Type;
 
@@ -1032,54 +1104,58 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
     {
         switch (arg_list.size())
         {
-        case 0:
-            return std::numeric_limits<T>::quiet_NaN();
-        case 1:
-            return process_1(arg_list);
-        case 2:
-            return process_2(arg_list);
-        case 3:
-            return process_3(arg_list);
-        case 4:
-            return process_4(arg_list);
-        case 5:
-            return process_5(arg_list);
-        case 6:
-            return process_6(arg_list);
-        case 7:
-            return process_7(arg_list);
-        case 8:
-            return process_8(arg_list);
-        default:
-        {
-            for (std::size_t i = 0; i < (arg_list.size() - 1); ++i)
+            case 0:
+                return std::numeric_limits<T>::quiet_NaN();
+            case 1:
+                return process_1(arg_list);
+            case 2:
+                return process_2(arg_list);
+            case 3:
+                return process_3(arg_list);
+            case 4:
+                return process_4(arg_list);
+            case 5:
+                return process_5(arg_list);
+            case 6:
+                return process_6(arg_list);
+            case 7:
+                return process_7(arg_list);
+            case 8:
+                return process_8(arg_list);
+            default:
             {
-                value(arg_list[i]);
+                for (std::size_t i = 0; i < (arg_list.size() - 1); ++i)
+                {
+                    value(arg_list[i]);
+                }
+                return value(arg_list.back());
             }
-            return value(arg_list.back());
-        }
         }
     }
 
-    template <typename Sequence> static inline T process_1(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_1(const Sequence& arg_list)
     {
         return value(arg_list[0]);
     }
 
-    template <typename Sequence> static inline T process_2(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_2(const Sequence& arg_list)
     {
         value(arg_list[0]);
         return value(arg_list[1]);
     }
 
-    template <typename Sequence> static inline T process_3(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_3(const Sequence& arg_list)
     {
         value(arg_list[0]);
         value(arg_list[1]);
         return value(arg_list[2]);
     }
 
-    template <typename Sequence> static inline T process_4(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_4(const Sequence& arg_list)
     {
         value(arg_list[0]);
         value(arg_list[1]);
@@ -1087,7 +1163,8 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
         return value(arg_list[3]);
     }
 
-    template <typename Sequence> static inline T process_5(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_5(const Sequence& arg_list)
     {
         value(arg_list[0]);
         value(arg_list[1]);
@@ -1096,7 +1173,8 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
         return value(arg_list[4]);
     }
 
-    template <typename Sequence> static inline T process_6(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_6(const Sequence& arg_list)
     {
         value(arg_list[0]);
         value(arg_list[1]);
@@ -1106,7 +1184,8 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
         return value(arg_list[5]);
     }
 
-    template <typename Sequence> static inline T process_7(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_7(const Sequence& arg_list)
     {
         value(arg_list[0]);
         value(arg_list[1]);
@@ -1117,7 +1196,8 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
         return value(arg_list[6]);
     }
 
-    template <typename Sequence> static inline T process_8(const Sequence& arg_list)
+    template <typename Sequence>
+    static inline T process_8(const Sequence& arg_list)
     {
         value(arg_list[0]);
         value(arg_list[1]);
@@ -1130,7 +1210,8 @@ template <typename T> struct vararg_multi_op final : public opr_base<T>
     }
 };
 
-template <typename T> struct vec_add_op
+template <typename T>
+struct vec_add_op
 {
     using ivector_ptr = vector_interface<T>*;
 
@@ -1187,7 +1268,8 @@ template <typename T> struct vec_add_op
     }
 };
 
-template <typename T> struct vec_mul_op
+template <typename T>
+struct vec_mul_op
 {
     using ivector_ptr = vector_interface<T>*;
 
@@ -1244,7 +1326,8 @@ template <typename T> struct vec_mul_op
     }
 };
 
-template <typename T> struct vec_avg_op
+template <typename T>
+struct vec_avg_op
 {
     using ivector_ptr = vector_interface<T>*;
 
@@ -1255,7 +1338,8 @@ template <typename T> struct vec_avg_op
     }
 };
 
-template <typename T> struct vec_min_op
+template <typename T>
+struct vec_min_op
 {
     using ivector_ptr = vector_interface<T>*;
 
@@ -1278,7 +1362,8 @@ template <typename T> struct vec_min_op
     }
 };
 
-template <typename T> struct vec_max_op
+template <typename T>
+struct vec_max_op
 {
     using ivector_ptr = vector_interface<T>*;
 
@@ -1301,9 +1386,10 @@ template <typename T> struct vec_max_op
     }
 };
 
-template <typename T> class vov_base_node : public expression_node<T>
+template <typename T>
+class vov_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~vov_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1316,9 +1402,10 @@ template <typename T> class vov_base_node : public expression_node<T>
     virtual const T& v1() const = 0;
 };
 
-template <typename T> class cov_base_node : public expression_node<T>
+template <typename T>
+class cov_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~cov_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1331,9 +1418,10 @@ template <typename T> class cov_base_node : public expression_node<T>
     virtual const T& v() const = 0;
 };
 
-template <typename T> class voc_base_node : public expression_node<T>
+template <typename T>
+class voc_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~voc_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1346,25 +1434,28 @@ template <typename T> class voc_base_node : public expression_node<T>
     virtual const T& v() const = 0;
 };
 
-template <typename T> class vob_base_node : public expression_node<T>
+template <typename T>
+class vob_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~vob_base_node() {}
 
     virtual const T& v() const = 0;
 };
 
-template <typename T> class bov_base_node : public expression_node<T>
+template <typename T>
+class bov_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~bov_base_node() {}
 
     virtual const T& v() const = 0;
 };
 
-template <typename T> class cob_base_node : public expression_node<T>
+template <typename T>
+class cob_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~cob_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1379,9 +1470,10 @@ template <typename T> class cob_base_node : public expression_node<T>
     virtual expression_node<T>* move_branch(const std::size_t& index) = 0;
 };
 
-template <typename T> class boc_base_node : public expression_node<T>
+template <typename T>
+class boc_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~boc_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1396,9 +1488,10 @@ template <typename T> class boc_base_node : public expression_node<T>
     virtual expression_node<T>* move_branch(const std::size_t& index) = 0;
 };
 
-template <typename T> class uv_base_node : public expression_node<T>
+template <typename T>
+class uv_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~uv_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1409,9 +1502,10 @@ template <typename T> class uv_base_node : public expression_node<T>
     virtual const T& v() const = 0;
 };
 
-template <typename T> class sos_base_node : public expression_node<T>
+template <typename T>
+class sos_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~sos_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1420,9 +1514,10 @@ template <typename T> class sos_base_node : public expression_node<T>
     }
 };
 
-template <typename T> class sosos_base_node : public expression_node<T>
+template <typename T>
+class sosos_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~sosos_base_node() {}
 
     inline virtual core::operators::operator_type operation() const
@@ -1431,25 +1526,28 @@ template <typename T> class sosos_base_node : public expression_node<T>
     }
 };
 
-template <typename T> class T0oT1oT2_base_node : public expression_node<T>
+template <typename T>
+class T0oT1oT2_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~T0oT1oT2_base_node() {}
 
     virtual std::string type_id() const = 0;
 };
 
-template <typename T> class T0oT1oT2oT3_base_node : public expression_node<T>
+template <typename T>
+class T0oT1oT2oT3_base_node : public expression_node<T>
 {
-  public:
+   public:
     virtual ~T0oT1oT2oT3_base_node() {}
 
     virtual std::string type_id() const = 0;
 };
 
-template <typename T, typename Operation> class unary_variable_node final : public uv_base_node<T>
+template <typename T, typename Operation>
+class unary_variable_node final : public uv_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
 
@@ -1475,16 +1573,17 @@ template <typename T, typename Operation> class unary_variable_node final : publ
         return v_;
     }
 
-  private:
+   private:
     unary_variable_node(const unary_variable_node<T, Operation>&) = delete;
     unary_variable_node<T, Operation>& operator=(const unary_variable_node<T, Operation>&) = delete;
 
     const T& v_;
 };
 
-template <typename T> class uvouv_node final : public expression_node<T>
+template <typename T>
+class uvouv_node final : public expression_node<T>
 {
-  public:
+   public:
     // UOpr1(v0) Op UOpr2(v1)
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
@@ -1531,7 +1630,7 @@ template <typename T> class uvouv_node final : public expression_node<T>
         return f_;
     }
 
-  private:
+   private:
     uvouv_node(const uvouv_node<T>&) = delete;
     uvouv_node<T>& operator=(const uvouv_node<T>&) = delete;
 
@@ -1542,9 +1641,10 @@ template <typename T> class uvouv_node final : public expression_node<T>
     const bfunc_t f_;
 };
 
-template <typename T, typename Operation> class unary_branch_node final : public expression_node<T>
+template <typename T, typename Operation>
+class unary_branch_node final : public expression_node<T>
 {
-  public:
+   public:
     using operation_t = Operation;
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
@@ -1594,16 +1694,18 @@ template <typename T, typename Operation> class unary_branch_node final : public
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     unary_branch_node(const unary_branch_node<T, Operation>&) = delete;
     unary_branch_node<T, Operation>& operator=(const unary_branch_node<T, Operation>&) = delete;
 
     branch_t branch_;
 };
 
-template <typename T> inline constexpr bool is_variable_param_v = std::is_lvalue_reference_v<T>;
+template <typename T>
+inline constexpr bool is_variable_param_v = std::is_lvalue_reference_v<T>;
 
-template <std::size_t State> struct param_to_str
+template <std::size_t State>
+struct param_to_str
 {
     static std::string result()
     {
@@ -1612,7 +1714,8 @@ template <std::size_t State> struct param_to_str
     }
 };
 
-template <> struct param_to_str<0>
+template <>
+struct param_to_str<0>
 {
     static std::string result()
     {
@@ -1623,7 +1726,8 @@ template <> struct param_to_str<0>
 
 #define math_expr_crtype(Type) param_to_str<is_variable_param_v<Type> ? 1 : 0>::result()
 
-template <typename T> struct T0oT1oT2process
+template <typename T>
+struct T0oT1oT2process
 {
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
@@ -1637,7 +1741,8 @@ template <typename T> struct T0oT1oT2process
             return bf1(bf0(t0, t1), t2);
         }
 
-        template <typename T0, typename T1, typename T2> static inline std::string id()
+        template <typename T0, typename T1, typename T2>
+        static inline std::string id()
         {
             static const std::string result = "(" + math_expr_crtype(T0) + "o" +
                                               math_expr_crtype(T1) + ")o(" + math_expr_crtype(T2) +
@@ -1655,7 +1760,8 @@ template <typename T> struct T0oT1oT2process
             return bf0(t0, bf1(t1, t2));
         }
 
-        template <typename T0, typename T1, typename T2> static inline std::string id()
+        template <typename T0, typename T1, typename T2>
+        static inline std::string id()
         {
             static const std::string result = "(" + math_expr_crtype(T0) + ")o(" +
                                               math_expr_crtype(T1) + "o" + math_expr_crtype(T2) +
@@ -1665,7 +1771,8 @@ template <typename T> struct T0oT1oT2process
     };
 };
 
-template <typename T> struct T0oT1oT20T3process
+template <typename T>
+struct T0oT1oT20T3process
 {
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
@@ -1679,7 +1786,8 @@ template <typename T> struct T0oT1oT20T3process
             return bf1(bf0(t0, t1), bf2(t2, t3));
         }
 
-        template <typename T0, typename T1, typename T2, typename T3> static inline std::string id()
+        template <typename T0, typename T1, typename T2, typename T3>
+        static inline std::string id()
         {
             static const std::string result =
                 "(" + math_expr_crtype(T0) + "o" + math_expr_crtype(T1) + ")o" + "(" +
@@ -1696,7 +1804,8 @@ template <typename T> struct T0oT1oT20T3process
             // (T0 o0 (T1 o1 (T2 o2 T3))
             return bf0(t0, bf1(t1, bf2(t2, t3)));
         }
-        template <typename T0, typename T1, typename T2, typename T3> static inline std::string id()
+        template <typename T0, typename T1, typename T2, typename T3>
+        static inline std::string id()
         {
             static const std::string result = "(" + math_expr_crtype(T0) + ")o((" +
                                               math_expr_crtype(T1) + ")o(" + math_expr_crtype(T2) +
@@ -1714,7 +1823,8 @@ template <typename T> struct T0oT1oT20T3process
             return bf0(t0, bf2(bf1(t1, t2), t3));
         }
 
-        template <typename T0, typename T1, typename T2, typename T3> static inline std::string id()
+        template <typename T0, typename T1, typename T2, typename T3>
+        static inline std::string id()
         {
             static const std::string result = "(" + math_expr_crtype(T0) + ")o((" +
                                               math_expr_crtype(T1) + "o" + math_expr_crtype(T2) +
@@ -1732,7 +1842,8 @@ template <typename T> struct T0oT1oT20T3process
             return bf2(bf1(bf0(t0, t1), t2), t3);
         }
 
-        template <typename T0, typename T1, typename T2, typename T3> static inline std::string id()
+        template <typename T0, typename T1, typename T2, typename T3>
+        static inline std::string id()
         {
             static const std::string result = "((" + math_expr_crtype(T0) + "o" +
                                               math_expr_crtype(T1) + ")o(" + math_expr_crtype(T2) +
@@ -1750,7 +1861,8 @@ template <typename T> struct T0oT1oT20T3process
             return bf2(bf0(t0, bf1(t1, t2)), t3);
         }
 
-        template <typename T0, typename T1, typename T2, typename T3> static inline std::string id()
+        template <typename T0, typename T1, typename T2, typename T3>
+        static inline std::string id()
         {
             static const std::string result = "((" + math_expr_crtype(T0) + ")o(" +
                                               math_expr_crtype(T1) + "o" + math_expr_crtype(T2) +
@@ -1762,17 +1874,19 @@ template <typename T> struct T0oT1oT20T3process
 
 #undef math_expr_crtype
 
-template <typename T, typename T0, typename T1> struct nodetype_T0oT1
+template <typename T, typename T0, typename T1>
+struct nodetype_T0oT1
 {
     static constexpr typename expression_node<T>::node_type result =
         expression_node<T>::node_type::e_none;
 };
 
-#define synthesis_node_type_define(T0_, T1_, v_)                                                   \
-    template <typename T, typename T0, typename T1> struct nodetype_T0oT1<T, T0_, T1_>             \
-    {                                                                                              \
-        static constexpr typename expression_node<T>::node_type result =                           \
-            expression_node<T>::node_type::v_;                                                     \
+#define synthesis_node_type_define(T0_, T1_, v_)                         \
+    template <typename T, typename T0, typename T1>                      \
+    struct nodetype_T0oT1<T, T0_, T1_>                                   \
+    {                                                                    \
+        static constexpr typename expression_node<T>::node_type result = \
+            expression_node<T>::node_type::v_;                           \
     };
 
 synthesis_node_type_define(const T0&, const T1&, e_vov)
@@ -1793,12 +1907,12 @@ synthesis_node_type_define(const T0&, const T1&, e_vov)
         expression_node<T>::node_type::e_none;
 };
 
-#define synthesis_node_type_define(T0_, T1_, T2_, v_)                                              \
-    template <typename T, typename T0, typename T1, typename T2>                                   \
-    struct nodetype_T0oT1oT2<T, T0_, T1_, T2_>                                                     \
-    {                                                                                              \
-        static constexpr typename expression_node<T>::node_type result =                           \
-            expression_node<T>::node_type::v_;                                                     \
+#define synthesis_node_type_define(T0_, T1_, T2_, v_)                    \
+    template <typename T, typename T0, typename T1, typename T2>         \
+    struct nodetype_T0oT1oT2<T, T0_, T1_, T2_>                           \
+    {                                                                    \
+        static constexpr typename expression_node<T>::node_type result = \
+            expression_node<T>::node_type::v_;                           \
     };
 
 synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
@@ -1820,12 +1934,12 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
         expression_node<T>::node_type::e_none;
 };
 
-#define synthesis_node_type_define(T0_, T1_, T2_, T3_, v_)                                         \
-    template <typename T, typename T0, typename T1, typename T2, typename T3>                      \
-    struct nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>                                             \
-    {                                                                                              \
-        static constexpr typename expression_node<T>::node_type result =                           \
-            expression_node<T>::node_type::v_;                                                     \
+#define synthesis_node_type_define(T0_, T1_, T2_, T3_, v_)                    \
+    template <typename T, typename T0, typename T1, typename T2, typename T3> \
+    struct nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>                        \
+    {                                                                         \
+        static constexpr typename expression_node<T>::node_type result =      \
+            expression_node<T>::node_type::v_;                                \
     };
 
 synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
@@ -1860,7 +1974,7 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
                                                     template <typename T, typename T0, typename T1>
                                                     class T0oT1 final : public expression_node<T>
 {
-  public:
+   public:
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
     using value_type = T;
@@ -1904,7 +2018,7 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
         return allocator.template allocate_type<node_type, T0, T1, bfunc_t&>(p0, p1, p2);
     }
 
-  private:
+   private:
     T0oT1(const T0oT1<T, T0, T1>&) = delete;
     T0oT1<T, T0, T1>& operator=(const T0oT1<T, T0, T1>&)
     {
@@ -1919,7 +2033,7 @@ synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
 template <typename T, typename T0, typename T1, typename T2, typename ProcessMode>
 class T0oT1oT2 final : public T0oT1oT2_base_node<T>
 {
-  public:
+   public:
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
     using value_type = T;
@@ -1989,7 +2103,7 @@ class T0oT1oT2 final : public T0oT1oT2_base_node<T>
                                                                                          p3, p4);
     }
 
-  private:
+   private:
     T0oT1oT2(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 
@@ -2003,7 +2117,7 @@ class T0oT1oT2 final : public T0oT1oT2_base_node<T>
 template <typename T, typename T0_, typename T1_, typename T2_, typename T3_, typename ProcessMode>
 class T0oT1oT2oT3 final : public T0oT1oT2oT3_base_node<T>
 {
-  public:
+   public:
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
     using value_type = T;
@@ -2077,7 +2191,7 @@ class T0oT1oT2oT3 final : public T0oT1oT2oT3_base_node<T>
             p0, p1, p2, p3, p4, p5, p6);
     }
 
-  private:
+   private:
     T0oT1oT2oT3(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 
@@ -2093,7 +2207,7 @@ class T0oT1oT2oT3 final : public T0oT1oT2oT3_base_node<T>
 template <typename T, typename T0, typename T1, typename T2>
 class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
 {
-  public:
+   public:
     using functor_t = typename core::numeric::functor_t<T>;
     using tfunc_t = typename functor_t::tfunc_t;
     using value_type = T;
@@ -2153,7 +2267,7 @@ class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
         return allocator.template allocate_type<node_type, T0, T1, T2, tfunc_t>(p0, p1, p2, p3);
     }
 
-  private:
+   private:
     T0oT1oT2_sf3(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 
@@ -2166,7 +2280,7 @@ class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
 template <typename T, typename T0, typename T1, typename T2>
 class sf3ext_type_node : public T0oT1oT2_base_node<T>
 {
-  public:
+   public:
     virtual ~sf3ext_type_node() {}
 
     virtual T0 t0() const = 0;
@@ -2179,7 +2293,7 @@ class sf3ext_type_node : public T0oT1oT2_base_node<T>
 template <typename T, typename T0, typename T1, typename T2, typename SF3Operation>
 class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
 {
-  public:
+   public:
     using value_type = T;
     using node_type = T0oT1oT2_sf3ext<T, T0, T1, T2, SF3Operation>;
 
@@ -2231,7 +2345,7 @@ class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
         return allocator.template allocate_type<node_type, T0, T1, T2>(p0, p1, p2);
     }
 
-  private:
+   private:
     T0oT1oT2_sf3ext(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 
@@ -2240,29 +2354,30 @@ class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
     T2 t2_;
 };
 
-template <typename T> inline bool is_sf3ext_node(const expression_node<T>* n)
+template <typename T>
+inline bool is_sf3ext_node(const expression_node<T>* n)
 {
     switch (n->type())
     {
-    case expression_node<T>::node_type::e_vovov:
-        return true;
-    case expression_node<T>::node_type::e_vovoc:
-        return true;
-    case expression_node<T>::node_type::e_vocov:
-        return true;
-    case expression_node<T>::node_type::e_covov:
-        return true;
-    case expression_node<T>::node_type::e_covoc:
-        return true;
-    default:
-        return false;
+        case expression_node<T>::node_type::e_vovov:
+            return true;
+        case expression_node<T>::node_type::e_vovoc:
+            return true;
+        case expression_node<T>::node_type::e_vocov:
+            return true;
+        case expression_node<T>::node_type::e_covov:
+            return true;
+        case expression_node<T>::node_type::e_covoc:
+            return true;
+        default:
+            return false;
     }
 }
 
 template <typename T, typename T0, typename T1, typename T2, typename T3>
 class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
 {
-  public:
+   public:
     using functor_t = typename core::numeric::functor_t<T>;
     using qfunc_t = typename functor_t::qfunc_t;
     using value_type = T;
@@ -2331,7 +2446,7 @@ class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
                                                                                     p4);
     }
 
-  private:
+   private:
     T0oT1oT2oT3_sf4(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 
@@ -2345,7 +2460,7 @@ class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
 template <typename T, typename T0, typename T1, typename T2, typename T3, typename SF4Operation>
 class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
 {
-  public:
+   public:
     using value_type = T;
     using node_type = T0oT1oT2oT3_sf4ext<T, T0, T1, T2, T3, SF4Operation>;
 
@@ -2397,7 +2512,7 @@ class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
         return allocator.template allocate_type<node_type, T0, T1, T2, T3>(p0, p1, p2, p3);
     }
 
-  private:
+   private:
     T0oT1oT2oT3_sf4ext(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 
@@ -2407,39 +2522,42 @@ class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
     T3 t3_;
 };
 
-template <typename T> inline bool is_sf4ext_node(const expression_node<T>* n)
+template <typename T>
+inline bool is_sf4ext_node(const expression_node<T>* n)
 {
     switch (n->type())
     {
-    case expression_node<T>::node_type::e_vovovov:
-        return true;
-    case expression_node<T>::node_type::e_vovovoc:
-        return true;
-    case expression_node<T>::node_type::e_vovocov:
-        return true;
-    case expression_node<T>::node_type::e_vocovov:
-        return true;
-    case expression_node<T>::node_type::e_covovov:
-        return true;
-    case expression_node<T>::node_type::e_covocov:
-        return true;
-    case expression_node<T>::node_type::e_vocovoc:
-        return true;
-    case expression_node<T>::node_type::e_covovoc:
-        return true;
-    case expression_node<T>::node_type::e_vococov:
-        return true;
-    default:
-        return false;
+        case expression_node<T>::node_type::e_vovovov:
+            return true;
+        case expression_node<T>::node_type::e_vovovoc:
+            return true;
+        case expression_node<T>::node_type::e_vovocov:
+            return true;
+        case expression_node<T>::node_type::e_vocovov:
+            return true;
+        case expression_node<T>::node_type::e_covovov:
+            return true;
+        case expression_node<T>::node_type::e_covocov:
+            return true;
+        case expression_node<T>::node_type::e_vocovoc:
+            return true;
+        case expression_node<T>::node_type::e_covovoc:
+            return true;
+        case expression_node<T>::node_type::e_vococov:
+            return true;
+        default:
+            return false;
     }
 }
 
-template <typename T, typename T0, typename T1> struct T0oT1_define
+template <typename T, typename T0, typename T1>
+struct T0oT1_define
 {
     using type0 = details::T0oT1<T, T0, T1>;
 };
 
-template <typename T, typename T0, typename T1, typename T2> struct T0oT1oT2_define
+template <typename T, typename T0, typename T1, typename T2>
+struct T0oT1oT2_define
 {
     using type0 = details::T0oT1oT2<T, T0, T1, T2, typename T0oT1oT2process<T>::mode0>;
     using type1 = details::T0oT1oT2<T, T0, T1, T2, typename T0oT1oT2process<T>::mode1>;
@@ -2447,7 +2565,8 @@ template <typename T, typename T0, typename T1, typename T2> struct T0oT1oT2_def
     using sf3_type_node = details::sf3ext_type_node<T, T0, T1, T2>;
 };
 
-template <typename T, typename T0, typename T1, typename T2, typename T3> struct T0oT1oT2oT3_define
+template <typename T, typename T0, typename T1, typename T2, typename T3>
+struct T0oT1oT2oT3_define
 {
     using type0 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode0>;
     using type1 = details::T0oT1oT2oT3<T, T0, T1, T2, T3, typename T0oT1oT20T3process<T>::mode1>;
@@ -2457,9 +2576,10 @@ template <typename T, typename T0, typename T1, typename T2, typename T3> struct
     using sf4_type = details::T0oT1oT2oT3_sf4<T, T0, T1, T2, T3>;
 };
 
-template <typename T, typename Operation> class vov_node final : public vov_base_node<T>
+template <typename T, typename Operation>
+class vov_node final : public vov_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
 
@@ -2491,18 +2611,19 @@ template <typename T, typename Operation> class vov_node final : public vov_base
         return v1_;
     }
 
-  protected:
+   protected:
     const T& v0_;
     const T& v1_;
 
-  private:
+   private:
     vov_node(const vov_node<T, Operation>&) = delete;
     vov_node<T, Operation>& operator=(const vov_node<T, Operation>&) = delete;
 };
 
-template <typename T, typename Operation> class cov_node final : public cov_base_node<T>
+template <typename T, typename Operation>
+class cov_node final : public cov_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
 
@@ -2534,18 +2655,19 @@ template <typename T, typename Operation> class cov_node final : public cov_base
         return v_;
     }
 
-  protected:
+   protected:
     const T c_;
     const T& v_;
 
-  private:
+   private:
     cov_node(const cov_node<T, Operation>&) = delete;
     cov_node<T, Operation>& operator=(const cov_node<T, Operation>&) = delete;
 };
 
-template <typename T, typename Operation> class voc_node final : public voc_base_node<T>
+template <typename T, typename Operation>
+class voc_node final : public voc_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
 
@@ -2572,18 +2694,19 @@ template <typename T, typename Operation> class voc_node final : public voc_base
         return v_;
     }
 
-  protected:
+   protected:
     const T& v_;
     const T c_;
 
-  private:
+   private:
     voc_node(const voc_node<T, Operation>&) = delete;
     voc_node<T, Operation>& operator=(const voc_node<T, Operation>&) = delete;
 };
 
-template <typename T, typename Operation> class vob_node final : public vob_base_node<T>
+template <typename T, typename Operation>
+class vob_node final : public vob_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = Operation;
@@ -2625,7 +2748,7 @@ template <typename T, typename Operation> class vob_node final : public vob_base
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     vob_node(const vob_node<T, Operation>&) = delete;
     vob_node<T, Operation>& operator=(const vob_node<T, Operation>&) = delete;
 
@@ -2633,9 +2756,10 @@ template <typename T, typename Operation> class vob_node final : public vob_base
     branch_t branch_;
 };
 
-template <typename T, typename Operation> class bov_node final : public bov_base_node<T>
+template <typename T, typename Operation>
+class bov_node final : public bov_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = Operation;
@@ -2677,7 +2801,7 @@ template <typename T, typename Operation> class bov_node final : public bov_base
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     bov_node(const bov_node<T, Operation>&) = delete;
     bov_node<T, Operation>& operator=(const bov_node<T, Operation>&) = delete;
 
@@ -2685,9 +2809,10 @@ template <typename T, typename Operation> class bov_node final : public bov_base
     branch_t branch_;
 };
 
-template <typename T, typename Operation> class cob_node final : public cob_base_node<T>
+template <typename T, typename Operation>
+class cob_node final : public cob_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = Operation;
@@ -2745,7 +2870,7 @@ template <typename T, typename Operation> class cob_node final : public cob_base
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     cob_node(const cob_node<T, Operation>&) = delete;
     cob_node<T, Operation>& operator=(const cob_node<T, Operation>&) = delete;
 
@@ -2753,9 +2878,10 @@ template <typename T, typename Operation> class cob_node final : public cob_base
     branch_t branch_;
 };
 
-template <typename T, typename Operation> class boc_node final : public boc_base_node<T>
+template <typename T, typename Operation>
+class boc_node final : public boc_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = Operation;
@@ -2813,7 +2939,7 @@ template <typename T, typename Operation> class boc_node final : public boc_base
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     boc_node(const boc_node<T, Operation>&) = delete;
     boc_node<T, Operation>& operator=(const boc_node<T, Operation>&) = delete;
 
@@ -2825,7 +2951,7 @@ template <typename T, typename Operation> class boc_node final : public boc_base
 template <typename T, typename SType0, typename SType1, typename Operation>
 class sos_node final : public sos_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
 
@@ -2857,20 +2983,20 @@ class sos_node final : public sos_base_node<T>
         return s1_;
     }
 
-  protected:
+   protected:
     SType0 s0_;
     SType1 s1_;
 
-  private:
+   private:
     sos_node(const sos_node<T, SType0, SType1, Operation>&) = delete;
-    sos_node<T, SType0, SType1, Operation>&
-    operator=(const sos_node<T, SType0, SType1, Operation>&) = delete;
+    sos_node<T, SType0, SType1, Operation>& operator=(
+        const sos_node<T, SType0, SType1, Operation>&) = delete;
 };
 
 template <typename T, typename SType0, typename SType1, typename RangePack, typename Operation>
 class str_xrox_node final : public sos_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
     using node_type = str_xrox_node<T, SType0, SType1, RangePack, Operation>;
@@ -2914,12 +3040,12 @@ class str_xrox_node final : public sos_base_node<T>
         return s1_;
     }
 
-  protected:
+   protected:
     SType0 s0_;
     SType1 s1_;
     RangePack rp0_;
 
-  private:
+   private:
     str_xrox_node(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 };
@@ -2927,7 +3053,7 @@ class str_xrox_node final : public sos_base_node<T>
 template <typename T, typename SType0, typename SType1, typename RangePack, typename Operation>
 class str_xoxr_node final : public sos_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
     using node_type = str_xoxr_node<T, SType0, SType1, RangePack, Operation>;
@@ -2973,12 +3099,12 @@ class str_xoxr_node final : public sos_base_node<T>
         return s1_;
     }
 
-  protected:
+   protected:
     SType0 s0_;
     SType1 s1_;
     RangePack rp1_;
 
-  private:
+   private:
     str_xoxr_node(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 };
@@ -2986,7 +3112,7 @@ class str_xoxr_node final : public sos_base_node<T>
 template <typename T, typename SType0, typename SType1, typename RangePack, typename Operation>
 class str_xroxr_node final : public sos_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
     using node_type = str_xroxr_node<T, SType0, SType1, RangePack, Operation>;
@@ -3039,20 +3165,21 @@ class str_xroxr_node final : public sos_base_node<T>
         return s1_;
     }
 
-  protected:
+   protected:
     SType0 s0_;
     SType1 s1_;
     RangePack rp0_;
     RangePack rp1_;
 
-  private:
+   private:
     str_xroxr_node(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 };
 
-template <typename T, typename Operation> class str_sogens_node final : public binary_node<T>
+template <typename T, typename Operation>
+class str_sogens_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using str_base_ptr = string_base_node<T>*;
     using range_t = range_pack<T>;
@@ -3064,8 +3191,12 @@ template <typename T, typename Operation> class str_sogens_node final : public b
 
     str_sogens_node(const core::operators::operator_type& opr, expression_ptr branch0,
                     expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), str0_base_ptr_(0), str1_base_ptr_(0),
-          str0_range_ptr_(0), str1_range_ptr_(0), initialised_(false)
+        : binary_node<T>(opr, branch0, branch1),
+          str0_base_ptr_(0),
+          str1_base_ptr_(0),
+          str0_range_ptr_(0),
+          str1_range_ptr_(0),
+          initialised_(false)
     {
         if (is_generally_string_node(branch(0)))
         {
@@ -3136,7 +3267,7 @@ template <typename T, typename Operation> class str_sogens_node final : public b
         return initialised_;
     }
 
-  private:
+   private:
     str_sogens_node(const str_sogens_node<T, Operation>&) = delete;
     str_sogens_node<T, Operation>& operator=(const str_sogens_node<T, Operation>&) = delete;
 
@@ -3150,7 +3281,7 @@ template <typename T, typename Operation> class str_sogens_node final : public b
 template <typename T, typename SType0, typename SType1, typename SType2, typename Operation>
 class sosos_node final : public sosos_base_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = Operation;
     using node_type = sosos_node<T, SType0, SType1, SType2, Operation>;
@@ -3188,20 +3319,21 @@ class sosos_node final : public sosos_base_node<T>
         return s2_;
     }
 
-  protected:
+   protected:
     SType0 s0_;
     SType1 s1_;
     SType2 s2_;
 
-  private:
+   private:
     sosos_node(const node_type&) = delete;
     node_type& operator=(const node_type&) = delete;
 };
 #endif
 
-template <typename T, typename PowOp> class ipow_node final : public expression_node<T>
+template <typename T, typename PowOp>
+class ipow_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = PowOp;
 
@@ -3217,16 +3349,17 @@ template <typename T, typename PowOp> class ipow_node final : public expression_
         return expression_node<T>::node_type::e_ipow;
     }
 
-  private:
+   private:
     ipow_node(const ipow_node<T, PowOp>&) = delete;
     ipow_node<T, PowOp>& operator=(const ipow_node<T, PowOp>&) = delete;
 
     const T& v_;
 };
 
-template <typename T, typename PowOp> class bipow_node final : public expression_node<T>
+template <typename T, typename PowOp>
+class bipow_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = PowOp;
@@ -3262,16 +3395,17 @@ template <typename T, typename PowOp> class bipow_node final : public expression
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     bipow_node(const bipow_node<T, PowOp>&) = delete;
     bipow_node<T, PowOp>& operator=(const bipow_node<T, PowOp>&) = delete;
 
     branch_t branch_;
 };
 
-template <typename T, typename PowOp> class ipowinv_node final : public expression_node<T>
+template <typename T, typename PowOp>
+class ipowinv_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using operation_t = PowOp;
 
@@ -3287,16 +3421,17 @@ template <typename T, typename PowOp> class ipowinv_node final : public expressi
         return expression_node<T>::node_type::e_ipowinv;
     }
 
-  private:
+   private:
     ipowinv_node(const ipowinv_node<T, PowOp>&) = delete;
     ipowinv_node<T, PowOp>& operator=(const ipowinv_node<T, PowOp>&) = delete;
 
     const T& v_;
 };
 
-template <typename T, typename PowOp> class bipowinv_node final : public expression_node<T>
+template <typename T, typename PowOp>
+class bipowinv_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = PowOp;
@@ -3332,153 +3467,175 @@ template <typename T, typename PowOp> class bipowinv_node final : public express
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     bipowinv_node(const bipowinv_node<T, PowOp>&) = delete;
     bipowinv_node<T, PowOp>& operator=(const bipowinv_node<T, PowOp>&) = delete;
 
     branch_t branch_;
 };
 
-template <typename T> inline bool is_vov_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_vov_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const vov_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_cov_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_cov_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const cov_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_voc_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_voc_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const voc_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_cob_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_cob_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const cob_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_boc_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_boc_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const boc_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_t0ot1ot2_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_t0ot1ot2_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const T0oT1oT2_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_t0ot1ot2ot3_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_t0ot1ot2ot3_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const T0oT1oT2oT3_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_uv_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_uv_node(const expression_node<T>* node)
 {
     return (0 != dynamic_cast<const uv_base_node<T>*>(node));
 }
 
-template <typename T> inline bool is_string_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_stringvar == node->type());
 }
 
-template <typename T> inline bool is_string_range_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_range_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_stringvarrng == node->type());
 }
 
-template <typename T> inline bool is_const_string_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_const_string_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_stringconst == node->type());
 }
 
-template <typename T> inline bool is_const_string_range_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_const_string_range_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_cstringvarrng == node->type());
 }
 
-template <typename T> inline bool is_string_assignment_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_assignment_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_strass == node->type());
 }
 
-template <typename T> inline bool is_string_concat_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_concat_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_strconcat == node->type());
 }
 
-template <typename T> inline bool is_string_function_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_function_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_strfunction == node->type());
 }
 
-template <typename T> inline bool is_string_condition_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_condition_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_strcondition == node->type());
 }
 
-template <typename T> inline bool is_string_ccondition_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_ccondition_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_strccondition == node->type());
 }
 
-template <typename T> inline bool is_string_vararg_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_string_vararg_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_stringvararg == node->type());
 }
 
-template <typename T> inline bool is_genricstring_range_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_genricstring_range_node(const expression_node<T>* node)
 {
     return node && (expression_node<T>::node_type::e_strgenrange == node->type());
 }
 
-template <typename T> inline bool is_generally_string_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_generally_string_node(const expression_node<T>* node)
 {
     if (node)
     {
         switch (node->type())
         {
-        case expression_node<T>::node_type::e_stringvar:
-        case expression_node<T>::node_type::e_stringconst:
-        case expression_node<T>::node_type::e_stringvarrng:
-        case expression_node<T>::node_type::e_cstringvarrng:
-        case expression_node<T>::node_type::e_strgenrange:
-        case expression_node<T>::node_type::e_strass:
-        case expression_node<T>::node_type::e_strconcat:
-        case expression_node<T>::node_type::e_strfunction:
-        case expression_node<T>::node_type::e_strcondition:
-        case expression_node<T>::node_type::e_strccondition:
-        case expression_node<T>::node_type::e_stringvararg:
-            return true;
-        default:
-            return false;
+            case expression_node<T>::node_type::e_stringvar:
+            case expression_node<T>::node_type::e_stringconst:
+            case expression_node<T>::node_type::e_stringvarrng:
+            case expression_node<T>::node_type::e_cstringvarrng:
+            case expression_node<T>::node_type::e_strgenrange:
+            case expression_node<T>::node_type::e_strass:
+            case expression_node<T>::node_type::e_strconcat:
+            case expression_node<T>::node_type::e_strfunction:
+            case expression_node<T>::node_type::e_strcondition:
+            case expression_node<T>::node_type::e_strccondition:
+            case expression_node<T>::node_type::e_stringvararg:
+                return true;
+            default:
+                return false;
         }
     }
 
     return false;
 }
 
-template <typename T> inline bool is_loop_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_loop_node(const expression_node<T>* node)
 {
     if (node)
     {
         switch (node->type())
         {
-        case expression_node<T>::node_type::e_for:
-        case expression_node<T>::node_type::e_repeat:
-        case expression_node<T>::node_type::e_while:
-            return true;
-        default:
-            return false;
+            case expression_node<T>::node_type::e_for:
+            case expression_node<T>::node_type::e_repeat:
+            case expression_node<T>::node_type::e_while:
+                return true;
+            default:
+                return false;
         }
     }
 
     return false;
 }
 
-template <typename T> inline bool is_block_node(const expression_node<T>* node)
+template <typename T>
+inline bool is_block_node(const expression_node<T>* node)
 {
     if (node)
     {
@@ -3489,13 +3646,13 @@ template <typename T> inline bool is_block_node(const expression_node<T>* node)
 
         switch (node->type())
         {
-        case expression_node<T>::node_type::e_conditional:
-        case expression_node<T>::node_type::e_mswitch:
-        case expression_node<T>::node_type::e_switch:
-        case expression_node<T>::node_type::e_vararg:
-            return true;
-        default:
-            return false;
+            case expression_node<T>::node_type::e_conditional:
+            case expression_node<T>::node_type::e_mswitch:
+            case expression_node<T>::node_type::e_switch:
+            case expression_node<T>::node_type::e_vararg:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -3504,7 +3661,7 @@ template <typename T> inline bool is_block_node(const expression_node<T>* node)
 
 class node_allocator
 {
-  public:
+   public:
     template <typename ResultNode, typename OpType, typename ExprNode>
     inline expression_node<typename ResultNode::value_type>* allocate(OpType& operation,
                                                                       ExprNode (&branch)[1])
@@ -3573,8 +3730,8 @@ class node_allocator
 
     template <typename node_type, typename Type, typename Allocator,
               template <typename, typename> class Sequence>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const Sequence<Type, Allocator>& seq) const
+    inline expression_node<typename node_type::value_type>* allocate(
+        const Sequence<Type, Allocator>& seq) const
     {
         expression_node<typename node_type::value_type>* result = (new node_type(seq));
         result->node_depth();
@@ -3693,8 +3850,9 @@ class node_allocator
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4) const
+    inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
+                                                                     const T3& t3,
+                                                                     const T4& t4) const
     {
         expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3, t4));
         result->node_depth();
@@ -3702,8 +3860,9 @@ class node_allocator
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5) const
+    inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
+                                                                     const T3& t3, const T4& t4,
+                                                                     const T5& t5) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5));
@@ -3713,9 +3872,10 @@ class node_allocator
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
               typename T6>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5,
-             const T6& t6) const
+    inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
+                                                                     const T3& t3, const T4& t4,
+                                                                     const T5& t5,
+                                                                     const T6& t6) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5, t6));
@@ -3725,9 +3885,10 @@ class node_allocator
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
               typename T6, typename T7>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6,
-             const T7& t7) const
+    inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
+                                                                     const T3& t3, const T4& t4,
+                                                                     const T5& t5, const T6& t6,
+                                                                     const T7& t7) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5, t6, t7));
@@ -3737,9 +3898,11 @@ class node_allocator
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
               typename T6, typename T7, typename T8>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6,
-             const T7& t7, const T8& t8) const
+    inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
+                                                                     const T3& t3, const T4& t4,
+                                                                     const T5& t5, const T6& t6,
+                                                                     const T7& t7,
+                                                                     const T8& t8) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5, t6, t7, t8));
@@ -3749,9 +3912,11 @@ class node_allocator
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
               typename T6, typename T7, typename T8, typename T9>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6,
-             const T7& t7, const T8& t8, const T9& t9) const
+    inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
+                                                                     const T3& t3, const T4& t4,
+                                                                     const T5& t5, const T6& t6,
+                                                                     const T7& t7, const T8& t8,
+                                                                     const T9& t9) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5, t6, t7, t8, t9));
@@ -3761,9 +3926,9 @@ class node_allocator
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
               typename T6, typename T7, typename T8, typename T9, typename T10>
-    inline expression_node<typename node_type::value_type>*
-    allocate(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6,
-             const T7& t7, const T8& t8, const T9& t9, const T10& t10) const
+    inline expression_node<typename node_type::value_type>* allocate(
+        const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6,
+        const T7& t7, const T8& t8, const T9& t9, const T10& t10) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10));
@@ -3811,8 +3976,9 @@ class node_allocator
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
               typename T6, typename T7>
-    inline expression_node<typename node_type::value_type>*
-    allocate_type(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) const
+    inline expression_node<typename node_type::value_type>* allocate_type(T1 t1, T2 t2, T3 t3,
+                                                                          T4 t4, T5 t5, T6 t6,
+                                                                          T7 t7) const
     {
         expression_node<typename node_type::value_type>* result =
             (new node_type(t1, t2, t3, t4, t5, t6, t7));
@@ -3820,11 +3986,13 @@ class node_allocator
         return result;
     }
 
-    template <typename T> void inline free(expression_node<T>*& e) const
+    template <typename T>
+    void inline free(expression_node<T>*& e) const
     {
-        math_expr_debug(("node_allocator::free() - deleting expression_node "
-                         "type: %03d addr: %p\n",
-                         static_cast<int>(e->type()), reinterpret_cast<void*>(e)));
+        math_expr_debug(
+            ("node_allocator::free() - deleting expression_node "
+             "type: %03d addr: %p\n",
+             static_cast<int>(e->type()), reinterpret_cast<void*>(e)));
         delete e;
         e = 0;
     }
@@ -3833,7 +4001,7 @@ class node_allocator
 inline void load_operations_map(
     std::multimap<std::string, core::operators::base_operation_t, core::ilesscompare>& m)
 {
-#define register_op(Symbol, Type, Args)                                                            \
+#define register_op(Symbol, Type, Args) \
     m.insert(std::make_pair(std::string(Symbol), core::operators::base_operation_t(Type, Args)));
 
     register_op("abs", core::operators::operator_type::abs, 1) register_op(
@@ -3879,39 +4047,40 @@ inline void load_operations_map(
                                                                   core::operators::operator_type::
                                                                       notl,
                                                                   1)
-                                    register_op(
-                                        "erf",
-                                        core::operators::operator_type::erf,
-                                        1) register_op("erfc", core::operators::operator_type::erfc,
+                                    register_op("erf", core::operators::operator_type::erf, 1) register_op(
+                                        "erfc",
+                                        core::operators::operator_type::
+                                            erfc,
+                                        1) register_op("ncdf", core::operators::operator_type::ncdf,
                                                        1)
                                         register_op(
-                                            "ncdf",
-                                            core::operators::operator_type::ncdf,
-                                            1) register_op("frac",
-                                                           core::operators::operator_type::frac, 1)
+                                            "frac",
+                                            core::operators::operator_type::
+                                                frac,
+                                            1) register_op("trunc", core::operators::operator_type::trunc,
+                                                           1)
                                             register_op(
-                                                "trunc", core::operators::operator_type::trunc,
-                                                1) register_op("atan2",
-                                                               core::operators::operator_type::
-                                                                   atan2,
-                                                               2)
+                                                "atan2", core::operators::operator_type::atan2, 2)
                                                 register_op(
                                                     "mod",
-                                                    core::operators::operator_type::mod,
+                                                    core::operators::operator_type::
+                                                        mod,
                                                     2) register_op("logn",
-                                                                   core::operators::
-                                                                       operator_type::logn,
+                                                                   core::
+                                                                       operators::operator_type::logn,
                                                                    2)
                                                     register_op(
                                                         "pow",
-                                                        core::operators::operator_type::pow,
+                                                        core::operators::operator_type::
+                                                            pow,
                                                         2) register_op("root",
                                                                        core::operators::
                                                                            operator_type::root,
                                                                        2)
                                                         register_op(
                                                             "roundn",
-                                                            core::operators::operator_type::roundn,
+                                                            core::operators::operator_type::
+                                                                roundn,
                                                             2) register_op("equal",
                                                                            core::operators::
                                                                                operator_type::equal,
@@ -3955,6 +4124,6 @@ inline void load_operations_map(
 #undef register_op
 }
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

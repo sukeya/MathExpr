@@ -129,7 +129,8 @@ inline const char_t& back(const std::string& s)
     return s[s.size() - 1];
 }
 
-template <typename SignedType> inline std::string to_str_impl(SignedType i)
+template <typename SignedType>
+inline std::string to_str_impl(SignedType i)
 {
     if (0 == i)
         return std::string("0");
@@ -177,7 +178,8 @@ inline uchar_t hex_to_bin(uchar_t h)
         return static_cast<uchar_t>(std::toupper(h) - 'A' + 10);
 }
 
-template <typename Iterator> inline bool parse_hex(Iterator& itr, Iterator end, char_t& result)
+template <typename Iterator>
+inline bool parse_hex(Iterator& itr, Iterator end, char_t& result)
 {
     if ((end == (itr)) || (end == (itr + 1)) || (end == (itr + 2)) || (end == (itr + 3)) ||
         ('0' != *(itr)) || ('X' != std::toupper(*(itr + 1))) || (!is_hex_digit(*(itr + 2))) ||
@@ -286,7 +288,7 @@ inline bool cleanup_escapes(std::string& s)
 
 class build_string
 {
-  public:
+   public:
     explicit build_string(const std::size_t& initial_size = 64)
     {
         data_.reserve(initial_size);
@@ -314,7 +316,7 @@ class build_string
         return data_;
     }
 
-  private:
+   private:
     std::string data_;
 };
 
@@ -588,6 +590,6 @@ inline bool sequence_match(const std::string& pattern, const std::string& str,
     return ((s_end == s_itr) && ((p_end == p_itr) || ('*' == *p_itr)));
 }
 
-} // namespace math_expr::core
+}  // namespace math_expr::core
 
 #endif

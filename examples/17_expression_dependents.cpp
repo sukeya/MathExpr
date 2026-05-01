@@ -23,7 +23,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> struct rnd_01 : public math_expr::ifunction<T>
+template <typename T>
+struct rnd_01 : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -40,7 +41,8 @@ template <typename T> struct rnd_01 : public math_expr::ifunction<T>
     }
 };
 
-template <typename T> void monte_carlo_pi()
+template <typename T>
+void monte_carlo_pi()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -63,7 +65,7 @@ template <typename T> void monte_carlo_pi()
 
     const T approximate_pi = expression.value();
 
-    const T real_pi = T(3.141592653589793238462643383279502); // or close enough...
+    const T real_pi = T(3.141592653589793238462643383279502);  // or close enough...
 
     printf("pi ~ %20.17f\terror: %20.17f\n", approximate_pi, std::abs(real_pi - approximate_pi));
 }

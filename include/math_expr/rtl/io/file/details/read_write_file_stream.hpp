@@ -40,7 +40,7 @@ namespace math_expr::rtl::io::file::details
 {
 class read_write_file_stream final : public stream_base
 {
-  public:
+   public:
     explicit read_write_file_stream(const std::string& file_name)
         : stream_(file_name.c_str(), std::ios::binary)
     {
@@ -83,9 +83,9 @@ class read_write_file_stream final : public stream_base
         return stream_.eof();
     }
 
-  private:
+   private:
     std::fstream stream_;
 };
-} // namespace math_expr::rtl::io::file::details
+}  // namespace math_expr::rtl::io::file::details
 
 #endif

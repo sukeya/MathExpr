@@ -5,13 +5,14 @@ namespace
 
 constexpr long double kExpectedEpsilon = 0.125L;
 
-template <typename T> bool matches_expected_epsilon()
+template <typename T>
+bool matches_expected_epsilon()
 {
     return math_expr::core::numeric::details::epsilon_type<T>::value() ==
            static_cast<T>(kExpectedEpsilon);
 }
 
-} // namespace
+}  // namespace
 
 int main()
 {

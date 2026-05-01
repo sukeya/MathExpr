@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void binomial_option_pricing_model()
+template <typename T>
+void binomial_option_pricing_model()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -60,12 +61,12 @@ template <typename T> void binomial_option_pricing_model()
         "                                                                   "
         " option_price[0];                                                  ";
 
-    T s = T(100.00);  // Spot / Stock / Underlying / Base price
-    T k = T(110.00);  // Strike price
-    T v = T(0.30);    // Volatility
-    T t = T(2.22);    // Years to maturity
-    T r = T(0.05);    // Risk free rate
-    T n = T(1000.00); // Number of time steps
+    T s = T(100.00);   // Spot / Stock / Underlying / Base price
+    T k = T(110.00);   // Strike price
+    T v = T(0.30);     // Volatility
+    T t = T(2.22);     // Years to maturity
+    T r = T(0.05);     // Risk free rate
+    T n = T(1000.00);  // Number of time steps
 
     std::string callput_flag;
 

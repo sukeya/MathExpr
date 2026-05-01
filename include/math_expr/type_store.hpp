@@ -41,7 +41,8 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> struct type_store
+template <typename T>
+struct type_store
 {
     enum class store_type
     {
@@ -67,7 +68,7 @@ template <typename T> struct type_store
 
     class parameter_list
     {
-      public:
+       public:
         explicit parameter_list(std::vector<type_store>& pl) : parameter_list_(pl) {}
 
         inline bool empty() const
@@ -130,13 +131,14 @@ template <typename T> struct type_store
             return parameter_list_.end();
         }
 
-      private:
+       private:
         std::vector<type_store>& parameter_list_;
 
         friend class results_context<T>;
     };
 
-    template <typename ViewType> struct type_view
+    template <typename ViewType>
+    struct type_view
     {
         using type_store_t = type_store<T>;
         using value_t = ViewType;
@@ -223,7 +225,8 @@ template <typename T> struct type_store
             return v_;
         }
 
-        template <typename IntType> inline bool to_int(IntType& i) const
+        template <typename IntType>
+        inline bool to_int(IntType& i) const
         {
             if (!math_expr::core::numeric::is_integer(v_))
                 return false;
@@ -233,7 +236,8 @@ template <typename T> struct type_store
             return true;
         }
 
-        template <typename UIntType> inline bool to_uint(UIntType& u) const
+        template <typename UIntType>
+        inline bool to_uint(UIntType& u) const
         {
             if (v_ < T(0))
                 return false;
@@ -249,11 +253,12 @@ template <typename T> struct type_store
     };
 };
 
-template <typename StringView> inline std::string to_str(const StringView& view)
+template <typename StringView>
+inline std::string to_str(const StringView& view)
 {
     return std::string(view.begin(), view.size());
 }
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

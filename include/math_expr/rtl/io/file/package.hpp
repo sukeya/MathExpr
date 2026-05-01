@@ -46,7 +46,8 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file
 {
-template <typename T> struct package
+template <typename T>
+struct package
 {
     open<T> o;
     close<T> c;
@@ -57,13 +58,13 @@ template <typename T> struct package
 
     bool register_package(math_expr::symbol_table<T>& symtab)
     {
-#define math_expr_register_function(FunctionName, FunctionType)                                    \
-    if (!symtab.add_function(FunctionName, FunctionType))                                          \
-    {                                                                                              \
-        math_expr_debug(                                                                           \
-            ("math_expr::rtl::io::file::register_package - Failed to add function: %s\n",          \
-             FunctionName));                                                                       \
-        return false;                                                                              \
+#define math_expr_register_function(FunctionName, FunctionType)                           \
+    if (!symtab.add_function(FunctionName, FunctionType))                                 \
+    {                                                                                     \
+        math_expr_debug(                                                                  \
+            ("math_expr::rtl::io::file::register_package - Failed to add function: %s\n", \
+             FunctionName));                                                              \
+        return false;                                                                     \
     }
 
         math_expr_register_function("open", o) math_expr_register_function("close", c)
@@ -74,7 +75,7 @@ template <typename T> struct package
                     return true;
     }
 };
-} // namespace math_expr::rtl::io::file
+}  // namespace math_expr::rtl::io::file
 
 #endif
 #endif

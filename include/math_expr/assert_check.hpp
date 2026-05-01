@@ -55,6 +55,6 @@ struct assert_check
 
 using assert_check_ptr = assert_check*;
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

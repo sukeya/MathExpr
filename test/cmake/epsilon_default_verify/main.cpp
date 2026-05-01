@@ -5,13 +5,14 @@
 namespace
 {
 
-template <typename T> bool matches_default_epsilon()
+template <typename T>
+bool matches_default_epsilon()
 {
     return math_expr::core::numeric::details::epsilon_type<T>::value() ==
            std::numeric_limits<T>::epsilon();
 }
 
-} // namespace
+}  // namespace
 
 int main()
 {

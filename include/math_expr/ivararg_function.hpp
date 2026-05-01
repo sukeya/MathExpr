@@ -40,9 +40,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class ivararg_function : public function_traits
+template <typename T>
+class ivararg_function : public function_traits
 {
-  public:
+   public:
     virtual ~ivararg_function() {}
 
     inline virtual T operator()(const std::vector<T>&)
@@ -52,6 +53,6 @@ template <typename T> class ivararg_function : public function_traits
     }
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

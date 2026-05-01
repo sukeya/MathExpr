@@ -47,6 +47,6 @@ static constexpr double _180_pi = 57.2957795130823208767981548141051703324054724
 static constexpr double log2_value = 0.69314718055994530941723212145817656807550013436026;
 static constexpr double sqrt2 = 1.41421356237309504880168872420969807856967187537695;
 
-} // namespace math_expr::core::numeric
+}  // namespace math_expr::core::numeric
 
 #endif

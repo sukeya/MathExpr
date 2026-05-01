@@ -41,7 +41,7 @@ namespace math_expr::lexer
 {
 class parser_helper
 {
-  public:
+   public:
     using token_t = token;
     using generator_t = generator;
 
@@ -150,20 +150,20 @@ class parser_helper
         return true;
     }
 
-    inline bool
-    token_is_arithmetic_opr(const token_advance_mode mode = token_advance_mode::e_advance)
+    inline bool token_is_arithmetic_opr(
+        const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
-        case token_t::e_add:
-        case token_t::e_sub:
-        case token_t::e_div:
-        case token_t::e_mul:
-        case token_t::e_mod:
-        case token_t::e_pow:
-            break;
-        default:
-            return false;
+            case token_t::e_add:
+            case token_t::e_sub:
+            case token_t::e_div:
+            case token_t::e_mul:
+            case token_t::e_mod:
+            case token_t::e_pow:
+                break;
+            default:
+                return false;
         }
 
         advance_token(mode);
@@ -175,15 +175,15 @@ class parser_helper
     {
         switch (current_token().type)
         {
-        case token_t::e_eq:
-        case token_t::e_lte:
-        case token_t::e_ne:
-        case token_t::e_gte:
-        case token_t::e_lt:
-        case token_t::e_gt:
-            break;
-        default:
-            return false;
+            case token_t::e_eq:
+            case token_t::e_lte:
+            case token_t::e_ne:
+            case token_t::e_gte:
+            case token_t::e_lt:
+            case token_t::e_gt:
+                break;
+            default:
+                return false;
         }
 
         advance_token(mode);
@@ -195,12 +195,12 @@ class parser_helper
     {
         switch (current_token().type)
         {
-        case token_t::e_lbracket:
-        case token_t::e_lcrlbracket:
-        case token_t::e_lsqrbracket:
-            break;
-        default:
-            return false;
+            case token_t::e_lbracket:
+            case token_t::e_lcrlbracket:
+            case token_t::e_lsqrbracket:
+                break;
+            default:
+                return false;
         }
 
         advance_token(mode);
@@ -208,17 +208,17 @@ class parser_helper
         return true;
     }
 
-    inline bool
-    token_is_right_bracket(const token_advance_mode mode = token_advance_mode::e_advance)
+    inline bool token_is_right_bracket(
+        const token_advance_mode mode = token_advance_mode::e_advance)
     {
         switch (current_token().type)
         {
-        case token_t::e_rbracket:
-        case token_t::e_rcrlbracket:
-        case token_t::e_rsqrbracket:
-            break;
-        default:
-            return false;
+            case token_t::e_rbracket:
+            case token_t::e_rcrlbracket:
+            case token_t::e_rsqrbracket:
+                break;
+            default:
+                return false;
         }
 
         advance_token(mode);
@@ -230,15 +230,15 @@ class parser_helper
     {
         switch (current_token().type)
         {
-        case token_t::e_rbracket:
-        case token_t::e_rcrlbracket:
-        case token_t::e_rsqrbracket:
-        case token_t::e_lbracket:
-        case token_t::e_lcrlbracket:
-        case token_t::e_lsqrbracket:
-            break;
-        default:
-            return false;
+            case token_t::e_rbracket:
+            case token_t::e_rcrlbracket:
+            case token_t::e_rsqrbracket:
+            case token_t::e_lbracket:
+            case token_t::e_lcrlbracket:
+            case token_t::e_lsqrbracket:
+                break;
+            default:
+                return false;
         }
 
         advance_token(mode);
@@ -261,11 +261,11 @@ class parser_helper
         return (math_expr::core::imatch(lexer_.peek_next_token().value, s));
     }
 
-  private:
+   private:
     generator_t lexer_;
     token_t current_token_;
     token_t store_current_token_;
 };
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

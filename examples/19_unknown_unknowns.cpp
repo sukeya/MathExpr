@@ -23,9 +23,10 @@
 
 #include "math_expr.hpp"
 
-template <typename T> class randu : public math_expr::igeneric_function<T>
+template <typename T>
+class randu : public math_expr::igeneric_function<T>
 {
-  public:
+   public:
     typedef typename math_expr::igeneric_function<T> igfun_t;
     typedef typename igfun_t::parameter_list_t parameter_list_t;
     typedef typename igfun_t::generic_type generic_type;
@@ -63,7 +64,7 @@ template <typename T> class randu : public math_expr::igeneric_function<T>
         return T(1);
     }
 
-  private:
+   private:
     inline T rnd()
     {
         // Note: Do not use this in production
@@ -72,29 +73,31 @@ template <typename T> class randu : public math_expr::igeneric_function<T>
     }
 };
 
-template <typename T> void vector_randu()
+template <typename T>
+void vector_randu()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
     typedef math_expr::parser<T> parser_t;
 
-    const std::string vecrandu_program = " var noise[6] := [0];                          "
-                                         "                                               "
-                                         " if (randu(noise, 0, 5) == false)              "
-                                         " {                                             "
-                                         "    println('Failed to generate noise');       "
-                                         "    return [false];                            "
-                                         " };                                            "
-                                         "                                               "
-                                         " var noisy[noise[]] := signal + (noise - 1/2); "
-                                         "                                               "
-                                         " for (var i := 0; i < noisy[]; i += 1)         "
-                                         " {                                             "
-                                         "    println('noisy[',i,'] = ', noisy[i]);      "
-                                         " };                                            "
-                                         "                                               "
-                                         " println('avg: ', avg(noisy));                 "
-                                         "                                               ";
+    const std::string vecrandu_program =
+        " var noise[6] := [0];                          "
+        "                                               "
+        " if (randu(noise, 0, 5) == false)              "
+        " {                                             "
+        "    println('Failed to generate noise');       "
+        "    return [false];                            "
+        " };                                            "
+        "                                               "
+        " var noisy[noise[]] := signal + (noise - 1/2); "
+        "                                               "
+        " for (var i := 0; i < noisy[]; i += 1)         "
+        " {                                             "
+        "    println('noisy[',i,'] = ', noisy[i]);      "
+        " };                                            "
+        "                                               "
+        " println('avg: ', avg(noisy));                 "
+        "                                               ";
 
     T signal[] = {T(1.1), T(2.2), T(3.3), T(4.4), T(5.5), T(6.6), T(7.7)};
 

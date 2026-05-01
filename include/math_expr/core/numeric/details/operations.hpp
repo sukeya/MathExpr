@@ -40,9 +40,11 @@ limitations under the License.
 
 namespace math_expr::core::numeric
 {
-template <typename T> inline constexpr T false_v = T(0);
-template <typename T> inline constexpr T true_v = T(1);
-} // namespace math_expr::core::numeric
+template <typename T>
+inline constexpr T false_v = T(0);
+template <typename T>
+inline constexpr T true_v = T(1);
+}  // namespace math_expr::core::numeric
 
 namespace math_expr::core::numeric::details
 {
@@ -66,7 +68,8 @@ template <typename T>
 inline constexpr bool is_supported_numeric_type_v =
     is_supported_real_type_v<T> || is_supported_integral_type_v<T>;
 
-template <typename T> inline constexpr void validate_supported_numeric_type()
+template <typename T>
+inline constexpr void validate_supported_numeric_type()
 {
     static_assert(is_supported_numeric_type_v<T>,
                   "math_expr numeric helpers support float, double, long double, std::int16_t, "
@@ -74,13 +77,15 @@ template <typename T> inline constexpr void validate_supported_numeric_type()
                   "only.");
 }
 
-template <typename T> inline constexpr void validate_supported_real_type()
+template <typename T>
+inline constexpr void validate_supported_real_type()
 {
     static_assert(is_supported_real_type_v<T>,
                   "math_expr real-only helpers support float, double, and long double only.");
 }
 
-template <typename T> struct epsilon_type
+template <typename T>
+struct epsilon_type
 {
     static inline constexpr T value()
     {
@@ -97,7 +102,8 @@ template <typename T> struct epsilon_type
     }
 };
 
-template <typename T> inline T abs_value(const T v)
+template <typename T>
+inline T abs_value(const T v)
 {
     validate_supported_numeric_type<T>();
 
@@ -115,6 +121,6 @@ template <typename T> inline T abs_value(const T v)
     }
 }
 
-} // namespace math_expr::core::numeric::details
+}  // namespace math_expr::core::numeric::details
 
 #endif

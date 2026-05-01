@@ -46,9 +46,10 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> class variable_node final : public expression_node<T>, public ivariable<T>
+template <typename T>
+class variable_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     static T null_value;
 
     explicit variable_node() : value_(&null_value) {}
@@ -80,15 +81,18 @@ template <typename T> class variable_node final : public expression_node<T>, pub
         return expression_node<T>::node_type::e_variable;
     }
 
-  private:
+   private:
     T* value_;
 };
 
-template <typename T> T variable_node<T>::null_value = T(std::numeric_limits<T>::quiet_NaN());
+template <typename T>
+T variable_node<T>::null_value = T(std::numeric_limits<T>::quiet_NaN());
 
-template <typename T> class string_base_node;
+template <typename T>
+class string_base_node;
 
-template <typename T> struct range_data_type
+template <typename T>
+struct range_data_type
 {
     using range_t = range_pack<T>;
     using strbase_ptr_t = string_base_node<T>*;
@@ -102,11 +106,13 @@ template <typename T> struct range_data_type
     strbase_ptr_t str_node;
 };
 
-template <typename T> class vector_node;
+template <typename T>
+class vector_node;
 
-template <typename T> class vector_interface
+template <typename T>
+class vector_interface
 {
-  public:
+   public:
     using vector_node_ptr = vector_node<T>*;
     using vds_t = core::vec_data_store<T>;
 
@@ -133,7 +139,7 @@ template <typename T> class vector_interface
 template <typename T>
 class vector_node final : public expression_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_node_ptr = vector_node<T>*;
@@ -208,14 +214,15 @@ class vector_node final : public expression_node<T>, public vector_interface<T>
         return (*vector_holder_);
     }
 
-  private:
+   private:
     vector_holder_t* vector_holder_;
     vds_t vds_;
 };
 
-template <typename T> class vector_size_node final : public expression_node<T>
+template <typename T>
+class vector_size_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
 
@@ -247,13 +254,14 @@ template <typename T> class vector_size_node final : public expression_node<T>
         return vector_holder_;
     }
 
-  private:
+   private:
     vector_holder_t* vector_holder_;
 };
 
-template <typename T> class vector_elem_node final : public expression_node<T>, public ivariable<T>
+template <typename T>
+class vector_elem_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -309,7 +317,7 @@ template <typename T> class vector_elem_node final : public expression_node<T>, 
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         vector_node_.first->value();
@@ -322,9 +330,10 @@ template <typename T> class vector_elem_node final : public expression_node<T>, 
     branch_t index_;
 };
 
-template <typename T> class vector_celem_node final : public expression_node<T>, public ivariable<T>
+template <typename T>
+class vector_celem_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -378,7 +387,7 @@ template <typename T> class vector_celem_node final : public expression_node<T>,
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         vector_node_.first->value();
@@ -394,7 +403,7 @@ template <typename T> class vector_celem_node final : public expression_node<T>,
 template <typename T>
 class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -402,7 +411,9 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
 
     vector_elem_rtc_node(expression_ptr vec_node, expression_ptr index,
                          vector_holder_ptr vec_holder, vector_access_runtime_check_ptr vec_rt_chk)
-        : vector_holder_(vec_holder), vector_base_((*vec_holder)[0]), vec_rt_chk_(vec_rt_chk),
+        : vector_holder_(vec_holder),
+          vector_base_((*vec_holder)[0]),
+          vec_rt_chk_(vec_rt_chk),
           max_vector_index_(vector_holder_->size() - 1)
     {
         construct_branch_pair(vector_node_, vec_node);
@@ -452,7 +463,7 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         const std::uint64_t index = core::numeric::to_uint64(index_.first->value());
@@ -487,7 +498,7 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
 template <typename T>
 class vector_celem_rtc_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -495,8 +506,11 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
 
     vector_celem_rtc_node(expression_ptr vec_node, const std::size_t index,
                           vector_holder_ptr vec_holder, vector_access_runtime_check_ptr vec_rt_chk)
-        : index_(index), max_vector_index_(vec_holder->size() - 1), vector_holder_(vec_holder),
-          vector_base_((*vec_holder)[0]), vec_rt_chk_(vec_rt_chk)
+        : index_(index),
+          max_vector_index_(vec_holder->size() - 1),
+          vector_holder_(vec_holder),
+          vector_base_((*vec_holder)[0]),
+          vec_rt_chk_(vec_rt_chk)
     {
         construct_branch_pair(vector_node_, vec_node);
         assert(valid());
@@ -542,7 +556,7 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         vector_node_.first->value();
@@ -576,7 +590,7 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
 template <typename T>
 class rebasevector_elem_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -634,7 +648,7 @@ class rebasevector_elem_node final : public expression_node<T>, public ivariable
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         vector_node_.first->value();
@@ -649,7 +663,7 @@ class rebasevector_elem_node final : public expression_node<T>, public ivariable
 template <typename T>
 class rebasevector_celem_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -704,7 +718,7 @@ class rebasevector_celem_node final : public expression_node<T>, public ivariabl
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
     }
 
-  private:
+   private:
     const std::size_t index_;
     vector_holder_ptr vector_holder_;
     branch_t vector_node_;
@@ -713,7 +727,7 @@ class rebasevector_celem_node final : public expression_node<T>, public ivariabl
 template <typename T>
 class rebasevector_elem_rtc_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -771,7 +785,7 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_, index_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         vector_node_.first->value();
@@ -804,7 +818,7 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
 template <typename T>
 class rebasevector_celem_rtc_node final : public expression_node<T>, public ivariable<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
@@ -813,7 +827,9 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
     rebasevector_celem_rtc_node(expression_ptr vec_node, const std::size_t index,
                                 vector_holder_ptr vec_holder,
                                 vector_access_runtime_check_ptr vec_rt_chk)
-        : index_(index), vector_holder_(vec_holder), vector_base_((*vec_holder)[0]),
+        : index_(index),
+          vector_holder_(vec_holder),
+          vector_base_((*vec_holder)[0]),
           vec_rt_chk_(vec_rt_chk)
     {
         construct_branch_pair(vector_node_, vec_node);
@@ -860,7 +876,7 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
         return expression_node<T>::ndb_t::compute_node_depth(vector_node_);
     }
 
-  private:
+   private:
     inline T* access_vector() const
     {
         vector_node_.first->value();
@@ -890,17 +906,22 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
     vector_access_runtime_check_ptr vec_rt_chk_;
 };
 
-template <typename T> class vector_initialisation_node final : public expression_node<T>
+template <typename T>
+class vector_initialisation_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_initialisation_node(T* vector_base, const std::size_t& size,
                                const std::vector<expression_ptr>& initialiser_list,
                                const bool single_value_initialse)
-        : vector_base_(vector_base), initialiser_list_(initialiser_list), size_(size),
-          single_value_initialse_(single_value_initialse), zero_value_initialse_(false),
-          const_nonzero_literal_value_initialse_(false), single_initialiser_value_(T(0))
+        : vector_base_(vector_base),
+          initialiser_list_(initialiser_list),
+          size_(size),
+          single_value_initialse_(single_value_initialse),
+          zero_value_initialse_(false),
+          const_nonzero_literal_value_initialse_(false),
+          single_initialiser_value_(T(0))
     {
         if (single_value_initialse_)
         {
@@ -988,7 +1009,7 @@ template <typename T> class vector_initialisation_node final : public expression
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_initialisation_node(const vector_initialisation_node<T>&) = delete;
     vector_initialisation_node<T>& operator=(const vector_initialisation_node<T>&) = delete;
 
@@ -1001,9 +1022,10 @@ template <typename T> class vector_initialisation_node final : public expression
     T single_initialiser_value_;
 };
 
-template <typename T> class vector_init_zero_value_node final : public expression_node<T>
+template <typename T>
+class vector_init_zero_value_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_zero_value_node(T* vector_base, const std::size_t& size,
@@ -1038,7 +1060,7 @@ template <typename T> class vector_init_zero_value_node final : public expressio
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_zero_value_node(const vector_init_zero_value_node<T>&) = delete;
     vector_init_zero_value_node<T>& operator=(const vector_init_zero_value_node<T>&) = delete;
 
@@ -1047,9 +1069,10 @@ template <typename T> class vector_init_zero_value_node final : public expressio
     std::vector<expression_ptr> initialiser_list_;
 };
 
-template <typename T> class vector_init_single_constvalue_node final : public expression_node<T>
+template <typename T>
+class vector_init_single_constvalue_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_single_constvalue_node(T* vector_base, const std::size_t& size,
@@ -1092,10 +1115,10 @@ template <typename T> class vector_init_single_constvalue_node final : public ex
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_single_constvalue_node(const vector_init_single_constvalue_node<T>&) = delete;
-    vector_init_single_constvalue_node<T>&
-    operator=(const vector_init_single_constvalue_node<T>&) = delete;
+    vector_init_single_constvalue_node<T>& operator=(const vector_init_single_constvalue_node<T>&) =
+        delete;
 
     mutable T* vector_base_;
     const std::size_t size_;
@@ -1103,9 +1126,10 @@ template <typename T> class vector_init_single_constvalue_node final : public ex
     T single_initialiser_value_;
 };
 
-template <typename T> class vector_init_single_value_node final : public expression_node<T>
+template <typename T>
+class vector_init_single_value_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_single_value_node(T* vector_base, const std::size_t& size,
@@ -1148,7 +1172,7 @@ template <typename T> class vector_init_single_value_node final : public express
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_single_value_node(const vector_init_single_value_node<T>&) = delete;
     vector_init_single_value_node<T>& operator=(const vector_init_single_value_node<T>&) = delete;
 
@@ -1157,9 +1181,10 @@ template <typename T> class vector_init_single_value_node final : public express
     std::vector<expression_ptr> initialiser_list_;
 };
 
-template <typename T> class vector_init_iota_constconst_node final : public expression_node<T>
+template <typename T>
+class vector_init_iota_constconst_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_iota_constconst_node(T* vector_base, const std::size_t& size,
@@ -1206,10 +1231,10 @@ template <typename T> class vector_init_iota_constconst_node final : public expr
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_iota_constconst_node(const vector_init_iota_constconst_node<T>&) = delete;
-    vector_init_iota_constconst_node<T>&
-    operator=(const vector_init_iota_constconst_node<T>&) = delete;
+    vector_init_iota_constconst_node<T>& operator=(const vector_init_iota_constconst_node<T>&) =
+        delete;
 
     mutable T* vector_base_;
     const std::size_t size_;
@@ -1218,9 +1243,10 @@ template <typename T> class vector_init_iota_constconst_node final : public expr
     T increment_value_;
 };
 
-template <typename T> class vector_init_iota_constnconst_node final : public expression_node<T>
+template <typename T>
+class vector_init_iota_constnconst_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_iota_constnconst_node(T* vector_base, const std::size_t& size,
@@ -1266,10 +1292,10 @@ template <typename T> class vector_init_iota_constnconst_node final : public exp
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_iota_constnconst_node(const vector_init_iota_constnconst_node<T>&) = delete;
-    vector_init_iota_constnconst_node<T>&
-    operator=(const vector_init_iota_constnconst_node<T>&) = delete;
+    vector_init_iota_constnconst_node<T>& operator=(const vector_init_iota_constnconst_node<T>&) =
+        delete;
 
     mutable T* vector_base_;
     const std::size_t size_;
@@ -1277,9 +1303,10 @@ template <typename T> class vector_init_iota_constnconst_node final : public exp
     T base_value_;
 };
 
-template <typename T> class vector_init_iota_nconstconst_node final : public expression_node<T>
+template <typename T>
+class vector_init_iota_nconstconst_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_iota_nconstconst_node(T* vector_base, const std::size_t& size,
@@ -1324,19 +1351,20 @@ template <typename T> class vector_init_iota_nconstconst_node final : public exp
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_iota_nconstconst_node(const vector_init_iota_nconstconst_node<T>&) = delete;
-    vector_init_iota_nconstconst_node<T>&
-    operator=(const vector_init_iota_nconstconst_node<T>&) = delete;
+    vector_init_iota_nconstconst_node<T>& operator=(const vector_init_iota_nconstconst_node<T>&) =
+        delete;
 
     mutable T* vector_base_;
     const std::size_t size_;
     std::vector<expression_ptr> initialiser_list_;
 };
 
-template <typename T> class vector_init_iota_nconstnconst_node final : public expression_node<T>
+template <typename T>
+class vector_init_iota_nconstnconst_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vector_init_iota_nconstnconst_node(T* vector_base, const std::size_t& size,
@@ -1381,19 +1409,20 @@ template <typename T> class vector_init_iota_nconstnconst_node final : public ex
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
-  private:
+   private:
     vector_init_iota_nconstnconst_node(const vector_init_iota_nconstnconst_node<T>&) = delete;
-    vector_init_iota_nconstnconst_node<T>&
-    operator=(const vector_init_iota_nconstnconst_node<T>&) = delete;
+    vector_init_iota_nconstnconst_node<T>& operator=(const vector_init_iota_nconstnconst_node<T>&) =
+        delete;
 
     mutable T* vector_base_;
     const std::size_t size_;
     std::vector<expression_ptr> initialiser_list_;
 };
 
-template <typename T> class swap_node final : public expression_node<T>
+template <typename T>
+class swap_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using variable_node_ptr = variable_node<T>*;
 
@@ -1410,20 +1439,22 @@ template <typename T> class swap_node final : public expression_node<T>
         return expression_node<T>::node_type::e_swap;
     }
 
-  private:
+   private:
     variable_node_ptr var0_;
     variable_node_ptr var1_;
 };
 
-template <typename T> class swap_generic_node final : public binary_node<T>
+template <typename T>
+class swap_generic_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using ivariable_ptr = ivariable<T>*;
 
     swap_generic_node(expression_ptr var0, expression_ptr var1)
         : binary_node<T>(core::operators::operator_type::swap, var0, var1),
-          var0_(dynamic_cast<ivariable_ptr>(var0)), var1_(dynamic_cast<ivariable_ptr>(var1))
+          var0_(dynamic_cast<ivariable_ptr>(var0)),
+          var1_(dynamic_cast<ivariable_ptr>(var1))
     {
     }
 
@@ -1438,7 +1469,7 @@ template <typename T> class swap_generic_node final : public binary_node<T>
         return expression_node<T>::node_type::e_swap;
     }
 
-  private:
+   private:
     ivariable_ptr var0_;
     ivariable_ptr var1_;
 };
@@ -1446,7 +1477,7 @@ template <typename T> class swap_generic_node final : public binary_node<T>
 template <typename T>
 class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vds_t = core::vec_data_store<T>;
@@ -1454,8 +1485,10 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
     using binary_node<T>::branch;
 
     swap_vecvec_node(expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(core::operators::operator_type::swap, branch0, branch1), vec0_node_ptr_(0),
-          vec1_node_ptr_(0), initialised_(false)
+        : binary_node<T>(core::operators::operator_type::swap, branch0, branch1),
+          vec0_node_ptr_(0),
+          vec1_node_ptr_(0),
+          initialised_(false)
     {
         if (is_ivector_node(branch(0)))
         {
@@ -1546,16 +1579,17 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
         return vds_;
     }
 
-  private:
+   private:
     vector_node<T>* vec0_node_ptr_;
     vector_node<T>* vec1_node_ptr_;
     bool initialised_;
     vds_t vds_;
 };
 
-template <typename T> class assert_node final : public expression_node<T>
+template <typename T>
+class assert_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using str_base_ptr = string_base_node<T>*;
@@ -1626,7 +1660,7 @@ template <typename T> class assert_node final : public expression_node<T>
                                                              assert_message_node_);
     }
 
-  private:
+   private:
     branch_t assert_condition_node_;
     branch_t assert_message_node_;
     str_base_ptr assert_message_str_base_;
@@ -1634,19 +1668,22 @@ template <typename T> class assert_node final : public expression_node<T>
     mutable assert_context_t context_;
 };
 
-template <typename T, std::size_t N> inline T axn(const T a, const T x)
+template <typename T, std::size_t N>
+inline T axn(const T a, const T x)
 {
     // a*x^n
     return a * math_expr::core::numeric::fast_exp<T, N>::result(x);
 }
 
-template <typename T, std::size_t N> inline T axnb(const T a, const T x, const T b)
+template <typename T, std::size_t N>
+inline T axnb(const T a, const T x, const T b)
 {
     // a*x^n+b
     return a * math_expr::core::numeric::fast_exp<T, N>::result(x) + b;
 }
 
-template <typename T> struct sf_base
+template <typename T>
+struct sf_base
 {
     using Type = typename core::numeric::functor_t<T>::Type;
     using functor_t = typename core::numeric::functor_t<T>;
@@ -1858,7 +1895,7 @@ template <typename T> struct sf_base
     template <typename T, typename SpecialFunction>
     class sf3_node final : public trinary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     sf3_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -1877,9 +1914,10 @@ template <typename T> struct sf_base
     }
 };
 
-template <typename T, typename SpecialFunction> class sf4_node final : public quaternary_node<T>
+template <typename T, typename SpecialFunction>
+class sf4_node final : public quaternary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     sf4_node(const core::operators::operator_type& opr, expression_ptr branch0,
@@ -1899,6 +1937,6 @@ template <typename T, typename SpecialFunction> class sf4_node final : public qu
     }
 };
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

@@ -41,9 +41,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class expression
+template <typename T>
+class expression
 {
-  private:
+   private:
     using expression_ptr = details::expression_node<T>*;
     using vector_holder_ptr = details::vector_holder<T>*;
     using symtab_list_t = std::vector<symbol_table<T>>;
@@ -64,18 +65,18 @@ template <typename T> class expression
         {
             switch (dt)
             {
-            case data_type::e_unknown:
-                return "e_unknown";
-            case data_type::e_expr:
-                return "e_expr";
-            case data_type::e_vecholder:
-                return "e_vecholder";
-            case data_type::e_data:
-                return "e_data";
-            case data_type::e_vecdata:
-                return "e_vecdata";
-            case data_type::e_string:
-                return "e_string";
+                case data_type::e_unknown:
+                    return "e_unknown";
+                case data_type::e_expr:
+                    return "e_expr";
+                case data_type::e_vecholder:
+                    return "e_vecholder";
+                case data_type::e_data:
+                    return "e_data";
+                case data_type::e_vecdata:
+                    return "e_vecdata";
+                case data_type::e_string:
+                    return "e_string";
             }
 
             return "";
@@ -122,28 +123,28 @@ template <typename T> class expression
                 {
                     switch (local_data_list[i].type)
                     {
-                    case data_type::e_expr:
-                        delete reinterpret_cast<expression_ptr>(local_data_list[i].pointer);
-                        break;
+                        case data_type::e_expr:
+                            delete reinterpret_cast<expression_ptr>(local_data_list[i].pointer);
+                            break;
 
-                    case data_type::e_vecholder:
-                        delete reinterpret_cast<vector_holder_ptr>(local_data_list[i].pointer);
-                        break;
+                        case data_type::e_vecholder:
+                            delete reinterpret_cast<vector_holder_ptr>(local_data_list[i].pointer);
+                            break;
 
-                    case data_type::e_data:
-                        delete reinterpret_cast<T*>(local_data_list[i].pointer);
-                        break;
+                        case data_type::e_data:
+                            delete reinterpret_cast<T*>(local_data_list[i].pointer);
+                            break;
 
-                    case data_type::e_vecdata:
-                        delete[] reinterpret_cast<T*>(local_data_list[i].pointer);
-                        break;
+                        case data_type::e_vecdata:
+                            delete[] reinterpret_cast<T*>(local_data_list[i].pointer);
+                            break;
 
-                    case data_type::e_string:
-                        delete reinterpret_cast<std::string*>(local_data_list[i].pointer);
-                        break;
+                        case data_type::e_string:
+                            delete reinterpret_cast<std::string*>(local_data_list[i].pointer);
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -182,7 +183,7 @@ template <typename T> class expression
         friend class function_compositor<T>;
     };
 
-  public:
+   public:
     expression() : control_block_(0)
     {
         set_expression(new details::null_node<T>());
@@ -318,7 +319,7 @@ template <typename T> class expression
                (*control_block_->return_invoked);
     }
 
-  private:
+   private:
     inline symtab_list_t get_symbol_table_list() const
     {
         return symbol_table_list_;
@@ -378,15 +379,15 @@ template <typename T> class expression
 
                 switch (data_mode)
                 {
-                case 0:
-                    dt = control_block::data_type::e_data;
-                    break;
-                case 1:
-                    dt = control_block::data_type::e_vecdata;
-                    break;
-                case 2:
-                    dt = control_block::data_type::e_string;
-                    break;
+                    case 0:
+                        dt = control_block::data_type::e_data;
+                        break;
+                    case 1:
+                        dt = control_block::data_type::e_vecdata;
+                        break;
+                    case 2:
+                        dt = control_block::data_type::e_string;
+                        break;
                 }
 
                 control_block_->local_data_list.push_back(
@@ -431,9 +432,10 @@ template <typename T> class expression
     friend class parser<T>;
     friend class expression_helper<T>;
     friend class function_compositor<T>;
-    template <typename TT> friend bool is_valid(const expression<TT>& expr);
-}; // class expression
+    template <typename TT>
+    friend bool is_valid(const expression<TT>& expr);
+};  // class expression
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> class null_node final : public expression_node<T>
+template <typename T>
+class null_node final : public expression_node<T>
 {
-  public:
+   public:
     inline T value() const override
     {
         return std::numeric_limits<T>::quiet_NaN();
@@ -96,9 +97,10 @@ inline void init_branches(std::pair<expression_node<T>*, bool> (&branch)[N], exp
     construct_branch_pair(branch, b9, 9);
 }
 
-template <typename T> class null_eq_node final : public expression_node<T>
+template <typename T>
+class null_eq_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -144,14 +146,15 @@ template <typename T> class null_eq_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     bool equality_;
     branch_t branch_;
 };
 
-template <typename T> class literal_node final : public expression_node<T>
+template <typename T>
+class literal_node final : public expression_node<T>
 {
-  public:
+   public:
     explicit literal_node(const T& v) : value_(v) {}
 
     inline T value() const override
@@ -169,20 +172,23 @@ template <typename T> class literal_node final : public expression_node<T>
         return reinterpret_cast<expression_node<T>*>(0);
     }
 
-  private:
+   private:
     literal_node(const literal_node<T>&) = delete;
     literal_node<T>& operator=(const literal_node<T>&) = delete;
 
     const T value_;
 };
 
-template <typename T> struct range_pack;
+template <typename T>
+struct range_pack;
 
-template <typename T> struct range_data_type;
+template <typename T>
+struct range_data_type;
 
-template <typename T> class range_interface
+template <typename T>
+class range_interface
 {
-  public:
+   public:
     using range_t = range_pack<T>;
 
     virtual ~range_interface() {}
@@ -193,9 +199,10 @@ template <typename T> class range_interface
 };
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-template <typename T> class string_base_node
+template <typename T>
+class string_base_node
 {
-  public:
+   public:
     using range_data_type_t = range_data_type<T>;
 
     virtual ~string_base_node() {}
@@ -212,7 +219,7 @@ class string_literal_node final : public expression_node<T>,
                                   public string_base_node<T>,
                                   public range_interface<T>
 {
-  public:
+   public:
     using range_t = range_pack<T>;
 
     explicit string_literal_node(const std::string& v) : value_(v)
@@ -263,7 +270,7 @@ class string_literal_node final : public expression_node<T>,
         return rp_;
     }
 
-  private:
+   private:
     string_literal_node(const string_literal_node<T>&) = delete;
     string_literal_node<T>& operator=(const string_literal_node<T>&) = delete;
 
@@ -272,6 +279,6 @@ class string_literal_node final : public expression_node<T>,
 };
 #endif
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

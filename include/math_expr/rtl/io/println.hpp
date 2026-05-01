@@ -38,7 +38,8 @@ limitations under the License.
 
 namespace math_expr::rtl::io
 {
-template <typename T> struct println final : public math_expr::igeneric_function<T>
+template <typename T>
+struct println final : public math_expr::igeneric_function<T>
 {
     using parameter_list_t = typename igeneric_function<T>::parameter_list_t;
 
@@ -59,6 +60,6 @@ template <typename T> struct println final : public math_expr::igeneric_function
     std::string scalar_format_;
 };
 
-} // namespace math_expr::rtl::io
+}  // namespace math_expr::rtl::io
 
 #endif

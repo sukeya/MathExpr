@@ -43,9 +43,10 @@ class return_exception
 {
 };
 
-template <typename T> class null_igenfunc
+template <typename T>
+class null_igenfunc
 {
-  public:
+   public:
     virtual ~null_igenfunc() {}
 
     using generic_type = type_store<T>;
@@ -58,9 +59,10 @@ template <typename T> class null_igenfunc
 };
 
 #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
-template <typename T> class return_node final : public generic_function_node<T, null_igenfunc<T>>
+template <typename T>
+class return_node final : public generic_function_node<T, null_igenfunc<T>>
 {
-  public:
+   public:
     using results_context_t = results_context<T>;
     using igeneric_function_t = null_igenfunc<T>;
     using igeneric_function_ptr = igeneric_function_t*;
@@ -99,7 +101,7 @@ template <typename T> class return_node final : public generic_function_node<T, 
         return results_context_;
     }
 
-  private:
+   private:
     void prepare_typestore_list() const
     {
         for (std::size_t i = 0; i < gen_function_t::typestore_list_.size(); ++i)
@@ -116,9 +118,10 @@ template <typename T> class return_node final : public generic_function_node<T, 
     results_context_t* results_context_;
 };
 
-template <typename T> class return_envelope_node final : public expression_node<T>
+template <typename T>
+class return_envelope_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using results_context_t = results_context<T>;
     using branch_t = std::pair<expression_ptr, bool>;
@@ -172,33 +175,34 @@ template <typename T> class return_envelope_node final : public expression_node<
         return expression_node<T>::ndb_t::compute_node_depth(body_);
     }
 
-  private:
+   private:
     results_context_t* results_context_;
     mutable bool return_invoked_;
     branch_t body_;
 };
 #endif
 
-#define math_expr_define_unary_op(OpName)                                                          \
-    template <typename T> struct OpName##_op                                                       \
-    {                                                                                              \
-        using Type = typename core::numeric::functor_t<T>::Type;                                   \
-        using node_t = typename expression_node<T>::node_type;                                     \
-                                                                                                   \
-        static inline T process(Type v)                                                            \
-        {                                                                                          \
-            return core::numeric::OpName(v);                                                       \
-        }                                                                                          \
-                                                                                                   \
-        static inline node_t type()                                                                \
-        {                                                                                          \
-            return expression_node<T>::node_type::e_##OpName;                                      \
-        }                                                                                          \
-                                                                                                   \
-        static inline core::operators::operator_type operation()                                   \
-        {                                                                                          \
-            return core::operators::operator_type::OpName;                                         \
-        }                                                                                          \
+#define math_expr_define_unary_op(OpName)                        \
+    template <typename T>                                        \
+    struct OpName##_op                                           \
+    {                                                            \
+        using Type = typename core::numeric::functor_t<T>::Type; \
+        using node_t = typename expression_node<T>::node_type;   \
+                                                                 \
+        static inline T process(Type v)                          \
+        {                                                        \
+            return core::numeric::OpName(v);                     \
+        }                                                        \
+                                                                 \
+        static inline node_t type()                              \
+        {                                                        \
+            return expression_node<T>::node_type::e_##OpName;    \
+        }                                                        \
+                                                                 \
+        static inline core::operators::operator_type operation() \
+        {                                                        \
+            return core::operators::operator_type::OpName;       \
+        }                                                        \
     }
 
 math_expr_define_unary_op(abs);
@@ -243,6 +247,6 @@ math_expr_define_unary_op(tanh);
 math_expr_define_unary_op(trunc);
 #undef math_expr_define_unary_op
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

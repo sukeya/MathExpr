@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void primes()
+template <typename T>
+void primes()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -141,11 +142,12 @@ template <typename T> void primes()
 
         const bool results_concur = (result1 == result2) && (result1 == result3);
 
-        printf("%03d  Result1: %c  Result2: %c  Result3: %c  "
-               "Results Concur: %c\n",
-               static_cast<unsigned int>(i), (result1 == T(1)) ? 'T' : 'F',
-               (result2 == T(1)) ? 'T' : 'F', (result3 == T(1)) ? 'T' : 'F',
-               (results_concur) ? 'T' : 'F');
+        printf(
+            "%03d  Result1: %c  Result2: %c  Result3: %c  "
+            "Results Concur: %c\n",
+            static_cast<unsigned int>(i), (result1 == T(1)) ? 'T' : 'F',
+            (result2 == T(1)) ? 'T' : 'F', (result3 == T(1)) ? 'T' : 'F',
+            (results_concur) ? 'T' : 'F');
     }
 }
 

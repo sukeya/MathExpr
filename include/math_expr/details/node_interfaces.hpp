@@ -38,7 +38,8 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename Node> struct node_collector_interface
+template <typename Node>
+struct node_collector_interface
 {
     using node_ptr_t = Node*;
     using node_pp_t = Node**;
@@ -49,8 +50,9 @@ template <typename Node> struct node_collector_interface
     virtual void collect_nodes(noderef_list_t&) {}
 };
 
-template <typename Node> struct node_depth_base;
+template <typename Node>
+struct node_depth_base;
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

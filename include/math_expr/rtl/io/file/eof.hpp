@@ -38,7 +38,8 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file
 {
-template <typename T> struct eof final : public math_expr::ifunction<T>
+template <typename T>
+struct eof final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -60,6 +61,6 @@ template <typename T> struct eof final : public math_expr::ifunction<T>
     }
 };
 
-} // namespace math_expr::rtl::io::file
+}  // namespace math_expr::rtl::io::file
 
 #endif

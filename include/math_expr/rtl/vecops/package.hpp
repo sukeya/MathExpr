@@ -71,7 +71,8 @@ limitations under the License.
 
 namespace math_expr::rtl::vecops
 {
-template <typename T> struct package
+template <typename T>
+struct package
 {
     all_true<T> at;
     all_false<T> af;
@@ -107,13 +108,13 @@ template <typename T> struct package
 
     bool register_package(math_expr::symbol_table<T>& symtab)
     {
-#define math_expr_register_function(FunctionName, FunctionType)                                    \
-    if (!symtab.add_function(FunctionName, FunctionType))                                          \
-    {                                                                                              \
-        math_expr_debug(                                                                           \
-            ("math_expr::rtl::vecops::register_package - Failed to add function: %s\n",            \
-             FunctionName));                                                                       \
-        return false;                                                                              \
+#define math_expr_register_function(FunctionName, FunctionType)                         \
+    if (!symtab.add_function(FunctionName, FunctionType))                               \
+    {                                                                                   \
+        math_expr_debug(                                                                \
+            ("math_expr::rtl::vecops::register_package - Failed to add function: %s\n", \
+             FunctionName));                                                            \
+        return false;                                                                   \
     }
 
         math_expr_register_function("all_true", at) math_expr_register_function(
@@ -158,7 +159,7 @@ template <typename T> struct package
     }
 };
 
-} // namespace math_expr::rtl::vecops
+}  // namespace math_expr::rtl::vecops
 
 #endif
 

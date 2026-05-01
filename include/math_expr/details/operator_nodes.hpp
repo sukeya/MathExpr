@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> class unary_node : public expression_node<T>
+template <typename T>
+class unary_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -90,14 +91,15 @@ template <typename T> class unary_node : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     core::operators::operator_type operation_;
     branch_t branch_;
 };
 
-template <typename T> class binary_node : public expression_node<T>
+template <typename T>
+class binary_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -147,14 +149,15 @@ template <typename T> class binary_node : public expression_node<T>
         return expression_node<T>::ndb_t::template compute_node_depth<2>(branch_);
     }
 
-  private:
+   private:
     core::operators::operator_type operation_;
     branch_t branch_[2];
 };
 
-template <typename T, typename Operation> class binary_ext_node final : public expression_node<T>
+template <typename T, typename Operation>
+class binary_ext_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -203,13 +206,14 @@ template <typename T, typename Operation> class binary_ext_node final : public e
         return expression_node<T>::ndb_t::template compute_node_depth<2>(branch_);
     }
 
-  protected:
+   protected:
     branch_t branch_[2];
 };
 
-template <typename T> class trinary_node : public expression_node<T>
+template <typename T>
+class trinary_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -229,23 +233,23 @@ template <typename T> class trinary_node : public expression_node<T>
 
         switch (operation_)
         {
-        case core::operators::operator_type::inrange:
-            return (arg1 < arg0)
-                       ? core::numeric::false_v<T>
-                       : ((arg1 > arg2) ? core::numeric::false_v<T> : core::numeric::true_v<T>);
+            case core::operators::operator_type::inrange:
+                return (arg1 < arg0)
+                           ? core::numeric::false_v<T>
+                           : ((arg1 > arg2) ? core::numeric::false_v<T> : core::numeric::true_v<T>);
 
-        case core::operators::operator_type::clamp:
-            return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
+            case core::operators::operator_type::clamp:
+                return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
 
-        case core::operators::operator_type::iclamp:
-            if ((arg1 <= arg0) || (arg1 >= arg2))
-                return arg1;
-            else
-                return ((T(2) * arg1 <= (arg2 + arg0)) ? arg0 : arg2);
+            case core::operators::operator_type::iclamp:
+                if ((arg1 <= arg0) || (arg1 >= arg2))
+                    return arg1;
+                else
+                    return ((T(2) * arg1 <= (arg2 + arg0)) ? arg0 : arg2);
 
-        default:
-            math_expr_debug(("trinary_node::value() - Error: Invalid operation\n"));
-            return std::numeric_limits<T>::quiet_NaN();
+            default:
+                math_expr_debug(("trinary_node::value() - Error: Invalid operation\n"));
+                return std::numeric_limits<T>::quiet_NaN();
         }
     }
 
@@ -270,14 +274,15 @@ template <typename T> class trinary_node : public expression_node<T>
         return expression_node<T>::ndb_t::template compute_node_depth<3>(branch_);
     }
 
-  protected:
+   protected:
     core::operators::operator_type operation_;
     branch_t branch_[3];
 };
 
-template <typename T> class quaternary_node : public expression_node<T>
+template <typename T>
+class quaternary_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -315,11 +320,11 @@ template <typename T> class quaternary_node : public expression_node<T>
                branch_[3].first && branch_[3].first->valid();
     }
 
-  protected:
+   protected:
     core::operators::operator_type operation_;
     branch_t branch_[4];
 };
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

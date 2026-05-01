@@ -40,7 +40,7 @@ namespace math_expr::lexer
 {
 class token_joiner : public helper_interface
 {
-  public:
+   public:
     explicit token_joiner(const std::size_t& stride) : stride_(stride) {}
 
     inline std::size_t process(generator& g) override
@@ -50,12 +50,12 @@ class token_joiner : public helper_interface
 
         switch (stride_)
         {
-        case 2:
-            return process_stride_2(g);
-        case 3:
-            return process_stride_3(g);
-        default:
-            return 0;
+            case 2:
+                return process_stride_2(g);
+            case 3:
+                return process_stride_3(g);
+            default:
+                return 0;
         }
     }
 
@@ -68,7 +68,7 @@ class token_joiner : public helper_interface
         return false;
     }
 
-  private:
+   private:
     inline std::size_t process_stride_2(generator& g)
     {
         if (g.token_list_.size() < 2)
@@ -157,6 +157,6 @@ class token_joiner : public helper_interface
     const std::size_t stride_;
 };
 
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

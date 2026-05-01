@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-template <typename T> class swap_genstrings_node final : public binary_node<T>
+template <typename T>
+class swap_genstrings_node final : public binary_node<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
     using range_ptr = range_t*;
     using irange_t = range_interface<T>;
@@ -52,7 +53,10 @@ template <typename T> class swap_genstrings_node final : public binary_node<T>
 
     swap_genstrings_node(expression_ptr branch0, expression_ptr branch1)
         : binary_node<T>(core::operators::operator_type::default_op, branch0, branch1),
-          str0_base_ptr_(0), str1_base_ptr_(0), str0_range_ptr_(0), str1_range_ptr_(0),
+          str0_base_ptr_(0),
+          str1_base_ptr_(0),
+          str0_range_ptr_(0),
+          str1_range_ptr_(0),
           initialised_(false)
     {
         if (is_generally_string_node(branch(0)))
@@ -157,7 +161,7 @@ template <typename T> class swap_genstrings_node final : public binary_node<T>
         return initialised_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     swap_genstrings_node(const swap_genstrings_node<T>&) = delete;
     swap_genstrings_node<T>& operator=(const swap_genstrings_node<T>&) = delete;
 
@@ -167,6 +171,6 @@ template <typename T> class swap_genstrings_node final : public binary_node<T>
     range_ptr str1_range_ptr_;
     bool initialised_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

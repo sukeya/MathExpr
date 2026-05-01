@@ -53,6 +53,6 @@ struct asn_addassignment
         s.append(data, size);
     }
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

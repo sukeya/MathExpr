@@ -92,17 +92,20 @@ inline void remove_file_if_exists(const std::string& path)
     }
 }
 
-template <typename T> constexpr T default_tolerance()
+template <typename T>
+constexpr T default_tolerance()
 {
     return T(0.0000000001);
 }
 
-template <> constexpr float default_tolerance<float>()
+template <>
+constexpr float default_tolerance<float>()
 {
     return 0.000001f;
 }
 
-template <typename T> constexpr T configured_or_default_epsilon()
+template <typename T>
+constexpr T configured_or_default_epsilon()
 {
     if constexpr (math_expr::core::build_options::kHasConfiguredEpsilon)
     {
@@ -114,7 +117,8 @@ template <typename T> constexpr T configured_or_default_epsilon()
     }
 }
 
-template <typename T> T random_between(std::mt19937& rng, const T low, const T high)
+template <typename T>
+T random_between(std::mt19937& rng, const T low, const T high)
 {
     std::uniform_real_distribution<double> distribution(static_cast<double>(low),
                                                         static_cast<double>(high));
@@ -145,7 +149,7 @@ void expect_near(const T& actual, const T& expected, const T& epsilon = default_
     CHECK_FALSE(not_equal(actual, expected, epsilon));
 }
 
-} // namespace test_support
+}  // namespace test_support
 
 static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<double>);
 static_assert(math_expr::core::numeric::details::is_supported_real_type_v<double>);
@@ -644,7 +648,8 @@ inline bool not_equal_impl(const T& t1, const T& t2,
     return diff > eps_norm;
 }
 
-template <typename T> inline bool not_equal(const T& t0, const T& t1, const T& epsilon)
+template <typename T>
+inline bool not_equal(const T& t0, const T& t1, const T& epsilon)
 {
     return not_equal_impl(t0, t1, epsilon);
 }
@@ -703,9 +708,10 @@ inline bool test_expression(const std::string& expression_string, const T& expec
 
     if (!math_expr::expression_helper<T>::is_literal(expression))
     {
-        printf("test_expression() - Error: Expression did not compile to a constant!   Expression: "
-               "%s\n",
-               expression_string.c_str());
+        printf(
+            "test_expression() - Error: Expression did not compile to a constant!   Expression: "
+            "%s\n",
+            expression_string.c_str());
 
         return false;
     }
@@ -714,10 +720,11 @@ inline bool test_expression(const std::string& expression_string, const T& expec
 
     if (not_equal(result, expected_result))
     {
-        printf("test_expression() - Computation Error:  Expression: [%s]\tExpected: "
-               "%19.15f\tResult: %19.15f\n",
-               expression_string.c_str(), static_cast<double>(expected_result),
-               static_cast<double>(result));
+        printf(
+            "test_expression() - Computation Error:  Expression: [%s]\tExpected: "
+            "%19.15f\tResult: %19.15f\n",
+            expression_string.c_str(), static_cast<double>(expected_result),
+            static_cast<double>(result));
 
         return false;
     }
@@ -725,11 +732,13 @@ inline bool test_expression(const std::string& expression_string, const T& expec
     return true;
 }
 
-template <typename T> struct edge_cases
+template <typename T>
+struct edge_cases
 {
 };
 
-template <> struct edge_cases<float>
+template <>
+struct edge_cases<float>
 {
     static inline std::vector<test_t> test_cases()
     {
@@ -745,7 +754,8 @@ template <> struct edge_cases<float>
     }
 };
 
-template <> struct edge_cases<double>
+template <>
+struct edge_cases<double>
 {
     static inline std::vector<test_t> test_cases()
     {
@@ -761,7 +771,8 @@ template <> struct edge_cases<double>
     }
 };
 
-template <typename T> bool run_test00()
+template <typename T>
+bool run_test00()
 {
     const std::size_t rounds = 10;
 
@@ -805,7 +816,8 @@ template <typename T> bool run_test00()
     return true;
 }
 
-template <typename T> struct test_xy
+template <typename T>
+struct test_xy
 {
     test_xy(const std::string& e, const T& v0, const T& v1, const T& r)
         : expr(e), x(v0), y(v1), result(r)
@@ -818,7 +830,8 @@ template <typename T> struct test_xy
     T result;
 };
 
-template <typename T> struct test_xyzw
+template <typename T>
+struct test_xyzw
 {
     test_xyzw(const std::string& e, const T& v0, const T& v1, const T& v2, const T& v3, const T& r)
         : expr(e), x(v0), y(v1), z(v2), w(v3), result(r)
@@ -833,7 +846,8 @@ template <typename T> struct test_xyzw
     T result;
 };
 
-template <typename T> bool run_test01()
+template <typename T>
+bool run_test01()
 {
     {
         static const test_xy<T> test_list[] = {
@@ -1405,10 +1419,11 @@ template <typename T> bool run_test01()
 
                 if (not_equal(result, test.result))
                 {
-                    printf("run_test01() - Computation Error:  Expression: [%s]\tExpected: "
-                           "%19.15f\tResult: %19.15f\n",
-                           test.expr.c_str(), static_cast<double>(test.result),
-                           static_cast<double>(result));
+                    printf(
+                        "run_test01() - Computation Error:  Expression: [%s]\tExpected: "
+                        "%19.15f\tResult: %19.15f\n",
+                        test.expr.c_str(), static_cast<double>(test.result),
+                        static_cast<double>(result));
 
                     loop_result = false;
                 }
@@ -1556,10 +1571,11 @@ template <typename T> bool run_test01()
 
                 if (not_equal(result, test.result))
                 {
-                    printf("run_test01() - Computation Error:  Expression: [%s]\tExpected: "
-                           "%19.15f\tResult: %19.15f\n",
-                           test.expr.c_str(), static_cast<double>(test.result),
-                           static_cast<double>(result));
+                    printf(
+                        "run_test01() - Computation Error:  Expression: [%s]\tExpected: "
+                        "%19.15f\tResult: %19.15f\n",
+                        test.expr.c_str(), static_cast<double>(test.result),
+                        static_cast<double>(result));
 
                     loop_result = false;
                 }
@@ -1635,10 +1651,11 @@ template <typename T> bool run_test01()
 
                 if (not_equal(result, T(1)))
                 {
-                    printf("run_test01() - Computation Error:  Expression: [%s]\tExpected: "
-                           "%19.15f\tResult: %19.15f\n",
-                           expr_list[i].c_str(), static_cast<double>(1.0),
-                           static_cast<double>(result));
+                    printf(
+                        "run_test01() - Computation Error:  Expression: [%s]\tExpected: "
+                        "%19.15f\tResult: %19.15f\n",
+                        expr_list[i].c_str(), static_cast<double>(1.0),
+                        static_cast<double>(result));
 
                     loop_result = false;
                 }
@@ -1694,10 +1711,11 @@ template <typename T> bool run_test01()
 
                 if (not_equal(result, T(1)))
                 {
-                    printf("run_test01() - Computation Error:  Expression: [%s]\tExpected: "
-                           "%19.15f\tResult: %19.15f\n",
-                           expr_list[i].c_str(), static_cast<double>(1.0),
-                           static_cast<double>(result));
+                    printf(
+                        "run_test01() - Computation Error:  Expression: [%s]\tExpected: "
+                        "%19.15f\tResult: %19.15f\n",
+                        expr_list[i].c_str(), static_cast<double>(1.0),
+                        static_cast<double>(result));
                     loop_result = false;
                 }
             }
@@ -1712,7 +1730,8 @@ template <typename T> bool run_test01()
     return true;
 }
 
-template <typename T> struct test_ab
+template <typename T>
+struct test_ab
 {
     test_ab(const std::string& e, const std::string& v0, const std::string& v1, const T& r)
         : expr(e), a(v0), b(v1), c("ccc"), result(r)
@@ -1726,7 +1745,8 @@ template <typename T> struct test_ab
     T result;
 };
 
-template <typename T> bool run_test02()
+template <typename T>
+bool run_test02()
 {
     static const test_ab<T> test_list[] = {
         test_ab<T>("'aaa' == 'aaa'", "", "", T(1.0)),
@@ -2649,12 +2669,13 @@ template <typename T> bool run_test02()
 
                 if (not_equal(expr_result, test.result))
                 {
-                    printf("run_test02() - Computation Error:  Expression: [%s]\tExpected: "
-                           "%19.15f\tResult: %19.15f\t"
-                           "a='%s'\tb='%s'\tc='%s'\n",
-                           test.expr.c_str(), static_cast<double>(test.result),
-                           static_cast<double>(expr_result), str_a.c_str(), str_b.c_str(),
-                           str_c.c_str());
+                    printf(
+                        "run_test02() - Computation Error:  Expression: [%s]\tExpected: "
+                        "%19.15f\tResult: %19.15f\t"
+                        "a='%s'\tb='%s'\tc='%s'\n",
+                        test.expr.c_str(), static_cast<double>(test.result),
+                        static_cast<double>(expr_result), str_a.c_str(), str_b.c_str(),
+                        str_c.c_str());
 
                     result = false;
                     continue;
@@ -2672,10 +2693,11 @@ template <typename T> bool run_test02()
         std::string s0;
         std::string s1;
 
-        const std::string expression_str = " s0 := 'abc';                     "
-                                           " s0 := (s1 := '0123456789'[2:8]); "
-                                           " s1 := 'xyz';                     "
-                                           " s0 < s1;                         ";
+        const std::string expression_str =
+            " s0 := 'abc';                     "
+            " s0 := (s1 := '0123456789'[2:8]); "
+            " s1 := 'xyz';                     "
+            " s0 < s1;                         ";
 
         math_expr::symbol_table<T> symbol_table;
         symbol_table.add_stringvar("s0", s0);
@@ -2722,7 +2744,8 @@ template <typename T> bool run_test02()
     return true;
 }
 
-template <typename T> bool run_test03()
+template <typename T>
+bool run_test03()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -2780,10 +2803,11 @@ template <typename T> bool run_test03()
 
         if (variable_list_size != total_symbol_count)
         {
-            printf("run_test03() - Error - Invalid number of variables in symbol_table!  Expected: "
-                   "%d  got: %d\n",
-                   static_cast<unsigned int>(variable_list_size),
-                   static_cast<unsigned int>(total_symbol_count));
+            printf(
+                "run_test03() - Error - Invalid number of variables in symbol_table!  Expected: "
+                "%d  got: %d\n",
+                static_cast<unsigned int>(variable_list_size),
+                static_cast<unsigned int>(total_symbol_count));
 
             return false;
         }
@@ -2914,9 +2938,10 @@ template <typename T> bool run_test03()
 
                 if (parser.compile(invalid_expr[i], expression))
                 {
-                    printf("run_test03() - Error: [1] Invalid expression compiled successfully.  "
-                           "Expression: %s\n",
-                           invalid_expr[i].c_str());
+                    printf(
+                        "run_test03() - Error: [1] Invalid expression compiled successfully.  "
+                        "Expression: %s\n",
+                        invalid_expr[i].c_str());
 
                     return false;
                 }
@@ -2941,9 +2966,10 @@ template <typename T> bool run_test03()
 
                 if (parser.compile(invalid_expr[i], expression))
                 {
-                    printf("run_test03() - Error: [2] Invalid expression compiled successfully.   "
-                           "Expression: %s\n",
-                           invalid_expr[i].c_str());
+                    printf(
+                        "run_test03() - Error: [2] Invalid expression compiled successfully.   "
+                        "Expression: %s\n",
+                        invalid_expr[i].c_str());
 
                     return false;
                 }
@@ -2957,8 +2983,9 @@ template <typename T> bool run_test03()
                 "(((b+(a/((((tan((b*((((((a-(cos((cos(tan(((a+a)*3.33)))-b))/2.52))*x)/"
                 "b)+3.07)^0.86)+b)))*3.95)/0.39)*y)+a)))*a)*z)";
 
-            const std::string mod = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-                                    "^+-/*,;:<>=%?[]{}() #&'\"\\\t\r\n";
+            const std::string mod =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                "^+-/*,;:<>=%?[]{}() #&'\"\\\t\r\n";
 
             symbol_table_t symbol_table;
             expression_t expression;
@@ -3017,12 +3044,14 @@ template <typename T> bool run_test03()
     return true;
 }
 
-template <typename T> inline T clamp(const T& l, const T& v, const T& u)
+template <typename T>
+inline T clamp(const T& l, const T& v, const T& u)
 {
     return (v < l) ? l : ((v > u) ? u : v);
 }
 
-template <typename T> bool run_test04()
+template <typename T>
+bool run_test04()
 {
     const std::string expression_string = "clamp(-1.0,sin(2 * pi * x) + cos(y / 2 * pi),+1.0)";
 
@@ -3060,10 +3089,11 @@ template <typename T> bool run_test04()
 
         if (not_equal(result1, result2))
         {
-            printf("run_test04() - Computation Error:  Expression: [%s]\tExpected: "
-                   "%19.15f\tResult: %19.15f x:%19.15f\ty:%19.15f\n",
-                   expression_string.c_str(), static_cast<double>(result1),
-                   static_cast<double>(result2), static_cast<double>(x), static_cast<double>(y));
+            printf(
+                "run_test04() - Computation Error:  Expression: [%s]\tExpected: "
+                "%19.15f\tResult: %19.15f x:%19.15f\ty:%19.15f\n",
+                expression_string.c_str(), static_cast<double>(result1),
+                static_cast<double>(result2), static_cast<double>(x), static_cast<double>(y));
 
             return false;
         }
@@ -3075,7 +3105,8 @@ template <typename T> bool run_test04()
     return true;
 }
 
-template <typename T> bool run_test05()
+template <typename T>
+bool run_test05()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -3128,11 +3159,12 @@ template <typename T> bool run_test05()
 
             if (not_equal(result, real_result))
             {
-                printf("run_test05() - Computation Error:  Expression: [%s]\tExpected: "
-                       "%19.15f\tResult: %19.15f x:%19.15f\ty:%19.15f\tIndex:%d\n",
-                       expression_string.c_str(), static_cast<double>(real_result),
-                       static_cast<double>(result), static_cast<double>(x), static_cast<double>(y),
-                       static_cast<unsigned int>(i));
+                printf(
+                    "run_test05() - Computation Error:  Expression: [%s]\tExpected: "
+                    "%19.15f\tResult: %19.15f x:%19.15f\ty:%19.15f\tIndex:%d\n",
+                    expression_string.c_str(), static_cast<double>(real_result),
+                    static_cast<double>(result), static_cast<double>(x), static_cast<double>(y),
+                    static_cast<unsigned int>(i));
 
                 return false;
             }
@@ -3145,7 +3177,8 @@ template <typename T> bool run_test05()
     return true;
 }
 
-template <typename T> bool run_test06()
+template <typename T>
+bool run_test06()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -3192,7 +3225,8 @@ template <typename T> bool run_test06()
     return true;
 }
 
-template <typename T> bool run_test07()
+template <typename T>
+bool run_test07()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -3233,10 +3267,11 @@ template <typename T> bool run_test07()
 
             if (not_equal(deriv1_result1, deriv1_real_result, T(0.00001)))
             {
-                printf("run_test07() - 1st Derivative Error:  x: %19.15f\tExpected: "
-                       "%19.15f\tResult: %19.15f\n",
-                       static_cast<double>(x), static_cast<double>(deriv1_real_result),
-                       static_cast<double>(deriv1_result1));
+                printf(
+                    "run_test07() - 1st Derivative Error:  x: %19.15f\tExpected: "
+                    "%19.15f\tResult: %19.15f\n",
+                    static_cast<double>(x), static_cast<double>(deriv1_real_result),
+                    static_cast<double>(deriv1_result1));
 
                 return false;
             }
@@ -3255,10 +3290,11 @@ template <typename T> bool run_test07()
 
             if (not_equal(deriv2_result1, deriv2_real_result, T(0.01)))
             {
-                printf("run_test07() - 2nd Derivative Error:  x: %19.15f\tExpected: "
-                       "%19.15f\tResult: %19.15f\n",
-                       static_cast<double>(x), static_cast<double>(deriv2_real_result),
-                       static_cast<double>(deriv2_result1));
+                printf(
+                    "run_test07() - 2nd Derivative Error:  x: %19.15f\tExpected: "
+                    "%19.15f\tResult: %19.15f\n",
+                    static_cast<double>(x), static_cast<double>(deriv2_real_result),
+                    static_cast<double>(deriv2_result1));
 
                 return false;
             }
@@ -3277,10 +3313,11 @@ template <typename T> bool run_test07()
 
             if (not_equal(deriv3_result1, deriv3_real_result, T(0.01)))
             {
-                printf("run_test07() - 3rd Derivative Error:  x: %19.15f\tExpected: "
-                       "%19.15f\tResult: %19.15f\n",
-                       static_cast<double>(x), static_cast<double>(deriv3_real_result),
-                       static_cast<double>(deriv3_result1));
+                printf(
+                    "run_test07() - 3rd Derivative Error:  x: %19.15f\tExpected: "
+                    "%19.15f\tResult: %19.15f\n",
+                    static_cast<double>(x), static_cast<double>(deriv3_real_result),
+                    static_cast<double>(deriv3_result1));
 
                 return false;
             }
@@ -3290,9 +3327,9 @@ template <typename T> bool run_test07()
     return true;
 }
 
-template <typename T> bool run_test08()
+template <typename T>
+bool run_test08()
 {
-
     static const std::string expr_str[] = {
         "x",
         "y",
@@ -3492,7 +3529,8 @@ template <typename T> bool run_test08()
     return true;
 }
 
-template <typename T> struct myfunc math_expr_test_final : public math_expr::ifunction<T>
+template <typename T>
+struct myfunc math_expr_test_final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -3504,30 +3542,30 @@ template <typename T> struct myfunc math_expr_test_final : public math_expr::ifu
     }
 };
 
-#define define_free_functions(N, Type)                                                             \
-    inline Type N##1(Type v0)                                                                      \
-    {                                                                                              \
-        return v0;                                                                                 \
-    }                                                                                              \
-    inline Type N##2(Type v0, Type v1)                                                             \
-    {                                                                                              \
-        return v0 + v1;                                                                            \
-    }                                                                                              \
-    inline Type N##3(Type v0, Type v1, Type v2)                                                    \
-    {                                                                                              \
-        return v0 + v1 + v2;                                                                       \
-    }                                                                                              \
-    inline Type N##4(Type v0, Type v1, Type v2, Type v3)                                           \
-    {                                                                                              \
-        return v0 + v1 + v2 + v3;                                                                  \
-    }                                                                                              \
-    inline Type N##5(Type v0, Type v1, Type v2, Type v3, Type v4)                                  \
-    {                                                                                              \
-        return v0 + v1 + v2 + v3 + v4;                                                             \
-    }                                                                                              \
-    inline Type N##6(Type v0, Type v1, Type v2, Type v3, Type v4, Type v5)                         \
-    {                                                                                              \
-        return v0 + v1 + v2 + v3 + v4 + v5;                                                        \
+#define define_free_functions(N, Type)                                     \
+    inline Type N##1(Type v0)                                              \
+    {                                                                      \
+        return v0;                                                         \
+    }                                                                      \
+    inline Type N##2(Type v0, Type v1)                                     \
+    {                                                                      \
+        return v0 + v1;                                                    \
+    }                                                                      \
+    inline Type N##3(Type v0, Type v1, Type v2)                            \
+    {                                                                      \
+        return v0 + v1 + v2;                                               \
+    }                                                                      \
+    inline Type N##4(Type v0, Type v1, Type v2, Type v3)                   \
+    {                                                                      \
+        return v0 + v1 + v2 + v3;                                          \
+    }                                                                      \
+    inline Type N##5(Type v0, Type v1, Type v2, Type v3, Type v4)          \
+    {                                                                      \
+        return v0 + v1 + v2 + v3 + v4;                                     \
+    }                                                                      \
+    inline Type N##6(Type v0, Type v1, Type v2, Type v3, Type v4, Type v5) \
+    {                                                                      \
+        return v0 + v1 + v2 + v3 + v4 + v5;                                \
     }
 
 define_free_functions(foo, numeric_type)
@@ -3665,7 +3703,8 @@ define_free_functions(foo, numeric_type)
     return true;
 }
 
-template <typename T> bool run_test10()
+template <typename T>
+bool run_test10()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -4208,10 +4247,11 @@ template <typename T> bool run_test10()
         expression_t expression;
         expression.register_symbol_table(symbol_table);
 
-        const std::string expression_string = "a := b + c;     "
-                                              "b := c + d;     "
-                                              "c := d + 1;     "
-                                              "e := e + 'abc'; ";
+        const std::string expression_string =
+            "a := b + c;     "
+            "b := c + d;     "
+            "c := d + 1;     "
+            "e := e + 'abc'; ";
 
         typedef math_expr::parser<T> parser_t;
         typedef typename parser_t::dependent_entity_collector::symbol_t symbol_t;
@@ -4308,8 +4348,9 @@ template <typename T> bool run_test10()
     }
 
     {
-        const std::string expression = "for (var i := 0; i < min(x[],y[],z[]); i += 1)"
-                                       "{ z[i] := 3sin(x[i]) + 2log(y[i]); }";
+        const std::string expression =
+            "for (var i := 0; i < min(x[],y[],z[]); i += 1)"
+            "{ z[i] := 3sin(x[i]) + 2log(y[i]); }";
 
         std::vector<std::string> var_symbol_list;
         std::vector<std::string> func_symbol_list;
@@ -4346,8 +4387,9 @@ template <typename T> bool run_test10()
                                            expected_var_symbol_list.begin());
         if (!var_result)
         {
-            printf("run_test10() - Failed collected variable comparison between received and "
-                   "expected variables\n");
+            printf(
+                "run_test10() - Failed collected variable comparison between received and "
+                "expected variables\n");
             return false;
         }
 
@@ -4356,8 +4398,9 @@ template <typename T> bool run_test10()
                                             expected_func_symbol_list.begin());
         if (!func_result)
         {
-            printf("run_test10() - Failed collected functions comparison between received and "
-                   "expected functions\n");
+            printf(
+                "run_test10() - Failed collected functions comparison between received and "
+                "expected functions\n");
             return false;
         }
     }
@@ -5180,7 +5223,8 @@ template <typename T> bool run_test10()
     return true;
 }
 
-template <typename T> bool run_test11()
+template <typename T>
+bool run_test11()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -5250,7 +5294,8 @@ template <typename T> bool run_test11()
     return true;
 }
 
-template <typename T> bool run_test12()
+template <typename T>
+bool run_test12()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -5364,7 +5409,8 @@ template <typename T> bool run_test12()
     return true;
 }
 
-template <typename T> struct sine_deg math_expr_test_final : public math_expr::ifunction<T>
+template <typename T>
+struct sine_deg math_expr_test_final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -5376,7 +5422,8 @@ template <typename T> struct sine_deg math_expr_test_final : public math_expr::i
     }
 };
 
-template <typename T> struct cosine_deg math_expr_test_final : public math_expr::ifunction<T>
+template <typename T>
+struct cosine_deg math_expr_test_final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -5388,7 +5435,8 @@ template <typename T> struct cosine_deg math_expr_test_final : public math_expr:
     }
 };
 
-template <typename T> bool run_test13()
+template <typename T>
+bool run_test13()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -5549,12 +5597,14 @@ inline std::size_t load_expressions(const std::string& file_name,
     return line_count;
 }
 
-template <typename T> inline T isnan(const T t)
+template <typename T>
+inline T isnan(const T t)
 {
     return std::isnan(t) ? T(1) : T(0);
 }
 
-template <typename T> bool run_test14()
+template <typename T>
+bool run_test14()
 {
     typedef math_expr::expression<T> expression_t;
     typedef math_expr::parser<T> parser_t;
@@ -5698,7 +5748,8 @@ template <typename T> bool run_test14()
     return !error_found;
 }
 
-template <typename T> bool run_test15()
+template <typename T>
+bool run_test15()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -5779,10 +5830,11 @@ template <typename T> bool run_test15()
 
         if (not_equal(base_result, result))
         {
-            printf("run_test15() - Error in evaluation! (1)  Base: %20.10f\tResult: "
-                   "%20.10f\tExpression: %s\n",
-                   static_cast<double>(base_result), static_cast<double>(result),
-                   expr_str_list[i].c_str());
+            printf(
+                "run_test15() - Error in evaluation! (1)  Base: %20.10f\tResult: "
+                "%20.10f\tExpression: %s\n",
+                static_cast<double>(base_result), static_cast<double>(result),
+                expr_str_list[i].c_str());
 
             error_found = true;
         }
@@ -5791,7 +5843,8 @@ template <typename T> bool run_test15()
     return !error_found;
 }
 
-template <typename T> struct base_func : public math_expr::ifunction<T>
+template <typename T>
+struct base_func : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -5823,32 +5876,39 @@ template <typename T> struct base_func : public math_expr::ifunction<T>
     }
 };
 
-template <typename T> struct test_func5 math_expr_test_final : public base_func<T>
+template <typename T>
+struct test_func5 math_expr_test_final : public base_func<T>
 {
     test_func5() : base_func<T>(5) {}
 };
-template <typename T> struct test_func4 math_expr_test_final : public base_func<T>
+template <typename T>
+struct test_func4 math_expr_test_final : public base_func<T>
 {
     test_func4() : base_func<T>(4) {}
 };
-template <typename T> struct test_func3 math_expr_test_final : public base_func<T>
+template <typename T>
+struct test_func3 math_expr_test_final : public base_func<T>
 {
     test_func3() : base_func<T>(3) {}
 };
-template <typename T> struct test_func2 math_expr_test_final : public base_func<T>
+template <typename T>
+struct test_func2 math_expr_test_final : public base_func<T>
 {
     test_func2() : base_func<T>(2) {}
 };
-template <typename T> struct test_func1 math_expr_test_final : public base_func<T>
+template <typename T>
+struct test_func1 math_expr_test_final : public base_func<T>
 {
     test_func1() : base_func<T>(1) {}
 };
-template <typename T> struct test_func0 math_expr_test_final : public base_func<T>
+template <typename T>
+struct test_func0 math_expr_test_final : public base_func<T>
 {
     test_func0() : base_func<T>(0) {}
 };
 
-template <typename T> bool run_test16()
+template <typename T>
+bool run_test16()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -5984,7 +6044,8 @@ template <typename T> bool run_test16()
     return !error_found;
 }
 
-template <typename T> bool run_test17()
+template <typename T>
+bool run_test17()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -6098,7 +6159,8 @@ template <typename T> bool run_test17()
     return !error_found;
 }
 
-template <typename T> struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
+template <typename T>
+struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
 {
     va_func()
     {
@@ -6120,7 +6182,8 @@ template <typename T> struct va_func math_expr_test_final : public math_expr::iv
     }
 };
 
-template <typename T> struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
+template <typename T>
+struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
     typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
     typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
@@ -6141,28 +6204,28 @@ template <typename T> struct gen_func math_expr_test_final : public math_expr::i
 
             switch (gt.type)
             {
-            case generic_type::store_type::e_scalar:
-                scalar_count++;
-                break;
+                case generic_type::store_type::e_scalar:
+                    scalar_count++;
+                    break;
 
-            case generic_type::store_type::e_vector:
-                vector_count++;
-                break;
+                case generic_type::store_type::e_vector:
+                    vector_count++;
+                    break;
 
-            case generic_type::store_type::e_string:
-            {
-                if (("CdEf" != math_expr::to_str(string_t(gt))) &&
-                    ("abc123" != math_expr::to_str(string_t(gt))))
+                case generic_type::store_type::e_string:
                 {
-                    return std::numeric_limits<T>::quiet_NaN();
+                    if (("CdEf" != math_expr::to_str(string_t(gt))) &&
+                        ("abc123" != math_expr::to_str(string_t(gt))))
+                    {
+                        return std::numeric_limits<T>::quiet_NaN();
+                    }
+                    else
+                        string_count++;
                 }
-                else
-                    string_count++;
-            }
-            break;
+                break;
 
-            default:
-                return std::numeric_limits<T>::quiet_NaN();
+                default:
+                    return std::numeric_limits<T>::quiet_NaN();
             }
         }
 
@@ -6174,7 +6237,8 @@ template <typename T> struct gen_func math_expr_test_final : public math_expr::i
     std::size_t string_count;
 };
 
-template <typename T> struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
+template <typename T>
+struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
 {
     typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
 
@@ -6193,7 +6257,8 @@ template <typename T> struct gen_func2 math_expr_test_final : public math_expr::
     }
 };
 
-template <typename T> struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
+template <typename T>
+struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
     typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
     typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
@@ -6214,37 +6279,37 @@ template <typename T> struct inc_func math_expr_test_final : public math_expr::i
 
             switch (gt.type)
             {
-            case generic_type::store_type::e_scalar:
-            {
-                scalar_t scalar(gt);
-                scalar() += T(1);
-            }
-            break;
-
-            case generic_type::store_type::e_vector:
-            {
-                vector_t vector(gt);
-
-                for (std::size_t x = 0; x < vector.size(); ++x)
+                case generic_type::store_type::e_scalar:
                 {
-                    vector[x] += T(1);
+                    scalar_t scalar(gt);
+                    scalar() += T(1);
                 }
-            }
-            break;
+                break;
 
-            case generic_type::store_type::e_string:
-            {
-                string_t string(gt);
-
-                for (std::size_t x = 0; x < string.size(); ++x)
+                case generic_type::store_type::e_vector:
                 {
-                    string[x] += static_cast<typename string_t::value_t>(1);
-                }
-            }
-            break;
+                    vector_t vector(gt);
 
-            default:
-                return std::numeric_limits<T>::quiet_NaN();
+                    for (std::size_t x = 0; x < vector.size(); ++x)
+                    {
+                        vector[x] += T(1);
+                    }
+                }
+                break;
+
+                case generic_type::store_type::e_string:
+                {
+                    string_t string(gt);
+
+                    for (std::size_t x = 0; x < string.size(); ++x)
+                    {
+                        string[x] += static_cast<typename string_t::value_t>(1);
+                    }
+                }
+                break;
+
+                default:
+                    return std::numeric_limits<T>::quiet_NaN();
             }
         }
 
@@ -6315,15 +6380,15 @@ struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
                         parameter_list_t /*arglist*/) math_expr_test_override
     {
         switch (ps_index)
-        { // Overload resolution:
-        case 0:
-            return T(0); // Z  - Zero arguments
-        case 1:
-            return T(1); // T* - One or more scalars
-        case 2:
-            return T(2); // V  - One vector
-        default:
-            return std::numeric_limits<T>::quiet_NaN();
+        {  // Overload resolution:
+            case 0:
+                return T(0);  // Z  - Zero arguments
+            case 1:
+                return T(1);  // T* - One or more scalars
+            case 2:
+                return T(2);  // V  - One vector
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
         }
     }
 };
@@ -6348,7 +6413,8 @@ struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function
     }
 };
 
-template <typename T> struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
+template <typename T>
+struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
 {
     typedef typename math_expr::igeneric_function<T> igfun_t;
     typedef typename igfun_t::parameter_list_t parameter_list_t;
@@ -6397,20 +6463,20 @@ template <typename T> struct overload_func math_expr_test_final : math_expr::ige
 
             switch (gt.type)
             {
-            case generic_type::store_type::e_scalar:
-                current_param_seq += "T";
-                break;
+                case generic_type::store_type::e_scalar:
+                    current_param_seq += "T";
+                    break;
 
-            case generic_type::store_type::e_vector:
-                current_param_seq += "V";
-                break;
+                case generic_type::store_type::e_vector:
+                    current_param_seq += "V";
+                    break;
 
-            case generic_type::store_type::e_string:
-                current_param_seq += "S";
-                break;
+                case generic_type::store_type::e_string:
+                    current_param_seq += "S";
+                    break;
 
-            default:
-                continue;
+                default:
+                    continue;
             }
         }
     }
@@ -6440,7 +6506,8 @@ struct vector_access_rtc_counter : public math_expr::vector_access_runtime_check
     std::size_t rtc_count;
 };
 
-template <typename T> bool run_test18()
+template <typename T>
+bool run_test18()
 {
     {
         math_expr::symbol_table<T> symbol_table;
@@ -6703,12 +6770,13 @@ template <typename T> bool run_test18()
 
             if ((4 != f.scalar_count) || (3 != f.vector_count) || (2 != f.string_count))
             {
-                printf("run_test18() - Error in evaluation! (2) Expression: %s  "
-                       "sc_count = %d  "
-                       "vr_count = %d  "
-                       "st_count = %d\n",
-                       expression_list[i].c_str(), static_cast<int>(f.scalar_count),
-                       static_cast<int>(f.vector_count), static_cast<int>(f.string_count));
+                printf(
+                    "run_test18() - Error in evaluation! (2) Expression: %s  "
+                    "sc_count = %d  "
+                    "vr_count = %d  "
+                    "st_count = %d\n",
+                    expression_list[i].c_str(), static_cast<int>(f.scalar_count),
+                    static_cast<int>(f.vector_count), static_cast<int>(f.string_count));
 
                 error_found = true;
             }
@@ -6875,10 +6943,10 @@ template <typename T> bool run_test18()
 
             if (!parser.compile(expression_str, expression))
             {
-                printf("run_test18() - [3] GenFunc2 Error: %s   Expression: %s  Parameter "
-                       "Sequence: %s [3]\n",
-                       parser.error().c_str(), expression_str.c_str(),
-                       parameter_type_list[i].c_str());
+                printf(
+                    "run_test18() - [3] GenFunc2 Error: %s   Expression: %s  Parameter "
+                    "Sequence: %s [3]\n",
+                    parser.error().c_str(), expression_str.c_str(), parameter_type_list[i].c_str());
 
                 error_found = true;
                 continue;
@@ -6956,10 +7024,11 @@ template <typename T> bool run_test18()
 
             if (!parser.compile(expression_list[i], expression))
             {
-                printf("run_test18() - [4] IncFunc Error: %s   Expression: %s  Parameter Sequence: "
-                       "%s [4]\n",
-                       parser.error().c_str(), expression_list[i].c_str(),
-                       parameter_type_list[i].c_str());
+                printf(
+                    "run_test18() - [4] IncFunc Error: %s   Expression: %s  Parameter Sequence: "
+                    "%s [4]\n",
+                    parser.error().c_str(), expression_list[i].c_str(),
+                    parameter_type_list[i].c_str());
 
                 error_found = true;
                 continue;
@@ -7043,12 +7112,13 @@ template <typename T> bool run_test18()
 
         symbol_table.add_function("remspc_uc", rsauc);
 
-        const std::string program = " s0 := 'How now ';                                    "
-                                    " s1 := 'brown cow?';                                  "
-                                    " s2 := remspc_uc(s0 + s1);                            "
-                                    " s3 := remspc_uc(s0) + s1;                            "
-                                    " s4 := s0 + remspc_uc(s1);                            "
-                                    " remspc_uc(s0 + s1) == remspc_uc(s0) + remspc_uc(s1); ";
+        const std::string program =
+            " s0 := 'How now ';                                    "
+            " s1 := 'brown cow?';                                  "
+            " s2 := remspc_uc(s0 + s1);                            "
+            " s3 := remspc_uc(s0) + s1;                            "
+            " s4 := s0 + remspc_uc(s1);                            "
+            " remspc_uc(s0 + s1) == remspc_uc(s0) + remspc_uc(s1); ";
 
         const std::string parameter_type_list[] = {"VVVTTT|S", "VVTTTV|S", "VTTTVV|S",
                                                    "TTTVVV|S", "TTVVVT|S", "TVVVTT|S"};
@@ -7330,9 +7400,10 @@ template <typename T> bool run_test18()
 
             if (not_equal(sum, s[i]))
             {
-                printf("run_test18() - Error in evaluation! (7) Expression: %s  Expected: %5.3f  "
-                       "Computed: %5.3f\n",
-                       expr_string.c_str(), s[i], sum);
+                printf(
+                    "run_test18() - Error in evaluation! (7) Expression: %s  Expected: %5.3f  "
+                    "Computed: %5.3f\n",
+                    expr_string.c_str(), s[i], sum);
 
                 error_found = true;
             }
@@ -7391,9 +7462,10 @@ template <typename T> bool run_test18()
 
             if (not_equal(sum, s[i]))
             {
-                printf("run_test18() - Error in evaluation! (8) Expression: %s  Expected: %5.3f  "
-                       "Computed: %5.3f\n",
-                       expr_string.c_str(), s[i], sum);
+                printf(
+                    "run_test18() - Error in evaluation! (8) Expression: %s  Expected: %5.3f  "
+                    "Computed: %5.3f\n",
+                    expr_string.c_str(), s[i], sum);
 
                 error_found = true;
             }
@@ -7472,9 +7544,10 @@ template <typename T> bool run_test18()
 
             if (!math_expr::expression_helper<T>::is_literal(expression))
             {
-                printf("run_test18() - Error: Expression did not compile to a constant! [1] "
-                       "Expression: %s\n",
-                       expression_string.c_str());
+                printf(
+                    "run_test18() - Error: Expression did not compile to a constant! [1] "
+                    "Expression: %s\n",
+                    expression_string.c_str());
 
                 return false;
             }
@@ -7496,9 +7569,10 @@ template <typename T> bool run_test18()
 
                 if (result != T(0))
                 {
-                    printf("run_test18() - Error: Expected result of zero, result: %8.4f for "
-                           "Expression: %s\n",
-                           result, expression_string.c_str());
+                    printf(
+                        "run_test18() - Error: Expected result of zero, result: %8.4f for "
+                        "Expression: %s\n",
+                        result, expression_string.c_str());
 
                     return false;
                 }
@@ -7636,9 +7710,10 @@ template <typename T> bool run_test18()
 
             if (not_equal(sum, s[i]))
             {
-                printf("run_test18() - Error in evaluation! (9) Expression: %s  Expected: %5.3f  "
-                       "Computed: %5.3f\n",
-                       expr_string.c_str(), s[i], sum);
+                printf(
+                    "run_test18() - Error in evaluation! (9) Expression: %s  Expected: %5.3f  "
+                    "Computed: %5.3f\n",
+                    expr_string.c_str(), s[i], sum);
 
                 error_found = true;
             }
@@ -7688,9 +7763,10 @@ template <typename T> bool run_test18()
 
         if (expression.value() != expected_result0)
         {
-            printf("run_test18() - Error in evaluation! (10.1) Expression: %s  Expected: %5.3f  "
-                   "Computed: %5.3f\n",
-                   expr_string.c_str(), expected_result0, expression.value());
+            printf(
+                "run_test18() - Error in evaluation! (10.1) Expression: %s  Expected: %5.3f  "
+                "Computed: %5.3f\n",
+                expr_string.c_str(), expected_result0, expression.value());
 
             return false;
         }
@@ -7701,9 +7777,10 @@ template <typename T> bool run_test18()
 
         if (expression.value() != expected_result1)
         {
-            printf("run_test18() - Error in evaluation! (10.2) Expression: %s  Expected: %5.3f  "
-                   "Computed: %5.3f\n",
-                   expr_string.c_str(), expected_result1, expression.value());
+            printf(
+                "run_test18() - Error in evaluation! (10.2) Expression: %s  Expected: %5.3f  "
+                "Computed: %5.3f\n",
+                expr_string.c_str(), expected_result1, expression.value());
 
             return false;
         }
@@ -8002,11 +8079,12 @@ template <typename T> bool run_test18()
         T z = T(3.3);
         T w = T(4.4);
 
-        overload_func<T> ovrld_func("T:T|T:TT|T:TTT|T:TTTT|"
-                                    "T:S|T:SS|T:SSS|T:SSSS|"
-                                    "T:ST|T:STS|T:STST|"
-                                    "T:TS|T:TST|T:TSTS|"
-                                    "T:TTSS|T:SSTT|T:STTS|T:TSST");
+        overload_func<T> ovrld_func(
+            "T:T|T:TT|T:TTT|T:TTTT|"
+            "T:S|T:SS|T:SSS|T:SSSS|"
+            "T:ST|T:STS|T:STST|"
+            "T:TS|T:TST|T:TSTS|"
+            "T:TTSS|T:SSTT|T:STTS|T:TSST");
 
         math_expr::symbol_table<T> symbol_table;
 
@@ -8102,21 +8180,23 @@ template <typename T> bool run_test18()
 
             if (ovrld_func.current_ps_index != test_pack_list[i].second.ps_index)
             {
-                printf("run_test18() - Error with ps_index (12) Expression: %s  Expected: %d  Got: "
-                       "%d\n",
-                       test_pack_list[i].first.c_str(),
-                       static_cast<int>(test_pack_list[i].second.ps_index),
-                       static_cast<int>(ovrld_func.current_ps_index));
+                printf(
+                    "run_test18() - Error with ps_index (12) Expression: %s  Expected: %d  Got: "
+                    "%d\n",
+                    test_pack_list[i].first.c_str(),
+                    static_cast<int>(test_pack_list[i].second.ps_index),
+                    static_cast<int>(ovrld_func.current_ps_index));
 
                 error_found = true;
             }
 
             if (ovrld_func.current_param_seq != test_pack_list[i].second.param_seq)
             {
-                printf("run_test18() - Error with parameter seq (12) Expression: %s  Expected: %s  "
-                       "Got: %s\n",
-                       test_pack_list[i].first.c_str(), test_pack_list[i].second.param_seq.c_str(),
-                       ovrld_func.current_param_seq.c_str());
+                printf(
+                    "run_test18() - Error with parameter seq (12) Expression: %s  Expected: %s  "
+                    "Got: %s\n",
+                    test_pack_list[i].first.c_str(), test_pack_list[i].second.param_seq.c_str(),
+                    ovrld_func.current_param_seq.c_str());
 
                 error_found = true;
             }
@@ -8143,11 +8223,12 @@ template <typename T> bool run_test18()
         T z = T(3.3);
         T w = T(4.4);
 
-        overload_func<T> ovrld_func("S:T|S:TT|S:TTT|S:TTTT|"
-                                    "S:S|S:SS|S:SSS|S:SSSS|"
-                                    "S:ST|S:STS|S:STST|"
-                                    "S:TS|S:TST|S:TSTS|"
-                                    "S:TTSS|S:SSTT|S:STTS|S:TSST");
+        overload_func<T> ovrld_func(
+            "S:T|S:TT|S:TTT|S:TTTT|"
+            "S:S|S:SS|S:SSS|S:SSSS|"
+            "S:ST|S:STS|S:STST|"
+            "S:TS|S:TST|S:TSTS|"
+            "S:TTSS|S:SSTT|S:STTS|S:TSST");
 
         math_expr::symbol_table<T> symbol_table;
 
@@ -8246,21 +8327,23 @@ template <typename T> bool run_test18()
 
             if (ovrld_func.current_ps_index != test_pack_list[i].second.ps_index)
             {
-                printf("run_test18() - Error with ps_index (13) Expression: %s  Expected: %d  Got: "
-                       "%d\n",
-                       test_pack_list[i].first.c_str(),
-                       static_cast<int>(test_pack_list[i].second.ps_index),
-                       static_cast<int>(ovrld_func.current_ps_index));
+                printf(
+                    "run_test18() - Error with ps_index (13) Expression: %s  Expected: %d  Got: "
+                    "%d\n",
+                    test_pack_list[i].first.c_str(),
+                    static_cast<int>(test_pack_list[i].second.ps_index),
+                    static_cast<int>(ovrld_func.current_ps_index));
 
                 error_found = true;
             }
 
             if (ovrld_func.current_param_seq != test_pack_list[i].second.param_seq)
             {
-                printf("run_test18() - Error with parameter seq (13) Expression: %s  Expected: %s  "
-                       "Got: %s\n",
-                       test_pack_list[i].first.c_str(), test_pack_list[i].second.param_seq.c_str(),
-                       ovrld_func.current_param_seq.c_str());
+                printf(
+                    "run_test18() - Error with parameter seq (13) Expression: %s  Expected: %s  "
+                    "Got: %s\n",
+                    test_pack_list[i].first.c_str(), test_pack_list[i].second.param_seq.c_str(),
+                    ovrld_func.current_param_seq.c_str());
 
                 error_found = true;
             }
@@ -8432,10 +8515,11 @@ template <typename T> bool run_test18()
 
                 if (vartc.rtc_count != rtc_tests[i].second)
                 {
-                    printf("run_test18() - Expected rtc_count: %d got rtc_count: %d [0] "
-                           "Expression: %s\n",
-                           static_cast<unsigned int>(rtc_tests[i].second),
-                           static_cast<unsigned int>(vartc.rtc_count), expression_str.c_str());
+                    printf(
+                        "run_test18() - Expected rtc_count: %d got rtc_count: %d [0] "
+                        "Expression: %s\n",
+                        static_cast<unsigned int>(rtc_tests[i].second),
+                        static_cast<unsigned int>(vartc.rtc_count), expression_str.c_str());
                     error_found = true;
                 }
             }
@@ -8480,10 +8564,11 @@ template <typename T> bool run_test18()
 
                 if (vartc.rtc_count != rtc_tests[i].second)
                 {
-                    printf("run_test18() - Expected rtc_count: %d got rtc_count: %d [1] "
-                           "Expression: %s\n",
-                           static_cast<unsigned int>(rtc_tests[i].second),
-                           static_cast<unsigned int>(vartc.rtc_count), expression_str.c_str());
+                    printf(
+                        "run_test18() - Expected rtc_count: %d got rtc_count: %d [1] "
+                        "Expression: %s\n",
+                        static_cast<unsigned int>(rtc_tests[i].second),
+                        static_cast<unsigned int>(vartc.rtc_count), expression_str.c_str());
                     error_found = true;
                 }
 
@@ -8493,10 +8578,11 @@ template <typename T> bool run_test18()
 
                 if (vartc.rtc_count != rtc_tests[i].second)
                 {
-                    printf("run_test18() - Expected rtc_count: %d got rtc_count: %d [2] "
-                           "Expression: %s\n",
-                           static_cast<unsigned int>(rtc_tests[i].second),
-                           static_cast<unsigned int>(vartc.rtc_count), expression_str.c_str());
+                    printf(
+                        "run_test18() - Expected rtc_count: %d got rtc_count: %d [2] "
+                        "Expression: %s\n",
+                        static_cast<unsigned int>(rtc_tests[i].second),
+                        static_cast<unsigned int>(vartc.rtc_count), expression_str.c_str());
                     error_found = true;
                 }
             }
@@ -8527,13 +8613,13 @@ struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T
 
     inline T operator()(std::string& result, parameter_list_t parameters) math_expr_test_override
     {
-
         result = "depth" + math_expr::core::to_str(static_cast<int>(scalar_t(parameters[0])()));
         return T(0);
     }
 };
 
-template <typename T> bool run_test19()
+template <typename T>
+bool run_test19()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -8706,9 +8792,10 @@ template <typename T> bool run_test19()
 
                 if (result_list[i] != result)
                 {
-                    printf("run_test19() - Error in evaluation! (2) Expression: %s Expected: "
-                           "%10.1f\tResult: %10.1f\n",
-                           expr_str_list[i].c_str(), result_list[i], result);
+                    printf(
+                        "run_test19() - Error in evaluation! (2) Expression: %s Expected: "
+                        "%10.1f\tResult: %10.1f\n",
+                        expr_str_list[i].c_str(), result_list[i], result);
 
                     error_found = true;
                     continue;
@@ -9035,9 +9122,10 @@ template <typename T> bool run_test19()
 
             if (error_found)
             {
-                printf("run_test19() - Error in evaluation! (5)  Results don't match!  "
-                       "fibonacci(%d) = %d\n",
-                       static_cast<unsigned int>(i), static_cast<unsigned int>(fibonacci_list[i]));
+                printf(
+                    "run_test19() - Error in evaluation! (5)  Results don't match!  "
+                    "fibonacci(%d) = %d\n",
+                    static_cast<unsigned int>(i), static_cast<unsigned int>(fibonacci_list[i]));
 
                 for (std::size_t j = 0; j < expression_list.size(); ++j)
                 {
@@ -9047,9 +9135,10 @@ template <typename T> bool run_test19()
             }
             else if (fibonacci_list[i] != expression_list[0].value())
             {
-                printf("run_test19() - Error in evaluation! (6)  Results don't match!  "
-                       "fibonacci(%d) = %d\n",
-                       static_cast<unsigned int>(i), static_cast<unsigned int>(fibonacci_list[i]));
+                printf(
+                    "run_test19() - Error in evaluation! (6)  Results don't match!  "
+                    "fibonacci(%d) = %d\n",
+                    static_cast<unsigned int>(i), static_cast<unsigned int>(fibonacci_list[i]));
 
                 for (std::size_t j = 0; j < expression_list.size(); ++j)
                 {
@@ -9123,10 +9212,11 @@ template <typename T> bool run_test19()
 
             if (not_equal(result, std::sqrt(x), T(0.0000001)))
             {
-                printf("run_test19() - Computation Error  "
-                       "Expression: [%s]\tExpected: %12.8f\tResult: %12.8f\n",
-                       expression_str.c_str(), static_cast<double>(std::sqrt(x)),
-                       static_cast<double>(result));
+                printf(
+                    "run_test19() - Computation Error  "
+                    "Expression: [%s]\tExpected: %12.8f\tResult: %12.8f\n",
+                    expression_str.c_str(), static_cast<double>(std::sqrt(x)),
+                    static_cast<double>(result));
 
                 error_found = true;
             }
@@ -9602,33 +9692,34 @@ template <typename T> bool run_test19()
 
         symbol_table.add_constants();
 
-        const std::string expression_string = " var sieve[10^7] := [false];                     "
-                                              " var m := trunc(sqrt(sieve[]));                  "
-                                              "                                                 "
-                                              " sieve[0] := true;                               "
-                                              " sieve[1] := true;                               "
-                                              "                                                 "
-                                              " for (var i := 0; i <= m; i += 1)                "
-                                              " {                                               "
-                                              "   if (false == sieve[i])                        "
-                                              "   {                                             "
-                                              "     for (var j := (i * i); j < sieve[]; j += i) "
-                                              "     {                                           "
-                                              "       sieve[j] := true;                         "
-                                              "     }                                           "
-                                              "   }                                             "
-                                              " };                                              "
-                                              "                                                 "
-                                              " var prime_count := 0;                           "
-                                              " for (var i := 0; i < sieve[]; i += 1)           "
-                                              " {                                               "
-                                              "   if (false == sieve[i])                        "
-                                              "   {                                             "
-                                              "     prime_count += 1;                           "
-                                              "   };                                            "
-                                              " };                                              "
-                                              "                                                 "
-                                              " prime_count == 664579;                          ";
+        const std::string expression_string =
+            " var sieve[10^7] := [false];                     "
+            " var m := trunc(sqrt(sieve[]));                  "
+            "                                                 "
+            " sieve[0] := true;                               "
+            " sieve[1] := true;                               "
+            "                                                 "
+            " for (var i := 0; i <= m; i += 1)                "
+            " {                                               "
+            "   if (false == sieve[i])                        "
+            "   {                                             "
+            "     for (var j := (i * i); j < sieve[]; j += i) "
+            "     {                                           "
+            "       sieve[j] := true;                         "
+            "     }                                           "
+            "   }                                             "
+            " };                                              "
+            "                                                 "
+            " var prime_count := 0;                           "
+            " for (var i := 0; i < sieve[]; i += 1)           "
+            " {                                               "
+            "   if (false == sieve[i])                        "
+            "   {                                             "
+            "     prime_count += 1;                           "
+            "   };                                            "
+            " };                                              "
+            "                                                 "
+            " prime_count == 664579;                          ";
 
         expression_t expression;
 
@@ -9783,29 +9874,29 @@ struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_sy
             {
                 switch (unknown_symbol[3])
                 {
-                case '1':
-                    result = symbol_table.add_function(unknown_symbol, foo1);
-                    break;
+                    case '1':
+                        result = symbol_table.add_function(unknown_symbol, foo1);
+                        break;
 
-                case '2':
-                    result = symbol_table.add_function(unknown_symbol, foo2);
-                    break;
+                    case '2':
+                        result = symbol_table.add_function(unknown_symbol, foo2);
+                        break;
 
-                case '3':
-                    result = symbol_table.add_function(unknown_symbol, foo3);
-                    break;
+                    case '3':
+                        result = symbol_table.add_function(unknown_symbol, foo3);
+                        break;
 
-                case '4':
-                    result = symbol_table.add_function(unknown_symbol, foo4);
-                    break;
+                    case '4':
+                        result = symbol_table.add_function(unknown_symbol, foo4);
+                        break;
 
-                case '5':
-                    result = symbol_table.add_function(unknown_symbol, foo5);
-                    break;
+                    case '5':
+                        result = symbol_table.add_function(unknown_symbol, foo5);
+                        break;
 
-                case '6':
-                    result = symbol_table.add_function(unknown_symbol, foo6);
-                    break;
+                    case '6':
+                        result = symbol_table.add_function(unknown_symbol, foo6);
+                        break;
                 }
             }
 
@@ -9822,16 +9913,16 @@ struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_sy
     }
 };
 
-template <typename T> bool run_test20()
+template <typename T>
+bool run_test20()
 {
     typedef math_expr::expression<T> expression_t;
     typedef math_expr::symbol_table<T> symbol_table_t;
 
     {
-
         for (std::size_t i = 0; i < 100; ++i)
         {
-            symbol_table_t symbol_table0; // primary symbol_table
+            symbol_table_t symbol_table0;  // primary symbol_table
             symbol_table_t symbol_table1;
             symbol_table_t symbol_table2;
             symbol_table_t symbol_table3;
@@ -9850,9 +9941,10 @@ template <typename T> bool run_test20()
             musr.next_value(true);
             parser.enable_unknown_symbol_resolver(&musr);
 
-            std::string expr_str = "v01+c02+v03+c04+v05+c06+v07+c08+v09+c10+"
-                                   "v11+c12+v13+c14+v15+c16+v17+c18+v19+c20+"
-                                   "v21+c22+v23+c24+v25+c26+v27+c28+v29+c30 ";
+            std::string expr_str =
+                "v01+c02+v03+c04+v05+c06+v07+c08+v09+c10+"
+                "v11+c12+v13+c14+v15+c16+v17+c18+v19+c20+"
+                "v21+c22+v23+c24+v25+c26+v27+c28+v29+c30 ";
 
             if (!parser.compile(expr_str, expression))
             {
@@ -9878,7 +9970,7 @@ template <typename T> bool run_test20()
     {
         for (std::size_t i = 0; i < 100; ++i)
         {
-            symbol_table_t symbol_table0; // primary symbol_table
+            symbol_table_t symbol_table0;  // primary symbol_table
             symbol_table_t symbol_table1;
             symbol_table_t symbol_table2;
             symbol_table_t symbol_table3;
@@ -9896,8 +9988,9 @@ template <typename T> bool run_test20()
             my_usr_ext<T> musr;
             parser.enable_unknown_symbol_resolver(&musr);
 
-            std::string expr_str = "foo6(foo1(v0),foo2(c1,foo4(v2,c3,v4,c5)),foo3"
-                                   "(v6,c7,foo5(v8,c9,v10,c11,v12)),c13,v14,c15) ";
+            std::string expr_str =
+                "foo6(foo1(v0),foo2(c1,foo4(v2,c3,v4,c5)),foo3"
+                "(v6,c7,foo5(v8,c9,v10,c11,v12)),c13,v14,c15) ";
 
             if (!parser.compile(expr_str, expression))
             {
@@ -10135,20 +10228,20 @@ inline std::string results_to_string(const math_expr::results_context<T>& result
 
         switch (t.type)
         {
-        case type_t::store_type::e_scalar:
-            res_str += 'T';
-            break;
+            case type_t::store_type::e_scalar:
+                res_str += 'T';
+                break;
 
-        case type_t::store_type::e_vector:
-            res_str += 'V';
-            break;
+            case type_t::store_type::e_vector:
+                res_str += 'V';
+                break;
 
-        case type_t::store_type::e_string:
-            res_str += 'S';
-            break;
+            case type_t::store_type::e_string:
+                res_str += 'S';
+                break;
 
-        default:
-            continue;
+            default:
+                continue;
         }
     }
 
@@ -10170,9 +10263,10 @@ inline bool result_equal(const math_expr::results_context<T>& results, const T& 
         return (value == scalar_t(results[0])());
 }
 
-template <typename T> class vv_size_handler_t : public math_expr::igeneric_function<T>
+template <typename T>
+class vv_size_handler_t : public math_expr::igeneric_function<T>
 {
-  public:
+   public:
     typedef typename math_expr::igeneric_function<T> igfun_t;
     typedef typename igfun_t::parameter_list_t parameter_list_t;
     typedef typename igfun_t::generic_type generic_type;
@@ -10213,11 +10307,12 @@ template <typename T> class vv_size_handler_t : public math_expr::igeneric_funct
         vector_map_[vec_view.data()] = &vec_view;
     }
 
-  private:
+   private:
     map_t vector_map_;
 };
 
-template <typename T> bool run_test21()
+template <typename T>
+bool run_test21()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -10300,9 +10395,10 @@ template <typename T> bool run_test21()
             }
             else if (result_list[i] != pattern)
             {
-                printf("run_test21() - Invalid return results [1] Expected %s  Got: %s  "
-                       "Expression: %s\n",
-                       result_list[i].c_str(), pattern.c_str(), expression_list[i].c_str());
+                printf(
+                    "run_test21() - Invalid return results [1] Expected %s  Got: %s  "
+                    "Expression: %s\n",
+                    result_list[i].c_str(), pattern.c_str(), expression_list[i].c_str());
 
                 error_found = true;
                 continue;
@@ -10387,18 +10483,20 @@ template <typename T> bool run_test21()
             }
             else if (result_list[i] != pattern)
             {
-                printf("run_test21() - Invalid return results [2] Expected %s  Got: %s  "
-                       "Expression: %s\n",
-                       result_list[i].c_str(), pattern.c_str(), expression_list[i].c_str());
+                printf(
+                    "run_test21() - Invalid return results [2] Expected %s  Got: %s  "
+                    "Expression: %s\n",
+                    result_list[i].c_str(), pattern.c_str(), expression_list[i].c_str());
 
                 error_found = true;
                 continue;
             }
             else if (!result_equal(expression.results(), x + T(1)))
             {
-                printf("run_test21() - Invalid return results [2] Expected %s  Got: %s  "
-                       "Expression: %s\n",
-                       result_list[i].c_str(), pattern.c_str(), expression_list[i].c_str());
+                printf(
+                    "run_test21() - Invalid return results [2] Expected %s  Got: %s  "
+                    "Expression: %s\n",
+                    result_list[i].c_str(), pattern.c_str(), expression_list[i].c_str());
 
                 error_found = true;
                 continue;
@@ -10433,10 +10531,11 @@ template <typename T> bool run_test21()
 
         expression.register_symbol_table(symbol_table);
 
-        const std::string expression_str = " if (x > y)                                 "
-                                           "   return [1];                              "
-                                           " else                                       "
-                                           "   return [ x, x + y, 2 * v, s + 'world' ]; ";
+        const std::string expression_str =
+            " if (x > y)                                 "
+            "   return [1];                              "
+            " else                                       "
+            "   return [ x, x + y, 2 * v, s + 'world' ]; ";
 
         if (!parser.compile(expression_str, expression))
         {
@@ -10583,9 +10682,10 @@ template <typename T> bool run_test21()
             if (compile_result)
             {
                 expression.value();
-                printf("run_test21() - Invalid expression due to immutability was successfully "
-                       "compiled. Expression: %s\n",
-                       expression_str.c_str());
+                printf(
+                    "run_test21() - Invalid expression due to immutability was successfully "
+                    "compiled. Expression: %s\n",
+                    expression_str.c_str());
             }
         }
     }
@@ -10628,9 +10728,10 @@ template <typename T> bool run_test21()
 
             if (expected_compile_result != parser.compile(expression_str, expression))
             {
-                printf("run_test21() - Invalid compilation of expression. Expected compile result: "
-                       "%c Expression: %s\n",
-                       expected_compile_result ? 'T' : 'F', expression_str.c_str());
+                printf(
+                    "run_test21() - Invalid compilation of expression. Expected compile result: "
+                    "%c Expression: %s\n",
+                    expected_compile_result ? 'T' : 'F', expression_str.c_str());
 
                 error_found = true;
             }
@@ -11229,14 +11330,15 @@ template <typename T> bool run_test21()
                     error_type error = parser.get_error(i);
                     math_expr::parser_error::update_error(error, expression_string);
 
-                    printf("run_test21() - Exp[%02d] Error[%02d] Position: %02d line: %d column: "
-                           "%d Type: [%14s] Msg: %s\n",
-                           static_cast<unsigned int>(e), static_cast<unsigned int>(i),
-                           static_cast<unsigned int>(error.token.position),
-                           static_cast<unsigned int>(error.line_no),
-                           static_cast<unsigned int>(error.column_no),
-                           math_expr::parser_error::to_str(error.mode).c_str(),
-                           error.diagnostic.c_str());
+                    printf(
+                        "run_test21() - Exp[%02d] Error[%02d] Position: %02d line: %d column: "
+                        "%d Type: [%14s] Msg: %s\n",
+                        static_cast<unsigned int>(e), static_cast<unsigned int>(i),
+                        static_cast<unsigned int>(error.token.position),
+                        static_cast<unsigned int>(error.line_no),
+                        static_cast<unsigned int>(error.column_no),
+                        math_expr::parser_error::to_str(error.mode).c_str(),
+                        error.diagnostic.c_str());
                 }
 
                 error_found = true;
@@ -11250,9 +11352,10 @@ template <typename T> bool run_test21()
             {
                 error_found = true;
 
-                printf("run_test21() - Error: Exp[%02d] Expression result: %5.3f expected: 1  "
-                       "expression: %s\n",
-                       static_cast<unsigned int>(e), result, expression_string.c_str());
+                printf(
+                    "run_test21() - Error: Exp[%02d] Expression result: %5.3f expected: 1  "
+                    "expression: %s\n",
+                    static_cast<unsigned int>(e), result, expression_string.c_str());
             }
         }
 
@@ -11351,14 +11454,15 @@ template <typename T> bool run_test21()
                     error_type error = parser.get_error(i);
                     math_expr::parser_error::update_error(error, expression_string);
 
-                    printf("run_test21() - Exp[%02d] Error[%02d] Position: %02d line: %d column: "
-                           "%d Type: [%14s] Msg: %s\n",
-                           static_cast<unsigned int>(e), static_cast<unsigned int>(i),
-                           static_cast<unsigned int>(error.token.position),
-                           static_cast<unsigned int>(error.line_no),
-                           static_cast<unsigned int>(error.column_no),
-                           math_expr::parser_error::to_str(error.mode).c_str(),
-                           error.diagnostic.c_str());
+                    printf(
+                        "run_test21() - Exp[%02d] Error[%02d] Position: %02d line: %d column: "
+                        "%d Type: [%14s] Msg: %s\n",
+                        static_cast<unsigned int>(e), static_cast<unsigned int>(i),
+                        static_cast<unsigned int>(error.token.position),
+                        static_cast<unsigned int>(error.line_no),
+                        static_cast<unsigned int>(error.column_no),
+                        math_expr::parser_error::to_str(error.mode).c_str(),
+                        error.diagnostic.c_str());
                 }
 
                 error_found = true;
@@ -11378,10 +11482,11 @@ template <typename T> bool run_test21()
 
                 if (result != 1)
                 {
-                    printf("run_test21() - Exp[%02d] Error: size: %d expected 1 instead got: %f  "
-                           "expr:%s\n",
-                           static_cast<unsigned int>(e), static_cast<unsigned int>(i), result,
-                           expression_string.c_str());
+                    printf(
+                        "run_test21() - Exp[%02d] Error: size: %d expected 1 instead got: %f  "
+                        "expr:%s\n",
+                        static_cast<unsigned int>(e), static_cast<unsigned int>(i), result,
+                        expression_string.c_str());
 
                     error_found = true;
                 }
@@ -11431,18 +11536,19 @@ template <typename T> bool run_test21()
 
         parser_t parser;
 
-        const std::string resize_expression = " var vec_original_size := v[];                    "
-                                              " var success_count     := 0;                      "
-                                              "                                                  "
-                                              " for (var i := 1; i <= vec_original_size; i += 1) "
-                                              " {                                                "
-                                              "    if (resize(v,i) == true and v[] == i)         "
-                                              "    {                                             "
-                                              "       success_count += 1;                        "
-                                              "    }                                             "
-                                              " };                                               "
-                                              "                                                  "
-                                              " success_count == vec_original_size               ";
+        const std::string resize_expression =
+            " var vec_original_size := v[];                    "
+            " var success_count     := 0;                      "
+            "                                                  "
+            " for (var i := 1; i <= vec_original_size; i += 1) "
+            " {                                                "
+            "    if (resize(v,i) == true and v[] == i)         "
+            "    {                                             "
+            "       success_count += 1;                        "
+            "    }                                             "
+            " };                                               "
+            "                                                  "
+            " success_count == vec_original_size               ";
 
         if (!parser.compile(resize_expression, expression))
         {
@@ -11682,9 +11788,10 @@ template <typename T> bool run_test21()
 
                 if (results.count() != 1)
                 {
-                    printf("run_test21() - Error: expected 1 return value, instead got: %d for "
-                           "expression: %s\n",
-                           static_cast<int>(results.count()), expression_string.c_str());
+                    printf(
+                        "run_test21() - Error: expected 1 return value, instead got: %d for "
+                        "expression: %s\n",
+                        static_cast<int>(results.count()), expression_string.c_str());
 
                     error_found = true;
 
@@ -11694,9 +11801,10 @@ template <typename T> bool run_test21()
                 if (results[0].type !=
                     math_expr::results_context<T>::type_store_t::store_type::e_vector)
                 {
-                    printf("run_test21() - Error: expected vector type for return value for "
-                           "expression: %s\n",
-                           expression_string.c_str());
+                    printf(
+                        "run_test21() - Error: expected vector type for return value for "
+                        "expression: %s\n",
+                        expression_string.c_str());
 
                     error_found = true;
 
@@ -11707,10 +11815,11 @@ template <typename T> bool run_test21()
 
                 if (vector.size() != vector_size)
                 {
-                    printf("run_test21() - Error: expected vector size %d instead got: %d for "
-                           "expression: %s\n",
-                           static_cast<int>(vector_size), static_cast<int>(vector.size()),
-                           expression_string.c_str());
+                    printf(
+                        "run_test21() - Error: expected vector size %d instead got: %d for "
+                        "expression: %s\n",
+                        static_cast<int>(vector_size), static_cast<int>(vector.size()),
+                        expression_string.c_str());
 
                     error_found = true;
 
@@ -11721,10 +11830,11 @@ template <typename T> bool run_test21()
                 {
                     if (vector[j] != expected_values[i])
                     {
-                        printf("run_test21() - Error: expected vector[%d] expected %f instead got: "
-                               "%f for expression: %s\n",
-                               static_cast<int>(j), expected_values[i], vector[j],
-                               expression_string.c_str());
+                        printf(
+                            "run_test21() - Error: expected vector[%d] expected %f instead got: "
+                            "%f for expression: %s\n",
+                            static_cast<int>(j), expected_values[i], vector[j],
+                            expression_string.c_str());
 
                         error_found = true;
                     }
@@ -11764,10 +11874,11 @@ template <typename T> bool run_test21()
 
             if (!result_check || (ret_invoked != expected_result.second))
             {
-                printf("run_test21() - Error: Expression: %s result: %f ret_invoked: %c  "
-                       "expected result: %f ret_invoked: %c \n",
-                       expression_string.c_str(), result, ret_invoked ? 'T' : 'F',
-                       expected_result.first, expected_result.second ? 'T' : 'F');
+                printf(
+                    "run_test21() - Error: Expression: %s result: %f ret_invoked: %c  "
+                    "expected result: %f ret_invoked: %c \n",
+                    expression_string.c_str(), result, ret_invoked ? 'T' : 'F',
+                    expected_result.first, expected_result.second ? 'T' : 'F');
 
                 error_found = true;
 
@@ -11857,9 +11968,10 @@ template <typename T> bool run_test21()
 
                 if (results.count() != 1)
                 {
-                    printf("run_test21() - Error: expected 1 return value, instead got: %d for "
-                           "expression: %s\n",
-                           static_cast<int>(results.count()), expression_string.c_str());
+                    printf(
+                        "run_test21() - Error: expected 1 return value, instead got: %d for "
+                        "expression: %s\n",
+                        static_cast<int>(results.count()), expression_string.c_str());
 
                     error_found = true;
 
@@ -11869,9 +11981,10 @@ template <typename T> bool run_test21()
                 if (results[0].type !=
                     math_expr::results_context<T>::type_store_t::store_type::e_vector)
                 {
-                    printf("run_test21() - Error: expected vector type for return value for "
-                           "expression: %s\n",
-                           expression_string.c_str());
+                    printf(
+                        "run_test21() - Error: expected vector type for return value for "
+                        "expression: %s\n",
+                        expression_string.c_str());
 
                     error_found = true;
 
@@ -11882,10 +11995,11 @@ template <typename T> bool run_test21()
 
                 if (vector.size() != vec3.size())
                 {
-                    printf("run_test21() - Error: expected vector size %d instead got: %d for "
-                           "expression: %s\n",
-                           static_cast<int>(vec3.size()), static_cast<int>(vector.size()),
-                           expression_string.c_str());
+                    printf(
+                        "run_test21() - Error: expected vector size %d instead got: %d for "
+                        "expression: %s\n",
+                        static_cast<int>(vec3.size()), static_cast<int>(vector.size()),
+                        expression_string.c_str());
 
                     error_found = true;
 
@@ -11896,10 +12010,11 @@ template <typename T> bool run_test21()
                 {
                     if (vector[j] != expected_values[i])
                     {
-                        printf("run_test21() - Error: expected vector[%d] expected %f instead got: "
-                               "%f for expression: %s\n",
-                               static_cast<int>(j), expected_values[i], vector[j],
-                               expression_string.c_str());
+                        printf(
+                            "run_test21() - Error: expected vector[%d] expected %f instead got: "
+                            "%f for expression: %s\n",
+                            static_cast<int>(j), expected_values[i], vector[j],
+                            expression_string.c_str());
 
                         error_found = true;
                     }
@@ -11925,7 +12040,8 @@ struct assert_handler math_expr_test_final : public math_expr::assert_check
     }
 };
 
-template <typename T> bool run_test22()
+template <typename T>
+bool run_test22()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -12043,9 +12159,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [3]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [3]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12054,9 +12171,10 @@ template <typename T> bool run_test22()
 
             if (6 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [3]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [3]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12100,9 +12218,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [4]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [4]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12111,9 +12230,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [4]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [4]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12157,9 +12277,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [5]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [5]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12168,9 +12289,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [5]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [5]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12214,9 +12336,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [6]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [6]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12225,9 +12348,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [6]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [6]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12235,18 +12359,19 @@ template <typename T> bool run_test22()
     }
 
     {
-        const std::string expressions[] = {" assert(1 > 1); 'assert statement' + '0001'            "
-                                           "                                 ",
-                                           " assert(1 > 2, 'assert statement 2'); 'assert "
-                                           "statement' + '0002'                       ",
-                                           " assert(1 > 3, 'assert ' + 'statement 3'); 'assert "
-                                           "statement' + '0003'                  ",
-                                           " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); "
-                                           "'assert statement' + '0004'      ",
-                                           " assert(1 > 5, 'assert ' + 'statement 5'); 'assert "
-                                           "statement' + '0005'                  ",
-                                           " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + "
-                                           "'06'); 'assert statement' + '0006' "};
+        const std::string expressions[] = {
+            " assert(1 > 1); 'assert statement' + '0001'            "
+            "                                 ",
+            " assert(1 > 2, 'assert statement 2'); 'assert "
+            "statement' + '0002'                       ",
+            " assert(1 > 3, 'assert ' + 'statement 3'); 'assert "
+            "statement' + '0003'                  ",
+            " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); "
+            "'assert statement' + '0004'      ",
+            " assert(1 > 5, 'assert ' + 'statement 5'); 'assert "
+            "statement' + '0005'                  ",
+            " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + "
+            "'06'); 'assert statement' + '0006' "};
 
         const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
 
@@ -12276,9 +12401,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [7]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [7]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12287,9 +12413,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [7]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [7]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12430,9 +12557,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [10]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [10]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12441,9 +12569,10 @@ template <typename T> bool run_test22()
 
             if (6 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [10]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [10]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12495,9 +12624,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [11]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [11]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12506,9 +12636,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [11]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [11]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12560,9 +12691,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [12]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [12]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12571,9 +12703,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [12]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [12]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12625,9 +12758,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [13]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [13]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12636,9 +12770,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [13]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [13]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12646,18 +12781,19 @@ template <typename T> bool run_test22()
     }
 
     {
-        const std::string expressions[] = {" assert(x > y); 'assert statement' + '0001'            "
-                                           "                                 ",
-                                           " assert(x > y, 'assert statement 2'); 'assert "
-                                           "statement' + '0002'                       ",
-                                           " assert(x > y, 'assert ' + 'statement 3'); 'assert "
-                                           "statement' + '0003'                  ",
-                                           " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); "
-                                           "'assert statement' + '0004'      ",
-                                           " assert(x > y, 'assert ' + 'statement 5'); 'assert "
-                                           "statement' + '0005'                  ",
-                                           " assert(x > y, 'assert ' + 'statement 6', 'Assert' + "
-                                           "'06'); 'assert statement' + '0006' "};
+        const std::string expressions[] = {
+            " assert(x > y); 'assert statement' + '0001'            "
+            "                                 ",
+            " assert(x > y, 'assert statement 2'); 'assert "
+            "statement' + '0002'                       ",
+            " assert(x > y, 'assert ' + 'statement 3'); 'assert "
+            "statement' + '0003'                  ",
+            " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); "
+            "'assert statement' + '0004'      ",
+            " assert(x > y, 'assert ' + 'statement 5'); 'assert "
+            "statement' + '0005'                  ",
+            " assert(x > y, 'assert ' + 'statement 6', 'Assert' + "
+            "'06'); 'assert statement' + '0006' "};
 
         const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
 
@@ -12695,9 +12831,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [14]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [14]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12706,9 +12843,10 @@ template <typename T> bool run_test22()
 
             if (1 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [14]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [14]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12757,9 +12895,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [15]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [15]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12768,9 +12907,10 @@ template <typename T> bool run_test22()
 
             if (6 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [15]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [15]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12819,9 +12959,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [16]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [16]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12830,9 +12971,10 @@ template <typename T> bool run_test22()
 
             if (6 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
-                       "%s [16]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 1. Expression: "
+                    "%s [16]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12889,9 +13031,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [17]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [17]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12900,9 +13043,10 @@ template <typename T> bool run_test22()
 
             if (6 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 6. Expression: "
-                       "%s [17]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 6. Expression: "
+                    "%s [17]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12910,18 +13054,19 @@ template <typename T> bool run_test22()
     }
 
     {
-        const std::string expressions[] = {" assert(x > y); 'assert' + ((x < y) ? '01' : 'XYZ');   "
-                                           "                                          "
-                                           " assert(x > y, 'assert statement 2'); 'assert' + ((x < "
-                                           "y) ? '02' : 'XYZ');                       "
-                                           " assert(x > y, 'assert ' + 'statement 3'); 'assert' + "
-                                           "((x < y) ? '03' : 'XYZ');                  "
-                                           " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); "
-                                           "'assert' + ((x < y) ? '04' : 'XYZ');      "
-                                           " assert(x > y, 'assert ' + 'statement 5'); 'assert' + "
-                                           "((x < y) ? '05' : 'XYZ');                  "
-                                           " assert(x > y, 'assert ' + 'statement 6', 'Assert' + "
-                                           "'06'); 'assert' + ((x < y) ? '06' : 'XYZ'); "};
+        const std::string expressions[] = {
+            " assert(x > y); 'assert' + ((x < y) ? '01' : 'XYZ');   "
+            "                                          "
+            " assert(x > y, 'assert statement 2'); 'assert' + ((x < "
+            "y) ? '02' : 'XYZ');                       "
+            " assert(x > y, 'assert ' + 'statement 3'); 'assert' + "
+            "((x < y) ? '03' : 'XYZ');                  "
+            " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); "
+            "'assert' + ((x < y) ? '04' : 'XYZ');      "
+            " assert(x > y, 'assert ' + 'statement 5'); 'assert' + "
+            "((x < y) ? '05' : 'XYZ');                  "
+            " assert(x > y, 'assert ' + 'statement 6', 'Assert' + "
+            "'06'); 'assert' + ((x < y) ? '06' : 'XYZ'); "};
 
         const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
 
@@ -12964,9 +13109,10 @@ template <typename T> bool run_test22()
 
             if (!math_expr::expression_helper<T>::match_type_sequence(expression, type_sequence))
             {
-                printf("run_test22() - Error: Expression failed to match type sequence. "
-                       "Expression: %s [18]\n",
-                       expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Expression failed to match type sequence. "
+                    "Expression: %s [18]\n",
+                    expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -12975,9 +13121,10 @@ template <typename T> bool run_test22()
 
             if (6 != handler.assert_count)
             {
-                printf("run_test22() - Error: Invalid assert count of %d expected 6. Expression: "
-                       "%s [18]\n",
-                       static_cast<int>(handler.assert_count), expressions[i].c_str());
+                printf(
+                    "run_test22() - Error: Invalid assert count of %d expected 6. Expression: "
+                    "%s [18]\n",
+                    static_cast<int>(handler.assert_count), expressions[i].c_str());
                 result = false;
                 continue;
             }
@@ -13060,9 +13207,10 @@ template <typename T> bool run_test22()
 
             if (!parser.compile(exprpack.first, expression))
             {
-                printf("run_test22() - Error: Max expression/vector size check. Diag: %s "
-                       "Expression: %s [01]\n",
-                       parser.error().c_str(), exprpack.first.c_str());
+                printf(
+                    "run_test22() - Error: Max expression/vector size check. Diag: %s "
+                    "Expression: %s [01]\n",
+                    parser.error().c_str(), exprpack.first.c_str());
 
                 result = false;
                 continue;
@@ -13070,12 +13218,13 @@ template <typename T> bool run_test22()
 
             if (parser.total_local_symbol_size_bytes() != exprpack.second)
             {
-                printf("run_test22() - Error: Mismatch in expected expression size. Expected size: "
-                       "%d instead got: %d "
-                       "Expression: %s [02]\n",
-                       static_cast<int>(exprpack.second),
-                       static_cast<int>(parser.total_local_symbol_size_bytes()),
-                       exprpack.first.c_str());
+                printf(
+                    "run_test22() - Error: Mismatch in expected expression size. Expected size: "
+                    "%d instead got: %d "
+                    "Expression: %s [02]\n",
+                    static_cast<int>(exprpack.second),
+                    static_cast<int>(parser.total_local_symbol_size_bytes()),
+                    exprpack.first.c_str());
 
                 result = false;
                 continue;
@@ -13131,9 +13280,10 @@ template <typename T> bool run_test22()
 
             if (parser.compile(exprpack.first, expression))
             {
-                printf("run_test22() - Error: Expected the expression to fail compilation due to "
-                       "size check. Expression: %s [03]\n",
-                       exprpack.first.c_str());
+                printf(
+                    "run_test22() - Error: Expected the expression to fail compilation due to "
+                    "size check. Expression: %s [03]\n",
+                    exprpack.first.c_str());
 
                 result = false;
                 continue;
@@ -13141,10 +13291,11 @@ template <typename T> bool run_test22()
 
             if (parser.total_local_symbol_size_bytes() != 0)
             {
-                printf("run_test22() - Error: Expected zero size expression, instead got: %d "
-                       "Expression: %s [02]\n",
-                       static_cast<int>(parser.total_local_symbol_size_bytes()),
-                       exprpack.first.c_str());
+                printf(
+                    "run_test22() - Error: Expected zero size expression, instead got: %d "
+                    "Expression: %s [02]\n",
+                    static_cast<int>(parser.total_local_symbol_size_bytes()),
+                    exprpack.first.c_str());
 
                 result = false;
                 continue;
@@ -13163,9 +13314,10 @@ template <typename T> bool run_test22()
 
         if (parser.compile(expression_str, expression))
         {
-            printf("run_test22() - Error: Expected the expression to fail compilation due to size "
-                   "check. Expression: %s [04]\n",
-                   expression_str.c_str());
+            printf(
+                "run_test22() - Error: Expected the expression to fail compilation due to size "
+                "check. Expression: %s [04]\n",
+                expression_str.c_str());
 
             result = false;
         }
@@ -13174,7 +13326,8 @@ template <typename T> bool run_test22()
     return result;
 }
 
-template <typename T> bool run_test23()
+template <typename T>
+bool run_test23()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -13200,8 +13353,9 @@ template <typename T> bool run_test23()
         write_expression.register_symbol_table(symbol_table);
 
         parser_t parser;
-        const std::string write_expression_string = " var h := open(path,'w'); "
-                                                    " write(h,payload) and close(h) ";
+        const std::string write_expression_string =
+            " var h := open(path,'w'); "
+            " write(h,payload) and close(h) ";
 
         if (!parser.compile(write_expression_string, write_expression))
         {
@@ -13222,8 +13376,9 @@ template <typename T> bool run_test23()
         expression_t read_expression;
         read_expression.register_symbol_table(symbol_table);
 
-        const std::string read_expression_string = " var h := open(path,'r'); "
-                                                   " read(h,buffer,buffer[]) and close(h) ";
+        const std::string read_expression_string =
+            " var h := open(path,'r'); "
+            " read(h,buffer,buffer[]) and close(h) ";
 
         if (!parser.compile(read_expression_string, read_expression))
         {
@@ -13277,12 +13432,13 @@ template <typename T> bool run_test23()
         expression.register_symbol_table(symbol_table);
 
         parser_t parser;
-        const std::string expression_string = " var h := open(path,'r');      "
-                                              " line0 := getline(h);          "
-                                              " line1 := getline(h);          "
-                                              " (line0 == 'first') and        "
-                                              " (line1 == 'second') and       "
-                                              " eof(h) and close(h)           ";
+        const std::string expression_string =
+            " var h := open(path,'r');      "
+            " line0 := getline(h);          "
+            " line1 := getline(h);          "
+            " (line0 == 'first') and        "
+            " (line1 == 'second') and       "
+            " eof(h) and close(h)           ";
 
         if (!parser.compile(expression_string, expression))
         {
@@ -13324,8 +13480,9 @@ template <typename T> bool run_test23()
         expression.register_symbol_table(symbol_table);
 
         parser_t parser;
-        const std::string expression_string = " (open('', 'r') == 0) and "
-                                              " (open(path, 'x') == 0)   ";
+        const std::string expression_string =
+            " (open('', 'r') == 0) and "
+            " (open(path, 'x') == 0)   ";
 
         if (!parser.compile(expression_string, expression))
         {
@@ -13344,13 +13501,15 @@ template <typename T> bool run_test23()
     return true;
 }
 
-template <typename T> T semicircle_antiderivative(const T& x)
+template <typename T>
+T semicircle_antiderivative(const T& x)
 {
     const T y = std::max(T(0), T(1) - (x * x));
     return T(0.5) * ((x * std::sqrt(y)) + std::asin(x));
 }
 
-template <typename T> void check_literal_constant_folding_cases()
+template <typename T>
+void check_literal_constant_folding_cases()
 {
     for (std::size_t i = 0; i < global_test_list_size; ++i)
     {
@@ -13367,7 +13526,8 @@ template <typename T> void check_literal_constant_folding_cases()
     }
 }
 
-template <typename T> void check_randomized_clamp_algorithm()
+template <typename T>
+void check_randomized_clamp_algorithm()
 {
     const std::string expression_string = "clamp(-1.0,sin(2 * pi * x) + cos(y / 2 * pi),+1.0)";
 
@@ -13404,7 +13564,8 @@ template <typename T> void check_randomized_clamp_algorithm()
     }
 }
 
-template <typename T> void check_randomized_expression_instance_consistency()
+template <typename T>
+void check_randomized_expression_instance_consistency()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -13455,7 +13616,8 @@ template <typename T> void check_randomized_expression_instance_consistency()
     }
 }
 
-template <typename T> void check_randomized_integration_algorithm()
+template <typename T>
+void check_randomized_integration_algorithm()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -13494,7 +13656,8 @@ template <typename T> void check_randomized_integration_algorithm()
     }
 }
 
-template <typename T> void check_randomized_derivative_algorithm()
+template <typename T>
+void check_randomized_derivative_algorithm()
 {
     typedef math_expr::expression<T> expression_t;
 
@@ -13543,15 +13706,17 @@ template <typename T> void check_randomized_derivative_algorithm()
     }
 }
 
-template <typename T> void check_randomized_custom_function_algorithm()
+template <typename T>
+void check_randomized_custom_function_algorithm()
 {
     typedef math_expr::expression<T> expression_t;
 
-    const std::string expression_string = "myfunc0(sin(x * pi),y / 2) + myfunc1(sin(x * pi),y / 2)+"
-                                          "myfunc2(sin(x * pi),y / 2) + myfunc3(sin(x * pi),y / 2)+"
-                                          "myfunc4(sin(x * pi),y / 2) + myfunc5(sin(x * pi),y / 2)+"
-                                          "myfunc6(sin(x * pi),y / 2) + myfunc7(sin(x * pi),y / 2)+"
-                                          "myfunc8(sin(x * pi),y / 2) + myfunc9(sin(x * pi),y / 2)";
+    const std::string expression_string =
+        "myfunc0(sin(x * pi),y / 2) + myfunc1(sin(x * pi),y / 2)+"
+        "myfunc2(sin(x * pi),y / 2) + myfunc3(sin(x * pi),y / 2)+"
+        "myfunc4(sin(x * pi),y / 2) + myfunc5(sin(x * pi),y / 2)+"
+        "myfunc6(sin(x * pi),y / 2) + myfunc7(sin(x * pi),y / 2)+"
+        "myfunc8(sin(x * pi),y / 2) + myfunc9(sin(x * pi),y / 2)";
 
     T x = T(0);
     T y = T(0);
@@ -13601,7 +13766,8 @@ template <typename T> void check_randomized_custom_function_algorithm()
     }
 }
 
-template <typename T> void check_randomized_polynomial_algorithm()
+template <typename T>
+void check_randomized_polynomial_algorithm()
 {
     typedef math_expr::expression<T> expression_t;
 

@@ -40,7 +40,7 @@ namespace math_expr::lexer
 {
 class token_inserter : public helper_interface
 {
-  public:
+   public:
     explicit token_inserter(const std::size_t& stride) : stride_(stride)
     {
         if (stride > 5)
@@ -69,28 +69,29 @@ class token_inserter : public helper_interface
 
             switch (stride_)
             {
-            case 1:
-                insert_index = insert(g.token_list_[i], t);
-                break;
+                case 1:
+                    insert_index = insert(g.token_list_[i], t);
+                    break;
 
-            case 2:
-                insert_index = insert(g.token_list_[i], g.token_list_[i + 1], t);
-                break;
+                case 2:
+                    insert_index = insert(g.token_list_[i], g.token_list_[i + 1], t);
+                    break;
 
-            case 3:
-                insert_index =
-                    insert(g.token_list_[i], g.token_list_[i + 1], g.token_list_[i + 2], t);
-                break;
+                case 3:
+                    insert_index =
+                        insert(g.token_list_[i], g.token_list_[i + 1], g.token_list_[i + 2], t);
+                    break;
 
-            case 4:
-                insert_index = insert(g.token_list_[i], g.token_list_[i + 1], g.token_list_[i + 2],
-                                      g.token_list_[i + 3], t);
-                break;
+                case 4:
+                    insert_index = insert(g.token_list_[i], g.token_list_[i + 1],
+                                          g.token_list_[i + 2], g.token_list_[i + 3], t);
+                    break;
 
-            case 5:
-                insert_index = insert(g.token_list_[i], g.token_list_[i + 1], g.token_list_[i + 2],
-                                      g.token_list_[i + 3], g.token_list_[i + 4], t);
-                break;
+                case 5:
+                    insert_index =
+                        insert(g.token_list_[i], g.token_list_[i + 1], g.token_list_[i + 2],
+                               g.token_list_[i + 3], g.token_list_[i + 4], t);
+                    break;
             }
 
             if ((insert_index >= 0) && (insert_index <= (static_cast<int>(stride_) + 1)))
@@ -123,31 +124,31 @@ class token_inserter : public helper_interface
         return changes;
     }
 
-#define token_inserter_empty_body                                                                  \
-    {                                                                                              \
-        return -1;                                                                                 \
+#define token_inserter_empty_body \
+    {                             \
+        return -1;                \
     }
 
-  inline virtual int insert(const token&, token&) token_inserter_empty_body
+   inline virtual int insert(const token&, token&) token_inserter_empty_body
 
-      inline virtual int insert(const token&, const token&, token&) token_inserter_empty_body
+       inline virtual int insert(const token&, const token&, token&) token_inserter_empty_body
 
-      inline virtual int insert(const token&, const token&, const token&,
-                                token&) token_inserter_empty_body
+       inline virtual int insert(const token&, const token&, const token&,
+                                 token&) token_inserter_empty_body
 
-      inline virtual int insert(const token&, const token&, const token&, const token&,
-                                token&) token_inserter_empty_body
+       inline virtual int insert(const token&, const token&, const token&, const token&,
+                                 token&) token_inserter_empty_body
 
-      inline virtual int insert(const token&, const token&, const token&, const token&,
-                                const token&, token&) token_inserter_empty_body
+       inline virtual int insert(const token&, const token&, const token&, const token&,
+                                 const token&, token&) token_inserter_empty_body
 
 #undef token_inserter_empty_body
 
-      private :
+       private :
 
-      const std::size_t stride_;
+       const std::size_t stride_;
 };
 
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

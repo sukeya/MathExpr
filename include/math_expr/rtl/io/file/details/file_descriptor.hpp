@@ -73,20 +73,20 @@ struct file_descriptor
 
         switch (mode)
         {
-        case file_mode::read:
-            stream_ = std::make_unique<input_file_stream>(file_name);
-            break;
+            case file_mode::read:
+                stream_ = std::make_unique<input_file_stream>(file_name);
+                break;
 
-        case file_mode::write:
-            stream_ = std::make_unique<output_file_stream>(file_name);
-            break;
+            case file_mode::write:
+                stream_ = std::make_unique<output_file_stream>(file_name);
+                break;
 
-        case file_mode::read_write:
-            stream_ = std::make_unique<read_write_file_stream>(file_name);
-            break;
+            case file_mode::read_write:
+                stream_ = std::make_unique<read_write_file_stream>(file_name);
+                break;
 
-        default:
-            return false;
+            default:
+                return false;
         }
 
         if (!stream_ || !stream_->is_open())
@@ -167,14 +167,14 @@ struct file_descriptor
         {
             switch (std::tolower(access[i]))
             {
-            case 'r':
-                r_cnt++;
-                break;
-            case 'w':
-                w_cnt++;
-                break;
-            default:
-                return file_mode::error;
+                case 'r':
+                    r_cnt++;
+                    break;
+                case 'w':
+                    w_cnt++;
+                    break;
+                default:
+                    return file_mode::error;
             }
         }
 
@@ -194,6 +194,6 @@ struct file_descriptor
     file_mode mode;
     std::string file_name;
 };
-} // namespace math_expr::rtl::io::file::details
+}  // namespace math_expr::rtl::io::file::details
 
 #endif

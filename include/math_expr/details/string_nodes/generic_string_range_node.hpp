@@ -43,7 +43,7 @@ class generic_string_range_node final : public expression_node<T>,
                                         public string_base_node<T>,
                                         public range_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using strvar_node_ptr = stringvar_node<T>*;
     using str_base_ptr = string_base_node<T>*;
@@ -157,7 +157,7 @@ class generic_string_range_node final : public expression_node<T>,
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     bool initialised_;
     branch_t branch_;
     str_base_ptr str_base_ptr_;
@@ -166,6 +166,6 @@ class generic_string_range_node final : public expression_node<T>,
     mutable range_t range_;
     mutable std::string value_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

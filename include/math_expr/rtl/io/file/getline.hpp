@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::rtl::io::file
 {
-template <typename T> class getline final : public math_expr::igeneric_function<T>
+template <typename T>
+class getline final : public math_expr::igeneric_function<T>
 {
-  public:
+   public:
     using igfun_t = typename math_expr::igeneric_function<T>;
     using parameter_list_t = typename igfun_t::parameter_list_t;
     using generic_type = typename igfun_t::generic_type;
@@ -67,6 +68,6 @@ template <typename T> class getline final : public math_expr::igeneric_function<
     }
 };
 
-} // namespace math_expr::rtl::io::file
+}  // namespace math_expr::rtl::io::file
 
 #endif

@@ -43,7 +43,7 @@ class string_range_node final : public expression_node<T>,
                                 public string_base_node<T>,
                                 public range_interface<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
 
     static std::string null_value;
@@ -110,12 +110,13 @@ class string_range_node final : public expression_node<T>,
         return expression_node<T>::node_type::e_stringvarrng;
     }
 
-  private:
+   private:
     std::string* value_;
     range_t rp_;
 };
 
-template <typename T> std::string string_range_node<T>::null_value = std::string("");
-} // namespace math_expr::details::string_nodes
+template <typename T>
+std::string string_range_node<T>::null_value = std::string("");
+}  // namespace math_expr::details::string_nodes
 
 #endif

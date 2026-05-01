@@ -43,7 +43,7 @@ class const_string_range_node final : public expression_node<T>,
                                       public string_base_node<T>,
                                       public range_interface<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
 
     explicit const_string_range_node(const std::string& v, const range_t& rp) : value_(v), rp_(rp)
@@ -95,13 +95,13 @@ class const_string_range_node final : public expression_node<T>,
         return expression_node<T>::node_type::e_cstringvarrng;
     }
 
-  private:
+   private:
     const_string_range_node(const const_string_range_node<T>&) = delete;
     const_string_range_node<T>& operator=(const const_string_range_node<T>&) = delete;
 
     const std::string value_;
     range_t rp_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

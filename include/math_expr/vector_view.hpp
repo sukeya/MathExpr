@@ -39,9 +39,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class vector_view
+template <typename T>
+class vector_view
 {
-  public:
+   public:
     using data_ptr_t = T*;
 
     vector_view(data_ptr_t data, const std::size_t& size)
@@ -148,7 +149,7 @@ template <typename T> class vector_view
         return false;
     }
 
-  private:
+   private:
     const std::size_t base_size_;
     std::size_t size_;
     data_ptr_t data_;
@@ -170,12 +171,14 @@ inline vector_view<T> make_vector_view(std::vector<T>& v, const std::size_t size
     return vector_view<T>(v.data() + offset, size);
 }
 
-template <typename T> class results_context;
+template <typename T>
+class results_context;
 namespace details
 {
-template <typename T> class vector_interface;
+template <typename T>
+class vector_interface;
 }
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

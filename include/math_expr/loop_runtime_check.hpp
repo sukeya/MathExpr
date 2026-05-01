@@ -85,6 +85,6 @@ struct loop_runtime_check
 
 using loop_runtime_check_ptr = loop_runtime_check*;
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

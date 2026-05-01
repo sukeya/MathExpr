@@ -42,9 +42,10 @@ limitations under the License.
 namespace math_expr
 {
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-template <typename T> class stringvar_base
+template <typename T>
+class stringvar_base
 {
-  public:
+   public:
     using stringvar_node_t = typename details::string_nodes::stringvar_node<T>;
 
     stringvar_base(const std::string& name, stringvar_node_t* svn)
@@ -69,15 +70,17 @@ template <typename T> class stringvar_base
         string_varnode_->rebase(s);
     }
 
-  private:
+   private:
     std::string name_;
     stringvar_node_t* string_varnode_;
 };
 #endif
 
-template <typename T> class parser;
-template <typename T> class expression_helper;
+template <typename T>
+class parser;
+template <typename T>
+class expression_helper;
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

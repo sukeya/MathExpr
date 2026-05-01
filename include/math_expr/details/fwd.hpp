@@ -36,29 +36,52 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> class expression_node;
-template <typename T> class variable_node;
-template <typename T> class stringvar_node;
-template <typename T> class vector_holder;
-template <typename T> class vector_interface;
-template <typename T> class null_node;
-template <typename T> class literal_node;
-template <typename T> class unary_node;
-template <typename T> class binary_node;
-template <typename T> class trinary_node;
-template <typename T> class quaternary_node;
-template <typename T> class conditional_node;
-template <typename T> class cons_conditional_node;
-template <typename T> class while_loop_node;
-template <typename T> class while_loop_rtc_node;
-template <typename T> class repeat_until_loop_node;
-template <typename T> class repeat_until_loop_rtc_node;
-template <typename T> class for_loop_node;
-template <typename T> class for_loop_rtc_node;
-template <typename T> class vector_elem_node;
-template <typename T> class vector_celem_node;
-template <typename T> class return_node;
-template <typename T> class return_envelope_node;
-} // namespace math_expr::details
+template <typename T>
+class expression_node;
+template <typename T>
+class variable_node;
+template <typename T>
+class stringvar_node;
+template <typename T>
+class vector_holder;
+template <typename T>
+class vector_interface;
+template <typename T>
+class null_node;
+template <typename T>
+class literal_node;
+template <typename T>
+class unary_node;
+template <typename T>
+class binary_node;
+template <typename T>
+class trinary_node;
+template <typename T>
+class quaternary_node;
+template <typename T>
+class conditional_node;
+template <typename T>
+class cons_conditional_node;
+template <typename T>
+class while_loop_node;
+template <typename T>
+class while_loop_rtc_node;
+template <typename T>
+class repeat_until_loop_node;
+template <typename T>
+class repeat_until_loop_rtc_node;
+template <typename T>
+class for_loop_node;
+template <typename T>
+class for_loop_rtc_node;
+template <typename T>
+class vector_elem_node;
+template <typename T>
+class vector_celem_node;
+template <typename T>
+class return_node;
+template <typename T>
+class return_envelope_node;
+}  // namespace math_expr::details
 
 #endif

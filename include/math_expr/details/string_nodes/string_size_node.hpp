@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::details::string_nodes
 {
-template <typename T> class string_size_node final : public expression_node<T>
+template <typename T>
+class string_size_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using str_base_ptr = string_base_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
@@ -83,10 +84,10 @@ template <typename T> class string_size_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(branch_);
     }
 
-  private:
+   private:
     branch_t branch_;
     str_base_ptr str_base_ptr_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

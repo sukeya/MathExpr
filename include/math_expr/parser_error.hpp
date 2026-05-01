@@ -97,24 +97,24 @@ inline std::string to_str(error_mode mode)
 {
     switch (mode)
     {
-    case error_mode::e_unknown:
-        return std::string("Unknown Error");
-    case error_mode::e_syntax:
-        return std::string("Syntax Error");
-    case error_mode::e_token:
-        return std::string("Token Error");
-    case error_mode::e_numeric:
-        return std::string("Numeric Error");
-    case error_mode::e_symtab:
-        return std::string("Symbol Error");
-    case error_mode::e_lexer:
-        return std::string("Lexer Error");
-    case error_mode::e_helper:
-        return std::string("Helper Error");
-    case error_mode::e_parser:
-        return std::string("Parser Error");
-    default:
-        return std::string("Unknown Error");
+        case error_mode::e_unknown:
+            return std::string("Unknown Error");
+        case error_mode::e_syntax:
+            return std::string("Syntax Error");
+        case error_mode::e_token:
+            return std::string("Token Error");
+        case error_mode::e_numeric:
+            return std::string("Numeric Error");
+        case error_mode::e_symtab:
+            return std::string("Symbol Error");
+        case error_mode::e_lexer:
+            return std::string("Lexer Error");
+        case error_mode::e_helper:
+            return std::string("Helper Error");
+        case error_mode::e_parser:
+            return std::string("Parser Error");
+        default:
+            return std::string("Unknown Error");
     }
 }
 
@@ -161,16 +161,17 @@ inline void dump_error(const type& error)
     printf("Position: %02d   Type: [%s]   Msg: %s\n", static_cast<int>(error.token.position),
            math_expr::parser_error::to_str(error.mode).c_str(), error.diagnostic.c_str());
 }
-} // namespace parser_error
+}  // namespace parser_error
 
 namespace details
 {
-template <typename Parser> inline void disable_type_checking(Parser& p)
+template <typename Parser>
+inline void disable_type_checking(Parser& p)
 {
     p.state_.type_check_enabled = false;
 }
-} // namespace details
+}  // namespace details
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

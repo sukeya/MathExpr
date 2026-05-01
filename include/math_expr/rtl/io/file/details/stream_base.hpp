@@ -44,7 +44,7 @@ using ::math_expr::core::char_ptr;
 
 class stream_base
 {
-  public:
+   public:
     virtual ~stream_base() = default;
 
     virtual bool is_open() const = 0;
@@ -54,6 +54,6 @@ class stream_base
     virtual bool getline(std::string& s) = 0;
     virtual bool eof() const = 0;
 };
-} // namespace math_expr::rtl::io::file::details
+}  // namespace math_expr::rtl::io::file::details
 
 #endif

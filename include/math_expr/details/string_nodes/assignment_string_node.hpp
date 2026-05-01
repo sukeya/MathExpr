@@ -45,7 +45,7 @@ class assignment_string_node final : public binary_node<T>,
                                      public string_base_node<T>,
                                      public range_interface<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
     using range_ptr = range_t*;
     using irange_t = range_interface<T>;
@@ -58,8 +58,12 @@ class assignment_string_node final : public binary_node<T>,
 
     assignment_string_node(const core::operators::operator_type& opr, expression_ptr branch0,
                            expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), initialised_(false), str0_base_ptr_(0),
-          str1_base_ptr_(0), str0_node_ptr_(0), str1_range_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1),
+          initialised_(false),
+          str0_base_ptr_(0),
+          str1_base_ptr_(0),
+          str0_node_ptr_(0),
+          str1_range_ptr_(0)
     {
         if (is_string_node(branch(0)))
         {
@@ -142,13 +146,13 @@ class assignment_string_node final : public binary_node<T>,
         return initialised_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     bool initialised_;
     str_base_ptr str0_base_ptr_;
     str_base_ptr str1_base_ptr_;
     strvar_node_ptr str0_node_ptr_;
     range_ptr str1_range_ptr_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void black_scholes_merton_model()
+template <typename T>
+void black_scholes_merton_model()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -37,11 +38,11 @@ template <typename T> void black_scholes_merton_model()
         "    k * e^(-r * t) * ncdf(-d2) - s * ncdf(-d1);              "
         "                                                             ";
 
-    T s = T(60.00); // Spot / Stock / Underlying / Base price
-    T k = T(65.00); // Strike price
-    T v = T(0.30);  // Volatility
-    T t = T(0.25);  // Years to maturity
-    T r = T(0.08);  // Risk free rate
+    T s = T(60.00);  // Spot / Stock / Underlying / Base price
+    T k = T(65.00);  // Strike price
+    T v = T(0.30);   // Volatility
+    T t = T(0.25);   // Years to maturity
+    T r = T(0.08);   // Risk free rate
 
     std::string callput_flag;
 

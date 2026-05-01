@@ -52,6 +52,6 @@ struct compilation_check
 
 using compilation_check_ptr = compilation_check*;
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

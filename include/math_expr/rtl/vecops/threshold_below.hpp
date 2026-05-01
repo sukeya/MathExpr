@@ -38,9 +38,10 @@ limitations under the License.
 
 namespace math_expr::rtl::vecops
 {
-template <typename T> class threshold_below final : public math_expr::igeneric_function<T>
+template <typename T>
+class threshold_below final : public math_expr::igeneric_function<T>
 {
-  public:
+   public:
     using igfun_t = typename math_expr::igeneric_function<T>;
     using parameter_list_t = typename igfun_t::parameter_list_t;
     using generic_type = typename igfun_t::generic_type;
@@ -91,6 +92,6 @@ template <typename T> class threshold_below final : public math_expr::igeneric_f
     }
 };
 
-} // namespace math_expr::rtl::vecops
+}  // namespace math_expr::rtl::vecops
 
 #endif

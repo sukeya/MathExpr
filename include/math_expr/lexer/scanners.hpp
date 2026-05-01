@@ -40,7 +40,7 @@ namespace math_expr::lexer
 {
 class helper_interface
 {
-  public:
+   public:
     virtual void init() {}
     virtual void reset() {}
     virtual bool result()
@@ -56,7 +56,7 @@ class helper_interface
 
 class token_scanner : public helper_interface
 {
-  public:
+   public:
     virtual ~token_scanner() override {}
 
     explicit token_scanner(const std::size_t& stride) : stride_(stride)
@@ -77,58 +77,58 @@ class token_scanner : public helper_interface
 
                 switch (stride_)
                 {
-                case 1:
-                {
-                    const token& t0 = g.token_list_[i];
-
-                    if (!operator()(t0))
+                    case 1:
                     {
-                        return 0;
+                        const token& t0 = g.token_list_[i];
+
+                        if (!operator()(t0))
+                        {
+                            return 0;
+                        }
                     }
-                }
-                break;
+                    break;
 
-                case 2:
-                {
-                    const token& t0 = g.token_list_[i];
-                    const token& t1 = g.token_list_[i + 1];
-
-                    if (!operator()(t0, t1))
+                    case 2:
                     {
-                        return 0;
+                        const token& t0 = g.token_list_[i];
+                        const token& t1 = g.token_list_[i + 1];
+
+                        if (!operator()(t0, t1))
+                        {
+                            return 0;
+                        }
                     }
-                }
-                break;
+                    break;
 
-                case 3:
-                {
-                    const token& t0 = g.token_list_[i];
-                    const token& t1 = g.token_list_[i + 1];
-                    const token& t2 = g.token_list_[i + 2];
-
-                    if (!operator()(t0, t1, t2))
+                    case 3:
                     {
-                        return 0;
+                        const token& t0 = g.token_list_[i];
+                        const token& t1 = g.token_list_[i + 1];
+                        const token& t2 = g.token_list_[i + 2];
+
+                        if (!operator()(t0, t1, t2))
+                        {
+                            return 0;
+                        }
                     }
-                }
-                break;
+                    break;
 
-                case 4:
-                {
-                    const token& t0 = g.token_list_[i];
-                    const token& t1 = g.token_list_[i + 1];
-                    const token& t2 = g.token_list_[i + 2];
-                    const token& t3 = g.token_list_[i + 3];
-
-                    if (!operator()(t0, t1, t2, t3))
+                    case 4:
                     {
-                        return 0;
-                    }
-                }
-                break;
+                        const token& t0 = g.token_list_[i];
+                        const token& t1 = g.token_list_[i + 1];
+                        const token& t2 = g.token_list_[i + 2];
+                        const token& t3 = g.token_list_[i + 3];
 
-                default:
-                    continue;
+                        if (!operator()(t0, t1, t2, t3))
+                        {
+                            return 0;
+                        }
+                    }
+                    break;
+
+                    default:
+                        continue;
                 }
             }
         }
@@ -156,13 +156,13 @@ class token_scanner : public helper_interface
         return false;
     }
 
-  private:
+   private:
     const std::size_t stride_;
-}; // class token_scanner
+};  // class token_scanner
 
 class token_modifier : public helper_interface
 {
-  public:
+   public:
     inline std::size_t process(generator& g) override
     {
         std::size_t changes = 0;
@@ -179,6 +179,6 @@ class token_modifier : public helper_interface
     virtual bool modify(token& t) = 0;
 };
 
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

@@ -40,9 +40,11 @@ namespace math_expr
 {
 class function_traits
 {
-  public:
+   public:
     function_traits()
-        : allow_zero_parameters_(false), has_side_effects_(true), min_num_args_(0),
+        : allow_zero_parameters_(false),
+          has_side_effects_(true),
+          min_num_args_(0),
           max_num_args_(std::numeric_limits<std::size_t>::max())
     {
     }
@@ -67,14 +69,15 @@ class function_traits
         return max_num_args_;
     }
 
-  private:
+   private:
     bool allow_zero_parameters_;
     bool has_side_effects_;
     std::size_t min_num_args_;
     std::size_t max_num_args_;
 };
 
-template <typename FunctionType> void enable_zero_parameters(FunctionType& func)
+template <typename FunctionType>
+void enable_zero_parameters(FunctionType& func)
 {
     func.allow_zero_parameters() = true;
 
@@ -84,17 +87,20 @@ template <typename FunctionType> void enable_zero_parameters(FunctionType& func)
     }
 }
 
-template <typename FunctionType> void disable_zero_parameters(FunctionType& func)
+template <typename FunctionType>
+void disable_zero_parameters(FunctionType& func)
 {
     func.allow_zero_parameters() = false;
 }
 
-template <typename FunctionType> void enable_has_side_effects(FunctionType& func)
+template <typename FunctionType>
+void enable_has_side_effects(FunctionType& func)
 {
     func.has_side_effects() = true;
 }
 
-template <typename FunctionType> void disable_has_side_effects(FunctionType& func)
+template <typename FunctionType>
+void disable_has_side_effects(FunctionType& func)
 {
     func.has_side_effects() = false;
 }
@@ -114,6 +120,6 @@ void set_max_num_args(FunctionType& func, const std::size_t& num_args)
     func.max_num_args() = num_args;
 }
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

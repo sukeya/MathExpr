@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> struct myfunc : public math_expr::ifunction<T>
+template <typename T>
+struct myfunc : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -36,12 +37,14 @@ template <typename T> struct myfunc : public math_expr::ifunction<T>
     }
 };
 
-template <typename T> T myotherfunc(T v0, T v1, T v2)
+template <typename T>
+T myotherfunc(T v0, T v1, T v2)
 {
     return std::abs(v0 - v1) * v2;
 }
 
-template <typename T> void custom_function()
+template <typename T>
+void custom_function()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;

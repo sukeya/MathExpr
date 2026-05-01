@@ -68,6 +68,6 @@ inline void dump_vector(const std::string& vec_name, const T* data, const std::s
     }
 }
 
-} // namespace math_expr::core
+}  // namespace math_expr::core
 
 #endif

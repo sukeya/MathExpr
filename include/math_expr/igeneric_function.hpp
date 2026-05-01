@@ -41,9 +41,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class igeneric_function : public function_traits
+template <typename T>
+class igeneric_function : public function_traits
 {
-  public:
+   public:
     enum class return_type
     {
         e_rtrn_scalar = 0,
@@ -63,11 +64,11 @@ template <typename T> class igeneric_function : public function_traits
 
     virtual ~igeneric_function() {}
 
-#define igeneric_function_empty_body(N)                                                            \
-    {                                                                                              \
-        math_expr_debug(                                                                           \
-            ("igeneric_function::operator() - Operator(" #N ") has not been overridden\n"));       \
-        return std::numeric_limits<T>::quiet_NaN();                                                \
+#define igeneric_function_empty_body(N)                                                      \
+    {                                                                                        \
+        math_expr_debug(                                                                     \
+            ("igeneric_function::operator() - Operator(" #N ") has not been overridden\n")); \
+        return std::numeric_limits<T>::quiet_NaN();                                          \
     }
 
     // f(i_0,i_1,....,i_N) --> Scalar
@@ -118,6 +119,6 @@ template <typename T> class igeneric_function : public function_traits
     }
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

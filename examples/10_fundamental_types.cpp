@@ -22,7 +22,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void newton_sqrt()
+template <typename T>
+void newton_sqrt()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;

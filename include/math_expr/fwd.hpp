@@ -38,15 +38,24 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class parser;
-template <typename T> class expression;
-template <typename T> class symbol_table;
-template <typename T> class function_compositor;
-template <typename T> class results_context;
-template <typename T> class vector_view;
-template <typename T> class ifunction;
-template <typename T> class ivararg_function;
-template <typename T> class igeneric_function;
-} // namespace math_expr
+template <typename T>
+class parser;
+template <typename T>
+class expression;
+template <typename T>
+class symbol_table;
+template <typename T>
+class function_compositor;
+template <typename T>
+class results_context;
+template <typename T>
+class vector_view;
+template <typename T>
+class ifunction;
+template <typename T>
+class ivararg_function;
+template <typename T>
+class igeneric_function;
+}  // namespace math_expr
 
 #endif

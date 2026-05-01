@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void real_1d_discrete_fourier_transform()
+template <typename T>
+void real_1d_discrete_fourier_transform()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -29,8 +30,8 @@ template <typename T> void real_1d_discrete_fourier_transform()
     typedef math_expr::function_compositor<T> compositor_t;
     typedef typename compositor_t::function function_t;
 
-    const T sampling_rate = 1024.0; // ~1KHz
-    const T N = 8 * sampling_rate;  // 8 seconds worth of samples
+    const T sampling_rate = 1024.0;  // ~1KHz
+    const T N = 8 * sampling_rate;   // 8 seconds worth of samples
 
     std::vector<T> input(static_cast<std::size_t>(N), 0.0);
     std::vector<T> output(static_cast<std::size_t>(N), 0.0);

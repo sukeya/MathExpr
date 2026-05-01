@@ -43,7 +43,7 @@ class conditional_string_node final : public trinary_node<T>,
                                       public string_base_node<T>,
                                       public range_interface<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
     using range_ptr = range_t*;
     using irange_t = range_interface<T>;
@@ -55,8 +55,13 @@ class conditional_string_node final : public trinary_node<T>,
                             expression_ptr alternative)
         : trinary_node<T>(core::operators::operator_type::default_op, consequent, alternative,
                           condition),
-          initialised_(false), str0_base_ptr_(0), str1_base_ptr_(0), str0_range_ptr_(0),
-          str1_range_ptr_(0), condition_(condition), consequent_(consequent),
+          initialised_(false),
+          str0_base_ptr_(0),
+          str1_base_ptr_(0),
+          str0_range_ptr_(0),
+          str1_range_ptr_(0),
+          condition_(condition),
+          consequent_(consequent),
           alternative_(alternative)
     {
         range_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
@@ -177,7 +182,7 @@ class conditional_string_node final : public trinary_node<T>,
                consequent_->valid() && alternative_ && alternative_->valid();
     }
 
-  private:
+   private:
     bool initialised_;
     str_base_ptr str0_base_ptr_;
     str_base_ptr str1_base_ptr_;
@@ -190,6 +195,6 @@ class conditional_string_node final : public trinary_node<T>,
     expression_ptr consequent_;
     expression_ptr alternative_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

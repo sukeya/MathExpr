@@ -21,7 +21,8 @@
 
 #include "math_expr.hpp"
 
-template <typename T> void logic()
+template <typename T>
+void logic()
 {
     typedef math_expr::symbol_table<T> symbol_table_t;
     typedef math_expr::expression<T> expression_t;
@@ -40,9 +41,10 @@ template <typename T> void logic()
     parser_t parser;
     parser.compile(expression_string, expression);
 
-    printf(" # | A | B | C | %s\n"
-           "---+---+---+---+-%s\n",
-           expression_string.c_str(), std::string(expression_string.size(), '-').c_str());
+    printf(
+        " # | A | B | C | %s\n"
+        "---+---+---+---+-%s\n",
+        expression_string.c_str(), std::string(expression_string.size(), '-').c_str());
 
     for (int i = 0; i < 8; ++i)
     {

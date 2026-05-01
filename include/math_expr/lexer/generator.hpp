@@ -42,7 +42,7 @@ namespace math_expr::lexer
 {
 class generator
 {
-  public:
+   public:
     using token_t = token;
     using token_list_t = std::vector<token_t>;
     using token_list_itr_t = token_list_t::iterator;
@@ -184,7 +184,7 @@ class generator
             return std::string(base_itr_ + token_itr_->position, s_end_);
     }
 
-  private:
+   private:
     inline bool is_end(core::char_cptr itr) const
     {
         return (s_end_ == itr);
@@ -619,7 +619,7 @@ class generator
             return;
         }
 
-        s_itr_ += 4; // $fdd = 4chars
+        s_itr_ += 4;  // $fdd = 4chars
 
         t.set_symbol(initial_itr, s_itr_, base_itr_);
         token_list_.push_back(t);
@@ -727,7 +727,7 @@ class generator
     }
 #endif
 
-  private:
+   private:
     token_list_t token_list_;
     token_list_itr_t token_itr_;
     token_list_itr_t store_token_itr_;
@@ -740,8 +740,8 @@ class generator
     friend class token_modifier;
     friend class token_inserter;
     friend class token_joiner;
-}; // class generator
+};  // class generator
 
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

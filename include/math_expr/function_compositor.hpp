@@ -39,9 +39,10 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> class function_compositor
+template <typename T>
+class function_compositor
 {
-  public:
+   public:
     using expression_t = math_expr::expression<T>;
     using symbol_table_t = math_expr::symbol_table<T>;
     using parser_t = math_expr::parser<T>;
@@ -162,7 +163,7 @@ template <typename T> class function_compositor
         std::deque<std::string> v_;
     };
 
-  private:
+   private:
     struct base_func : public math_expr::ifunction<T>
     {
         using type = const T&;
@@ -245,14 +246,14 @@ template <typename T> class function_compositor
 
                 switch (ldl[i].type)
                 {
-                case ctrlblk_t::data_type::e_unknown:
-                    continue;
-                case ctrlblk_t::data_type::e_expr:
-                    continue;
-                case ctrlblk_t::data_type::e_vecholder:
-                    continue;
-                default:
-                    break;
+                    case ctrlblk_t::data_type::e_unknown:
+                        continue;
+                    case ctrlblk_t::data_type::e_expr:
+                        continue;
+                    case ctrlblk_t::data_type::e_vecholder:
+                        continue;
+                    default:
+                        break;
                 }
 
                 if (ldl[i].size)
@@ -450,7 +451,8 @@ template <typename T> class function_compositor
 
     using type = const T&;
 
-    template <typename BaseFuncType> struct scoped_bft
+    template <typename BaseFuncType>
+    struct scoped_bft
     {
         explicit scoped_bft(BaseFuncType& bft) : bft_(bft)
         {
@@ -464,7 +466,7 @@ template <typename T> class function_compositor
 
         BaseFuncType& bft_;
 
-      private:
+       private:
         scoped_bft(const scoped_bft&) = delete;
         scoped_bft& operator=(const scoped_bft&) = delete;
     };
@@ -585,13 +587,13 @@ template <typename T> class function_compositor
         return result;
     }
 
-#define def_fp_retval(N)                                                                           \
-    struct func_##N##param_retval final : public func_##N##param                                   \
-    {                                                                                              \
-        inline T value(expression_t& e) override                                                   \
-        {                                                                                          \
-            return return_value(e);                                                                \
-        }                                                                                          \
+#define def_fp_retval(N)                                         \
+    struct func_##N##param_retval final : public func_##N##param \
+    {                                                            \
+        inline T value(expression_t& e) override                 \
+        {                                                        \
+            return return_value(e);                              \
+        }                                                        \
     };
 
     def_fp_retval(0) def_fp_retval(1) def_fp_retval(2) def_fp_retval(3) def_fp_retval(4)
@@ -636,17 +638,21 @@ template <typename T> class function_compositor
         }
     }
 
-  public:
+   public:
     function_compositor()
         : parser_(settings_t::default_compile_all_opts + settings_t::e_disable_zero_return),
-          fp_map_(7), load_variables_(false), load_vectors_(false)
+          fp_map_(7),
+          load_variables_(false),
+          load_vectors_(false)
     {
     }
 
     explicit function_compositor(const symbol_table_t& st)
         : symbol_table_(st),
           parser_(settings_t::default_compile_all_opts + settings_t::e_disable_zero_return),
-          fp_map_(7), load_variables_(false), load_vectors_(false)
+          fp_map_(7),
+          load_variables_(false),
+          load_vectors_(false)
     {
     }
 
@@ -764,7 +770,7 @@ template <typename T> class function_compositor
         throw std::invalid_argument("compositor::get_error() - Invalid error index specified");
     }
 
-  private:
+   private:
     template <typename Allocator, template <typename, typename> class Sequence>
     bool compile_expression(const std::string& name, const std::string& expression,
                             const Sequence<std::string, Allocator>& input_var_list,
@@ -904,11 +910,11 @@ template <typename T> class function_compositor
     {
         switch (arg_count)
         {
-#define case_stmt(N)                                                                               \
-    case N:                                                                                        \
-        (fp_map_[arg_count])[name] = (!ret_present)                                                \
-                                         ? static_cast<base_func*>(new func_##N##param)            \
-                                         : static_cast<base_func*>(new func_##N##param_retval);    \
+#define case_stmt(N)                                                                            \
+    case N:                                                                                     \
+        (fp_map_[arg_count])[name] = (!ret_present)                                             \
+                                         ? static_cast<base_func*>(new func_##N##param)         \
+                                         : static_cast<base_func*>(new func_##N##param_retval); \
         break;
 
             case_stmt(0) case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5)
@@ -944,7 +950,7 @@ template <typename T> class function_compositor
         symbol_table_.remove_function(name);
     }
 
-  private:
+   private:
     symbol_table_t symbol_table_;
     parser_t parser_;
     std::map<std::string, expression_t> expr_map_;
@@ -953,8 +959,8 @@ template <typename T> class function_compositor
     std::deque<parser_error::type> error_list_;
     bool load_variables_;
     bool load_vectors_;
-}; // class function_compositor
+};  // class function_compositor
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

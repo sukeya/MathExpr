@@ -43,7 +43,7 @@ class cons_conditional_str_node final : public binary_node<T>,
                                         public string_base_node<T>,
                                         public range_interface<T>
 {
-  public:
+   public:
     using range_t = typename range_interface<T>::range_t;
     using range_ptr = range_t*;
     using irange_t = range_interface<T>;
@@ -55,7 +55,10 @@ class cons_conditional_str_node final : public binary_node<T>,
 
     cons_conditional_str_node(expression_ptr condition, expression_ptr consequent)
         : binary_node<T>(core::operators::operator_type::default_op, consequent, condition),
-          initialised_(false), str0_base_ptr_(0), str0_range_ptr_(0), condition_(condition),
+          initialised_(false),
+          str0_base_ptr_(0),
+          str0_range_ptr_(0),
+          condition_(condition),
           consequent_(consequent)
     {
         range_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
@@ -144,7 +147,7 @@ class cons_conditional_str_node final : public binary_node<T>,
                consequent_->valid();
     }
 
-  private:
+   private:
     bool initialised_;
     str_base_ptr str0_base_ptr_;
     irange_ptr str0_range_ptr_;
@@ -154,6 +157,6 @@ class cons_conditional_str_node final : public binary_node<T>,
     expression_ptr condition_;
     expression_ptr consequent_;
 };
-} // namespace math_expr::details::string_nodes
+}  // namespace math_expr::details::string_nodes
 
 #endif

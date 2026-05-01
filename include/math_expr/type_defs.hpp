@@ -39,7 +39,8 @@ limitations under the License.
 
 namespace math_expr
 {
-template <typename T> struct type_defs
+template <typename T>
+struct type_defs
 {
     using symbol_table_t = symbol_table<T>;
     using expression_t = expression<T>;
@@ -49,6 +50,6 @@ template <typename T> struct type_defs
     using function_t = typename compositor_t::function;
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

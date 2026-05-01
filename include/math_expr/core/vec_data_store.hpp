@@ -41,13 +41,14 @@ limitations under the License.
 
 namespace math_expr::core
 {
-template <typename T> class vec_data_store
+template <typename T>
+class vec_data_store
 {
-  public:
+   public:
     using type = vec_data_store<T>;
     using data_t = T*;
 
-  private:
+   private:
     struct control_block
     {
         control_block() : ref_count(1), size(0), data(0), destruct(true) {}
@@ -105,7 +106,7 @@ template <typename T> class vec_data_store
         data_t data;
         bool destruct;
 
-      private:
+       private:
         control_block(const control_block&) = delete;
         control_block& operator=(const control_block&) = delete;
 
@@ -118,7 +119,7 @@ template <typename T> class vec_data_store
         }
     };
 
-  public:
+   public:
     vec_data_store() : control_block_(control_block::create(0)) {}
 
     explicit vec_data_store(const std::size_t& size)
@@ -208,7 +209,7 @@ template <typename T> class vec_data_store
         vds1.control_block_->size = size;
     }
 
-  private:
+   private:
     static inline std::size_t min_size(const control_block* cb0, const control_block* cb1)
     {
         const std::size_t size0 = cb0->size;
@@ -223,6 +224,6 @@ template <typename T> class vec_data_store
     control_block* control_block_;
 };
 
-} // namespace math_expr::core
+}  // namespace math_expr::core
 
 #endif

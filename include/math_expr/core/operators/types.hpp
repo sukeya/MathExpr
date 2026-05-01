@@ -307,60 +307,60 @@ inline std::string to_str(const operator_type opr)
 {
     switch (opr)
     {
-    case operator_type::add:
-        return "+";
-    case operator_type::sub:
-        return "-";
-    case operator_type::mul:
-        return "*";
-    case operator_type::div:
-        return "/";
-    case operator_type::mod:
-        return "%";
-    case operator_type::pow:
-        return "^";
-    case operator_type::assign:
-        return ":=";
-    case operator_type::addass:
-        return "+=";
-    case operator_type::subass:
-        return "-=";
-    case operator_type::mulass:
-        return "*=";
-    case operator_type::divass:
-        return "/=";
-    case operator_type::modass:
-        return "%=";
-    case operator_type::lt:
-        return "<";
-    case operator_type::lte:
-        return "<=";
-    case operator_type::eq:
-        return "==";
-    case operator_type::equal:
-        return "=";
-    case operator_type::ne:
-        return "!=";
-    case operator_type::nequal:
-        return "<>";
-    case operator_type::gte:
-        return ">=";
-    case operator_type::gt:
-        return ">";
-    case operator_type::logical_and:
-        return "and";
-    case operator_type::logical_or:
-        return "or";
-    case operator_type::logical_xor:
-        return "xor";
-    case operator_type::nand:
-        return "nand";
-    case operator_type::nor:
-        return "nor";
-    case operator_type::xnor:
-        return "xnor";
-    default:
-        return "N/A";
+        case operator_type::add:
+            return "+";
+        case operator_type::sub:
+            return "-";
+        case operator_type::mul:
+            return "*";
+        case operator_type::div:
+            return "/";
+        case operator_type::mod:
+            return "%";
+        case operator_type::pow:
+            return "^";
+        case operator_type::assign:
+            return ":=";
+        case operator_type::addass:
+            return "+=";
+        case operator_type::subass:
+            return "-=";
+        case operator_type::mulass:
+            return "*=";
+        case operator_type::divass:
+            return "/=";
+        case operator_type::modass:
+            return "%=";
+        case operator_type::lt:
+            return "<";
+        case operator_type::lte:
+            return "<=";
+        case operator_type::eq:
+            return "==";
+        case operator_type::equal:
+            return "=";
+        case operator_type::ne:
+            return "!=";
+        case operator_type::nequal:
+            return "<>";
+        case operator_type::gte:
+            return ">=";
+        case operator_type::gt:
+            return ">";
+        case operator_type::logical_and:
+            return "and";
+        case operator_type::logical_or:
+            return "or";
+        case operator_type::logical_xor:
+            return "xor";
+        case operator_type::nand:
+            return "nand";
+        case operator_type::nor:
+            return "nor";
+        case operator_type::xnor:
+            return "xnor";
+        default:
+            return "N/A";
     }
 }
 
@@ -379,12 +379,14 @@ struct loop_unroll
 
     explicit loop_unroll(const std::size_t& vsize,
                          const unsigned int loop_batch_size = global_loop_batch_size)
-        : batch_size(loop_batch_size), remainder(vsize % batch_size),
+        : batch_size(loop_batch_size),
+          remainder(vsize % batch_size),
           upper_bound(static_cast<int>(vsize - remainder))
     {
     }
 
-    template <class F> void foreach_remainder(F&& f)
+    template <class F>
+    void foreach_remainder(F&& f)
     {
         if (remainder < 0)
         {
@@ -395,70 +397,70 @@ struct loop_unroll
         {
             switch (remainder)
             {
-            case 15:
-                f();
-                [[fallthrough]];
-            case 14:
-                f();
-                [[fallthrough]];
-            case 13:
-                f();
-                [[fallthrough]];
-            case 12:
-                f();
-                [[fallthrough]];
-            case 11:
-                f();
-                [[fallthrough]];
-            case 10:
-                f();
-                [[fallthrough]];
-            case 9:
-                f();
-                [[fallthrough]];
-            case 8:
-                f();
-                [[fallthrough]];
-            case 7:
-                f();
-                [[fallthrough]];
-            case 6:
-                f();
-                [[fallthrough]];
-            case 5:
-                f();
-                [[fallthrough]];
-            case 4:
-                f();
-                [[fallthrough]];
-            case 3:
-                f();
-                [[fallthrough]];
-            case 2:
-                f();
-                [[fallthrough]];
-            case 1:
-                f();
-                break;
-            case 0:
-                break;
+                case 15:
+                    f();
+                    [[fallthrough]];
+                case 14:
+                    f();
+                    [[fallthrough]];
+                case 13:
+                    f();
+                    [[fallthrough]];
+                case 12:
+                    f();
+                    [[fallthrough]];
+                case 11:
+                    f();
+                    [[fallthrough]];
+                case 10:
+                    f();
+                    [[fallthrough]];
+                case 9:
+                    f();
+                    [[fallthrough]];
+                case 8:
+                    f();
+                    [[fallthrough]];
+                case 7:
+                    f();
+                    [[fallthrough]];
+                case 6:
+                    f();
+                    [[fallthrough]];
+                case 5:
+                    f();
+                    [[fallthrough]];
+                case 4:
+                    f();
+                    [[fallthrough]];
+                case 3:
+                    f();
+                    [[fallthrough]];
+                case 2:
+                    f();
+                    [[fallthrough]];
+                case 1:
+                    f();
+                    break;
+                case 0:
+                    break;
             }
         }
         else
         {
             switch (remainder)
             {
-            case 3:
-                f();
-                [[fallthrough]];
-            case 2:
-                f();
-                [[fallthrough]];
-            case 1:
-                f();
-                break;
-            case 0:
-                break;
+                case 3:
+                    f();
+                    [[fallthrough]];
+                case 2:
+                    f();
+                    [[fallthrough]];
+                case 1:
+                    f();
+                    break;
+                case 0:
+                    break;
             }
         }
     }
@@ -468,6 +470,6 @@ struct loop_unroll
     int upper_bound;
 };
 
-} // namespace math_expr::core::operators
+}  // namespace math_expr::core::operators
 
 #endif
