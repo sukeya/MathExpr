@@ -14203,7 +14203,7 @@ class parser : public lexer::parser_helper
 #define case_stmt1(op)                                                                            \
     case core::operators::operator_type::sf4ext##op:                                              \
         return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sfext##op##_op<Type>>:: \
-            allocate(*(expr_gen.node_allocator_);, t0, t1, t2, t3)
+            allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3)
 
                     case_stmt0(48);
                     case_stmt0(49);
