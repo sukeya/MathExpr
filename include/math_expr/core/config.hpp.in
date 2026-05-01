@@ -36,6 +36,7 @@ limitations under the License.
 
 // Compatibility switches for existing `#ifdef`-based integrations.
 #cmakedefine01 MATH_EXPR_ENABLE_DEBUGGING_CONFIGURED
+#cmakedefine01 MATH_EXPR_EPSILON_CONFIGURED
 #cmakedefine01 MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION_CONFIGURED
 #cmakedefine01 MATH_EXPR_DISABLE_COMMENTS_CONFIGURED
 #cmakedefine01 MATH_EXPR_DISABLE_BREAK_CONTINUE_CONFIGURED
@@ -106,6 +107,12 @@ namespace math_expr::core
 {
    struct build_options final
    {
+      static constexpr bool kHasConfiguredEpsilon =
+         @MATH_EXPR_EPSILON_CONFIGURED_BOOL@;
+      static constexpr long double kConfiguredEpsilon =
+         @MATH_EXPR_EPSILON_CONFIGURED_BOOL@
+            ? static_cast<long double>(@MATH_EXPR_EPSILON_LITERAL@L)
+            : 0.0L;
       static constexpr bool kEnableDebugging =
          @MATH_EXPR_ENABLE_DEBUGGING_BOOL@;
       static constexpr bool kDisableCardinalPowOptimisation =

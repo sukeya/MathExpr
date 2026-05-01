@@ -21,6 +21,11 @@ When building ExprTk there are a number of defines that will enable or disable c
 1. `MATH_EXPR_DISABLE_CASEINSENSITIVITY`
 1. `MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS`
 
+In addition to the preprocessor-style switches above, MathExpr also accepts the CMake cache
+variable `MATH_EXPR_EPSILON`. Unlike the defines listed above, this is not a preprocessor switch.
+It configures the floating-point epsilon used by `equal()`, `not_equal()`, and the built-in
+`epsilon` constant.
+
 ## MATH_EXPR_ENABLE_DEBUGGING
 
 This define will enable printing of debug information to stdout during the compilation process.
@@ -76,5 +81,16 @@ This define will disable case-insensitivity when matching variables and function
 ## MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
 
 This define will enable run-time checks pertaining to vector indexing operations used in any of the vector-to-vector and vector-to-scalar operations.
+
+## MATH_EXPR_EPSILON
+
+This CMake cache variable overrides the floating-point epsilon used by MathExpr for real-valued
+comparisons and for the built-in `epsilon` symbol table constant.
+
+When `MATH_EXPR_EPSILON` is not set, MathExpr uses `std::numeric_limits<T>::epsilon()` for each
+supported real type.
+
+When it is set, the configured scalar is cast to `float`, `double`, and `long double` as needed.
+The value must be a positive finite decimal literal such as `1e-9` or `0.125`.
 
 [Previous](27-simple-exprtk-example.md) | [Index](index.md) | [Next](29-files.md)

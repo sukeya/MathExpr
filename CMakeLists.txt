@@ -33,6 +33,8 @@ project(MathExpr VERSION 0.1.0 LANGUAGES CXX)
 option(MATHEXPR_BUILD_HEADER_SELF_CHECKS "Build MathExpr header self-check targets" OFF)
 option(MATHEXPR_BUILD_TESTS "Build MathExpr tests" OFF)
 option(MATH_EXPR_ENABLE_DEBUGGING "Enable MathExpr debug logging" OFF)
+set(MATH_EXPR_EPSILON "" CACHE STRING
+  "Override MathExpr floating-point epsilon with a positive finite decimal literal")
 option(MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
   "Disable MathExpr cardinal pow optimisation" OFF)
 option(MATH_EXPR_DISABLE_COMMENTS "Disable MathExpr comments" OFF)
@@ -65,8 +67,36 @@ function(math_expr_set_bool_literal option_name output_var)
   endif()
 endfunction()
 
+string(STRIP "${MATH_EXPR_EPSILON}" math_expr_epsilon_candidate)
+set(MATH_EXPR_EPSILON "${math_expr_epsilon_candidate}" CACHE STRING
+  "Override MathExpr floating-point epsilon with a positive finite decimal literal" FORCE)
+
+set(MATH_EXPR_EPSILON_CONFIGURED OFF)
+if(NOT "${MATH_EXPR_EPSILON}" STREQUAL "")
+  if(NOT MATH_EXPR_EPSILON MATCHES
+      "^[+-]?((([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][+-]?[0-9]+)?)$")
+    message(FATAL_ERROR
+      "MATH_EXPR_EPSILON must be a positive finite decimal literal, for example "
+      "'1e-9' or '0.125'.")
+  endif()
+
+  if(MATH_EXPR_EPSILON MATCHES "^-")
+    message(FATAL_ERROR
+      "MATH_EXPR_EPSILON must be greater than zero.")
+  endif()
+
+  if(MATH_EXPR_EPSILON MATCHES "^\\+?((0+(\\.0*)?)|(\\.0+))([eE][+-]?[0-9]+)?$")
+    message(FATAL_ERROR
+      "MATH_EXPR_EPSILON must be greater than zero.")
+  endif()
+
+  set(MATH_EXPR_EPSILON_CONFIGURED ON)
+endif()
+
 math_expr_set_bool_literal(MATH_EXPR_ENABLE_DEBUGGING
   MATH_EXPR_ENABLE_DEBUGGING_BOOL)
+math_expr_set_bool_literal(MATH_EXPR_EPSILON_CONFIGURED
+  MATH_EXPR_EPSILON_CONFIGURED_BOOL)
 math_expr_set_bool_literal(MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
   MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION_BOOL)
 math_expr_set_bool_literal(MATH_EXPR_DISABLE_COMMENTS
@@ -93,6 +123,12 @@ math_expr_set_bool_literal(MATH_EXPR_DISABLE_CASEINSENSITIVITY
   MATH_EXPR_DISABLE_CASEINSENSITIVITY_BOOL)
 math_expr_set_bool_literal(MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
   MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS_BOOL)
+
+if(MATH_EXPR_EPSILON_CONFIGURED)
+  set(MATH_EXPR_EPSILON_LITERAL "${MATH_EXPR_EPSILON}")
+else()
+  set(MATH_EXPR_EPSILON_LITERAL "0.0")
+endif()
 
 set(math_expr_generated_include_dir
   "${CMAKE_CURRENT_BINARY_DIR}/generated_include")

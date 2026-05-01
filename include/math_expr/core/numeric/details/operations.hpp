@@ -82,22 +82,20 @@ template <typename T> inline constexpr void validate_supported_real_type()
 
 template <typename T> struct epsilon_type
 {
-};
+    static inline constexpr T value()
+    {
+        validate_supported_real_type<T>();
 
-#define math_expr_define_epsilon_type(Type, Epsilon)                                               \
-    template <> struct epsilon_type<Type>                                                          \
-    {                                                                                              \
-        static inline constexpr Type value()                                                       \
-        {                                                                                          \
-            return static_cast<Type>(Epsilon);                                                     \
-        }                                                                                          \
+        if constexpr (::math_expr::core::build_options::kHasConfiguredEpsilon)
+        {
+            return static_cast<T>(::math_expr::core::build_options::kConfiguredEpsilon);
+        }
+        else
+        {
+            return std::numeric_limits<T>::epsilon();
+        }
     }
-
-math_expr_define_epsilon_type(float, 0.00000100000f);
-math_expr_define_epsilon_type(double, 0.000000000100);
-math_expr_define_epsilon_type(long double, 0.000000000001);
-
-#undef math_expr_define_epsilon_type
+};
 
 template <typename T> inline T abs_value(const T v)
 {
