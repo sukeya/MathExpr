@@ -1301,23 +1301,27 @@ class symbol_table
         return add_reserved_function(function_name, (*local_data().free_function_list_.back()));   \
     }
 
-    math_expr_define_reserved_function(00) math_expr_define_reserved_function(01)
-        math_expr_define_reserved_function(02) math_expr_define_reserved_function(03)
-            math_expr_define_reserved_function(04) math_expr_define_reserved_function(05)
-                math_expr_define_reserved_function(06) math_expr_define_reserved_function(07)
-                    math_expr_define_reserved_function(08) math_expr_define_reserved_function(09)
-                        math_expr_define_reserved_function(10)
-                            math_expr_define_reserved_function(11)
-                                math_expr_define_reserved_function(12)
-                                    math_expr_define_reserved_function(13)
-                                        math_expr_define_reserved_function(14)
-                                            math_expr_define_reserved_function(15)
+    math_expr_define_reserved_function(00);
+    math_expr_define_reserved_function(01);
+    math_expr_define_reserved_function(02);
+    math_expr_define_reserved_function(03);
+    math_expr_define_reserved_function(04);
+    math_expr_define_reserved_function(05);
+    math_expr_define_reserved_function(06);
+    math_expr_define_reserved_function(07);
+    math_expr_define_reserved_function(08);
+    math_expr_define_reserved_function(09);
+    math_expr_define_reserved_function(10);
+    math_expr_define_reserved_function(11);
+    math_expr_define_reserved_function(12);
+    math_expr_define_reserved_function(13);
+    math_expr_define_reserved_function(14);
+    math_expr_define_reserved_function(15);
 
 #undef math_expr_define_reserved_function
 
-                                                template <std::size_t N>
-                                                inline bool add_vector(
-                                                    const std::string& vector_name, T (&v)[N])
+    template <std::size_t N>
+    inline bool add_vector(const std::string& vector_name, T (&v)[N])
     {
         if (!valid())
             return false;
