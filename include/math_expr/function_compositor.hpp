@@ -916,8 +916,13 @@ class function_compositor
                                          : static_cast<base_func*>(new func_##N##param_retval); \
         break;
 
-            case_stmt(0) case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5)
-                case_stmt(6)
+            case_stmt(0);
+            case_stmt(1);
+            case_stmt(2);
+            case_stmt(3);
+            case_stmt(4);
+            case_stmt(5);
+            case_stmt(6);
 #undef case_stmt
         }
 

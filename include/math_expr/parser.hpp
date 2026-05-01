@@ -10577,9 +10577,9 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0)
+                    case_stmt(0);
 
-                        assert(arg.size() == ((2 * 1) + 1));
+                    assert(arg.size() == ((2 * 1) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10589,9 +10589,10 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0) case_stmt(1)
+                    case_stmt(0);
+                    case_stmt(1);
 
-                        assert(arg.size() == ((2 * 2) + 1));
+                    assert(arg.size() == ((2 * 2) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10601,9 +10602,11 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0) case_stmt(1) case_stmt(2)
+                    case_stmt(0);
+                    case_stmt(1);
+                    case_stmt(2);
 
-                        assert(arg.size() == ((2 * 3) + 1));
+                    assert(arg.size() == ((2 * 3) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10613,9 +10616,12 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0) case_stmt(1) case_stmt(2) case_stmt(3)
+                    case_stmt(0);
+                    case_stmt(1);
+                    case_stmt(2);
+                    case_stmt(3);
 
-                        assert(arg.size() == ((2 * 4) + 1));
+                    assert(arg.size() == ((2 * 4) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10625,9 +10631,13 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0) case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4)
+                    case_stmt(0);
+                    case_stmt(1);
+                    case_stmt(2);
+                    case_stmt(3);
+                    case_stmt(4);
 
-                        assert(arg.size() == ((2 * 5) + 1));
+                    assert(arg.size() == ((2 * 5) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10637,9 +10647,14 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0) case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5)
+                    case_stmt(0);
+                    case_stmt(1);
+                    case_stmt(2);
+                    case_stmt(3);
+                    case_stmt(4);
+                    case_stmt(5);
 
-                        assert(arg.size() == ((2 * 6) + 1));
+                    assert(arg.size() == ((2 * 6) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10649,10 +10664,15 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0) case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5)
-                        case_stmt(6)
+                    case_stmt(0);
+                    case_stmt(1);
+                    case_stmt(2);
+                    case_stmt(3);
+                    case_stmt(4);
+                    case_stmt(5);
+                    case_stmt(6);
 
-                            assert(arg.size() == ((2 * 7) + 1));
+                    assert(arg.size() == ((2 * 7) + 1));
 
                     return arg.back().first->value();
                 }
@@ -10686,12 +10706,17 @@ class parser : public lexer::parser_helper
             ->allocate<details::switch_n_node<Type, typename switch_nodes::switch_impl_##N>>( \
                 arg_list);
 
-                case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5) case_stmt(6)
-                    case_stmt(7)
+                case_stmt(1);
+                case_stmt(2);
+                case_stmt(3);
+                case_stmt(4);
+                case_stmt(5);
+                case_stmt(6);
+                case_stmt(7);
 #undef case_stmt
 
-                        default
-                    : return node_allocator_->allocate<details::switch_node<Type>>(arg_list);
+                default:
+                    return node_allocator_->allocate<details::switch_node<Type>>(arg_list);
             }
         }
 
@@ -10733,89 +10758,47 @@ class parser : public lexer::parser_helper
             return error_node();
         }
 
-#define unary_opr_switch_statements                                                                            \
-    case_stmt(core::operators::operator_type::abs, details::abs_op) case_stmt(                                 \
-        core::operators::operator_type::acos,                                                                  \
-        details::acos_op) case_stmt(core::operators::operator_type::acosh,                                     \
-                                    details::                                                                  \
-                                        acosh_op) case_stmt(core::operators::operator_type::asin,              \
-                                                            details::asin_op)                                  \
-        case_stmt(core::operators::operator_type::asinh, details::asinh_op) case_stmt(                         \
-            core::operators::operator_type::atan,                                                              \
-            details::atan_op) case_stmt(core::operators::operator_type::atanh,                                 \
-                                        details::atanh_op) case_stmt(core::operators::                         \
-                                                                         operator_type::ceil,                  \
-                                                                     details::ceil_op)                         \
-            case_stmt(core::operators::operator_type::cos, details::cos_op) case_stmt(                         \
-                core::operators::operator_type::cosh,                                                          \
-                details::cosh_op) case_stmt(core::operators::operator_type::exp,                               \
-                                            details::exp_op) case_stmt(core::operators::                       \
-                                                                           operator_type::expm1,               \
-                                                                       details::expm1_op)                      \
-                case_stmt(core::operators::operator_type::floor, details::floor_op) case_stmt(                 \
-                    core::operators::operator_type::log,                                                       \
-                    details::log_op) case_stmt(core::operators::operator_type::log10,                          \
-                                               details::log10_op)                                              \
-                    case_stmt(core::operators::operator_type::log2, details::log2_op) case_stmt(               \
-                        core::operators::operator_type::log1p,                                                 \
-                        details::log1p_op) case_stmt(core::operators::operator_type::neg,                      \
-                                                     details::neg_op)                                          \
-                        case_stmt(core::operators::operator_type::pos, details::pos_op) case_stmt(             \
-                            core::operators::operator_type::round,                                             \
-                            details::round_op) case_stmt(core::operators::operator_type::sin,                  \
-                                                         details::sin_op)                                      \
-                            case_stmt(core::operators::operator_type::sinc, details::sinc_op) case_stmt(       \
-                                core::operators::operator_type::                                               \
-                                    sinh,                                                                      \
-                                details::                                                                      \
-                                    sinh_op) case_stmt(core::operators::operator_type::sqrt, details::         \
-                                                                                                 sqrt_op)      \
-                                case_stmt(core::operators::operator_type::tan, details::tan_op) case_stmt(     \
-                                    core::operators::operator_type::                                           \
-                                        tanh,                                                                  \
-                                    details::                                                                  \
-                                        tanh_op) case_stmt(core::operators::operator_type::cot, details::      \
-                                                                                                    cot_op)    \
-                                    case_stmt(core::operators::operator_type::sec, details::sec_op) case_stmt( \
-                                        core::operators::operator_type::                                       \
-                                            csc,                                                               \
-                                        details::csc_op)                                                       \
-                                        case_stmt(core::operators::operator_type::r2d,                         \
-                                                  details::r2d_op)                                             \
-                                            case_stmt(core::operators::operator_type::d2r,                     \
-                                                      details::d2r_op)                                         \
-                                                case_stmt(core::operators::operator_type::d2g,                 \
-                                                          details::d2g_op)                                     \
-                                                    case_stmt(core::operators::operator_type::g2d,             \
-                                                              details::g2d_op)                                 \
-                                                        case_stmt(core::operators::operator_type::             \
-                                                                      notl,                                    \
-                                                                  details::notl_op)                            \
-                                                            case_stmt(core::operators::                        \
-                                                                          operator_type::sgn,                  \
-                                                                      details::sgn_op)                         \
-                                                                case_stmt(core::operators::                    \
-                                                                              operator_type::erf,              \
-                                                                          details::erf_op)                     \
-                                                                    case_stmt(                                 \
-                                                                        core::operators::                      \
-                                                                            operator_type::erfc,               \
-                                                                        details::erfc_op)                      \
-                                                                        case_stmt(                             \
-                                                                            core::operators::                  \
-                                                                                operator_type::ncdf,           \
-                                                                            details::ncdf_op)                  \
-                                                                            case_stmt(                         \
-                                                                                core::operators::              \
-                                                                                    operator_type::            \
-                                                                                        frac,                  \
-                                                                                details::frac_op)              \
-                                                                                case_stmt(                     \
-                                                                                    core::operators::          \
-                                                                                        operator_type::        \
-                                                                                            trunc,             \
-                                                                                    details::                  \
-                                                                                        trunc_op)
+#define unary_opr_switch_statements                                      \
+    case_stmt(core::operators::operator_type::abs, details::abs_op);     \
+    case_stmt(core::operators::operator_type::acos, details::acos_op);   \
+    case_stmt(core::operators::operator_type::acosh, details::acosh_op); \
+    case_stmt(core::operators::operator_type::asin, details::asin_op);   \
+    case_stmt(core::operators::operator_type::asinh, details::asinh_op); \
+    case_stmt(core::operators::operator_type::atan, details::atan_op);   \
+    case_stmt(core::operators::operator_type::atanh, details::atanh_op); \
+    case_stmt(core::operators::operator_type::ceil, details::ceil_op);   \
+    case_stmt(core::operators::operator_type::cos, details::cos_op);     \
+    case_stmt(core::operators::operator_type::cosh, details::cosh_op);   \
+    case_stmt(core::operators::operator_type::exp, details::exp_op);     \
+    case_stmt(core::operators::operator_type::expm1, details::expm1_op); \
+    case_stmt(core::operators::operator_type::floor, details::floor_op); \
+    case_stmt(core::operators::operator_type::log, details::log_op);     \
+    case_stmt(core::operators::operator_type::log10, details::log10_op); \
+    case_stmt(core::operators::operator_type::log2, details::log2_op);   \
+    case_stmt(core::operators::operator_type::log1p, details::log1p_op); \
+    case_stmt(core::operators::operator_type::neg, details::neg_op);     \
+    case_stmt(core::operators::operator_type::pos, details::pos_op);     \
+    case_stmt(core::operators::operator_type::round, details::round_op); \
+    case_stmt(core::operators::operator_type::sin, details::sin_op);     \
+    case_stmt(core::operators::operator_type::sinc, details::sinc_op);   \
+    case_stmt(core::operators::operator_type::sinh, details::sinh_op);   \
+    case_stmt(core::operators::operator_type::sqrt, details::sqrt_op);   \
+    case_stmt(core::operators::operator_type::tan, details::tan_op);     \
+    case_stmt(core::operators::operator_type::tanh, details::tanh_op);   \
+    case_stmt(core::operators::operator_type::cot, details::cot_op);     \
+    case_stmt(core::operators::operator_type::sec, details::sec_op);     \
+    case_stmt(core::operators::operator_type::csc, details::csc_op);     \
+    case_stmt(core::operators::operator_type::r2d, details::r2d_op);     \
+    case_stmt(core::operators::operator_type::d2r, details::d2r_op);     \
+    case_stmt(core::operators::operator_type::d2g, details::d2g_op);     \
+    case_stmt(core::operators::operator_type::g2d, details::g2d_op);     \
+    case_stmt(core::operators::operator_type::notl, details::notl_op);   \
+    case_stmt(core::operators::operator_type::sgn, details::sgn_op);     \
+    case_stmt(core::operators::operator_type::erf, details::erf_op);     \
+    case_stmt(core::operators::operator_type::erfc, details::erfc_op);   \
+    case_stmt(core::operators::operator_type::ncdf, details::ncdf_op);   \
+    case_stmt(core::operators::operator_type::frac, details::frac_op);   \
+    case_stmt(core::operators::operator_type::trunc, details::trunc_op);
 
         inline expression_node_ptr synthesize_uv_expression(
             const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
@@ -10880,20 +10863,57 @@ class parser : public lexer::parser_helper
                 operation, branch);                                                         \
         break;
 
-                case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04) case_stmt(05)
-                    case_stmt(06) case_stmt(07) case_stmt(08) case_stmt(09) case_stmt(10)
-                        case_stmt(11) case_stmt(12) case_stmt(13) case_stmt(14) case_stmt(15)
-                            case_stmt(16) case_stmt(17) case_stmt(18) case_stmt(19) case_stmt(20)
-                                case_stmt(21) case_stmt(22) case_stmt(23) case_stmt(24)
-                                    case_stmt(25) case_stmt(26) case_stmt(27) case_stmt(28)
-                                        case_stmt(29) case_stmt(30) case_stmt(31) case_stmt(32)
-                                            case_stmt(33) case_stmt(34) case_stmt(35) case_stmt(36)
-                                                case_stmt(37) case_stmt(38) case_stmt(39)
-                                                    case_stmt(40) case_stmt(41) case_stmt(42)
-                                                        case_stmt(43) case_stmt(44) case_stmt(45)
-                                                            case_stmt(46) case_stmt(47)
+                case_stmt(00);
+                case_stmt(01);
+                case_stmt(02);
+                case_stmt(03);
+                case_stmt(04);
+                case_stmt(05);
+                case_stmt(06);
+                case_stmt(07);
+                case_stmt(08);
+                case_stmt(09);
+                case_stmt(10);
+                case_stmt(11);
+                case_stmt(12);
+                case_stmt(13);
+                case_stmt(14);
+                case_stmt(15);
+                case_stmt(16);
+                case_stmt(17);
+                case_stmt(18);
+                case_stmt(19);
+                case_stmt(20);
+                case_stmt(21);
+                case_stmt(22);
+                case_stmt(23);
+                case_stmt(24);
+                case_stmt(25);
+                case_stmt(26);
+                case_stmt(27);
+                case_stmt(28);
+                case_stmt(29);
+                case_stmt(30);
+                case_stmt(31);
+                case_stmt(32);
+                case_stmt(33);
+                case_stmt(34);
+                case_stmt(35);
+                case_stmt(36);
+                case_stmt(37);
+                case_stmt(38);
+                case_stmt(39);
+                case_stmt(40);
+                case_stmt(41);
+                case_stmt(42);
+                case_stmt(43);
+                case_stmt(44);
+                case_stmt(45);
+                case_stmt(46);
+                case_stmt(47);
 #undef case_stmt
-                                                                default : return error_node();
+                default:
+                    return error_node();
             }
 
             assert(temp_node);
@@ -10921,20 +10941,57 @@ class parser : public lexer::parser_helper
         return node_allocator_                   \
             ->allocate_rrr<details::sf3_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2);
 
-                case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04) case_stmt(05)
-                    case_stmt(06) case_stmt(07) case_stmt(08) case_stmt(09) case_stmt(10)
-                        case_stmt(11) case_stmt(12) case_stmt(13) case_stmt(14) case_stmt(15)
-                            case_stmt(16) case_stmt(17) case_stmt(18) case_stmt(19) case_stmt(20)
-                                case_stmt(21) case_stmt(22) case_stmt(23) case_stmt(24)
-                                    case_stmt(25) case_stmt(26) case_stmt(27) case_stmt(28)
-                                        case_stmt(29) case_stmt(30) case_stmt(31) case_stmt(32)
-                                            case_stmt(33) case_stmt(34) case_stmt(35) case_stmt(36)
-                                                case_stmt(37) case_stmt(38) case_stmt(39)
-                                                    case_stmt(40) case_stmt(41) case_stmt(42)
-                                                        case_stmt(43) case_stmt(44) case_stmt(45)
-                                                            case_stmt(46) case_stmt(47)
+                case_stmt(00);
+                case_stmt(01);
+                case_stmt(02);
+                case_stmt(03);
+                case_stmt(04);
+                case_stmt(05);
+                case_stmt(06);
+                case_stmt(07);
+                case_stmt(08);
+                case_stmt(09);
+                case_stmt(10);
+                case_stmt(11);
+                case_stmt(12);
+                case_stmt(13);
+                case_stmt(14);
+                case_stmt(15);
+                case_stmt(16);
+                case_stmt(17);
+                case_stmt(18);
+                case_stmt(19);
+                case_stmt(20);
+                case_stmt(21);
+                case_stmt(22);
+                case_stmt(23);
+                case_stmt(24);
+                case_stmt(25);
+                case_stmt(26);
+                case_stmt(27);
+                case_stmt(28);
+                case_stmt(29);
+                case_stmt(30);
+                case_stmt(31);
+                case_stmt(32);
+                case_stmt(33);
+                case_stmt(34);
+                case_stmt(35);
+                case_stmt(36);
+                case_stmt(37);
+                case_stmt(38);
+                case_stmt(39);
+                case_stmt(40);
+                case_stmt(41);
+                case_stmt(42);
+                case_stmt(43);
+                case_stmt(44);
+                case_stmt(45);
+                case_stmt(46);
+                case_stmt(47);
 #undef case_stmt
-                                                                default : return error_node();
+                default:
+                    return error_node();
             }
         }
 
@@ -10956,20 +11013,57 @@ class parser : public lexer::parser_helper
         return node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>( \
             operation, branch);
 
-                    case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04) case_stmt(
-                        05) case_stmt(06) case_stmt(07) case_stmt(08) case_stmt(09) case_stmt(10)
-                        case_stmt(11) case_stmt(12) case_stmt(13) case_stmt(14) case_stmt(15)
-                            case_stmt(16) case_stmt(17) case_stmt(18) case_stmt(19) case_stmt(20)
-                                case_stmt(21) case_stmt(22) case_stmt(23) case_stmt(24)
-                                    case_stmt(25) case_stmt(26) case_stmt(27) case_stmt(28)
-                                        case_stmt(29) case_stmt(30) case_stmt(31) case_stmt(32)
-                                            case_stmt(33) case_stmt(34) case_stmt(35) case_stmt(36)
-                                                case_stmt(37) case_stmt(38) case_stmt(39)
-                                                    case_stmt(40) case_stmt(41) case_stmt(42)
-                                                        case_stmt(43) case_stmt(44) case_stmt(45)
-                                                            case_stmt(46) case_stmt(47)
+                    case_stmt(00);
+                    case_stmt(01);
+                    case_stmt(02);
+                    case_stmt(03);
+                    case_stmt(04);
+                    case_stmt(05);
+                    case_stmt(06);
+                    case_stmt(07);
+                    case_stmt(08);
+                    case_stmt(09);
+                    case_stmt(10);
+                    case_stmt(11);
+                    case_stmt(12);
+                    case_stmt(13);
+                    case_stmt(14);
+                    case_stmt(15);
+                    case_stmt(16);
+                    case_stmt(17);
+                    case_stmt(18);
+                    case_stmt(19);
+                    case_stmt(20);
+                    case_stmt(21);
+                    case_stmt(22);
+                    case_stmt(23);
+                    case_stmt(24);
+                    case_stmt(25);
+                    case_stmt(26);
+                    case_stmt(27);
+                    case_stmt(28);
+                    case_stmt(29);
+                    case_stmt(30);
+                    case_stmt(31);
+                    case_stmt(32);
+                    case_stmt(33);
+                    case_stmt(34);
+                    case_stmt(35);
+                    case_stmt(36);
+                    case_stmt(37);
+                    case_stmt(38);
+                    case_stmt(39);
+                    case_stmt(40);
+                    case_stmt(41);
+                    case_stmt(42);
+                    case_stmt(43);
+                    case_stmt(44);
+                    case_stmt(45);
+                    case_stmt(46);
+                    case_stmt(47);
 #undef case_stmt
-                                                                default : return error_node();
+                    default:
+                        return error_node();
                 }
             }
         }
@@ -10988,20 +11082,61 @@ class parser : public lexer::parser_helper
                 operation, branch);                                                         \
         break;
 
-                case_stmt(48) case_stmt(49) case_stmt(50) case_stmt(51) case_stmt(52) case_stmt(53)
-                    case_stmt(54) case_stmt(55) case_stmt(56) case_stmt(57) case_stmt(58) case_stmt(
-                        59) case_stmt(60) case_stmt(61) case_stmt(62) case_stmt(63) case_stmt(64)
-                        case_stmt(65) case_stmt(66) case_stmt(67) case_stmt(68) case_stmt(69)
-                            case_stmt(70) case_stmt(71) case_stmt(72) case_stmt(73) case_stmt(74)
-                                case_stmt(75) case_stmt(76) case_stmt(77) case_stmt(78)
-                                    case_stmt(79) case_stmt(80) case_stmt(81) case_stmt(82)
-                                        case_stmt(83) case_stmt(84) case_stmt(85) case_stmt(86)
-                                            case_stmt(87) case_stmt(88) case_stmt(89) case_stmt(90)
-                                                case_stmt(91) case_stmt(92) case_stmt(93)
-                                                    case_stmt(94) case_stmt(95) case_stmt(96)
-                                                        case_stmt(97) case_stmt(98) case_stmt(99)
+                case_stmt(48);
+                case_stmt(49);
+                case_stmt(50);
+                case_stmt(51);
+                case_stmt(52);
+                case_stmt(53);
+                case_stmt(54);
+                case_stmt(55);
+                case_stmt(56);
+                case_stmt(57);
+                case_stmt(58);
+                case_stmt(59);
+                case_stmt(60);
+                case_stmt(61);
+                case_stmt(62);
+                case_stmt(63);
+                case_stmt(64);
+                case_stmt(65);
+                case_stmt(66);
+                case_stmt(67);
+                case_stmt(68);
+                case_stmt(69);
+                case_stmt(70);
+                case_stmt(71);
+                case_stmt(72);
+                case_stmt(73);
+                case_stmt(74);
+                case_stmt(75);
+                case_stmt(76);
+                case_stmt(77);
+                case_stmt(78);
+                case_stmt(79);
+                case_stmt(80);
+                case_stmt(81);
+                case_stmt(82);
+                case_stmt(83);
+                case_stmt(84);
+                case_stmt(85);
+                case_stmt(86);
+                case_stmt(87);
+                case_stmt(88);
+                case_stmt(89);
+                case_stmt(90);
+                case_stmt(91);
+                case_stmt(92);
+                case_stmt(93);
+                case_stmt(94);
+                case_stmt(95);
+                case_stmt(96);
+                case_stmt(97);
+                case_stmt(98);
+                case_stmt(99);
 #undef case_stmt
-                                                            default : return error_node();
+                default:
+                    return error_node();
             }
 
             assert(temp_node);
@@ -11031,20 +11166,61 @@ class parser : public lexer::parser_helper
             ->allocate_rrrr<details::sf4_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2, \
                                                                                      v3);
 
-                case_stmt(48) case_stmt(49) case_stmt(50) case_stmt(51) case_stmt(52) case_stmt(53)
-                    case_stmt(54) case_stmt(55) case_stmt(56) case_stmt(57) case_stmt(58) case_stmt(
-                        59) case_stmt(60) case_stmt(61) case_stmt(62) case_stmt(63) case_stmt(64)
-                        case_stmt(65) case_stmt(66) case_stmt(67) case_stmt(68) case_stmt(69)
-                            case_stmt(70) case_stmt(71) case_stmt(72) case_stmt(73) case_stmt(74)
-                                case_stmt(75) case_stmt(76) case_stmt(77) case_stmt(78)
-                                    case_stmt(79) case_stmt(80) case_stmt(81) case_stmt(82)
-                                        case_stmt(83) case_stmt(84) case_stmt(85) case_stmt(86)
-                                            case_stmt(87) case_stmt(88) case_stmt(89) case_stmt(90)
-                                                case_stmt(91) case_stmt(92) case_stmt(93)
-                                                    case_stmt(94) case_stmt(95) case_stmt(96)
-                                                        case_stmt(97) case_stmt(98) case_stmt(99)
+                case_stmt(48);
+                case_stmt(49);
+                case_stmt(50);
+                case_stmt(51);
+                case_stmt(52);
+                case_stmt(53);
+                case_stmt(54);
+                case_stmt(55);
+                case_stmt(56);
+                case_stmt(57);
+                case_stmt(58);
+                case_stmt(59);
+                case_stmt(60);
+                case_stmt(61);
+                case_stmt(62);
+                case_stmt(63);
+                case_stmt(64);
+                case_stmt(65);
+                case_stmt(66);
+                case_stmt(67);
+                case_stmt(68);
+                case_stmt(69);
+                case_stmt(70);
+                case_stmt(71);
+                case_stmt(72);
+                case_stmt(73);
+                case_stmt(74);
+                case_stmt(75);
+                case_stmt(76);
+                case_stmt(77);
+                case_stmt(78);
+                case_stmt(79);
+                case_stmt(80);
+                case_stmt(81);
+                case_stmt(82);
+                case_stmt(83);
+                case_stmt(84);
+                case_stmt(85);
+                case_stmt(86);
+                case_stmt(87);
+                case_stmt(88);
+                case_stmt(89);
+                case_stmt(90);
+                case_stmt(91);
+                case_stmt(92);
+                case_stmt(93);
+                case_stmt(94);
+                case_stmt(95);
+                case_stmt(96);
+                case_stmt(97);
+                case_stmt(98);
+                case_stmt(99);
 #undef case_stmt
-                                                            default : return error_node();
+                default:
+                    return error_node();
             }
         }
 
@@ -11064,20 +11240,61 @@ class parser : public lexer::parser_helper
         return node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>( \
             operation, branch);
 
-                case_stmt(48) case_stmt(49) case_stmt(50) case_stmt(51) case_stmt(52) case_stmt(53)
-                    case_stmt(54) case_stmt(55) case_stmt(56) case_stmt(57) case_stmt(58) case_stmt(
-                        59) case_stmt(60) case_stmt(61) case_stmt(62) case_stmt(63) case_stmt(64)
-                        case_stmt(65) case_stmt(66) case_stmt(67) case_stmt(68) case_stmt(69)
-                            case_stmt(70) case_stmt(71) case_stmt(72) case_stmt(73) case_stmt(74)
-                                case_stmt(75) case_stmt(76) case_stmt(77) case_stmt(78)
-                                    case_stmt(79) case_stmt(80) case_stmt(81) case_stmt(82)
-                                        case_stmt(83) case_stmt(84) case_stmt(85) case_stmt(86)
-                                            case_stmt(87) case_stmt(88) case_stmt(89) case_stmt(90)
-                                                case_stmt(91) case_stmt(92) case_stmt(93)
-                                                    case_stmt(94) case_stmt(95) case_stmt(96)
-                                                        case_stmt(97) case_stmt(98) case_stmt(99)
+                case_stmt(48);
+                case_stmt(49);
+                case_stmt(50);
+                case_stmt(51);
+                case_stmt(52);
+                case_stmt(53);
+                case_stmt(54);
+                case_stmt(55);
+                case_stmt(56);
+                case_stmt(57);
+                case_stmt(58);
+                case_stmt(59);
+                case_stmt(60);
+                case_stmt(61);
+                case_stmt(62);
+                case_stmt(63);
+                case_stmt(64);
+                case_stmt(65);
+                case_stmt(66);
+                case_stmt(67);
+                case_stmt(68);
+                case_stmt(69);
+                case_stmt(70);
+                case_stmt(71);
+                case_stmt(72);
+                case_stmt(73);
+                case_stmt(74);
+                case_stmt(75);
+                case_stmt(76);
+                case_stmt(77);
+                case_stmt(78);
+                case_stmt(79);
+                case_stmt(80);
+                case_stmt(81);
+                case_stmt(82);
+                case_stmt(83);
+                case_stmt(84);
+                case_stmt(85);
+                case_stmt(86);
+                case_stmt(87);
+                case_stmt(88);
+                case_stmt(89);
+                case_stmt(90);
+                case_stmt(91);
+                case_stmt(92);
+                case_stmt(93);
+                case_stmt(94);
+                case_stmt(95);
+                case_stmt(96);
+                case_stmt(97);
+                case_stmt(98);
+                case_stmt(99);
 #undef case_stmt
-                                                            default : return error_node();
+                default:
+                    return error_node();
             }
         }
 
@@ -11095,19 +11312,17 @@ class parser : public lexer::parser_helper
         temp_node = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list); \
         break;
 
-                case_stmt(core::operators::operator_type::sum, details::vararg_add_op) case_stmt(
-                    core::operators::operator_type::prod, details::vararg_mul_op)
-                    case_stmt(core::operators::operator_type::avg, details::vararg_avg_op)
-                        case_stmt(core::operators::operator_type::min, details::vararg_min_op)
-                            case_stmt(core::operators::operator_type::max, details::vararg_max_op)
-                                case_stmt(core::operators::operator_type::mand,
-                                          details::vararg_mand_op)
-                                    case_stmt(core::operators::operator_type::mor,
-                                              details::vararg_mor_op)
-                                        case_stmt(core::operators::operator_type::multi,
-                                                  details::vararg_multi_op)
+                case_stmt(core::operators::operator_type::sum, details::vararg_add_op);
+                case_stmt(core::operators::operator_type::prod, details::vararg_mul_op);
+                case_stmt(core::operators::operator_type::avg, details::vararg_avg_op);
+                case_stmt(core::operators::operator_type::min, details::vararg_min_op);
+                case_stmt(core::operators::operator_type::max, details::vararg_max_op);
+                case_stmt(core::operators::operator_type::mand, details::vararg_mand_op);
+                case_stmt(core::operators::operator_type::mor, details::vararg_mor_op);
+                case_stmt(core::operators::operator_type::multi, details::vararg_multi_op);
 #undef case_stmt
-                                            default : return error_node();
+                default:
+                    return error_node();
             }
 
             const T v = temp_node->value();
@@ -11138,19 +11353,17 @@ class parser : public lexer::parser_helper
     case op0:               \
         return node_allocator_->allocate<details::vararg_varnode<Type, op1<Type>>>(arg_list);
 
-                case_stmt(core::operators::operator_type::sum, details::vararg_add_op) case_stmt(
-                    core::operators::operator_type::prod, details::vararg_mul_op)
-                    case_stmt(core::operators::operator_type::avg, details::vararg_avg_op)
-                        case_stmt(core::operators::operator_type::min, details::vararg_min_op)
-                            case_stmt(core::operators::operator_type::max, details::vararg_max_op)
-                                case_stmt(core::operators::operator_type::mand,
-                                          details::vararg_mand_op)
-                                    case_stmt(core::operators::operator_type::mor,
-                                              details::vararg_mor_op)
-                                        case_stmt(core::operators::operator_type::multi,
-                                                  details::vararg_multi_op)
+                case_stmt(core::operators::operator_type::sum, details::vararg_add_op);
+                case_stmt(core::operators::operator_type::prod, details::vararg_mul_op);
+                case_stmt(core::operators::operator_type::avg, details::vararg_avg_op);
+                case_stmt(core::operators::operator_type::min, details::vararg_min_op);
+                case_stmt(core::operators::operator_type::max, details::vararg_max_op);
+                case_stmt(core::operators::operator_type::mand, details::vararg_mand_op);
+                case_stmt(core::operators::operator_type::mor, details::vararg_mor_op);
+                case_stmt(core::operators::operator_type::multi, details::vararg_multi_op);
 #undef case_stmt
-                                            default : return error_node();
+                default:
+                    return error_node();
             }
         }
 
@@ -12623,25 +12836,69 @@ class parser : public lexer::parser_helper
     case cp:          \
         return node_allocator_->allocate<IPowNode<T, core::numeric::fast_exp<T, cp>>>(v);
 
-                case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5) case_stmt(6)
-                    case_stmt(7) case_stmt(8) case_stmt(9) case_stmt(10) case_stmt(11) case_stmt(
-                        12) case_stmt(13) case_stmt(14) case_stmt(15) case_stmt(16) case_stmt(17)
-                        case_stmt(18) case_stmt(19) case_stmt(20) case_stmt(21) case_stmt(22)
-                            case_stmt(23) case_stmt(24) case_stmt(25) case_stmt(26) case_stmt(27)
-                                case_stmt(28) case_stmt(29) case_stmt(30) case_stmt(31)
-                                    case_stmt(32) case_stmt(33) case_stmt(34) case_stmt(35)
-                                        case_stmt(36) case_stmt(37) case_stmt(38) case_stmt(39)
-                                            case_stmt(40) case_stmt(41) case_stmt(42) case_stmt(43)
-                                                case_stmt(44) case_stmt(45) case_stmt(46)
-                                                    case_stmt(47) case_stmt(48) case_stmt(49)
-                                                        case_stmt(50) case_stmt(51) case_stmt(52)
-                                                            case_stmt(53) case_stmt(54)
-                                                                case_stmt(55) case_stmt(56)
-                                                                    case_stmt(57) case_stmt(58)
-                                                                        case_stmt(59) case_stmt(60)
+                case_stmt(1);
+                case_stmt(2);
+                case_stmt(3);
+                case_stmt(4);
+                case_stmt(5);
+                case_stmt(6);
+                case_stmt(7);
+                case_stmt(8);
+                case_stmt(9);
+                case_stmt(10);
+                case_stmt(11);
+                case_stmt(12);
+                case_stmt(13);
+                case_stmt(14);
+                case_stmt(15);
+                case_stmt(16);
+                case_stmt(17);
+                case_stmt(18);
+                case_stmt(19);
+                case_stmt(20);
+                case_stmt(21);
+                case_stmt(22);
+                case_stmt(23);
+                case_stmt(24);
+                case_stmt(25);
+                case_stmt(26);
+                case_stmt(27);
+                case_stmt(28);
+                case_stmt(29);
+                case_stmt(30);
+                case_stmt(31);
+                case_stmt(32);
+                case_stmt(33);
+                case_stmt(34);
+                case_stmt(35);
+                case_stmt(36);
+                case_stmt(37);
+                case_stmt(38);
+                case_stmt(39);
+                case_stmt(40);
+                case_stmt(41);
+                case_stmt(42);
+                case_stmt(43);
+                case_stmt(44);
+                case_stmt(45);
+                case_stmt(46);
+                case_stmt(47);
+                case_stmt(48);
+                case_stmt(49);
+                case_stmt(50);
+                case_stmt(51);
+                case_stmt(52);
+                case_stmt(53);
+                case_stmt(54);
+                case_stmt(55);
+                case_stmt(56);
+                case_stmt(57);
+                case_stmt(58);
+                case_stmt(59);
+                case_stmt(60);
 #undef case_stmt
-                                                                            default
-                    : return error_node();
+                default:
+                    return error_node();
             }
         }
 
@@ -13876,15 +14133,40 @@ class parser : public lexer::parser_helper
         return details::T0oT1oT2_sf3ext<T, T0, T1, T2, details::sf##op##_op<Type>>::allocate( \
             *(expr_gen.node_allocator_), t0, t1, t2);
 
-                    case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04)
-                        case_stmt(05) case_stmt(06) case_stmt(07) case_stmt(08) case_stmt(09)
-                            case_stmt(10) case_stmt(11) case_stmt(12) case_stmt(13) case_stmt(14)
-                                case_stmt(15) case_stmt(16) case_stmt(17) case_stmt(18)
-                                    case_stmt(19) case_stmt(20) case_stmt(21) case_stmt(22)
-                                        case_stmt(23) case_stmt(24) case_stmt(25) case_stmt(26)
-                                            case_stmt(27) case_stmt(28) case_stmt(29) case_stmt(30)
+                    case_stmt(00);
+                    case_stmt(01);
+                    case_stmt(02);
+                    case_stmt(03);
+                    case_stmt(04);
+                    case_stmt(05);
+                    case_stmt(06);
+                    case_stmt(07);
+                    case_stmt(08);
+                    case_stmt(09);
+                    case_stmt(10);
+                    case_stmt(11);
+                    case_stmt(12);
+                    case_stmt(13);
+                    case_stmt(14);
+                    case_stmt(15);
+                    case_stmt(16);
+                    case_stmt(17);
+                    case_stmt(18);
+                    case_stmt(19);
+                    case_stmt(20);
+                    case_stmt(21);
+                    case_stmt(22);
+                    case_stmt(23);
+                    case_stmt(24);
+                    case_stmt(25);
+                    case_stmt(26);
+                    case_stmt(27);
+                    case_stmt(28);
+                    case_stmt(29);
+                    case_stmt(30);
 #undef case_stmt
-                                                default : return error_node();
+                    default:
+                        return error_node();
                 }
             }
 
@@ -13921,49 +14203,112 @@ class parser : public lexer::parser_helper
 #define case_stmt1(op)                                                                            \
     case core::operators::operator_type::sf4ext##op:                                              \
         return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sfext##op##_op<Type>>:: \
-            allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3);
+            allocate(*(expr_gen.node_allocator_);, t0, t1, t2, t3)
 
-                    case_stmt0(48) case_stmt0(49) case_stmt0(50) case_stmt0(51) case_stmt0(
-                        52) case_stmt0(53) case_stmt0(54) case_stmt0(55) case_stmt0(56) case_stmt0(57)
-                        case_stmt0(58) case_stmt0(59) case_stmt0(60) case_stmt0(61) case_stmt0(
-                            62) case_stmt0(63) case_stmt0(64) case_stmt0(65) case_stmt0(66)
-                            case_stmt0(67) case_stmt0(68) case_stmt0(69) case_stmt0(70) case_stmt0(
-                                71) case_stmt0(72) case_stmt0(73) case_stmt0(74) case_stmt0(75)
-                                case_stmt0(76) case_stmt0(77) case_stmt0(78) case_stmt0(
-                                    79) case_stmt0(80) case_stmt0(81) case_stmt0(82) case_stmt0(83)
+                    case_stmt0(48);
+                    case_stmt0(49);
+                    case_stmt0(50);
+                    case_stmt0(51);
+                    case_stmt0(52);
+                    case_stmt0(53);
+                    case_stmt0(54);
+                    case_stmt0(55);
+                    case_stmt0(56);
+                    case_stmt0(57);
+                    case_stmt0(58);
+                    case_stmt0(59);
+                    case_stmt0(60);
+                    case_stmt0(61);
+                    case_stmt0(62);
+                    case_stmt0(63);
+                    case_stmt0(64);
+                    case_stmt0(65);
+                    case_stmt0(66);
+                    case_stmt0(67);
+                    case_stmt0(68);
+                    case_stmt0(69);
+                    case_stmt0(70);
+                    case_stmt0(71);
+                    case_stmt0(72);
+                    case_stmt0(73);
+                    case_stmt0(74);
+                    case_stmt0(75);
+                    case_stmt0(76);
+                    case_stmt0(77);
+                    case_stmt0(78);
+                    case_stmt0(79);
+                    case_stmt0(80);
+                    case_stmt0(81);
+                    case_stmt0(82);
+                    case_stmt0(83);
 
-                                    case_stmt1(00) case_stmt1(01) case_stmt1(02) case_stmt1(
-                                        03) case_stmt1(04) case_stmt1(05) case_stmt1(06) case_stmt1(07)
-                                        case_stmt1(08) case_stmt1(09) case_stmt1(10) case_stmt1(
-                                            11) case_stmt1(12) case_stmt1(13) case_stmt1(14)
-                                            case_stmt1(15) case_stmt1(16) case_stmt1(17) case_stmt1(
-                                                18) case_stmt1(19) case_stmt1(20) case_stmt1(21)
-                                                case_stmt1(22) case_stmt1(23) case_stmt1(24) case_stmt1(
-                                                    25) case_stmt1(26) case_stmt1(27) case_stmt1(28)
-                                                    case_stmt1(29) case_stmt1(30) case_stmt1(
-                                                        31) case_stmt1(32) case_stmt1(33) case_stmt1(34)
-                                                        case_stmt1(35) case_stmt1(36) case_stmt1(
-                                                            37) case_stmt1(38) case_stmt1(39)
-                                                            case_stmt1(40) case_stmt1(41) case_stmt1(
-                                                                42) case_stmt1(43) case_stmt1(44)
-                                                                case_stmt1(45) case_stmt1(
-                                                                    46) case_stmt1(47) case_stmt1(48)
-                                                                    case_stmt1(49) case_stmt1(
-                                                                        50) case_stmt1(51)
-                                                                        case_stmt1(52) case_stmt1(
-                                                                            53) case_stmt1(54)
-                                                                            case_stmt1(55) case_stmt1(
-                                                                                56) case_stmt1(57)
-                                                                                case_stmt1(
-                                                                                    58) case_stmt1(59)
-                                                                                    case_stmt1(60)
-                                                                                        case_stmt1(
-                                                                                            61)
+                    case_stmt1(00);
+                    case_stmt1(01);
+                    case_stmt1(02);
+                    case_stmt1(03);
+                    case_stmt1(04);
+                    case_stmt1(05);
+                    case_stmt1(06);
+                    case_stmt1(07);
+                    case_stmt1(08);
+                    case_stmt1(09);
+                    case_stmt1(10);
+                    case_stmt1(11);
+                    case_stmt1(12);
+                    case_stmt1(13);
+                    case_stmt1(14);
+                    case_stmt1(15);
+                    case_stmt1(16);
+                    case_stmt1(17);
+                    case_stmt1(18);
+                    case_stmt1(19);
+                    case_stmt1(20);
+                    case_stmt1(21);
+                    case_stmt1(22);
+                    case_stmt1(23);
+                    case_stmt1(24);
+                    case_stmt1(25);
+                    case_stmt1(26);
+                    case_stmt1(27);
+                    case_stmt1(28);
+                    case_stmt1(29);
+                    case_stmt1(30);
+                    case_stmt1(31);
+                    case_stmt1(32);
+                    case_stmt1(33);
+                    case_stmt1(34);
+                    case_stmt1(35);
+                    case_stmt1(36);
+                    case_stmt1(37);
+                    case_stmt1(38);
+                    case_stmt1(39);
+                    case_stmt1(40);
+                    case_stmt1(41);
+                    case_stmt1(42);
+                    case_stmt1(43);
+                    case_stmt1(44);
+                    case_stmt1(45);
+                    case_stmt1(46);
+                    case_stmt1(47);
+                    case_stmt1(48);
+                    case_stmt1(49);
+                    case_stmt1(50);
+                    case_stmt1(51);
+                    case_stmt1(52);
+                    case_stmt1(53);
+                    case_stmt1(54);
+                    case_stmt1(55);
+                    case_stmt1(56);
+                    case_stmt1(57);
+                    case_stmt1(58);
+                    case_stmt1(59);
+                    case_stmt1(60);
+                    case_stmt1(61);
 
 #undef case_stmt0
 #undef case_stmt1
-                                                                                            default
-                        : return error_node();
+                    default:
+                        return error_node();
                 }
             }
 
