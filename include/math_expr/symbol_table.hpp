@@ -738,10 +738,18 @@ class symbol_table
 
             ~st_data()
             {
-                for (std::size_t i = 0; i < free_function_list_.size(); ++i)
-                {
-                    delete free_function_list_[i];
-                }
+                variable_store.clear(true);
+                function_store.clear();
+                vararg_function_store.clear();
+                generic_function_store.clear();
+                string_function_store.clear();
+                overload_function_store.clear();
+                vector_store.clear();
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+                stringvar_store.clear();
+#endif
+                local_symbol_list_.clear();
+                local_stringvar_list_.clear();
             }
 
             inline bool is_reserved_symbol(const std::string& symbol) const
@@ -749,61 +757,15 @@ class symbol_table
                 return (reserved_symbol_table_.end() != reserved_symbol_table_.find(symbol));
             }
 
-            static inline st_data* create()
-            {
-                return (new st_data);
-            }
-
-            static inline void destroy(st_data*& sd)
-            {
-                delete sd;
-                sd = reinterpret_cast<st_data*>(0);
-            }
-
             std::list<T> local_symbol_list_;
             std::list<std::string> local_stringvar_list_;
             std::set<std::string> reserved_symbol_table_;
-            std::vector<ifunction<T>*> free_function_list_;
+            std::vector<std::unique_ptr<ifunction<T>>> free_function_list_;
         };
 
         control_block()
-            : ref_count(1), data_(st_data::create()), mutability_(symtab_mutability_type::e_mutable)
+            : data_(std::make_unique<st_data>()), mutability_(symtab_mutability_type::e_mutable)
         {
-        }
-
-        explicit control_block(st_data* data)
-            : ref_count(1), data_(data), mutability_(symtab_mutability_type::e_mutable)
-        {
-        }
-
-        ~control_block()
-        {
-            if (data_ && (0 == ref_count))
-            {
-                st_data::destroy(data_);
-            }
-        }
-
-        static inline control_block* create()
-        {
-            return (new control_block);
-        }
-
-        template <typename SymTab>
-        static inline void destroy(control_block*& cntrl_blck, SymTab* sym_tab)
-        {
-            if (cntrl_blck)
-            {
-                if ((0 != cntrl_blck->ref_count) && (0 == --cntrl_blck->ref_count))
-                {
-                    if (sym_tab)
-                        sym_tab->clear();
-
-                    delete cntrl_blck;
-                }
-
-                cntrl_blck = 0;
-            }
         }
 
         void set_mutability(const symtab_mutability_type mutability)
@@ -811,15 +773,14 @@ class symbol_table
             mutability_ = mutability;
         }
 
-        std::size_t ref_count;
-        st_data* data_;
+        std::unique_ptr<st_data> data_;
         symtab_mutability_type mutability_;
     };
 
    public:
     explicit symbol_table(
         const symtab_mutability_type mutability = symtab_mutability_type::e_mutable)
-        : control_block_(control_block::create())
+        : control_block_(std::make_shared<control_block>())
     {
         control_block_->set_mutability(mutability);
         clear();
@@ -828,23 +789,15 @@ class symbol_table
     ~symbol_table()
     {
         math_expr::core::dump_ptr("~symbol_table", this);
-        control_block::destroy(control_block_, this);
     }
 
-    symbol_table(const symbol_table<T>& st)
-    {
-        control_block_ = st.control_block_;
-        control_block_->ref_count++;
-    }
+    symbol_table(const symbol_table<T>& st) : control_block_(st.control_block_) {}
 
     inline symbol_table<T>& operator=(const symbol_table<T>& st)
     {
         if (this != &st)
         {
-            control_block::destroy(control_block_, reinterpret_cast<symbol_table<T>*>(0));
-
             control_block_ = st.control_block_;
-            control_block_->ref_count++;
         }
 
         return (*this);
@@ -852,7 +805,7 @@ class symbol_table
 
     inline bool operator==(const symbol_table<T>& st) const
     {
-        return (this == &st) || (control_block_ == st.control_block_);
+        return (this == &st) || (control_block_.get() == st.control_block_.get());
     }
 
     inline symtab_mutability_type mutability() const
@@ -1226,27 +1179,25 @@ class symbol_table
         return false;
     }
 
-#define math_expr_define_freefunction(NN)                                                 \
-    inline bool add_function(const std::string& function_name, ff##NN##_functor function) \
-    {                                                                                     \
-        if (!valid())                                                                     \
-        {                                                                                 \
-            return false;                                                                 \
-        }                                                                                 \
-        if (!valid_symbol(function_name))                                                 \
-        {                                                                                 \
-            return false;                                                                 \
-        }                                                                                 \
-        if (symbol_exists(function_name))                                                 \
-        {                                                                                 \
-            return false;                                                                 \
-        }                                                                                 \
-                                                                                          \
-        math_expr::ifunction<T>* ifunc = new freefunc##NN(function);                      \
-                                                                                          \
-        local_data().free_function_list_.push_back(ifunc);                                \
-                                                                                          \
-        return add_function(function_name, (*local_data().free_function_list_.back()));   \
+#define math_expr_define_freefunction(NN)                                                     \
+    inline bool add_function(const std::string& function_name, ff##NN##_functor function)     \
+    {                                                                                         \
+        if (!valid())                                                                         \
+        {                                                                                     \
+            return false;                                                                     \
+        }                                                                                     \
+        if (!valid_symbol(function_name))                                                     \
+        {                                                                                     \
+            return false;                                                                     \
+        }                                                                                     \
+        if (symbol_exists(function_name))                                                     \
+        {                                                                                     \
+            return false;                                                                     \
+        }                                                                                     \
+                                                                                              \
+        local_data().free_function_list_.push_back(std::make_unique<freefunc##NN>(function)); \
+                                                                                              \
+        return add_function(function_name, (*local_data().free_function_list_.back()));       \
     }
 
     math_expr_define_freefunction(00) math_expr_define_freefunction(01)
@@ -1338,9 +1289,7 @@ class symbol_table
             return false;                                                                          \
         }                                                                                          \
                                                                                                    \
-        math_expr::ifunction<T>* ifunc = new freefunc##NN(function);                               \
-                                                                                                   \
-        local_data().free_function_list_.push_back(ifunc);                                         \
+        local_data().free_function_list_.push_back(std::make_unique<freefunc##NN>(function));      \
                                                                                                    \
         return add_reserved_function(function_name, (*local_data().free_function_list_.back()));   \
     }
@@ -1849,7 +1798,7 @@ class symbol_table
         return *(control_block_->data_);
     }
 
-    control_block* control_block_;
+    std::shared_ptr<control_block> control_block_;
 
     friend class parser<T>;
 };  // class symbol_table

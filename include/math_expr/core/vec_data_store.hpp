@@ -50,57 +50,19 @@ class vec_data_store
    private:
     struct control_block
     {
-        control_block() : ref_count(1), size(0), data(0), destruct(true) {}
+        control_block() : size(0), data(nullptr), destruct(false) {}
 
         explicit control_block(const std::size_t& dsize)
-            : ref_count(1), size(dsize), data(0), destruct(true)
+            : size(dsize), data(nullptr), destruct(true)
         {
             create_data();
         }
 
         control_block(const std::size_t& dsize, data_t dptr, bool dstrct = false)
-            : ref_count(1), size(dsize), data(dptr), destruct(dstrct)
+            : size(dsize), data(dptr), destruct(dstrct)
         {
         }
 
-        ~control_block()
-        {
-            if (data && destruct && (0 == ref_count))
-            {
-                dump_ptr("~vec_data_store::control_block() data", data);
-                delete[] data;
-                data = reinterpret_cast<data_t>(0);
-            }
-        }
-
-        static inline control_block* create(const std::size_t& dsize, data_t data_ptr = data_t(0),
-                                            bool dstrct = false)
-        {
-            if (dsize)
-            {
-                if (0 == data_ptr)
-                    return (new control_block(dsize));
-                else
-                    return (new control_block(dsize, data_ptr, dstrct));
-            }
-            else
-                return (new control_block);
-        }
-
-        static inline void destroy(control_block*& cntrl_blck)
-        {
-            if (cntrl_blck)
-            {
-                if ((0 != cntrl_blck->ref_count) && (0 == --cntrl_blck->ref_count))
-                {
-                    delete cntrl_blck;
-                }
-
-                cntrl_blck = 0;
-            }
-        }
-
-        std::size_t ref_count;
         std::size_t size;
         data_t data;
         bool destruct;
@@ -109,38 +71,33 @@ class vec_data_store
         control_block(const control_block&) = delete;
         control_block& operator=(const control_block&) = delete;
 
+        std::unique_ptr<T[]> owned_data_;
+
         inline void create_data()
         {
-            destruct = true;
-            data = new T[size];
+            owned_data_ = std::make_unique<T[]>(size);
+            data = owned_data_.get();
             std::fill_n(data, size, T(0));
             dump_ptr("control_block::create_data() - data", data, size);
         }
     };
 
    public:
-    vec_data_store() : control_block_(control_block::create(0)) {}
+    vec_data_store() : control_block_(std::make_shared<control_block>()) {}
 
     explicit vec_data_store(const std::size_t& size)
-        : control_block_(control_block::create(size, reinterpret_cast<data_t>(0), true))
+        : control_block_(std::make_shared<control_block>(size))
     {
     }
 
     vec_data_store(const std::size_t& size, data_t data, bool dstrct = false)
-        : control_block_(control_block::create(size, data, dstrct))
+        : control_block_(std::make_shared<control_block>(size, data, dstrct))
     {
     }
 
-    vec_data_store(const type& vds)
-    {
-        control_block_ = vds.control_block_;
-        control_block_->ref_count++;
-    }
+    vec_data_store(const type& vds) : control_block_(vds.control_block_) {}
 
-    ~vec_data_store()
-    {
-        control_block::destroy(control_block_);
-    }
+    ~vec_data_store() = default;
 
     type& operator=(const type& vds)
     {
@@ -151,12 +108,9 @@ class vec_data_store
             vds.control_block_->size = final_size;
             control_block_->size = final_size;
 
-            if (control_block_->destruct || (0 == control_block_->data))
+            if (control_block_->destruct || (nullptr == control_block_->data))
             {
-                control_block::destroy(control_block_);
-
                 control_block_ = vds.control_block_;
-                control_block_->ref_count++;
             }
         }
 
@@ -209,7 +163,8 @@ class vec_data_store
     }
 
    private:
-    static inline std::size_t min_size(const control_block* cb0, const control_block* cb1)
+    static inline std::size_t min_size(const std::shared_ptr<control_block>& cb0,
+                                       const std::shared_ptr<control_block>& cb1)
     {
         const std::size_t size0 = cb0->size;
         const std::size_t size1 = cb1->size;
@@ -220,7 +175,7 @@ class vec_data_store
             return (size0) ? size0 : size1;
     }
 
-    control_block* control_block_;
+    std::shared_ptr<control_block> control_block_;
 };
 
 }  // namespace math_expr::core

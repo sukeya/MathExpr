@@ -97,15 +97,11 @@ class expression
 
         using local_data_list_t = std::vector<data_pack>;
         using results_context_t = results_context<T>;
-        using cntrl_blck_ptr_t = control_block*;
 
-        control_block()
-            : ref_count(0), expr(0), results(0), retinv_null(false), return_invoked(&retinv_null)
-        {
-        }
+        control_block() : expr(nullptr), retinv_null(false), return_invoked(&retinv_null) {}
 
         explicit control_block(expression_ptr e)
-            : ref_count(1), expr(e), results(0), retinv_null(false), return_invoked(&retinv_null)
+            : expr(e), retinv_null(false), return_invoked(&retinv_null)
         {
         }
 
@@ -147,35 +143,11 @@ class expression
                     }
                 }
             }
-
-            if (results)
-            {
-                delete results;
-            }
         }
 
-        static inline cntrl_blck_ptr_t create(expression_ptr e)
-        {
-            return new control_block(e);
-        }
-
-        static inline void destroy(cntrl_blck_ptr_t& cntrl_blck)
-        {
-            if (cntrl_blck)
-            {
-                if ((0 != cntrl_blck->ref_count) && (0 == --cntrl_blck->ref_count))
-                {
-                    delete cntrl_blck;
-                }
-
-                cntrl_blck = 0;
-            }
-        }
-
-        std::size_t ref_count;
         expression_ptr expr;
         local_data_list_t local_data_list;
-        results_context_t* results;
+        std::unique_ptr<results_context_t> results;
         bool retinv_null;
         bool* return_invoked;
 
@@ -183,7 +155,7 @@ class expression
     };
 
    public:
-    expression() : control_block_(0)
+    expression()
     {
         set_expression(new details::null_node<T>());
     }
@@ -191,10 +163,9 @@ class expression
     expression(const expression<T>& e)
         : control_block_(e.control_block_), symbol_table_list_(e.symbol_table_list_)
     {
-        control_block_->ref_count++;
     }
 
-    explicit expression(const symbol_table<T>& symbol_table) : control_block_(0)
+    explicit expression(const symbol_table<T>& symbol_table)
     {
         set_expression(new details::null_node<T>());
         symbol_table_list_.push_back(symbol_table);
@@ -204,18 +175,7 @@ class expression
     {
         if (this != &e)
         {
-            if (control_block_)
-            {
-                if ((0 != control_block_->ref_count) && (0 == --control_block_->ref_count))
-                {
-                    delete control_block_;
-                }
-
-                control_block_ = 0;
-            }
-
             control_block_ = e.control_block_;
-            control_block_->ref_count++;
             symbol_table_list_ = e.symbol_table_list_;
         }
 
@@ -229,21 +189,18 @@ class expression
 
     inline bool operator!() const
     {
-        return ((0 == control_block_) || (0 == control_block_->expr));
+        return (!control_block_ || (nullptr == control_block_->expr));
     }
 
     inline expression<T>& release()
     {
         math_expr::core::dump_ptr("expression::release", this);
-        control_block::destroy(control_block_);
+        control_block_.reset();
 
         return (*this);
     }
 
-    ~expression()
-    {
-        control_block::destroy(control_block_);
-    }
+    ~expression() = default;
 
     inline T value() const
     {
@@ -328,15 +285,7 @@ class expression
     {
         if (expr)
         {
-            if (control_block_)
-            {
-                if (0 == --control_block_->ref_count)
-                {
-                    delete control_block_;
-                }
-            }
-
-            control_block_ = control_block::create(expr);
+            control_block_ = std::make_shared<control_block>(expr);
         }
     }
 
@@ -413,7 +362,7 @@ class expression
     {
         if (control_block_ && rc)
         {
-            control_block_->results = rc;
+            control_block_->results = std::unique_ptr<results_context_t>(rc);
         }
     }
 
@@ -425,7 +374,7 @@ class expression
         }
     }
 
-    control_block* control_block_;
+    std::shared_ptr<control_block> control_block_;
     symtab_list_t symbol_table_list_;
 
     friend class parser<T>;
