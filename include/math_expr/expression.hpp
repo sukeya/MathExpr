@@ -65,7 +65,7 @@ template <typename T> class expression
             switch (dt)
             {
             case data_type::e_unknown:
-                return "e_unknown  ";
+                return "e_unknown";
             case data_type::e_expr:
                 return "e_expr";
             case data_type::e_vecholder:
