@@ -30,8 +30,8 @@ cmake_minimum_required(VERSION 3.24.0)
 
 project(MathExpr VERSION 0.1.0 LANGUAGES CXX)
 
-option(MATHEXPR_BUILD_HEADER_SELF_CHECKS "Build MathExpr header self-check targets" OFF)
-option(MATHEXPR_BUILD_TESTS "Build MathExpr tests" OFF)
+option(MATH_EXPR_BUILD_HEADER_SELF_CHECKS "Build MathExpr header self-check targets" OFF)
+option(MATH_EXPR_BUILD_TESTS "Build MathExpr tests" OFF)
 option(MATH_EXPR_ENABLE_DEBUGGING "Enable MathExpr debug logging" OFF)
 set(MATH_EXPR_EPSILON "" CACHE STRING
   "Override MathExpr floating-point epsilon with a positive finite decimal literal")
@@ -219,7 +219,7 @@ export(EXPORT MathExprTargets
   NAMESPACE MathExpr::
 )
 
-if(MATHEXPR_BUILD_HEADER_SELF_CHECKS)
+if(MATH_EXPR_BUILD_HEADER_SELF_CHECKS)
   file(GLOB_RECURSE math_expr_installed_headers
     RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
@@ -246,11 +246,11 @@ if(MATHEXPR_BUILD_HEADER_SELF_CHECKS)
   endforeach()
 endif()
 
-if(MATHEXPR_BUILD_EXAMPLES)
+if(MATH_EXPR_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-if(MATHEXPR_BUILD_TESTS)
+if(MATH_EXPR_BUILD_TESTS)
   enable_testing()
   include(FetchContent)
   FetchContent_Declare(
@@ -263,7 +263,7 @@ if(MATHEXPR_BUILD_TESTS)
   add_subdirectory(test)
 endif()
 
-if(MATHEXPR_BUILD_BENCHMARK)
+if(MATH_EXPR_BUILD_BENCHMARK)
   include(FetchContent)
   set(BENCHMARK_ENABLE_TESTING OFF)
   FetchContent_Declare(

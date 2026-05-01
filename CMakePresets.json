@@ -9,7 +9,7 @@
       "name": "test",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "MATHEXPR_BUILD_TESTS": "ON"
+        "MATH_EXPR_BUILD_TESTS": "ON"
       },
       "generator": "Ninja"
     },
@@ -53,7 +53,7 @@
       "name": "benchmark",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "MATHEXPR_BUILD_BENCHMARK": "ON"
+        "MATH_EXPR_BUILD_BENCHMARK": "ON"
       },
       "generator": "Ninja"
     },
@@ -76,7 +76,7 @@
       "name": "examples",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "MATHEXPR_BUILD_EXAMPLES": "ON",
+        "MATH_EXPR_BUILD_EXAMPLES": "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       },
       "generator": "Ninja"
