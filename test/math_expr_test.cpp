@@ -563,19 +563,19 @@ static const test_t global_test_list[] = {
     test_t("equal(\t \n(\n \r1.1\t\t - \n\n 2.2\n\n/\r3.3\t),(1.1-2.2/3.3))", 1.0),
     test_t("equal((pi^2^3),(pi^8))", 1.0),
     test_t("equal(pi^2^3-pi^8,0)", 1.0),
-    test_t("equal((pi^2.2^3.3),(pi^13.4894687605338489))", 1.0),
+    test_t("equal((pi^2.2^3.3),(pi^13.48946876053338659))", 1.0),
     test_t("equal((pi^-2^3),1/(pi^8))", 1.0),
     test_t("equal((pi^2^-3),(pi^(1/8)))", 1.0),
     test_t("equal((pi^-2^-3),1/(pi^(1/8)))", 1.0),
     test_t("equal((-pi^2^3),(-pi^8))", 1.0),
-    test_t("equal((-pi^2.2^3.3),(-pi^13.4894687605338489))", 1.0),
+    test_t("equal((-pi^2.2^3.3),(-pi^13.48946876053338659))", 1.0),
     test_t("equal((-pi^-2^3),1/(-pi^8))", 1.0),
     test_t("equal((-pi^-2^-3),1/(-pi^(1/8)))", 1.0),
     test_t("equal((+pi^+2^+3),(+pi^+8))", 1.0),
-    test_t("equal((+pi^+2.2^+3.3),(+pi^+13.4894687605338489))", 1.0),
+    test_t("equal((+pi^+2.2^+3.3),(+pi^+13.48946876053338659))", 1.0),
     test_t("equal((+pi^-2^-3),1/(+pi^(+1/+8)))", 1.0),
     test_t("equal((-pi^+2^+3),(-pi^+8))", 1.0),
-    test_t("equal((-pi^+2.2^+3.3),(-pi^+13.4894687605338489))", 1.0),
+    test_t("equal((-pi^+2.2^+3.3),(-pi^+13.48946876053338659))", 1.0),
     test_t("equal((-pi^-2^3),1/(-pi^+8))", 1.0),
     test_t("equal((-pi^(-2^-3)),1/(-pi^(+1/+8)))", 1.0),
     test_t("switch { case (1 <= 2) : 1; default: 1.12345; }", 1.0),
@@ -5618,8 +5618,8 @@ template <typename T> bool run_test14()
     std::deque<std::string> expr_str_list;
     std::deque<std::string> expr_noncomm_str_list;
 
-    load_expressions("math_expr_functional_test.txt", expr_str_list);
-    load_expressions("math_expr_functional_ext_test.txt", expr_str_list);
+    load_expressions("functional_test.txt", expr_str_list);
+    load_expressions("functional_ext_test.txt", expr_str_list);
 
     if (expr_str_list.empty())
     {
