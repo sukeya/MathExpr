@@ -40,9 +40,10 @@ limitations under the License.
 namespace math_expr::details
 {
 #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
-template <typename T> class break_exception
+template <typename T>
+class break_exception
 {
-  public:
+   public:
     explicit break_exception(const T& v) : value(v) {}
 
     T value;
@@ -52,9 +53,10 @@ class continue_exception
 {
 };
 
-template <typename T> class break_node final : public expression_node<T>
+template <typename T>
+class break_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -70,7 +72,7 @@ template <typename T> class break_node final : public expression_node<T>
 
         throw break_exception<T>(result);
 
-#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+#ifdef __NVCOMPILER
         return std::numeric_limits<T>::quiet_NaN();
 #endif
     }
@@ -90,17 +92,18 @@ template <typename T> class break_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(return_);
     }
 
-  private:
+   private:
     branch_t return_;
 };
 
-template <typename T> class continue_node final : public expression_node<T>
+template <typename T>
+class continue_node final : public expression_node<T>
 {
-  public:
+   public:
     inline T value() const override
     {
         throw continue_exception();
-#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+#ifdef __NVCOMPILER
         return std::numeric_limits<T>::quiet_NaN();
 #endif
     }
@@ -116,8 +119,10 @@ struct loop_runtime_checker
 {
     loop_runtime_checker(loop_runtime_check_ptr loop_runtime_check,
                          loop_runtime_check::loop_types lp_typ = loop_runtime_check::e_invalid)
-        : iteration_count_(0), loop_runtime_check_(loop_runtime_check),
-          max_loop_iterations_(loop_runtime_check_->max_loop_iterations), loop_type_(lp_typ)
+        : iteration_count_(0),
+          loop_runtime_check_(loop_runtime_check),
+          max_loop_iterations_(loop_runtime_check_->max_loop_iterations),
+          loop_type_(lp_typ)
     {
         assert(loop_runtime_check_);
     }
@@ -156,9 +161,10 @@ struct loop_runtime_checker
     loop_runtime_check::loop_types loop_type_;
 };
 
-template <typename T> class while_loop_node : public expression_node<T>
+template <typename T>
+class while_loop_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -203,7 +209,7 @@ template <typename T> class while_loop_node : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(condition_, loop_body_);
     }
 
-  protected:
+   protected:
     branch_t condition_;
     branch_t loop_body_;
 };
@@ -211,7 +217,7 @@ template <typename T> class while_loop_node : public expression_node<T>
 template <typename T>
 class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime_checker
 {
-  public:
+   public:
     using parent_t = while_loop_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -225,7 +231,6 @@ class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime
 
     inline T value() const override
     {
-
         T result = T(0);
 
         loop_runtime_checker::reset();
@@ -246,9 +251,10 @@ class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime
     }
 };
 
-template <typename T> class repeat_until_loop_node : public expression_node<T>
+template <typename T>
+class repeat_until_loop_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -293,7 +299,7 @@ template <typename T> class repeat_until_loop_node : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(condition_, loop_body_);
     }
 
-  protected:
+   protected:
     branch_t condition_;
     branch_t loop_body_;
 };
@@ -302,7 +308,7 @@ template <typename T>
 class repeat_until_loop_rtc_node final : public repeat_until_loop_node<T>,
                                          public loop_runtime_checker
 {
-  public:
+   public:
     using parent_t = repeat_until_loop_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -336,9 +342,10 @@ class repeat_until_loop_rtc_node final : public repeat_until_loop_node<T>,
     }
 };
 
-template <typename T> class for_loop_node : public expression_node<T>
+template <typename T>
+class for_loop_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -402,7 +409,7 @@ template <typename T> class for_loop_node : public expression_node<T>
                                                              loop_body_);
     }
 
-  protected:
+   protected:
     branch_t initialiser_;
     branch_t condition_;
     branch_t incrementor_;
@@ -412,7 +419,7 @@ template <typename T> class for_loop_node : public expression_node<T>
 template <typename T>
 class for_loop_rtc_node final : public for_loop_node<T>, public loop_runtime_checker
 {
-  public:
+   public:
     using parent_t = for_loop_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -462,9 +469,10 @@ class for_loop_rtc_node final : public for_loop_node<T>, public loop_runtime_che
 };
 
 #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
-template <typename T> class while_loop_bc_node : public while_loop_node<T>
+template <typename T>
+class while_loop_bc_node : public while_loop_node<T>
 {
-  public:
+   public:
     using parent_t = while_loop_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -500,7 +508,7 @@ template <typename T> class while_loop_bc_node : public while_loop_node<T>
 template <typename T>
 class while_loop_bc_rtc_node final : public while_loop_bc_node<T>, public loop_runtime_checker
 {
-  public:
+   public:
     using parent_t = while_loop_bc_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -544,9 +552,10 @@ class while_loop_bc_rtc_node final : public while_loop_bc_node<T>, public loop_r
     }
 };
 
-template <typename T> class repeat_until_loop_bc_node : public repeat_until_loop_node<T>
+template <typename T>
+class repeat_until_loop_bc_node : public repeat_until_loop_node<T>
 {
-  public:
+   public:
     using parent_t = repeat_until_loop_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -583,7 +592,7 @@ template <typename T>
 class repeat_until_loop_bc_rtc_node final : public repeat_until_loop_bc_node<T>,
                                             public loop_runtime_checker
 {
-  public:
+   public:
     using parent_t = repeat_until_loop_bc_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -627,9 +636,10 @@ class repeat_until_loop_bc_rtc_node final : public repeat_until_loop_bc_node<T>,
     }
 };
 
-template <typename T> class for_loop_bc_node : public for_loop_node<T>
+template <typename T>
+class for_loop_bc_node : public for_loop_node<T>
 {
-  public:
+   public:
     using parent_t = for_loop_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -691,7 +701,7 @@ template <typename T> class for_loop_bc_node : public for_loop_node<T>
 template <typename T>
 class for_loop_bc_rtc_node final : public for_loop_bc_node<T>, public loop_runtime_checker
 {
-  public:
+   public:
     using parent_t = for_loop_bc_node<T>;
     using expression_ptr = expression_node<T>*;
 
@@ -762,9 +772,10 @@ class for_loop_bc_rtc_node final : public for_loop_bc_node<T>, public loop_runti
 };
 #endif
 
-template <typename T> class switch_node : public expression_node<T>
+template <typename T>
+class switch_node : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -830,13 +841,14 @@ template <typename T> class switch_node : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
     }
 
-  protected:
+   protected:
     std::vector<branch_t> arg_list_;
 };
 
-template <typename T, typename Switch_N> class switch_n_node final : public switch_node<T>
+template <typename T, typename Switch_N>
+class switch_n_node final : public switch_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     template <typename Allocator, template <typename, typename> class Sequence>
@@ -851,9 +863,10 @@ template <typename T, typename Switch_N> class switch_n_node final : public swit
     }
 };
 
-template <typename T> class multi_switch_node final : public expression_node<T>
+template <typename T>
+class multi_switch_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -921,19 +934,20 @@ template <typename T> class multi_switch_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
     }
 
-  private:
+   private:
     std::vector<branch_t> arg_list_;
 };
 
-template <typename T> class ivariable
+template <typename T>
+class ivariable
 {
-  public:
+   public:
     virtual ~ivariable() {}
 
     virtual T& ref() = 0;
     virtual const T& ref() const = 0;
 };
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

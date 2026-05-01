@@ -40,7 +40,8 @@ namespace math_expr::rtl::io::file::details
 {
 struct file_descriptor;
 
-template <typename T> inline T encode_handle(file_descriptor* fd)
+template <typename T>
+inline T encode_handle(file_descriptor* fd)
 {
     T t = T(0);
 
@@ -50,7 +51,8 @@ template <typename T> inline T encode_handle(file_descriptor* fd)
     return t;
 }
 
-template <typename T> inline file_descriptor* decode_handle(T v)
+template <typename T>
+inline file_descriptor* decode_handle(T v)
 {
     file_descriptor* fd = nullptr;
 
@@ -60,22 +62,17 @@ template <typename T> inline file_descriptor* decode_handle(T v)
     return fd;
 }
 
-template <typename T> inline void perform_check()
+template <typename T>
+inline void perform_check()
 {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
-    if (sizeof(T) < sizeof(file_descriptor*))
+    if constexpr (sizeof(T) < sizeof(file_descriptor*))
     {
         throw std::runtime_error(
             "math_expr::rtl::io::file - Error - pointer size larger than holder.");
     }
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+
     assert(sizeof(T) >= sizeof(file_descriptor*));
 }
-} // namespace math_expr::rtl::io::file::details
+}  // namespace math_expr::rtl::io::file::details
 
 #endif

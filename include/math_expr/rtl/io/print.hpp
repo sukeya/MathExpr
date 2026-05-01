@@ -44,31 +44,17 @@ namespace math_expr::rtl::io
 {
 namespace details
 {
-template <typename T> inline void print_type(const std::string& fmt, const T v)
+template <typename T>
+inline void print_type(const std::string& fmt, const T v)
 {
     static_assert(math_expr::core::numeric::details::is_supported_real_type_v<T>,
                   "math_expr::rtl::io::print supports float, double, and long double only.");
 
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#elif defined(__GNUC__) || defined(__GNUG__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#elif defined(_MSC_VER)
-#endif
-
-    printf(fmt.c_str(), v);
-
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#elif defined(__GNUC__) || defined(__GNUG__)
-#pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#endif
+    std::printf(fmt.c_str(), v);
 }
 
-template <typename T> struct print_impl
+template <typename T>
+struct print_impl
 {
     using generic_type = typename igeneric_function<T>::generic_type;
     using parameter_list_t = typename igeneric_function<T>::parameter_list_t;
@@ -84,20 +70,20 @@ template <typename T> struct print_impl
 
             switch (gt.type)
             {
-            case generic_type::store_type::e_scalar:
-                print(scalar_format, scalar_t(gt));
-                break;
+                case generic_type::store_type::e_scalar:
+                    print(scalar_format, scalar_t(gt));
+                    break;
 
-            case generic_type::store_type::e_vector:
-                print(scalar_format, vector_t(gt));
-                break;
+                case generic_type::store_type::e_vector:
+                    print(scalar_format, vector_t(gt));
+                    break;
 
-            case generic_type::store_type::e_string:
-                print(string_t(gt));
-                break;
+                case generic_type::store_type::e_string:
+                    print(string_t(gt));
+                    break;
 
-            default:
-                continue;
+                default:
+                    continue;
             }
         }
     }
@@ -114,19 +100,20 @@ template <typename T> struct print_impl
             print_type(scalar_format, v[i]);
 
             if ((i + 1) < v.size())
-                printf(" ");
+                std::printf(" ");
         }
     }
 
     static inline void print(const string_t& s)
     {
-        printf("%s", to_str(s).c_str());
+        std::printf("%s", to_str(s).c_str());
     }
 };
 
-} // namespace details
+}  // namespace details
 
-template <typename T> struct print final : public math_expr::igeneric_function<T>
+template <typename T>
+struct print final : public math_expr::igeneric_function<T>
 {
     using parameter_list_t = typename igeneric_function<T>::parameter_list_t;
 
@@ -146,5 +133,5 @@ template <typename T> struct print final : public math_expr::igeneric_function<T
     std::string scalar_format_;
 };
 
-} // namespace math_expr::rtl::io
+}  // namespace math_expr::rtl::io
 #endif

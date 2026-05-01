@@ -34,91 +34,48 @@ limitations under the License.
 #ifndef MATH_EXPR_TIMER_HPP
 #define MATH_EXPR_TIMER_HPP
 
+#include <chrono>
+
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
-
-#if defined(_MSC_VER) || defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#include <ctime>
-#else
-#include <ctime>
-#include <sys/time.h>
-#include <sys/types.h>
-#endif
 
 namespace math_expr
 {
 class timer
 {
-  public:
-#if defined(_MSC_VER) || defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-    timer() : in_use_(false), start_time_{{0, 0}}, stop_time_{{0, 0}}
-    {
-        QueryPerformanceFrequency(&clock_frequency_);
-    }
+   public:
+    using clock_t = std::chrono::steady_clock;
+    using time_point_t = typename clock_t::time_point;
+
+    timer() : in_use_(false), start_time_(), stop_time_() {}
 
     inline void start()
     {
         in_use_ = true;
-        QueryPerformanceCounter(&start_time_);
+        start_time_ = clock_t::now();
     }
 
     inline void stop()
     {
-        QueryPerformanceCounter(&stop_time_);
-        in_use_ = false;
-    }
-
-    inline double time() const
-    {
-        return (1.0 * (stop_time_.QuadPart - start_time_.QuadPart)) /
-               (1.0 * clock_frequency_.QuadPart);
-    }
-
-#else
-
-    timer() : in_use_(false)
-    {
-        start_time_.tv_sec = 0;
-        start_time_.tv_usec = 0;
-
-        stop_time_.tv_sec = 0;
-        stop_time_.tv_usec = 0;
-    }
-
-    inline void start()
-    {
-        in_use_ = true;
-        gettimeofday(&start_time_, 0);
-    }
-
-    inline void stop()
-    {
-        gettimeofday(&stop_time_, 0);
+        stop_time_ = clock_t::now();
         in_use_ = false;
     }
 
     inline std::uint64_t usec_time() const
     {
-        if (!in_use_)
+        if (in_use_)
         {
-            if (stop_time_.tv_sec >= start_time_.tv_sec)
-            {
-                return 1000000LLU *
-                           static_cast<std::uint64_t>(stop_time_.tv_sec - start_time_.tv_sec) +
-                       static_cast<std::uint64_t>(stop_time_.tv_usec - start_time_.tv_usec);
-            }
-            else
-                return std::numeric_limits<std::uint64_t>::max();
-        }
-        else
             return std::numeric_limits<std::uint64_t>::max();
+        }
+
+        if (stop_time_ < start_time_)
+        {
+            return std::numeric_limits<std::uint64_t>::max();
+        }
+
+        return static_cast<std::uint64_t>(
+            std::chrono::duration_cast<std::chrono::microseconds>(stop_time_ - start_time_)
+                .count());
     }
 
     inline double time() const
@@ -126,26 +83,17 @@ class timer
         return usec_time() * 0.000001;
     }
 
-#endif
-
     inline bool in_use() const
     {
         return in_use_;
     }
 
-  private:
+   private:
     bool in_use_;
-
-#if defined(_MSC_VER) || defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-    LARGE_INTEGER start_time_;
-    LARGE_INTEGER stop_time_;
-    LARGE_INTEGER clock_frequency_;
-#else
-    struct timeval start_time_;
-    struct timeval stop_time_;
-#endif
+    time_point_t start_time_;
+    time_point_t stop_time_;
 };
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

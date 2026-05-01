@@ -169,86 +169,86 @@ struct token
     {
         switch (t)
         {
-        case e_none:
-            return "NONE";
-        case e_error:
-            return "ERROR";
-        case e_err_symbol:
-            return "ERROR_SYMBOL";
-        case e_err_number:
-            return "ERROR_NUMBER";
-        case e_err_string:
-            return "ERROR_STRING";
-        case e_eof:
-            return "EOF";
-        case e_number:
-            return "NUMBER";
-        case e_symbol:
-            return "SYMBOL";
-        case e_string:
-            return "STRING";
-        case e_assign:
-            return ":=";
-        case e_addass:
-            return "+=";
-        case e_subass:
-            return "-=";
-        case e_mulass:
-            return "*=";
-        case e_divass:
-            return "/=";
-        case e_modass:
-            return "%=";
-        case e_shr:
-            return ">>";
-        case e_shl:
-            return "<<";
-        case e_lte:
-            return "<=";
-        case e_ne:
-            return "!=";
-        case e_gte:
-            return ">=";
-        case e_lt:
-            return "<";
-        case e_gt:
-            return ">";
-        case e_eq:
-            return "=";
-        case e_rbracket:
-            return ")";
-        case e_lbracket:
-            return "(";
-        case e_rsqrbracket:
-            return "]";
-        case e_lsqrbracket:
-            return "[";
-        case e_rcrlbracket:
-            return "}";
-        case e_lcrlbracket:
-            return "{";
-        case e_comma:
-            return ",";
-        case e_add:
-            return "+";
-        case e_sub:
-            return "-";
-        case e_div:
-            return "/";
-        case e_mul:
-            return "*";
-        case e_mod:
-            return "%";
-        case e_pow:
-            return "^";
-        case e_colon:
-            return ":";
-        case e_ternary:
-            return "?";
-        case e_swap:
-            return "<=>";
-        default:
-            return "UNKNOWN";
+            case e_none:
+                return "NONE";
+            case e_error:
+                return "ERROR";
+            case e_err_symbol:
+                return "ERROR_SYMBOL";
+            case e_err_number:
+                return "ERROR_NUMBER";
+            case e_err_string:
+                return "ERROR_STRING";
+            case e_eof:
+                return "EOF";
+            case e_number:
+                return "NUMBER";
+            case e_symbol:
+                return "SYMBOL";
+            case e_string:
+                return "STRING";
+            case e_assign:
+                return ":=";
+            case e_addass:
+                return "+=";
+            case e_subass:
+                return "-=";
+            case e_mulass:
+                return "*=";
+            case e_divass:
+                return "/=";
+            case e_modass:
+                return "%=";
+            case e_shr:
+                return ">>";
+            case e_shl:
+                return "<<";
+            case e_lte:
+                return "<=";
+            case e_ne:
+                return "!=";
+            case e_gte:
+                return ">=";
+            case e_lt:
+                return "<";
+            case e_gt:
+                return ">";
+            case e_eq:
+                return "=";
+            case e_rbracket:
+                return ")";
+            case e_lbracket:
+                return "(";
+            case e_rsqrbracket:
+                return "]";
+            case e_lsqrbracket:
+                return "[";
+            case e_rcrlbracket:
+                return "}";
+            case e_lcrlbracket:
+                return "{";
+            case e_comma:
+                return ",";
+            case e_add:
+                return "+";
+            case e_sub:
+                return "-";
+            case e_div:
+                return "/";
+            case e_mul:
+                return "*";
+            case e_mod:
+                return "%";
+            case e_pow:
+                return "^";
+            case e_colon:
+                return ":";
+            case e_ternary:
+                return "?";
+            case e_swap:
+                return "<=>";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -256,19 +256,17 @@ struct token
     {
         switch (t)
         {
-        case e_comma:
-            return ",";
-        case e_colon:
-            return ":";
-        case e_eof:
-            return ";";
-        default:
-            return "UNKNOWN";
+            case e_comma:
+                return ",";
+            case e_colon:
+                return ":";
+            case e_eof:
+                return ";";
+            default:
+                return "UNKNOWN";
         }
 
-#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
         return "UNKNOWN";
-#endif
     }
 
     inline bool is_error() const
@@ -282,6 +280,6 @@ struct token
     std::size_t position;
 };
 
-} // namespace math_expr::lexer
+}  // namespace math_expr::lexer
 
 #endif

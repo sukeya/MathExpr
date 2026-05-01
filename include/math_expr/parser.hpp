@@ -74,9 +74,10 @@ namespace math_expr
  *
  * @tparam T Numeric value type for the entire expression tree.
  */
-template <typename T> class parser : public lexer::parser_helper
+template <typename T>
+class parser : public lexer::parser_helper
 {
-  private:
+   private:
     enum class precedence_level
     {
         e_level00,
@@ -239,10 +240,17 @@ template <typename T> class parser : public lexer::parser_helper
 #endif
 
         scope_element()
-            : name("???"), size(std::numeric_limits<std::size_t>::max()),
+            : name("???"),
+              size(std::numeric_limits<std::size_t>::max()),
               index(std::numeric_limits<std::size_t>::max()),
-              depth(std::numeric_limits<std::size_t>::max()), ref_count(0), ip_index(0),
-              type(element_type::e_none), active(false), data(0), var_node(0), vec_node(0)
+              depth(std::numeric_limits<std::size_t>::max()),
+              ref_count(0),
+              ip_index(0),
+              type(element_type::e_none),
+              active(false),
+              data(0),
+              var_node(0),
+              vec_node(0)
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
               ,
               str_node(0)
@@ -304,14 +312,19 @@ template <typename T> class parser : public lexer::parser_helper
 
     class scope_element_manager
     {
-      public:
+       public:
         using expression_node_ptr = expression_node_t*;
         using variable_node_ptr = variable_node_t*;
         using parser_t = parser<T>;
 
-        explicit scope_element_manager(parser<T>& p)
-            : parser_(p), input_param_cnt_(0), total_local_symb_size_bytes_(0)
+        scope_element_manager()
+            : parser_(nullptr), input_param_cnt_(0), total_local_symb_size_bytes_(0)
         {
+        }
+
+        inline void set_parser(parser_t& p)
+        {
+            parser_ = &p;
         }
 
         inline std::size_t size() const
@@ -332,11 +345,11 @@ template <typename T> class parser : public lexer::parser_helper
                 return null_element_;
         }
 
-        inline scope_element&
-        get_element(const std::string& var_name,
-                    const std::size_t index = std::numeric_limits<std::size_t>::max())
+        inline scope_element& get_element(
+            const std::string& var_name,
+            const std::size_t index = std::numeric_limits<std::size_t>::max())
         {
-            const std::size_t current_depth = parser_.state_.scope_depth;
+            const std::size_t current_depth = parser().state_.scope_depth;
 
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -351,11 +364,11 @@ template <typename T> class parser : public lexer::parser_helper
             return null_element_;
         }
 
-        inline scope_element&
-        get_active_element(const std::string& var_name,
-                           const std::size_t index = std::numeric_limits<std::size_t>::max())
+        inline scope_element& get_active_element(
+            const std::string& var_name,
+            const std::size_t index = std::numeric_limits<std::size_t>::max())
         {
-            const std::size_t current_depth = parser_.state_.scope_depth;
+            const std::size_t current_depth = parser().state_.scope_depth;
 
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -384,20 +397,20 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (se.type)
             {
-            case scope_element::element_type::e_variable:
-                total_local_symb_size_bytes_ += sizeof(T);
-                break;
+                case scope_element::element_type::e_variable:
+                    total_local_symb_size_bytes_ += sizeof(T);
+                    break;
 
-            case scope_element::element_type::e_literal:
-                total_local_symb_size_bytes_ += sizeof(T);
-                break;
+                case scope_element::element_type::e_literal:
+                    total_local_symb_size_bytes_ += sizeof(T);
+                    break;
 
-            case scope_element::element_type::e_vector:
-                total_local_symb_size_bytes_ += sizeof(T) * se.size;
-                break;
+                case scope_element::element_type::e_vector:
+                    total_local_symb_size_bytes_ += sizeof(T) * se.size;
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
             }
 
             element_.push_back(se);
@@ -408,8 +421,8 @@ template <typename T> class parser : public lexer::parser_helper
 
         inline void deactivate(const std::size_t& scope_depth)
         {
-            math_expr_debug(
-                ("deactivate() - Scope depth: %d\n", static_cast<int>(parser_.state_.scope_depth)));
+            math_expr_debug(("deactivate() - Scope depth: %d\n",
+                             static_cast<int>(parser().state_.scope_depth)));
 
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -431,34 +444,34 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (se.type)
             {
-            case scope_element::element_type::e_literal:
-                delete reinterpret_cast<T*>(se.data);
-                delete se.var_node;
-                break;
+                case scope_element::element_type::e_literal:
+                    delete reinterpret_cast<T*>(se.data);
+                    delete se.var_node;
+                    break;
 
-            case scope_element::element_type::e_variable:
-                delete reinterpret_cast<T*>(se.data);
-                delete se.var_node;
-                break;
+                case scope_element::element_type::e_variable:
+                    delete reinterpret_cast<T*>(se.data);
+                    delete se.var_node;
+                    break;
 
-            case scope_element::element_type::e_vector:
-                delete[] reinterpret_cast<T*>(se.data);
-                delete se.vec_node;
-                break;
+                case scope_element::element_type::e_vector:
+                    delete[] reinterpret_cast<T*>(se.data);
+                    delete se.vec_node;
+                    break;
 
-            case scope_element::element_type::e_vecelem:
-                delete se.var_node;
-                break;
+                case scope_element::element_type::e_vecelem:
+                    delete se.var_node;
+                    break;
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            case scope_element::element_type::e_string:
-                delete reinterpret_cast<std::string*>(se.data);
-                delete se.str_node;
-                break;
+                case scope_element::element_type::e_string:
+                    delete reinterpret_cast<std::string*>(se.data);
+                    delete se.str_node;
+                    break;
 #endif
 
-            default:
-                return;
+                default:
+                    return;
             }
 
             se.clear();
@@ -522,11 +535,17 @@ template <typename T> class parser : public lexer::parser_helper
             return "neo-vector";
         }
 
-      private:
+       private:
         scope_element_manager(const scope_element_manager&) = delete;
         scope_element_manager& operator=(const scope_element_manager&) = delete;
 
-        parser_t& parser_;
+        inline parser_t& parser()
+        {
+            assert(parser_);
+            return *parser_;
+        }
+
+        parser_t* parser_;
         std::vector<scope_element> element_;
         scope_element null_element_;
         std::size_t input_param_cnt_;
@@ -535,7 +554,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     class scope_handler
     {
-      public:
+       public:
         using parser_t = parser<T>;
 
         explicit scope_handler(parser<T>& p) : parser_(p)
@@ -561,14 +580,15 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-      private:
+       private:
         scope_handler(const scope_handler&) = delete;
         scope_handler& operator=(const scope_handler&) = delete;
 
         parser_t& parser_;
     };
 
-    template <typename T_> struct halfopen_range_policy
+    template <typename T_>
+    struct halfopen_range_policy
     {
         static inline bool is_within(const T_& v, const T_& begin, const T_& end)
         {
@@ -592,7 +612,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
     };
 
-    template <typename T_> struct closed_range_policy
+    template <typename T_>
+    struct closed_range_policy
     {
         static inline bool is_within(const T_& v, const T_& begin, const T_& end)
         {
@@ -620,7 +641,7 @@ template <typename T> class parser : public lexer::parser_helper
               typename RangePolicy = halfopen_range_policy<IntervalPointType>>
     class interval_container_t
     {
-      public:
+       public:
         using interval_point_t = IntervalPointType;
         using interval_t = std::pair<interval_point_t, interval_point_t>;
         using interval_map_t = std::map<interval_point_t, interval_t>;
@@ -684,13 +705,13 @@ template <typename T> class parser : public lexer::parser_helper
             return add_interval(interval.first, interval.second);
         }
 
-      private:
+       private:
         interval_map_t interval_map_;
     };
 
     class stack_limit_handler
     {
-      public:
+       public:
         using parser_t = parser<T>;
 
         explicit stack_limit_handler(parser<T>& p) : parser_(p), limit_exceeded_(false)
@@ -718,7 +739,7 @@ template <typename T> class parser : public lexer::parser_helper
             return limit_exceeded_;
         }
 
-      private:
+       private:
         stack_limit_handler(const stack_limit_handler&) = delete;
         stack_limit_handler& operator=(const stack_limit_handler&) = delete;
 
@@ -941,8 +962,8 @@ template <typename T> class parser : public lexer::parser_helper
             return result;
         }
 
-        inline vararg_function_ptr
-        get_vararg_function(const std::string& vararg_function_name) const
+        inline vararg_function_ptr get_vararg_function(
+            const std::string& vararg_function_name) const
         {
             if (!valid_function_name(vararg_function_name))
                 return reinterpret_cast<vararg_function_ptr>(0);
@@ -1299,10 +1320,9 @@ template <typename T> class parser : public lexer::parser_helper
         std::size_t parsing_loop_stmt_count;
     };
 
-  public:
+   public:
     struct unknown_symbol_resolver
     {
-
         enum class usr_symbol_type
         {
             e_usr_unknown_type = 0,
@@ -1367,15 +1387,17 @@ template <typename T> class parser : public lexer::parser_helper
 
     class dependent_entity_collector
     {
-      public:
+       public:
         using symbol_t = std::pair<std::string, symbol_type>;
         using symbol_list_t = std::vector<symbol_t>;
 
         explicit dependent_entity_collector(const std::size_t options = e_ct_none)
-            : options_(options), collect_variables_((options_ & e_ct_variables) == e_ct_variables),
+            : options_(options),
+              collect_variables_((options_ & e_ct_variables) == e_ct_variables),
               collect_functions_((options_ & e_ct_functions) == e_ct_functions),
               collect_assignments_((options_ & e_ct_assignments) == e_ct_assignments),
-              return_present_(false), final_stmt_return_(false)
+              return_present_(false),
+              final_stmt_return_(false)
         {
         }
 
@@ -1462,28 +1484,28 @@ template <typename T> class parser : public lexer::parser_helper
             return retparam_list_;
         }
 
-      private:
+       private:
         inline void add_symbol(const std::string& symbol, const symbol_type st)
         {
             switch (st)
             {
-            case symbol_type::e_st_variable:
-            case symbol_type::e_st_vector:
-            case symbol_type::e_st_string:
-            case symbol_type::e_st_local_variable:
-            case symbol_type::e_st_local_vector:
-            case symbol_type::e_st_local_string:
-                if (collect_variables_)
-                    symbol_name_list_.push_back(std::make_pair(symbol, st));
-                break;
+                case symbol_type::e_st_variable:
+                case symbol_type::e_st_vector:
+                case symbol_type::e_st_string:
+                case symbol_type::e_st_local_variable:
+                case symbol_type::e_st_local_vector:
+                case symbol_type::e_st_local_string:
+                    if (collect_variables_)
+                        symbol_name_list_.push_back(std::make_pair(symbol, st));
+                    break;
 
-            case symbol_type::e_st_function:
-                if (collect_functions_)
-                    symbol_name_list_.push_back(std::make_pair(symbol, st));
-                break;
+                case symbol_type::e_st_function:
+                    if (collect_functions_)
+                        symbol_name_list_.push_back(std::make_pair(symbol, st));
+                    break;
 
-            default:
-                return;
+                default:
+                    return;
             }
         }
 
@@ -1491,15 +1513,15 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (st)
             {
-            case symbol_type::e_st_variable:
-            case symbol_type::e_st_vector:
-            case symbol_type::e_st_string:
-                if (collect_assignments_)
-                    assignment_name_list_.push_back(std::make_pair(symbol, st));
-                break;
+                case symbol_type::e_st_variable:
+                case symbol_type::e_st_vector:
+                case symbol_type::e_st_string:
+                    if (collect_assignments_)
+                        assignment_name_list_.push_back(std::make_pair(symbol, st));
+                    break;
 
-            default:
-                return;
+                default:
+                    return;
             }
         }
 
@@ -1518,11 +1540,11 @@ template <typename T> class parser : public lexer::parser_helper
 
     class settings_store
     {
-      private:
+       private:
         using disabled_entity_set_t = std::set<std::string, core::ilesscompare>;
         using des_itr_t = disabled_entity_set_t::iterator;
 
-      public:
+       public:
         enum settings_compilation_options
         {
             e_unknown = 0,
@@ -1669,7 +1691,8 @@ template <typename T> class parser : public lexer::parser_helper
             e_commutative_check + e_strength_reduction;
 
         settings_store(const std::size_t compile_options = default_compile_all_opts)
-            : max_stack_depth_(400), max_node_depth_(10000),
+            : max_stack_depth_(400),
+              max_node_depth_(10000),
               max_total_local_symbol_size_bytes_(2000000000),
               max_local_vector_size_(max_total_local_symbol_size_bytes_ / sizeof(T))
         {
@@ -2177,7 +2200,7 @@ template <typename T> class parser : public lexer::parser_helper
             return max_total_local_symbol_size_bytes_;
         }
 
-      private:
+       private:
         void load_compile_options(const std::size_t compile_options)
         {
             enable_replacer_ = (compile_options & e_replacer) == e_replacer;
@@ -2203,20 +2226,20 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-            case core::operators::operator_type::assign:
-                return ":=";
-            case core::operators::operator_type::addass:
-                return "+=";
-            case core::operators::operator_type::subass:
-                return "-=";
-            case core::operators::operator_type::mulass:
-                return "*=";
-            case core::operators::operator_type::divass:
-                return "/=";
-            case core::operators::operator_type::modass:
-                return "%=";
-            default:
-                return "";
+                case core::operators::operator_type::assign:
+                    return ":=";
+                case core::operators::operator_type::addass:
+                    return "+=";
+                case core::operators::operator_type::subass:
+                    return "-=";
+                case core::operators::operator_type::mulass:
+                    return "*=";
+                case core::operators::operator_type::divass:
+                    return "/=";
+                case core::operators::operator_type::modass:
+                    return "%=";
+                default:
+                    return "";
             }
         }
 
@@ -2224,20 +2247,20 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-            case core::operators::operator_type::add:
-                return "+";
-            case core::operators::operator_type::sub:
-                return "-";
-            case core::operators::operator_type::mul:
-                return "*";
-            case core::operators::operator_type::div:
-                return "/";
-            case core::operators::operator_type::mod:
-                return "%";
-            case core::operators::operator_type::pow:
-                return "^";
-            default:
-                return "";
+                case core::operators::operator_type::add:
+                    return "+";
+                case core::operators::operator_type::sub:
+                    return "-";
+                case core::operators::operator_type::mul:
+                    return "*";
+                case core::operators::operator_type::div:
+                    return "/";
+                case core::operators::operator_type::mod:
+                    return "%";
+                case core::operators::operator_type::pow:
+                    return "^";
+                default:
+                    return "";
             }
         }
 
@@ -2245,24 +2268,24 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-            case core::operators::operator_type::lt:
-                return "<";
-            case core::operators::operator_type::lte:
-                return "<=";
-            case core::operators::operator_type::eq:
-                return "==";
-            case core::operators::operator_type::equal:
-                return "=";
-            case core::operators::operator_type::ne:
-                return "!=";
-            case core::operators::operator_type::nequal:
-                return "<>";
-            case core::operators::operator_type::gte:
-                return ">=";
-            case core::operators::operator_type::gt:
-                return ">";
-            default:
-                return "";
+                case core::operators::operator_type::lt:
+                    return "<";
+                case core::operators::operator_type::lte:
+                    return "<=";
+                case core::operators::operator_type::eq:
+                    return "==";
+                case core::operators::operator_type::equal:
+                    return "=";
+                case core::operators::operator_type::ne:
+                    return "!=";
+                case core::operators::operator_type::nequal:
+                    return "<>";
+                case core::operators::operator_type::gte:
+                    return ">=";
+                case core::operators::operator_type::gt:
+                    return ">";
+                default:
+                    return "";
             }
         }
 
@@ -2270,22 +2293,22 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-            case core::operators::operator_type::logical_and:
-                return "and";
-            case core::operators::operator_type::logical_or:
-                return "or";
-            case core::operators::operator_type::logical_xor:
-                return "xor";
-            case core::operators::operator_type::nand:
-                return "nand";
-            case core::operators::operator_type::nor:
-                return "nor";
-            case core::operators::operator_type::xnor:
-                return "xnor";
-            case core::operators::operator_type::notl:
-                return "not";
-            default:
-                return "";
+                case core::operators::operator_type::logical_and:
+                    return "and";
+                case core::operators::operator_type::logical_or:
+                    return "or";
+                case core::operators::operator_type::logical_xor:
+                    return "xor";
+                case core::operators::operator_type::nand:
+                    return "nand";
+                case core::operators::operator_type::nor:
+                    return "nor";
+                case core::operators::operator_type::xnor:
+                    return "xnor";
+                case core::operators::operator_type::notl:
+                    return "not";
+                default:
+                    return "";
             }
         }
 
@@ -2321,21 +2344,19 @@ template <typename T> class parser : public lexer::parser_helper
     using settings_t = settings_store;
 
     explicit parser(const settings_t& settings = settings_t())
-        : settings_(settings), resolve_unknown_symbol_(false), results_context_(0),
-          unknown_symbol_resolver_(reinterpret_cast<unknown_symbol_resolver*>(0))
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4355)
-#endif
-          ,
-          sem_(*this)
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-          ,
-          operator_joiner_2_(2), operator_joiner_3_(3), loop_runtime_check_(0),
-          vector_access_runtime_check_(0), compilation_check_ptr_(0), assert_check_(0)
+        : settings_(settings),
+          resolve_unknown_symbol_(false),
+          results_context_(0),
+          unknown_symbol_resolver_(reinterpret_cast<unknown_symbol_resolver*>(0)),
+          sem_(),
+          operator_joiner_2_(2),
+          operator_joiner_3_(3),
+          loop_runtime_check_(0),
+          vector_access_runtime_check_(0),
+          compilation_check_ptr_(0),
+          assert_check_(0)
     {
+        sem_.set_parser(*this);
         init_precompilation();
 
         details::load_operations_map(base_ops_map_);
@@ -2545,28 +2566,28 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (lexer()[i].type)
                 {
-                case lexer::token::e_error:
-                    diagnostic += "General token error";
-                    break;
+                    case lexer::token::e_error:
+                        diagnostic += "General token error";
+                        break;
 
-                case lexer::token::e_err_symbol:
-                    diagnostic += "Symbol error";
-                    break;
+                    case lexer::token::e_err_symbol:
+                        diagnostic += "Symbol error";
+                        break;
 
-                case lexer::token::e_err_number:
-                    diagnostic += "Invalid numeric token";
-                    break;
+                    case lexer::token::e_err_number:
+                        diagnostic += "Invalid numeric token";
+                        break;
 
-                case lexer::token::e_err_string:
-                    diagnostic += "Invalid string token";
-                    break;
+                    case lexer::token::e_err_string:
+                        diagnostic += "Invalid string token";
+                        break;
 
-                case lexer::token::e_err_sfunc:
-                    diagnostic += "Invalid special function token";
-                    break;
+                    case lexer::token::e_err_sfunc:
+                        diagnostic += "Invalid special function token";
+                        break;
 
-                default:
-                    diagnostic += "Unknown compiler error";
+                    default:
+                        diagnostic += "Unknown compiler error";
                 }
 
                 set_error(make_error(parser_error::error_mode::e_lexer, lexer()[i],
@@ -2622,10 +2643,10 @@ template <typename T> class parser : public lexer::parser_helper
                         {
                             lexer::token error_token = lexer()[numeric_checker_ptr->error_index(i)];
 
-                            set_error(make_error(parser_error::error_mode::e_token, error_token,
-                                                 "ERR006 - Invalid numeric token: '" +
-                                                     error_token.value + "'",
-                                                 math_expr_error_location));
+                            set_error(make_error(
+                                parser_error::error_mode::e_token, error_token,
+                                "ERR006 - Invalid numeric token: '" + error_token.value + "'",
+                                math_expr_error_location));
                         }
 
                         if (numeric_checker_ptr->error_count())
@@ -2806,13 +2827,13 @@ template <typename T> class parser : public lexer::parser_helper
         assert_check_ = assert_check_ptr(0);
     }
 
-  private:
+   private:
     inline bool valid_base_operation(const std::string& symbol) const
     {
         const std::size_t length = symbol.size();
 
-        if ((length < 3) || // Shortest base op symbol length
-            (length > 9)    // Longest base op symbol length
+        if ((length < 3) ||  // Shortest base op symbol length
+            (length > 9)     // Longest base op symbol length
         )
             return false;
         else
@@ -2875,12 +2896,12 @@ template <typename T> class parser : public lexer::parser_helper
         if constexpr (::math_expr::core::build_options::kEnableDebugging)
         {
             const std::string depth(2 * state_.scope_depth, ' ');
-            math_expr_debug(("%s"
-                             "prev[%s | %04d] --> curr[%s | %04d]  stack_level: %3d\n",
-                             depth.c_str(), ct_str.c_str(), static_cast<unsigned int>(ct_pos),
-                             current_token().value.c_str(),
-                             static_cast<unsigned int>(current_token().position),
-                             static_cast<unsigned int>(state_.stack_depth)));
+            math_expr_debug(
+                ("%s"
+                 "prev[%s | %04d] --> curr[%s | %04d]  stack_level: %3d\n",
+                 depth.c_str(), ct_str.c_str(), static_cast<unsigned int>(ct_pos),
+                 current_token().value.c_str(), static_cast<unsigned int>(current_token().position),
+                 static_cast<unsigned int>(state_.stack_depth)));
         }
     }
 
@@ -3046,8 +3067,8 @@ template <typename T> class parser : public lexer::parser_helper
         return false;
     }
 
-    inline expression_node_ptr
-    parse_expression(precedence_level precedence = precedence_level::e_level00)
+    inline expression_node_ptr parse_expression(
+        precedence_level precedence = precedence_level::e_level00)
     {
         if (halt_compilation_check())
         {
@@ -3084,180 +3105,188 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (current_token().type)
             {
-            case token_t::e_assign:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::assign, current_token());
-                break;
-            case token_t::e_addass:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::addass, current_token());
-                break;
-            case token_t::e_subass:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::subass, current_token());
-                break;
-            case token_t::e_mulass:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::mulass, current_token());
-                break;
-            case token_t::e_divass:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::divass, current_token());
-                break;
-            case token_t::e_modass:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::modass, current_token());
-                break;
-            case token_t::e_swap:
-                current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                  core::operators::operator_type::swap, current_token());
-                break;
-            case token_t::e_lt:
-                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                  core::operators::operator_type::lt, current_token());
-                break;
-            case token_t::e_lte:
-                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                  core::operators::operator_type::lte, current_token());
-                break;
-            case token_t::e_eq:
-                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                  core::operators::operator_type::eq, current_token());
-                break;
-            case token_t::e_ne:
-                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                  core::operators::operator_type::ne, current_token());
-                break;
-            case token_t::e_gte:
-                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                  core::operators::operator_type::gte, current_token());
-                break;
-            case token_t::e_gt:
-                current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                  core::operators::operator_type::gt, current_token());
-                break;
-            case token_t::e_add:
-                current_state.set(precedence_level::e_level07, precedence_level::e_level08,
-                                  core::operators::operator_type::add, current_token());
-                break;
-            case token_t::e_sub:
-                current_state.set(precedence_level::e_level07, precedence_level::e_level08,
-                                  core::operators::operator_type::sub, current_token());
-                break;
-            case token_t::e_div:
-                current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                  core::operators::operator_type::div, current_token());
-                break;
-            case token_t::e_mul:
-                current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                  core::operators::operator_type::mul, current_token());
-                break;
-            case token_t::e_mod:
-                current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                  core::operators::operator_type::mod, current_token());
-                break;
-            case token_t::e_pow:
-                current_state.set(precedence_level::e_level12, precedence_level::e_level12,
-                                  core::operators::operator_type::pow, current_token());
-                break;
-            default:
-                if (token_t::e_symbol == current_token().type)
-                {
-                    static constexpr std::string_view s_and = "and";
-                    static constexpr std::string_view s_nand = "nand";
-                    static constexpr std::string_view s_or = "or";
-                    static constexpr std::string_view s_nor = "nor";
-                    static constexpr std::string_view s_xor = "xor";
-                    static constexpr std::string_view s_xnor = "xnor";
-                    static constexpr std::string_view s_in = "in";
-                    static constexpr std::string_view s_like = "like";
-                    static constexpr std::string_view s_ilike = "ilike";
-                    static constexpr std::string_view s_and1 = "&";
-                    static constexpr std::string_view s_or1 = "|";
-                    static constexpr std::string_view s_not = "not";
+                case token_t::e_assign:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::assign, current_token());
+                    break;
+                case token_t::e_addass:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::addass, current_token());
+                    break;
+                case token_t::e_subass:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::subass, current_token());
+                    break;
+                case token_t::e_mulass:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::mulass, current_token());
+                    break;
+                case token_t::e_divass:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::divass, current_token());
+                    break;
+                case token_t::e_modass:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::modass, current_token());
+                    break;
+                case token_t::e_swap:
+                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
+                                      core::operators::operator_type::swap, current_token());
+                    break;
+                case token_t::e_lt:
+                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                      core::operators::operator_type::lt, current_token());
+                    break;
+                case token_t::e_lte:
+                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                      core::operators::operator_type::lte, current_token());
+                    break;
+                case token_t::e_eq:
+                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                      core::operators::operator_type::eq, current_token());
+                    break;
+                case token_t::e_ne:
+                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                      core::operators::operator_type::ne, current_token());
+                    break;
+                case token_t::e_gte:
+                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                      core::operators::operator_type::gte, current_token());
+                    break;
+                case token_t::e_gt:
+                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
+                                      core::operators::operator_type::gt, current_token());
+                    break;
+                case token_t::e_add:
+                    current_state.set(precedence_level::e_level07, precedence_level::e_level08,
+                                      core::operators::operator_type::add, current_token());
+                    break;
+                case token_t::e_sub:
+                    current_state.set(precedence_level::e_level07, precedence_level::e_level08,
+                                      core::operators::operator_type::sub, current_token());
+                    break;
+                case token_t::e_div:
+                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
+                                      core::operators::operator_type::div, current_token());
+                    break;
+                case token_t::e_mul:
+                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
+                                      core::operators::operator_type::mul, current_token());
+                    break;
+                case token_t::e_mod:
+                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
+                                      core::operators::operator_type::mod, current_token());
+                    break;
+                case token_t::e_pow:
+                    current_state.set(precedence_level::e_level12, precedence_level::e_level12,
+                                      core::operators::operator_type::pow, current_token());
+                    break;
+                default:
+                    if (token_t::e_symbol == current_token().type)
+                    {
+                        static constexpr std::string_view s_and = "and";
+                        static constexpr std::string_view s_nand = "nand";
+                        static constexpr std::string_view s_or = "or";
+                        static constexpr std::string_view s_nor = "nor";
+                        static constexpr std::string_view s_xor = "xor";
+                        static constexpr std::string_view s_xnor = "xnor";
+                        static constexpr std::string_view s_in = "in";
+                        static constexpr std::string_view s_like = "like";
+                        static constexpr std::string_view s_ilike = "ilike";
+                        static constexpr std::string_view s_and1 = "&";
+                        static constexpr std::string_view s_or1 = "|";
+                        static constexpr std::string_view s_not = "not";
 
-                    if (core::imatch(current_token().value, s_and))
-                    {
-                        current_state.set(precedence_level::e_level03, precedence_level::e_level04,
-                                          core::operators::operator_type::logical_and,
-                                          current_token());
-                        break;
+                        if (core::imatch(current_token().value, s_and))
+                        {
+                            current_state.set(
+                                precedence_level::e_level03, precedence_level::e_level04,
+                                core::operators::operator_type::logical_and, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_and1))
+                        {
+                            current_state.set(precedence_level::e_level03,
+                                              precedence_level::e_level04,
+                                              ::math_expr::core::build_options::kDisableScAndOr
+                                                  ? core::operators::operator_type::logical_and
+                                                  : core::operators::operator_type::scand,
+                                              current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_nand))
+                        {
+                            current_state.set(
+                                precedence_level::e_level03, precedence_level::e_level04,
+                                core::operators::operator_type::nand, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_or))
+                        {
+                            current_state.set(
+                                precedence_level::e_level01, precedence_level::e_level02,
+                                core::operators::operator_type::logical_or, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_or1))
+                        {
+                            current_state.set(precedence_level::e_level01,
+                                              precedence_level::e_level02,
+                                              ::math_expr::core::build_options::kDisableScAndOr
+                                                  ? core::operators::operator_type::logical_or
+                                                  : core::operators::operator_type::scor,
+                                              current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_nor))
+                        {
+                            current_state.set(precedence_level::e_level01,
+                                              precedence_level::e_level02,
+                                              core::operators::operator_type::nor, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_xor))
+                        {
+                            current_state.set(
+                                precedence_level::e_level01, precedence_level::e_level02,
+                                core::operators::operator_type::logical_xor, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_xnor))
+                        {
+                            current_state.set(
+                                precedence_level::e_level01, precedence_level::e_level02,
+                                core::operators::operator_type::xnor, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_in))
+                        {
+                            current_state.set(precedence_level::e_level04,
+                                              precedence_level::e_level04,
+                                              core::operators::operator_type::in, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_like))
+                        {
+                            current_state.set(
+                                precedence_level::e_level04, precedence_level::e_level04,
+                                core::operators::operator_type::like, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_ilike))
+                        {
+                            current_state.set(
+                                precedence_level::e_level04, precedence_level::e_level04,
+                                core::operators::operator_type::ilike, current_token());
+                            break;
+                        }
+                        else if (core::imatch(current_token().value, s_not))
+                        {
+                            break;
+                        }
                     }
-                    else if (core::imatch(current_token().value, s_and1))
-                    {
-                        current_state.set(precedence_level::e_level03, precedence_level::e_level04,
-                                          ::math_expr::core::build_options::kDisableScAndOr
-                                              ? core::operators::operator_type::logical_and
-                                              : core::operators::operator_type::scand,
-                                          current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_nand))
-                    {
-                        current_state.set(precedence_level::e_level03, precedence_level::e_level04,
-                                          core::operators::operator_type::nand, current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_or))
-                    {
-                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
-                                          core::operators::operator_type::logical_or,
-                                          current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_or1))
-                    {
-                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
-                                          ::math_expr::core::build_options::kDisableScAndOr
-                                              ? core::operators::operator_type::logical_or
-                                              : core::operators::operator_type::scor,
-                                          current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_nor))
-                    {
-                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
-                                          core::operators::operator_type::nor, current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_xor))
-                    {
-                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
-                                          core::operators::operator_type::logical_xor,
-                                          current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_xnor))
-                    {
-                        current_state.set(precedence_level::e_level01, precedence_level::e_level02,
-                                          core::operators::operator_type::xnor, current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_in))
-                    {
-                        current_state.set(precedence_level::e_level04, precedence_level::e_level04,
-                                          core::operators::operator_type::in, current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_like))
-                    {
-                        current_state.set(precedence_level::e_level04, precedence_level::e_level04,
-                                          core::operators::operator_type::like, current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_ilike))
-                    {
-                        current_state.set(precedence_level::e_level04, precedence_level::e_level04,
-                                          core::operators::operator_type::ilike, current_token());
-                        break;
-                    }
-                    else if (core::imatch(current_token().value, s_not))
-                    {
-                        break;
-                    }
-                }
 
-                break_loop = true;
+                    break_loop = true;
             }
 
             if (break_loop)
@@ -3347,12 +3376,12 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 if (error_list_.empty())
                 {
-                    set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
-                                         !synthesis_error_.empty()
-                                             ? synthesis_error_
-                                             : "ERR017 - General parsing error at token: '" +
-                                                   prev_token.value + "'",
-                                         math_expr_error_location));
+                    set_error(make_error(
+                        parser_error::error_mode::e_syntax, prev_token,
+                        !synthesis_error_.empty()
+                            ? synthesis_error_
+                            : "ERR017 - General parsing error at token: '" + prev_token.value + "'",
+                        math_expr_error_location));
                 }
 
                 free_node(node_allocator_, expression);
@@ -3482,7 +3511,7 @@ template <typename T> class parser : public lexer::parser_helper
         parser<T>& parser_;
         expression_node_ptr& expression_;
 
-      private:
+       private:
         scoped_expression_delete(const scoped_expression_delete&) = delete;
         scoped_expression_delete& operator=(const scoped_expression_delete&) = delete;
     };
@@ -3497,7 +3526,8 @@ template <typename T> class parser : public lexer::parser_helper
      * @tparam Type Concrete node type stored by the parser.
      * @tparam N Number of pointers managed by this guard.
      */
-    template <typename Type, std::size_t N> struct scoped_delete
+    template <typename Type, std::size_t N>
+    struct scoped_delete
     {
         using ptr_t = Type*;
 
@@ -3520,7 +3550,7 @@ template <typename T> class parser : public lexer::parser_helper
         parser<T>& parser_;
         ptr_t* p_;
 
-      private:
+       private:
         scoped_delete(const scoped_delete<Type, N>&) = delete;
         scoped_delete<Type, N>& operator=(const scoped_delete<Type, N>&) = delete;
     };
@@ -3534,7 +3564,8 @@ template <typename T> class parser : public lexer::parser_helper
      *
      * @tparam Type Concrete node type stored by the parser.
      */
-    template <typename Type> struct scoped_deq_delete
+    template <typename Type>
+    struct scoped_deq_delete
     {
         using ptr_t = Type*;
 
@@ -3562,7 +3593,7 @@ template <typename T> class parser : public lexer::parser_helper
         parser<T>& parser_;
         std::deque<ptr_t>& deq_;
 
-      private:
+       private:
         scoped_deq_delete(const scoped_deq_delete<Type>&) = delete;
         scoped_deq_delete<Type>& operator=(const scoped_deq_delete<Type>&) = delete;
     };
@@ -3576,7 +3607,8 @@ template <typename T> class parser : public lexer::parser_helper
      *
      * @tparam Type Concrete node type stored by the parser.
      */
-    template <typename Type> struct scoped_vec_delete
+    template <typename Type>
+    struct scoped_vec_delete
     {
         using ptr_t = Type*;
 
@@ -3609,7 +3641,7 @@ template <typename T> class parser : public lexer::parser_helper
         parser<T>& parser_;
         std::vector<ptr_t>& vec_;
 
-      private:
+       private:
         scoped_vec_delete(const scoped_vec_delete<Type>&) = delete;
         scoped_vec_delete<Type>& operator=(const scoped_vec_delete<Type>&) = delete;
     };
@@ -3665,78 +3697,78 @@ template <typename T> class parser : public lexer::parser_helper
 
         switch (function->param_count)
         {
-        case 0:
-            func_node = parse_function_call_0(function, function_name);
-            break;
-        case 1:
-            func_node = parse_function_call<1>(function, function_name);
-            break;
-        case 2:
-            func_node = parse_function_call<2>(function, function_name);
-            break;
-        case 3:
-            func_node = parse_function_call<3>(function, function_name);
-            break;
-        case 4:
-            func_node = parse_function_call<4>(function, function_name);
-            break;
-        case 5:
-            func_node = parse_function_call<5>(function, function_name);
-            break;
-        case 6:
-            func_node = parse_function_call<6>(function, function_name);
-            break;
-        case 7:
-            func_node = parse_function_call<7>(function, function_name);
-            break;
-        case 8:
-            func_node = parse_function_call<8>(function, function_name);
-            break;
-        case 9:
-            func_node = parse_function_call<9>(function, function_name);
-            break;
-        case 10:
-            func_node = parse_function_call<10>(function, function_name);
-            break;
-        case 11:
-            func_node = parse_function_call<11>(function, function_name);
-            break;
-        case 12:
-            func_node = parse_function_call<12>(function, function_name);
-            break;
-        case 13:
-            func_node = parse_function_call<13>(function, function_name);
-            break;
-        case 14:
-            func_node = parse_function_call<14>(function, function_name);
-            break;
-        case 15:
-            func_node = parse_function_call<15>(function, function_name);
-            break;
-        case 16:
-            func_node = parse_function_call<16>(function, function_name);
-            break;
-        case 17:
-            func_node = parse_function_call<17>(function, function_name);
-            break;
-        case 18:
-            func_node = parse_function_call<18>(function, function_name);
-            break;
-        case 19:
-            func_node = parse_function_call<19>(function, function_name);
-            break;
-        case 20:
-            func_node = parse_function_call<20>(function, function_name);
-            break;
-        default:
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR021 - Invalid number of parameters for function: '" +
-                                     function_name + "'",
-                                 math_expr_error_location));
+            case 0:
+                func_node = parse_function_call_0(function, function_name);
+                break;
+            case 1:
+                func_node = parse_function_call<1>(function, function_name);
+                break;
+            case 2:
+                func_node = parse_function_call<2>(function, function_name);
+                break;
+            case 3:
+                func_node = parse_function_call<3>(function, function_name);
+                break;
+            case 4:
+                func_node = parse_function_call<4>(function, function_name);
+                break;
+            case 5:
+                func_node = parse_function_call<5>(function, function_name);
+                break;
+            case 6:
+                func_node = parse_function_call<6>(function, function_name);
+                break;
+            case 7:
+                func_node = parse_function_call<7>(function, function_name);
+                break;
+            case 8:
+                func_node = parse_function_call<8>(function, function_name);
+                break;
+            case 9:
+                func_node = parse_function_call<9>(function, function_name);
+                break;
+            case 10:
+                func_node = parse_function_call<10>(function, function_name);
+                break;
+            case 11:
+                func_node = parse_function_call<11>(function, function_name);
+                break;
+            case 12:
+                func_node = parse_function_call<12>(function, function_name);
+                break;
+            case 13:
+                func_node = parse_function_call<13>(function, function_name);
+                break;
+            case 14:
+                func_node = parse_function_call<14>(function, function_name);
+                break;
+            case 15:
+                func_node = parse_function_call<15>(function, function_name);
+                break;
+            case 16:
+                func_node = parse_function_call<16>(function, function_name);
+                break;
+            case 17:
+                func_node = parse_function_call<17>(function, function_name);
+                break;
+            case 18:
+                func_node = parse_function_call<18>(function, function_name);
+                break;
+            case 19:
+                func_node = parse_function_call<19>(function, function_name);
+                break;
+            case 20:
+                func_node = parse_function_call<20>(function, function_name);
+                break;
+            default:
+            {
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR021 - Invalid number of parameters for function: '" + function_name + "'",
+                    math_expr_error_location));
 
-            return error_node();
-        }
+                return error_node();
+            }
         }
 
         if (func_node)
@@ -3756,11 +3788,7 @@ template <typename T> class parser : public lexer::parser_helper
     inline expression_node_ptr parse_function_call(ifunction<T>* function,
                                                    const std::string& function_name)
     {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
-        if (0 == NumberofParameters)
+        if constexpr (0 == NumberofParameters)
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR023 - Expecting ifunction '" + function_name +
@@ -3769,71 +3797,71 @@ template <typename T> class parser : public lexer::parser_helper
 
             return error_node();
         }
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-        expression_node_ptr branch[NumberofParameters];
-        expression_node_ptr result = error_node();
-
-        std::fill_n(branch, NumberofParameters, reinterpret_cast<expression_node_ptr>(0));
-
-        scoped_delete<expression_node_t, NumberofParameters> sd((*this), branch);
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
+        else
         {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR024 - Expecting argument list for function: '" + function_name + "'",
-                           math_expr_error_location));
+            expression_node_ptr branch[NumberofParameters];
+            expression_node_ptr result = error_node();
 
-            return error_node();
-        }
+            std::fill_n(branch, NumberofParameters, reinterpret_cast<expression_node_ptr>(0));
 
-        for (int i = 0; i < static_cast<int>(NumberofParameters); ++i)
-        {
-            branch[i] = parse_expression();
+            scoped_delete<expression_node_t, NumberofParameters> sd((*this), branch);
 
-            if (0 == branch[i])
+            next_token();
+
+            if (!token_is(token_t::e_lbracket))
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR025 - Failed to parse argument " + core::to_str(i) +
-                                         " for function: '" + function_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR024 - Expecting argument list for function: '" + function_name + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
-            else if (i < static_cast<int>(NumberofParameters - 1))
+
+            for (int i = 0; i < static_cast<int>(NumberofParameters); ++i)
             {
-                if (!token_is(token_t::e_comma))
+                branch[i] = parse_expression();
+
+                if (0 == branch[i])
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR026 - Invalid number of arguments for function: '" +
-                                             function_name + "'",
+                                         "ERR025 - Failed to parse argument " + core::to_str(i) +
+                                             " for function: '" + function_name + "'",
                                          math_expr_error_location));
 
                     return error_node();
                 }
+                else if (i < static_cast<int>(NumberofParameters - 1))
+                {
+                    if (!token_is(token_t::e_comma))
+                    {
+                        set_error(
+                            make_error(parser_error::error_mode::e_syntax, current_token(),
+                                       "ERR026 - Invalid number of arguments for function: '" +
+                                           function_name + "'",
+                                       math_expr_error_location));
+
+                        return error_node();
+                    }
+                }
             }
+
+            if (!token_is(token_t::e_rbracket))
+            {
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR027 - Invalid number of arguments for function: '" + function_name + "'",
+                    math_expr_error_location));
+
+                return error_node();
+            }
+            else
+                result = expression_generator_.function(function, branch);
+
+            sd.delete_ptr = (0 == result);
+
+            return result;
         }
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR027 - Invalid number of arguments for function: '" +
-                                     function_name + "'",
-                                 math_expr_error_location));
-
-            return error_node();
-        }
-        else
-            result = expression_generator_.function(function, branch);
-
-        sd.delete_ptr = (0 == result);
-
-        return result;
     }
 
     inline expression_node_ptr parse_function_call_0(ifunction<T>* function,
@@ -3847,10 +3875,10 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (token_is(token_t::e_lbracket) && !token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR028 - Expecting '()' to proceed call to function: '" +
-                                     function_name + "'",
-                                 math_expr_error_location));
+            set_error(make_error(
+                parser_error::error_mode::e_syntax, current_token(),
+                "ERR028 - Expecting '()' to proceed call to function: '" + function_name + "'",
+                math_expr_error_location));
 
             free_node(node_allocator_, result);
 
@@ -3861,9 +3889,9 @@ template <typename T> class parser : public lexer::parser_helper
     }
 
     template <std::size_t MaxNumberofParameters>
-    inline std::size_t
-    parse_base_function_call(expression_node_ptr (&param_list)[MaxNumberofParameters],
-                             const std::string& function_name = "")
+    inline std::size_t parse_base_function_call(
+        expression_node_ptr (&param_list)[MaxNumberofParameters],
+        const std::string& function_name = "")
     {
         std::fill_n(param_list, MaxNumberofParameters, reinterpret_cast<expression_node_ptr>(0));
 
@@ -3967,13 +3995,13 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     switch (parameter_count)
                     {
-#define base_opr_case(N)                                                                           \
-    case N:                                                                                        \
-    {                                                                                              \
-        expression_node_ptr pl##N[N] = {0};                                                        \
-        std::copy(param_list, param_list + N, pl##N);                                              \
-        lodge_symbol(operation_name, symbol_type::e_st_function);                                  \
-        return expression_generator_(operation.type, pl##N);                                       \
+#define base_opr_case(N)                                          \
+    case N:                                                       \
+    {                                                             \
+        expression_node_ptr pl##N[N] = {0};                       \
+        std::copy(param_list, param_list + N, pl##N);             \
+        lodge_symbol(operation_name, symbol_type::e_st_function); \
+        return expression_generator_(operation.type, pl##N);      \
     }
 
                         base_opr_case(1) base_opr_case(2) base_opr_case(3) base_opr_case(4)
@@ -5243,10 +5271,10 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (token_is(token_t::e_rbracket))
         {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR106 - vararg function: " + symbol +
-                                     " requires at least one input parameter",
-                                 math_expr_error_location));
+            set_error(make_error(
+                parser_error::error_mode::e_syntax, current_token(),
+                "ERR106 - vararg function: " + symbol + " requires at least one input parameter",
+                math_expr_error_location));
 
             return error_node();
         }
@@ -6125,7 +6153,7 @@ template <typename T> class parser : public lexer::parser_helper
 
     class type_checker
     {
-      public:
+       public:
         enum return_type_t
         {
             e_overload = ' ',
@@ -6144,7 +6172,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         type_checker(parser_t& p, const std::string& func_name, const std::string& func_prototypes,
                      const return_type_t default_return_type)
-            : invalid_state_(true), parser_(p), function_name_(func_name),
+            : invalid_state_(true),
+              parser_(p),
+              function_name_(func_name),
               default_return_type_(default_return_type)
         {
             parse_function_prototypes(func_prototypes);
@@ -6232,7 +6262,6 @@ template <typename T> class parser : public lexer::parser_helper
 
         bool allow_zero_parameters() const
         {
-
             for (std::size_t i = 0; i < function_definition_list_.size(); ++i)
             {
                 if (std::string::npos != function_definition_list_[i].param_seq.find("Z"))
@@ -6244,7 +6273,7 @@ template <typename T> class parser : public lexer::parser_helper
             return false;
         }
 
-      private:
+       private:
         std::vector<std::string> split_param_seq(const std::string& param_seq,
                                                  const core::char_t delimiter = '|') const
         {
@@ -6288,16 +6317,16 @@ template <typename T> class parser : public lexer::parser_helper
 
                     switch (param_seq[0])
                     {
-                    case 'T':
-                        funcproto.return_type = type_checker::e_numeric;
-                        break;
+                        case 'T':
+                            funcproto.return_type = type_checker::e_numeric;
+                            break;
 
-                    case 'S':
-                        funcproto.return_type = type_checker::e_string;
-                        break;
+                        case 'S':
+                            funcproto.return_type = type_checker::e_string;
+                            break;
 
-                    default:
-                        return false;
+                        default:
+                            return false;
                     }
 
                     param_seq.erase(0, 2);
@@ -6427,7 +6456,7 @@ template <typename T> class parser : public lexer::parser_helper
                         param_type_list += 'V';
                     else if (is_generally_string_node(arg))
                         param_type_list += 'S';
-                    else // Everything else is assumed to be a scalar returning expression
+                    else  // Everything else is assumed to be a scalar returning expression
                         param_type_list += 'T';
 
                     arg_list.push_back(arg);
@@ -6513,7 +6542,7 @@ template <typename T> class parser : public lexer::parser_helper
                         param_type_list += 'V';
                     else if (is_generally_string_node(arg))
                         param_type_list += 'S';
-                    else // Everything else is a scalar returning expression
+                    else  // Everything else is a scalar returning expression
                         param_type_list += 'T';
 
                     arg_list.push_back(arg);
@@ -6522,10 +6551,10 @@ template <typename T> class parser : public lexer::parser_helper
                         break;
                     else if (!token_is(token_t::e_comma))
                     {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR142 - Expected ',' for call to string function: " +
-                                                 function_name,
-                                             math_expr_error_location));
+                        set_error(make_error(
+                            parser_error::error_mode::e_syntax, current_token(),
+                            "ERR142 - Expected ',' for call to string function: " + function_name,
+                            math_expr_error_location));
 
                         return false;
                     }
@@ -6643,10 +6672,10 @@ template <typename T> class parser : public lexer::parser_helper
         }
         else
         {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR145 - Invalid return type for call to overloaded function: " +
-                                     function_name,
-                                 math_expr_error_location));
+            set_error(make_error(
+                parser_error::error_mode::e_syntax, current_token(),
+                "ERR145 - Invalid return type for call to overloaded function: " + function_name,
+                math_expr_error_location));
         }
 
         svd.delete_ptr = (0 == result);
@@ -6654,7 +6683,8 @@ template <typename T> class parser : public lexer::parser_helper
     }
 #endif
 
-    template <typename Type, std::size_t NumberOfParameters> struct parse_special_function_impl
+    template <typename Type, std::size_t NumberOfParameters>
+    struct parse_special_function_impl
     {
         static inline expression_node_ptr process(parser<Type>& p,
                                                   const core::operators::operator_type opt_type,
@@ -6752,12 +6782,12 @@ template <typename T> class parser : public lexer::parser_helper
 
         switch (NumberOfParameters)
         {
-        case 3:
-            return parse_special_function_impl<T, 3>::process((*this), opt_type, sf_name);
-        case 4:
-            return parse_special_function_impl<T, 4>::process((*this), opt_type, sf_name);
-        default:
-            return error_node();
+            case 3:
+                return parse_special_function_impl<T, 3>::process((*this), opt_type, sf_name);
+            case 4:
+                return parse_special_function_impl<T, 4>::process((*this), opt_type, sf_name);
+            default:
+                return error_node();
         }
     }
 
@@ -7084,12 +7114,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (vec_initilizer_list.size())
                 {
-                case 1:
-                    single_value_initialiser = true;
-                    break;
-                case 2:
-                    range_value_initialiser = true;
-                    break;
+                    case 1:
+                        single_value_initialiser = true;
+                        break;
+                    case 2:
+                        range_value_initialiser = true;
+                        break;
                 }
             }
             else if (!token_is(token_t::e_lcrlbracket))
@@ -7293,9 +7323,8 @@ template <typename T> class parser : public lexer::parser_helper
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline expression_node_ptr
-    parse_define_string_statement(const std::string& str_name,
-                                  expression_node_ptr initialisation_expression)
+    inline expression_node_ptr parse_define_string_statement(
+        const std::string& str_name, expression_node_ptr initialisation_expression)
     {
         stringvar_node_t* str_node = reinterpret_cast<stringvar_node_t*>(0);
 
@@ -7305,10 +7334,10 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR175 - Illegal redefinition of local variable: '" +
-                                         str_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR175 - Illegal redefinition of local variable: '" + str_name + "'",
+                    math_expr_error_location));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7336,10 +7365,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR176 - Failed to add new local string variable '" +
-                                         str_name + "' to SEM",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR176 - Failed to add new local string variable '" + str_name + "' to SEM",
+                    math_expr_error_location));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7490,10 +7519,10 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR184 - Illegal redefinition of local variable: '" +
-                                         var_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR184 - Illegal redefinition of local variable: '" + var_name + "'",
+                    math_expr_error_location));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7543,10 +7572,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR186 - Failed to add new local variable '" + var_name +
-                                         "' to SEM",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR186 - Failed to add new local variable '" + var_name + "' to SEM",
+                    math_expr_error_location));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7688,10 +7717,10 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR197 - Illegal redefinition of local variable: '" +
-                                         var_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR197 - Illegal redefinition of local variable: '" + var_name + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -7736,10 +7765,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR199 - Failed to add new local const-variable '" +
-                                         var_name + "' to SEM",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR199 - Failed to add new local const-variable '" + var_name + "' to SEM",
+                    math_expr_error_location));
 
                 sem_.free_element(nse);
 
@@ -7790,10 +7819,10 @@ template <typename T> class parser : public lexer::parser_helper
         {
             if (se.active)
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR202 - Illegal redefinition of local variable: '" +
-                                         var_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR202 - Illegal redefinition of local variable: '" + var_name + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -7839,10 +7868,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (!sem_.add_element(nse))
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR204 - Failed to add new local variable '" + var_name +
-                                         "' to SEM",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR204 - Failed to add new local variable '" + var_name + "' to SEM",
+                    math_expr_error_location));
 
                 sem_.free_element(nse);
 
@@ -7933,10 +7962,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == variable0)
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR208 - First parameter to swap is an invalid variable: '" +
-                                         var0_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR208 - First parameter to swap is an invalid variable: '" + var0_name + "'",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -8013,10 +8042,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             if (0 == variable1)
             {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR212 - Second parameter to swap is an invalid variable: '" +
-                                         var1_name + "'",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_syntax, current_token(),
+                    "ERR212 - Second parameter to swap is an invalid variable: '" + var1_name + "'",
+                    math_expr_error_location));
 
                 if (variable0_generated)
                 {
@@ -8305,9 +8334,10 @@ template <typename T> class parser : public lexer::parser_helper
 
         if (0 == assert_check_)
         {
-            math_expr_debug(("parse_assert_statement() - assert functionality is disabled. assert "
-                             "condition: %s\n",
-                             context.condition.c_str()));
+            math_expr_debug(
+                ("parse_assert_statement() - assert functionality is disabled. assert "
+                 "condition: %s\n",
+                 context.condition.c_str()));
 
             return new details::null_node<T>();
         }
@@ -8397,26 +8427,26 @@ template <typename T> class parser : public lexer::parser_helper
 
         switch (token)
         {
-        case token_t::e_lcrlbracket:
-            implied_mul = token_is(token_t::e_lbracket, hold) ||
-                          token_is(token_t::e_lcrlbracket, hold) ||
-                          token_is(token_t::e_lsqrbracket, hold);
-            break;
+            case token_t::e_lcrlbracket:
+                implied_mul = token_is(token_t::e_lbracket, hold) ||
+                              token_is(token_t::e_lcrlbracket, hold) ||
+                              token_is(token_t::e_lsqrbracket, hold);
+                break;
 
-        case token_t::e_lbracket:
-            implied_mul = token_is(token_t::e_lbracket, hold) ||
-                          token_is(token_t::e_lcrlbracket, hold) ||
-                          token_is(token_t::e_lsqrbracket, hold);
-            break;
+            case token_t::e_lbracket:
+                implied_mul = token_is(token_t::e_lbracket, hold) ||
+                              token_is(token_t::e_lcrlbracket, hold) ||
+                              token_is(token_t::e_lsqrbracket, hold);
+                break;
 
-        case token_t::e_lsqrbracket:
-            implied_mul = token_is(token_t::e_lbracket, hold) ||
-                          token_is(token_t::e_lcrlbracket, hold) ||
-                          token_is(token_t::e_lsqrbracket, hold);
-            break;
+            case token_t::e_lsqrbracket:
+                implied_mul = token_is(token_t::e_lbracket, hold) ||
+                              token_is(token_t::e_lcrlbracket, hold) ||
+                              token_is(token_t::e_lsqrbracket, hold);
+                break;
 
-        default:
-            return true;
+            default:
+                return true;
         }
 
         if (implied_mul)
@@ -8559,10 +8589,10 @@ template <typename T> class parser : public lexer::parser_helper
                     return func_node;
                 else
                 {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR231 - Failed to generate node for function: '" +
-                                             symbol + "'",
-                                         math_expr_error_location));
+                    set_error(make_error(
+                        parser_error::error_mode::e_syntax, current_token(),
+                        "ERR231 - Failed to generate node for function: '" + symbol + "'",
+                        math_expr_error_location));
 
                     return error_node();
                 }
@@ -8584,10 +8614,10 @@ template <typename T> class parser : public lexer::parser_helper
                     return vararg_func_node;
                 else
                 {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR232 - Failed to generate node for vararg function: '" +
-                                             symbol + "'",
-                                         math_expr_error_location));
+                    set_error(make_error(
+                        parser_error::error_mode::e_syntax, current_token(),
+                        "ERR232 - Failed to generate node for vararg function: '" + symbol + "'",
+                        math_expr_error_location));
 
                     return error_node();
                 }
@@ -8635,10 +8665,10 @@ template <typename T> class parser : public lexer::parser_helper
                     return stringfunc_node;
                 else
                 {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR234 - Failed to generate node for string function: '" +
-                                             symbol + "'",
-                                         math_expr_error_location));
+                    set_error(make_error(
+                        parser_error::error_mode::e_syntax, current_token(),
+                        "ERR234 - Failed to generate node for string function: '" + symbol + "'",
+                        math_expr_error_location));
 
                     return error_node();
                 }
@@ -8714,16 +8744,16 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (usr_symbol_type)
                         {
-                        case unknown_symbol_resolver::usr_symbol_type::e_usr_variable_type:
-                            create_result = symtab.create_variable(symbol, default_value);
-                            break;
+                            case unknown_symbol_resolver::usr_symbol_type::e_usr_variable_type:
+                                create_result = symtab.create_variable(symbol, default_value);
+                                break;
 
-                        case unknown_symbol_resolver::usr_symbol_type::e_usr_constant_type:
-                            create_result = symtab.add_constant(symbol, default_value);
-                            break;
+                            case unknown_symbol_resolver::usr_symbol_type::e_usr_constant_type:
+                                create_result = symtab.add_constant(symbol, default_value);
+                                break;
 
-                        default:
-                            create_result = false;
+                            default:
+                                create_result = false;
                         }
 
                         if (create_result)
@@ -8922,8 +8952,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
     }
 
-    inline expression_node_ptr
-    parse_branch(precedence_level precedence = precedence_level::e_level00)
+    inline expression_node_ptr parse_branch(
+        precedence_level precedence = precedence_level::e_level00)
     {
         stack_limit_handler slh(*this);
 
@@ -8944,10 +8974,10 @@ template <typename T> class parser : public lexer::parser_helper
 
                 if (0 == literal_exp)
                 {
-                    set_error(make_error(parser_error::error_mode::e_numeric, current_token(),
-                                         "ERR242 - Failed generate node for scalar: '" +
-                                             current_token().value + "'",
-                                         math_expr_error_location));
+                    set_error(make_error(
+                        parser_error::error_mode::e_numeric, current_token(),
+                        "ERR242 - Failed generate node for scalar: '" + current_token().value + "'",
+                        math_expr_error_location));
 
                     return error_node();
                 }
@@ -8957,10 +8987,10 @@ template <typename T> class parser : public lexer::parser_helper
             }
             else
             {
-                set_error(make_error(parser_error::error_mode::e_numeric, current_token(),
-                                     "ERR243 - Failed to convert '" + current_token().value +
-                                         "' to a number",
-                                     math_expr_error_location));
+                set_error(make_error(
+                    parser_error::error_mode::e_numeric, current_token(),
+                    "ERR243 - Failed to convert '" + current_token().value + "' to a number",
+                    math_expr_error_location));
 
                 return error_node();
             }
@@ -9117,9 +9147,10 @@ template <typename T> class parser : public lexer::parser_helper
      *
      * @tparam Type Numeric value type used by generated expression nodes.
      */
-    template <typename Type> class expression_generator
+    template <typename Type>
+    class expression_generator
     {
-      public:
+       public:
         using expression_node_ptr = details::expression_node<Type>*;
         using synthesize_functor_t = expression_node_ptr (*)(
             expression_generator<T>&, const core::operators::operator_type& operation,
@@ -9469,44 +9500,44 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (operation)
             {
-            case core::operators::operator_type::add:
-                return "+";
-            case core::operators::operator_type::sub:
-                return "-";
-            case core::operators::operator_type::mul:
-                return "*";
-            case core::operators::operator_type::div:
-                return "/";
-            case core::operators::operator_type::mod:
-                return "%";
-            case core::operators::operator_type::pow:
-                return "^";
-            case core::operators::operator_type::lt:
-                return "<";
-            case core::operators::operator_type::lte:
-                return "<=";
-            case core::operators::operator_type::gt:
-                return ">";
-            case core::operators::operator_type::gte:
-                return ">=";
-            case core::operators::operator_type::eq:
-                return "==";
-            case core::operators::operator_type::ne:
-                return "!=";
-            case core::operators::operator_type::logical_and:
-                return "and";
-            case core::operators::operator_type::nand:
-                return "nand";
-            case core::operators::operator_type::logical_or:
-                return "or";
-            case core::operators::operator_type::nor:
-                return "nor";
-            case core::operators::operator_type::logical_xor:
-                return "xor";
-            case core::operators::operator_type::xnor:
-                return "xnor";
-            default:
-                return "UNKNOWN";
+                case core::operators::operator_type::add:
+                    return "+";
+                case core::operators::operator_type::sub:
+                    return "-";
+                case core::operators::operator_type::mul:
+                    return "*";
+                case core::operators::operator_type::div:
+                    return "/";
+                case core::operators::operator_type::mod:
+                    return "%";
+                case core::operators::operator_type::pow:
+                    return "^";
+                case core::operators::operator_type::lt:
+                    return "<";
+                case core::operators::operator_type::lte:
+                    return "<=";
+                case core::operators::operator_type::gt:
+                    return ">";
+                case core::operators::operator_type::gte:
+                    return ">=";
+                case core::operators::operator_type::eq:
+                    return "==";
+                case core::operators::operator_type::ne:
+                    return "!=";
+                case core::operators::operator_type::logical_and:
+                    return "and";
+                case core::operators::operator_type::nand:
+                    return "nand";
+                case core::operators::operator_type::logical_or:
+                    return "or";
+                case core::operators::operator_type::nor:
+                    return "nor";
+                case core::operators::operator_type::logical_xor:
+                    return "xor";
+                case core::operators::operator_type::xnor:
+                    return "xnor";
+                default:
+                    return "UNKNOWN";
             }
         }
 
@@ -9806,8 +9837,8 @@ template <typename T> class parser : public lexer::parser_helper
                     (core::operators::operator_type::inrange == operation));
         }
 
-        inline bool
-        is_shortcircuit_expression(const core::operators::operator_type& operation) const
+        inline bool is_shortcircuit_expression(
+            const core::operators::operator_type& operation) const
         {
             if constexpr (::math_expr::core::build_options::kDisableScAndOr)
             {
@@ -9825,9 +9856,8 @@ template <typename T> class parser : public lexer::parser_helper
             return (details::is_null_node(branch[0]) || details::is_null_node(branch[1]));
         }
 
-        inline bool
-        is_vector_eqineq_logic_operation(const core::operators::operator_type& operation,
-                                         expression_node_ptr (&branch)[2]) const
+        inline bool is_vector_eqineq_logic_operation(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[2]) const
         {
             if (!is_ivector_node(branch[0]) && !is_ivector_node(branch[1]))
                 return false;
@@ -10268,8 +10298,8 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
         }
 
-        inline loop_runtime_check_ptr
-        get_loop_runtime_check(const loop_runtime_check::loop_types loop_type) const
+        inline loop_runtime_check_ptr get_loop_runtime_check(
+            const loop_runtime_check::loop_types loop_type) const
         {
             if (parser_->loop_runtime_check_ &&
                 (loop_type == (parser_->loop_runtime_check_->loop_set & loop_type)))
@@ -10343,9 +10373,9 @@ template <typename T> class parser : public lexer::parser_helper
 #endif
         }
 
-        inline expression_node_ptr
-        repeat_until_loop(expression_node_ptr& condition, expression_node_ptr& branch,
-                          const bool break_continue_present = false) const
+        inline expression_node_ptr repeat_until_loop(
+            expression_node_ptr& condition, expression_node_ptr& branch,
+            const bool break_continue_present = false) const
         {
             if (!break_continue_present && details::is_constant_node(condition))
             {
@@ -10463,8 +10493,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        const_optimise_switch(Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr const_optimise_switch(
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             expression_node_ptr result = error_node();
 
@@ -10499,8 +10529,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        const_optimise_mswitch(Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr const_optimise_mswitch(
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             expression_node_ptr result = error_node();
 
@@ -10538,10 +10568,10 @@ template <typename T> class parser : public lexer::parser_helper
         {
             using arg_list_t = std::vector<std::pair<expression_node_ptr, bool>>;
 
-#define case_stmt(N)                                                                               \
-    if (is_true(arg[(2 * N)].first))                                                               \
-    {                                                                                              \
-        return arg[(2 * N) + 1].first->value();                                                    \
+#define case_stmt(N)                            \
+    if (is_true(arg[(2 * N)].first))            \
+    {                                           \
+        return arg[(2 * N) + 1].first->value(); \
     }
 
             struct switch_impl_1
@@ -10633,9 +10663,9 @@ template <typename T> class parser : public lexer::parser_helper
         };
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        switch_statement(Sequence<expression_node_ptr, Allocator>& arg_list,
-                         const bool default_statement_present)
+        inline expression_node_ptr switch_statement(
+            Sequence<expression_node_ptr, Allocator>& arg_list,
+            const bool default_statement_present)
         {
             if (arg_list.empty())
                 return error_node();
@@ -10651,10 +10681,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch ((arg_list.size() - 1) / 2)
             {
-#define case_stmt(N)                                                                               \
-    case N:                                                                                        \
-        return node_allocator_                                                                     \
-            ->allocate<details::switch_n_node<Type, typename switch_nodes::switch_impl_##N>>(      \
+#define case_stmt(N)                                                                          \
+    case N:                                                                                   \
+        return node_allocator_                                                                \
+            ->allocate<details::switch_n_node<Type, typename switch_nodes::switch_impl_##N>>( \
                 arg_list);
 
                 case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5) case_stmt(6)
@@ -10667,8 +10697,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        multi_switch_statement(Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr multi_switch_statement(
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             if (!all_nodes_valid(arg_list))
             {
@@ -10788,16 +10818,15 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                     details::                  \
                                                                                         trunc_op)
 
-        inline expression_node_ptr
-        synthesize_uv_expression(const core::operators::operator_type& operation,
-                                 expression_node_ptr (&branch)[1])
+        inline expression_node_ptr synthesize_uv_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
         {
             T& v = static_cast<details::variable_node<T>*>(branch[0])->ref();
 
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
+#define case_stmt(op0, op1) \
+    case op0:               \
         return node_allocator_->allocate<typename details::unary_variable_node<Type, op1<Type>>>(v);
 
                 unary_opr_switch_statements
@@ -10806,15 +10835,14 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        inline expression_node_ptr
-        synthesize_uvec_expression(const core::operators::operator_type& operation,
-                                   expression_node_ptr (&branch)[1])
+        inline expression_node_ptr synthesize_uvec_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
         {
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_->allocate<typename details::unary_vector_node<Type, op1<Type>>>(    \
+#define case_stmt(op0, op1)                                                                     \
+    case op0:                                                                                   \
+        return node_allocator_->allocate<typename details::unary_vector_node<Type, op1<Type>>>( \
             operation, branch[0]);
 
                 unary_opr_switch_statements
@@ -10823,15 +10851,14 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        inline expression_node_ptr
-        synthesize_unary_expression(const core::operators::operator_type& operation,
-                                    expression_node_ptr (&branch)[1])
+        inline expression_node_ptr synthesize_unary_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
         {
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_->allocate<typename details::unary_branch_node<Type, op1<Type>>>(    \
+#define case_stmt(op0, op1)                                                                     \
+    case op0:                                                                                   \
+        return node_allocator_->allocate<typename details::unary_branch_node<Type, op1<Type>>>( \
             branch[0]);
 
                 unary_opr_switch_statements
@@ -10840,19 +10867,18 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        inline expression_node_ptr
-        const_optimise_sf3(const core::operators::operator_type& operation,
-                           expression_node_ptr (&branch)[3])
+        inline expression_node_ptr const_optimise_sf3(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[3])
         {
             expression_node_ptr temp_node = error_node();
 
             switch (operation)
             {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        temp_node =                                                                                \
-            node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>(        \
-                operation, branch);                                                                \
+#define case_stmt(op)                                                                       \
+    case core::operators::operator_type::sf##op:                                            \
+        temp_node =                                                                         \
+            node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>( \
+                operation, branch);                                                         \
         break;
 
                 case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04) case_stmt(05)
@@ -10880,9 +10906,8 @@ template <typename T> class parser : public lexer::parser_helper
             return node_allocator_->allocate<literal_node_t>(v);
         }
 
-        inline expression_node_ptr
-        varnode_optimise_sf3(const core::operators::operator_type& operation,
-                             expression_node_ptr (&branch)[3])
+        inline expression_node_ptr varnode_optimise_sf3(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[3])
         {
             using variable_ptr = details::variable_node<Type>*;
 
@@ -10892,9 +10917,9 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        return node_allocator_                                                                     \
+#define case_stmt(op)                            \
+    case core::operators::operator_type::sf##op: \
+        return node_allocator_                   \
             ->allocate_rrr<details::sf3_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2);
 
                 case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04) case_stmt(05)
@@ -10927,9 +10952,9 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        return node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>(     \
+#define case_stmt(op)                                                                          \
+    case core::operators::operator_type::sf##op:                                               \
+        return node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>( \
             operation, branch);
 
                     case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04) case_stmt(
@@ -10950,19 +10975,18 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        inline expression_node_ptr
-        const_optimise_sf4(const core::operators::operator_type& operation,
-                           expression_node_ptr (&branch)[4])
+        inline expression_node_ptr const_optimise_sf4(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
         {
             expression_node_ptr temp_node = error_node();
 
             switch (operation)
             {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        temp_node =                                                                                \
-            node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>(        \
-                operation, branch);                                                                \
+#define case_stmt(op)                                                                       \
+    case core::operators::operator_type::sf##op:                                            \
+        temp_node =                                                                         \
+            node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>( \
+                operation, branch);                                                         \
         break;
 
                 case_stmt(48) case_stmt(49) case_stmt(50) case_stmt(51) case_stmt(52) case_stmt(53)
@@ -10990,9 +11014,8 @@ template <typename T> class parser : public lexer::parser_helper
             return node_allocator_->allocate<literal_node_t>(v);
         }
 
-        inline expression_node_ptr
-        varnode_optimise_sf4(const core::operators::operator_type& operation,
-                             expression_node_ptr (&branch)[4])
+        inline expression_node_ptr varnode_optimise_sf4(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
         {
             using variable_ptr = details::variable_node<Type>*;
 
@@ -11003,10 +11026,10 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        return node_allocator_                                                                     \
-            ->allocate_rrrr<details::sf4_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2,   \
+#define case_stmt(op)                                                                            \
+    case core::operators::operator_type::sf##op:                                                 \
+        return node_allocator_                                                                   \
+            ->allocate_rrrr<details::sf4_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2, \
                                                                                      v3);
 
                 case_stmt(48) case_stmt(49) case_stmt(50) case_stmt(51) case_stmt(52) case_stmt(53)
@@ -11037,9 +11060,9 @@ template <typename T> class parser : public lexer::parser_helper
                 return varnode_optimise_sf4(operation, branch);
             switch (operation)
             {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        return node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>(     \
+#define case_stmt(op)                                                                          \
+    case core::operators::operator_type::sf##op:                                               \
+        return node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>( \
             operation, branch);
 
                 case_stmt(48) case_stmt(49) case_stmt(50) case_stmt(51) case_stmt(52) case_stmt(53)
@@ -11060,17 +11083,17 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        const_optimise_varargfunc(const core::operators::operator_type& operation,
-                                  Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr const_optimise_varargfunc(
+            const core::operators::operator_type& operation,
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             expression_node_ptr temp_node = error_node();
 
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        temp_node = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list);    \
+#define case_stmt(op0, op1)                                                                     \
+    case op0:                                                                                   \
+        temp_node = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list); \
         break;
 
                 case_stmt(core::operators::operator_type::sum, details::vararg_add_op) case_stmt(
@@ -11095,8 +11118,8 @@ template <typename T> class parser : public lexer::parser_helper
             return node_allocator_->allocate<literal_node_t>(v);
         }
 
-        inline bool
-        special_one_parameter_vararg(const core::operators::operator_type& operation) const
+        inline bool special_one_parameter_vararg(
+            const core::operators::operator_type& operation) const
         {
             return ((core::operators::operator_type::sum == operation) ||
                     (core::operators::operator_type::prod == operation) ||
@@ -11106,14 +11129,14 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        varnode_optimise_varargfunc(const core::operators::operator_type& operation,
-                                    Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr varnode_optimise_varargfunc(
+            const core::operators::operator_type& operation,
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
+#define case_stmt(op0, op1) \
+    case op0:               \
         return node_allocator_->allocate<details::vararg_varnode<Type, op1<Type>>>(arg_list);
 
                 case_stmt(core::operators::operator_type::sum, details::vararg_add_op) case_stmt(
@@ -11133,16 +11156,16 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        vectorize_func(const core::operators::operator_type& operation,
-                       Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr vectorize_func(
+            const core::operators::operator_type& operation,
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             if (1 == arg_list.size())
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
+#define case_stmt(op0, op1) \
+    case op0:               \
         return node_allocator_->allocate<details::vectorize_node<Type, op1<Type>>>(arg_list[0]);
 
                     case_stmt(core::operators::operator_type::sum, details::vec_add_op) case_stmt(
@@ -11159,9 +11182,9 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename Allocator, template <typename, typename> class Sequence>
-        inline expression_node_ptr
-        vararg_function(const core::operators::operator_type& operation,
-                        Sequence<expression_node_ptr, Allocator>& arg_list)
+        inline expression_node_ptr vararg_function(
+            const core::operators::operator_type& operation,
+            Sequence<expression_node_ptr, Allocator>& arg_list)
         {
             if (!all_nodes_valid(arg_list))
             {
@@ -11203,9 +11226,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list);       \
+#define case_stmt(op0, op1)                                                                  \
+    case op0:                                                                                \
+        result = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list); \
         break;
 
                     case_stmt(core::operators::operator_type::sum, details::vararg_add_op)
@@ -11701,7 +11724,7 @@ template <typename T> class parser : public lexer::parser_helper
             return error_node();
         }
 
-      private:
+       private:
         template <std::size_t N, typename NodePtr>
         inline bool is_constant_foldable(NodePtr (&b)[N]) const
         {
@@ -11742,40 +11765,40 @@ template <typename T> class parser : public lexer::parser_helper
 
             switch (cst)
             {
-            case symbol_type::e_st_variable:
-                symbol_name = parser_->symtab_store_.get_variable_name(node);
-                break;
+                case symbol_type::e_st_variable:
+                    symbol_name = parser_->symtab_store_.get_variable_name(node);
+                    break;
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            case symbol_type::e_st_string:
-                symbol_name = parser_->symtab_store_.get_stringvar_name(node);
-                break;
+                case symbol_type::e_st_string:
+                    symbol_name = parser_->symtab_store_.get_stringvar_name(node);
+                    break;
 #endif
 
-            case symbol_type::e_st_vector:
-            {
-                using vector_holder_t = details::vector_holder<T>;
+                case symbol_type::e_st_vector:
+                {
+                    using vector_holder_t = details::vector_holder<T>;
 
-                vector_holder_t& vh = static_cast<vector_node_t*>(node)->vec_holder();
+                    vector_holder_t& vh = static_cast<vector_node_t*>(node)->vec_holder();
 
-                symbol_name = parser_->symtab_store_.get_vector_name(&vh);
-            }
-            break;
+                    symbol_name = parser_->symtab_store_.get_vector_name(&vh);
+                }
+                break;
 
-            case symbol_type::e_st_vecelem:
-            {
-                using vector_holder_t = details::vector_holder<T>;
+                case symbol_type::e_st_vecelem:
+                {
+                    using vector_holder_t = details::vector_holder<T>;
 
-                vector_holder_t& vh = static_cast<vector_elem_node_t*>(node)->vec_holder();
+                    vector_holder_t& vh = static_cast<vector_elem_node_t*>(node)->vec_holder();
 
-                symbol_name = parser_->symtab_store_.get_vector_name(&vh);
+                    symbol_name = parser_->symtab_store_.get_vector_name(&vh);
 
-                cst = symbol_type::e_st_vector;
-            }
-            break;
+                    cst = symbol_type::e_st_vector;
+                }
+                break;
 
-            default:
-                return;
+                default:
+                    return;
             }
 
             if (!symbol_name.empty())
@@ -11790,57 +11813,57 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 switch (node->type())
                 {
-                case details::expression_node<T>::node_type::e_variable:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<variable_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_variable:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<variable_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_vecelem:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<vector_elem_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_vecelem:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<vector_elem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_veccelem:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<vector_celem_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_veccelem:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<vector_celem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_vecelemrtc:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<vector_elem_rtc_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_vecelemrtc:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<vector_elem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_veccelemrtc:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<vector_celem_rtc_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_veccelemrtc:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<vector_celem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_rbvecelem:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<rebasevector_elem_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_rbvecelem:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<rebasevector_elem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_rbvecelemrtc:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<rebasevector_elem_rtc_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_rbvecelemrtc:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<rebasevector_elem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_rbveccelem:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<rebasevector_celem_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_rbveccelem:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<rebasevector_celem_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_rbveccelemrtc:
-                    return reinterpret_cast<const void*>(
-                        &static_cast<rebasevector_celem_rtc_node_t*>(node)->ref());
+                    case details::expression_node<T>::node_type::e_rbveccelemrtc:
+                        return reinterpret_cast<const void*>(
+                            &static_cast<rebasevector_celem_rtc_node_t*>(node)->ref());
 
-                case details::expression_node<T>::node_type::e_vector:
-                    return reinterpret_cast<const void*>(
-                        static_cast<vector_node_t*>(node)->vec_holder().data());
+                    case details::expression_node<T>::node_type::e_vector:
+                        return reinterpret_cast<const void*>(
+                            static_cast<vector_node_t*>(node)->vec_holder().data());
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                case details::expression_node<T>::node_type::e_stringvar:
-                    return reinterpret_cast<const void*>(
-                        (static_cast<stringvar_node_t*>(node)->base()));
+                    case details::expression_node<T>::node_type::e_stringvar:
+                        return reinterpret_cast<const void*>(
+                            (static_cast<stringvar_node_t*>(node)->base()));
 
-                case details::expression_node<T>::node_type::e_stringvarrng:
-                    return reinterpret_cast<const void*>(
-                        (static_cast<string_range_node_t*>(node)->base()));
+                    case details::expression_node<T>::node_type::e_stringvarrng:
+                        return reinterpret_cast<const void*>(
+                            (static_cast<string_range_node_t*>(node)->base()));
 #endif
-                default:
-                    return reinterpret_cast<const void*>(0);
+                    default:
+                        return reinterpret_cast<const void*>(0);
                 }
             }
 
@@ -11877,9 +11900,8 @@ template <typename T> class parser : public lexer::parser_helper
             return false;
         }
 
-        inline expression_node_ptr
-        synthesize_assignment_expression(const core::operators::operator_type& operation,
-                                         expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_assignment_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
         {
             if (assign_immutable_symbol(branch[0]))
             {
@@ -11961,9 +11983,8 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        inline expression_node_ptr
-        synthesize_assignment_operation_expression(const core::operators::operator_type& operation,
-                                                   expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_assignment_operation_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
         {
             if (assign_immutable_symbol(branch[0]))
             {
@@ -11979,13 +12000,13 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result =                                                                                   \
-            node_allocator_                                                                        \
-                ->template allocate_rrr<typename details::assignment_op_node<Type, op1<Type>>>(    \
-                    operation, branch[0], branch[1]);                                              \
-        node_name = "assignment_op_node";                                                          \
+#define case_stmt(op0, op1)                                                                     \
+    case op0:                                                                                   \
+        result =                                                                                \
+            node_allocator_                                                                     \
+                ->template allocate_rrr<typename details::assignment_op_node<Type, op1<Type>>>( \
+                    operation, branch[0], branch[1]);                                           \
+        node_name = "assignment_op_node";                                                       \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12003,12 +12024,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_vec_elem_op_node<Type, op1<Type>>>(operation, branch[0],  \
-                                                                            branch[1]);            \
-        node_name = "assignment_vec_elem_op_node";                                                 \
+#define case_stmt(op0, op1)                                                                       \
+    case op0:                                                                                     \
+        result = node_allocator_->template allocate_rrr<                                          \
+            typename details::assignment_vec_elem_op_node<Type, op1<Type>>>(operation, branch[0], \
+                                                                            branch[1]);           \
+        node_name = "assignment_vec_elem_op_node";                                                \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12026,12 +12047,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_vec_elem_op_rtc_node<Type, op1<Type>>>(                   \
-            operation, branch[0], branch[1]);                                                      \
-        node_name = "assignment_vec_elem_op_rtc_node";                                             \
+#define case_stmt(op0, op1)                                                      \
+    case op0:                                                                    \
+        result = node_allocator_->template allocate_rrr<                         \
+            typename details::assignment_vec_elem_op_rtc_node<Type, op1<Type>>>( \
+            operation, branch[0], branch[1]);                                    \
+        node_name = "assignment_vec_elem_op_rtc_node";                           \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12049,12 +12070,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_vec_celem_op_rtc_node<Type, op1<Type>>>(                  \
-            operation, branch[0], branch[1]);                                                      \
-        node_name = "assignment_vec_celem_op_rtc_node";                                            \
+#define case_stmt(op0, op1)                                                       \
+    case op0:                                                                     \
+        result = node_allocator_->template allocate_rrr<                          \
+            typename details::assignment_vec_celem_op_rtc_node<Type, op1<Type>>>( \
+            operation, branch[0], branch[1]);                                     \
+        node_name = "assignment_vec_celem_op_rtc_node";                           \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12072,12 +12093,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_rebasevec_elem_op_node<Type, op1<Type>>>(                 \
-            operation, branch[0], branch[1]);                                                      \
-        node_name = "assignment_rebasevec_elem_op_node";                                           \
+#define case_stmt(op0, op1)                                                        \
+    case op0:                                                                      \
+        result = node_allocator_->template allocate_rrr<                           \
+            typename details::assignment_rebasevec_elem_op_node<Type, op1<Type>>>( \
+            operation, branch[0], branch[1]);                                      \
+        node_name = "assignment_rebasevec_elem_op_node";                           \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12095,12 +12116,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_rebasevec_celem_op_node<Type, op1<Type>>>(                \
-            operation, branch[0], branch[1]);                                                      \
-        node_name = "assignment_rebasevec_celem_op_node";                                          \
+#define case_stmt(op0, op1)                                                         \
+    case op0:                                                                       \
+        result = node_allocator_->template allocate_rrr<                            \
+            typename details::assignment_rebasevec_celem_op_node<Type, op1<Type>>>( \
+            operation, branch[0], branch[1]);                                       \
+        node_name = "assignment_rebasevec_celem_op_node";                           \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12118,12 +12139,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_rebasevec_elem_op_rtc_node<Type, op1<Type>>>(             \
-            operation, branch[0], branch[1]);                                                      \
-        node_name = "assignment_rebasevec_elem_op_rtc_node";                                       \
+#define case_stmt(op0, op1)                                                            \
+    case op0:                                                                          \
+        result = node_allocator_->template allocate_rrr<                               \
+            typename details::assignment_rebasevec_elem_op_rtc_node<Type, op1<Type>>>( \
+            operation, branch[0], branch[1]);                                          \
+        node_name = "assignment_rebasevec_elem_op_rtc_node";                           \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12141,12 +12162,12 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_rebasevec_celem_op_rtc_node<Type, op1<Type>>>(            \
-            operation, branch[0], branch[1]);                                                      \
-        node_name = "assignment_rebasevec_celem_op_rtc_node";                                      \
+#define case_stmt(op0, op1)                                                             \
+    case op0:                                                                           \
+        result = node_allocator_->template allocate_rrr<                                \
+            typename details::assignment_rebasevec_celem_op_rtc_node<Type, op1<Type>>>( \
+            operation, branch[0], branch[1]);                                           \
+        node_name = "assignment_rebasevec_celem_op_rtc_node";                           \
         break;
 
                     case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
@@ -12166,12 +12187,12 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     switch (operation)
                     {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_vecvec_op_node<Type, op1<Type>>>(operation, branch[0],    \
-                                                                          branch[1]);              \
-        node_name = "assignment_rebasevec_celem_op_node";                                          \
+#define case_stmt(op0, op1)                                                                     \
+    case op0:                                                                                   \
+        result = node_allocator_->template allocate_rrr<                                        \
+            typename details::assignment_vecvec_op_node<Type, op1<Type>>>(operation, branch[0], \
+                                                                          branch[1]);           \
+        node_name = "assignment_rebasevec_celem_op_node";                                       \
         break;
 
                         case_stmt(core::operators::operator_type::addass, details::add_op)
@@ -12189,12 +12210,12 @@ template <typename T> class parser : public lexer::parser_helper
                 {
                     switch (operation)
                     {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        result = node_allocator_->template allocate_rrr<                                           \
-            typename details::assignment_vec_op_node<Type, op1<Type>>>(operation, branch[0],       \
-                                                                       branch[1]);                 \
-        node_name = "assignment_vec_op_node";                                                      \
+#define case_stmt(op0, op1)                                                                  \
+    case op0:                                                                                \
+        result = node_allocator_->template allocate_rrr<                                     \
+            typename details::assignment_vec_op_node<Type, op1<Type>>>(operation, branch[0], \
+                                                                       branch[1]);           \
+        node_name = "assignment_vec_op_node";                                                \
         break;
 
                         case_stmt(core::operators::operator_type::addass, details::add_op)
@@ -12253,21 +12274,19 @@ template <typename T> class parser : public lexer::parser_helper
             const bool is_b1_ivec = details::is_ivector_node(branch[1]);
 
 #define batch_eqineq_logic_case                                                                    \
-    case_stmt(core::operators::operator_type::lt,                                                  \
-              details::lt_op) case_stmt(core::operators::operator_type::lte, details::lte_op)      \
-        case_stmt(core::operators::operator_type::gt,                                              \
-                  details::gt_op) case_stmt(core::operators::operator_type::gte, details::gte_op)  \
-            case_stmt(core::operators::operator_type::eq, details::eq_op)                          \
-                case_stmt(core::operators::operator_type::ne, details::ne_op)                      \
-                    case_stmt(core::operators::operator_type::equal, details::equal_op) case_stmt( \
-                        core::operators::operator_type::logical_and, details::and_op)              \
-                        case_stmt(core::operators::operator_type::nand, details::nand_op)          \
-                            case_stmt(core::operators::operator_type::logical_or, details::or_op)  \
-                                case_stmt(core::operators::operator_type::nor, details::nor_op)    \
-                                    case_stmt(core::operators::operator_type::logical_xor,         \
-                                              details::xor_op)                                     \
-                                        case_stmt(core::operators::operator_type::xnor,            \
-                                                  details::xnor_op)
+    case_stmt(core::operators::operator_type::lt, details::lt_op) case_stmt(                       \
+        core::operators::operator_type::lte, details::lte_op)                                      \
+        case_stmt(core::operators::operator_type::gt, details::gt_op) case_stmt(                   \
+            core::operators::operator_type::gte, details::gte_op)                                  \
+            case_stmt(core::operators::operator_type::eq, details::eq_op) case_stmt(               \
+                core::operators::operator_type::ne, details::ne_op)                                \
+                case_stmt(core::operators::operator_type::equal, details::equal_op) case_stmt(     \
+                    core::operators::operator_type::logical_and, details::and_op)                  \
+                    case_stmt(core::operators::operator_type::nand, details::nand_op) case_stmt(   \
+                        core::operators::operator_type::logical_or, details::or_op)                \
+                        case_stmt(core::operators::operator_type::nor, details::nor_op) case_stmt( \
+                            core::operators::operator_type::logical_xor, details::xor_op)          \
+                            case_stmt(core::operators::operator_type::xnor, details::xnor_op)
 
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown";
@@ -12350,11 +12369,11 @@ template <typename T> class parser : public lexer::parser_helper
             const bool is_b0_ivec = details::is_ivector_node(branch[0]);
             const bool is_b1_ivec = details::is_ivector_node(branch[1]);
 
-#define vector_ops                                                                                 \
-    case_stmt(core::operators::operator_type::add, details::add_op)                                \
-        case_stmt(core::operators::operator_type::sub, details::sub_op)                            \
-            case_stmt(core::operators::operator_type::mul, details::mul_op)                        \
-                case_stmt(core::operators::operator_type::div, details::div_op)                    \
+#define vector_ops                                                              \
+    case_stmt(core::operators::operator_type::add, details::add_op)             \
+        case_stmt(core::operators::operator_type::sub, details::sub_op)         \
+            case_stmt(core::operators::operator_type::mul, details::mul_op)     \
+                case_stmt(core::operators::operator_type::div, details::div_op) \
                     case_stmt(core::operators::operator_type::mod, details::mod_op)
 
             expression_node_ptr result = error_node();
@@ -12513,9 +12532,8 @@ template <typename T> class parser : public lexer::parser_helper
             return error_node();
         }
 
-        inline expression_node_ptr
-        synthesize_shortcircuit_expression(const core::operators::operator_type& operation,
-                                           expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_shortcircuit_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
         {
             if constexpr (::math_expr::core::build_options::kDisableScAndOr)
             {
@@ -12563,29 +12581,27 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
         }
 
-#define basic_opr_switch_statements                                                                \
-    case_stmt(core::operators::operator_type::add, details::add_op)                                \
-        case_stmt(core::operators::operator_type::sub, details::sub_op)                            \
-            case_stmt(core::operators::operator_type::mul, details::mul_op)                        \
-                case_stmt(core::operators::operator_type::div, details::div_op)                    \
-                    case_stmt(core::operators::operator_type::mod, details::mod_op)                \
+#define basic_opr_switch_statements                                                 \
+    case_stmt(core::operators::operator_type::add, details::add_op)                 \
+        case_stmt(core::operators::operator_type::sub, details::sub_op)             \
+            case_stmt(core::operators::operator_type::mul, details::mul_op)         \
+                case_stmt(core::operators::operator_type::div, details::div_op)     \
+                    case_stmt(core::operators::operator_type::mod, details::mod_op) \
                         case_stmt(core::operators::operator_type::pow, details::pow_op)
 
 #define extended_opr_switch_statements                                                             \
-    case_stmt(core::operators::operator_type::lt,                                                  \
-              details::lt_op) case_stmt(core::operators::operator_type::lte, details::lte_op)      \
-        case_stmt(core::operators::operator_type::gt,                                              \
-                  details::gt_op) case_stmt(core::operators::operator_type::gte, details::gte_op)  \
-            case_stmt(core::operators::operator_type::eq, details::eq_op)                          \
-                case_stmt(core::operators::operator_type::ne, details::ne_op)                      \
-                    case_stmt(core::operators::operator_type::logical_and, details::and_op)        \
-                        case_stmt(core::operators::operator_type::nand, details::nand_op)          \
-                            case_stmt(core::operators::operator_type::logical_or, details::or_op)  \
-                                case_stmt(core::operators::operator_type::nor, details::nor_op)    \
-                                    case_stmt(core::operators::operator_type::logical_xor,         \
-                                              details::xor_op)                                     \
-                                        case_stmt(core::operators::operator_type::xnor,            \
-                                                  details::xnor_op)
+    case_stmt(core::operators::operator_type::lt, details::lt_op)                                  \
+        case_stmt(core::operators::operator_type::lte, details::lte_op) case_stmt(                 \
+            core::operators::operator_type::gt, details::gt_op)                                    \
+            case_stmt(core::operators::operator_type::gte, details::gte_op) case_stmt(             \
+                core::operators::operator_type::eq, details::eq_op)                                \
+                case_stmt(core::operators::operator_type::ne, details::ne_op) case_stmt(           \
+                    core::operators::operator_type::logical_and, details::and_op)                  \
+                    case_stmt(core::operators::operator_type::nand, details::nand_op) case_stmt(   \
+                        core::operators::operator_type::logical_or, details::or_op)                \
+                        case_stmt(core::operators::operator_type::nor, details::nor_op) case_stmt( \
+                            core::operators::operator_type::logical_xor, details::xor_op)          \
+                            case_stmt(core::operators::operator_type::xnor, details::xnor_op)
 
 #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
         /**
@@ -12604,8 +12620,8 @@ template <typename T> class parser : public lexer::parser_helper
         {
             switch (p)
             {
-#define case_stmt(cp)                                                                              \
-    case cp:                                                                                       \
+#define case_stmt(cp) \
+    case cp:          \
         return node_allocator_->allocate<IPowNode<T, core::numeric::fast_exp<T, cp>>>(v);
 
                 case_stmt(1) case_stmt(2) case_stmt(3) case_stmt(4) case_stmt(5) case_stmt(6)
@@ -12701,10 +12717,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_binary_ext_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const bool left_neg = is_neg_unary_node(branch[0]);
                 const bool right_neg = is_neg_unary_node(branch[1]);
@@ -12727,22 +12742,22 @@ template <typename T> class parser : public lexer::parser_helper
 
                     switch (operation)
                     {
-                        // -f(x + 1) + -g(y + 1) --> -(f(x + 1) + g(y + 1))
-                    case core::operators::operator_type::add:
-                        return expr_gen(
-                            core::operators::operator_type::neg,
-                            expr_gen.node_allocator_->template allocate<
-                                typename details::binary_ext_node<Type, details::add_op<Type>>>(
-                                branch[0], branch[1]));
+                            // -f(x + 1) + -g(y + 1) --> -(f(x + 1) + g(y + 1))
+                        case core::operators::operator_type::add:
+                            return expr_gen(
+                                core::operators::operator_type::neg,
+                                expr_gen.node_allocator_->template allocate<
+                                    typename details::binary_ext_node<Type, details::add_op<Type>>>(
+                                    branch[0], branch[1]));
 
-                        // -f(x + 1) - -g(y + 1) --> g(y + 1) - f(x + 1)
-                    case core::operators::operator_type::sub:
-                        return expr_gen.node_allocator_->template allocate<
-                            typename details::binary_ext_node<Type, details::sub_op<Type>>>(
-                            branch[1], branch[0]);
+                            // -f(x + 1) - -g(y + 1) --> g(y + 1) - f(x + 1)
+                        case core::operators::operator_type::sub:
+                            return expr_gen.node_allocator_->template allocate<
+                                typename details::binary_ext_node<Type, details::sub_op<Type>>>(
+                                branch[1], branch[0]);
 
-                    default:
-                        break;
+                        default:
+                            break;
                     }
                 }
                 else if (left_neg && !right_neg)
@@ -12761,38 +12776,38 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (operation)
                         {
-                            // -f(x + 1) + g(y + 1) --> g(y + 1) - f(x + 1)
-                        case core::operators::operator_type::add:
-                            return expr_gen.node_allocator_->template allocate<
-                                typename details::binary_ext_node<Type, details::sub_op<Type>>>(
-                                branch[1], branch[0]);
+                                // -f(x + 1) + g(y + 1) --> g(y + 1) - f(x + 1)
+                            case core::operators::operator_type::add:
+                                return expr_gen.node_allocator_->template allocate<
+                                    typename details::binary_ext_node<Type, details::sub_op<Type>>>(
+                                    branch[1], branch[0]);
 
-                            // -f(x + 1) - g(y + 1) --> -(f(x + 1) + g(y + 1))
-                        case core::operators::operator_type::sub:
-                            return expr_gen(
-                                core::operators::operator_type::neg,
-                                expr_gen.node_allocator_->template allocate<
-                                    typename details::binary_ext_node<Type, details::add_op<Type>>>(
-                                    branch[0], branch[1]));
+                                // -f(x + 1) - g(y + 1) --> -(f(x + 1) + g(y + 1))
+                            case core::operators::operator_type::sub:
+                                return expr_gen(
+                                    core::operators::operator_type::neg,
+                                    expr_gen.node_allocator_
+                                        ->template allocate<typename details::binary_ext_node<
+                                            Type, details::add_op<Type>>>(branch[0], branch[1]));
 
-                            // -f(x + 1) * g(y + 1) --> -(f(x + 1) * g(y + 1))
-                        case core::operators::operator_type::mul:
-                            return expr_gen(
-                                core::operators::operator_type::neg,
-                                expr_gen.node_allocator_->template allocate<
-                                    typename details::binary_ext_node<Type, details::mul_op<Type>>>(
-                                    branch[0], branch[1]));
+                                // -f(x + 1) * g(y + 1) --> -(f(x + 1) * g(y + 1))
+                            case core::operators::operator_type::mul:
+                                return expr_gen(
+                                    core::operators::operator_type::neg,
+                                    expr_gen.node_allocator_
+                                        ->template allocate<typename details::binary_ext_node<
+                                            Type, details::mul_op<Type>>>(branch[0], branch[1]));
 
-                            // -f(x + 1) / g(y + 1) --> -(f(x + 1) / g(y + 1))
-                        case core::operators::operator_type::div:
-                            return expr_gen(
-                                core::operators::operator_type::neg,
-                                expr_gen.node_allocator_->template allocate<
-                                    typename details::binary_ext_node<Type, details::div_op<Type>>>(
-                                    branch[0], branch[1]));
+                                // -f(x + 1) / g(y + 1) --> -(f(x + 1) / g(y + 1))
+                            case core::operators::operator_type::div:
+                                return expr_gen(
+                                    core::operators::operator_type::neg,
+                                    expr_gen.node_allocator_
+                                        ->template allocate<typename details::binary_ext_node<
+                                            Type, details::div_op<Type>>>(branch[0], branch[1]));
 
-                        default:
-                            return error_node();
+                            default:
+                                return error_node();
                         }
                     }
                 }
@@ -12812,46 +12827,46 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (operation)
                         {
-                            // f(x + 1) + -g(y + 1) --> f(x + 1) - g(y + 1)
-                        case core::operators::operator_type::add:
-                            return expr_gen.node_allocator_->template allocate<
-                                typename details::binary_ext_node<Type, details::sub_op<Type>>>(
-                                branch[0], branch[1]);
+                                // f(x + 1) + -g(y + 1) --> f(x + 1) - g(y + 1)
+                            case core::operators::operator_type::add:
+                                return expr_gen.node_allocator_->template allocate<
+                                    typename details::binary_ext_node<Type, details::sub_op<Type>>>(
+                                    branch[0], branch[1]);
 
-                            // f(x + 1) - - g(y + 1) --> f(x + 1) + g(y + 1)
-                        case core::operators::operator_type::sub:
-                            return expr_gen.node_allocator_->template allocate<
-                                typename details::binary_ext_node<Type, details::add_op<Type>>>(
-                                branch[0], branch[1]);
+                                // f(x + 1) - - g(y + 1) --> f(x + 1) + g(y + 1)
+                            case core::operators::operator_type::sub:
+                                return expr_gen.node_allocator_->template allocate<
+                                    typename details::binary_ext_node<Type, details::add_op<Type>>>(
+                                    branch[0], branch[1]);
 
-                            // f(x + 1) * -g(y + 1) --> -(f(x + 1) * g(y + 1))
-                        case core::operators::operator_type::mul:
-                            return expr_gen(
-                                core::operators::operator_type::neg,
-                                expr_gen.node_allocator_->template allocate<
-                                    typename details::binary_ext_node<Type, details::mul_op<Type>>>(
-                                    branch[0], branch[1]));
+                                // f(x + 1) * -g(y + 1) --> -(f(x + 1) * g(y + 1))
+                            case core::operators::operator_type::mul:
+                                return expr_gen(
+                                    core::operators::operator_type::neg,
+                                    expr_gen.node_allocator_
+                                        ->template allocate<typename details::binary_ext_node<
+                                            Type, details::mul_op<Type>>>(branch[0], branch[1]));
 
-                            // f(x + 1) / -g(y + 1) --> -(f(x + 1) / g(y + 1))
-                        case core::operators::operator_type::div:
-                            return expr_gen(
-                                core::operators::operator_type::neg,
-                                expr_gen.node_allocator_->template allocate<
-                                    typename details::binary_ext_node<Type, details::div_op<Type>>>(
-                                    branch[0], branch[1]));
+                                // f(x + 1) / -g(y + 1) --> -(f(x + 1) / g(y + 1))
+                            case core::operators::operator_type::div:
+                                return expr_gen(
+                                    core::operators::operator_type::neg,
+                                    expr_gen.node_allocator_
+                                        ->template allocate<typename details::binary_ext_node<
+                                            Type, details::div_op<Type>>>(branch[0], branch[1]));
 
-                        default:
-                            return error_node();
+                            default:
+                                return error_node();
                         }
                     }
                 }
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
-            ->template allocate<typename details::binary_ext_node<Type, op1<Type>>>(branch[0],     \
+#define case_stmt(op0, op1)                                                                    \
+    case op0:                                                                                  \
+        return expr_gen.node_allocator_                                                        \
+            ->template allocate<typename details::binary_ext_node<Type, op1<Type>>>(branch[0], \
                                                                                     branch[1]);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -12863,10 +12878,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vob_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref();
 
@@ -12905,22 +12919,22 @@ template <typename T> class parser : public lexer::parser_helper
 
                             switch (operation)
                             {
-                            case core::operators::operator_type::mul:
-                                return expr_gen(
-                                    core::operators::operator_type::neg,
-                                    expr_gen.node_allocator_->template allocate_rr<
-                                        typename details::vov_node<Type, details::mul_op<Type>>>(
-                                        v, v1));
+                                case core::operators::operator_type::mul:
+                                    return expr_gen(
+                                        core::operators::operator_type::neg,
+                                        expr_gen.node_allocator_
+                                            ->template allocate_rr<typename details::vov_node<
+                                                Type, details::mul_op<Type>>>(v, v1));
 
-                            case core::operators::operator_type::div:
-                                return expr_gen(
-                                    core::operators::operator_type::neg,
-                                    expr_gen.node_allocator_->template allocate_rr<
-                                        typename details::vov_node<Type, details::div_op<Type>>>(
-                                        v, v1));
+                                case core::operators::operator_type::div:
+                                    return expr_gen(
+                                        core::operators::operator_type::neg,
+                                        expr_gen.node_allocator_
+                                            ->template allocate_rr<typename details::vov_node<
+                                                Type, details::div_op<Type>>>(v, v1));
 
-                            default:
-                                break;
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -12928,9 +12942,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_rc<typename details::vob_node<Type, op1<Type>>>(v, branch[1]);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -12942,10 +12956,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_bov_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type& v = static_cast<details::variable_node<Type>*>(branch[1])->ref();
 
@@ -12987,32 +13000,33 @@ template <typename T> class parser : public lexer::parser_helper
 
                             switch (operation)
                             {
-                            case core::operators::operator_type::add:
-                                return expr_gen.node_allocator_->template allocate_rr<
-                                    typename details::vov_node<Type, details::sub_op<Type>>>(v, v0);
+                                case core::operators::operator_type::add:
+                                    return expr_gen.node_allocator_->template allocate_rr<
+                                        typename details::vov_node<Type, details::sub_op<Type>>>(
+                                        v, v0);
 
-                            case core::operators::operator_type::sub:
-                                return expr_gen(
-                                    core::operators::operator_type::neg,
-                                    expr_gen.node_allocator_->template allocate_rr<
-                                        typename details::vov_node<Type, details::add_op<Type>>>(
-                                        v0, v));
+                                case core::operators::operator_type::sub:
+                                    return expr_gen(
+                                        core::operators::operator_type::neg,
+                                        expr_gen.node_allocator_
+                                            ->template allocate_rr<typename details::vov_node<
+                                                Type, details::add_op<Type>>>(v0, v));
 
-                            case core::operators::operator_type::mul:
-                                return expr_gen(
-                                    core::operators::operator_type::neg,
-                                    expr_gen.node_allocator_->template allocate_rr<
-                                        typename details::vov_node<Type, details::mul_op<Type>>>(
-                                        v0, v));
+                                case core::operators::operator_type::mul:
+                                    return expr_gen(
+                                        core::operators::operator_type::neg,
+                                        expr_gen.node_allocator_
+                                            ->template allocate_rr<typename details::vov_node<
+                                                Type, details::mul_op<Type>>>(v0, v));
 
-                            case core::operators::operator_type::div:
-                                return expr_gen(
-                                    core::operators::operator_type::neg,
-                                    expr_gen.node_allocator_->template allocate_rr<
-                                        typename details::vov_node<Type, details::div_op<Type>>>(
-                                        v0, v));
-                            default:
-                                break;
+                                case core::operators::operator_type::div:
+                                    return expr_gen(
+                                        core::operators::operator_type::neg,
+                                        expr_gen.node_allocator_
+                                            ->template allocate_rr<typename details::vov_node<
+                                                Type, details::div_op<Type>>>(v0, v));
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -13020,9 +13034,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_cr<typename details::bov_node<Type, op1<Type>>>(branch[0], v);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -13034,10 +13048,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_cob_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
 
@@ -13080,14 +13093,14 @@ template <typename T> class parser : public lexer::parser_helper
                         {
                             switch (operation)
                             {
-                            case core::operators::operator_type::add:
-                                cobnode->set_c(c + cobnode->c());
-                                break;
-                            case core::operators::operator_type::mul:
-                                cobnode->set_c(c * cobnode->c());
-                                break;
-                            default:
-                                return error_node();
+                                case core::operators::operator_type::add:
+                                    cobnode->set_c(c + cobnode->c());
+                                    break;
+                                case core::operators::operator_type::mul:
+                                    cobnode->set_c(c * cobnode->c());
+                                    break;
+                                default:
+                                    return error_node();
                             }
 
                             return cobnode;
@@ -13105,14 +13118,14 @@ template <typename T> class parser : public lexer::parser_helper
                         {
                             switch (cob_opr)
                             {
-                            case core::operators::operator_type::div:
-                                cobnode->set_c(c * cobnode->c());
-                                break;
-                            case core::operators::operator_type::mul:
-                                cobnode->set_c(cobnode->c() / c);
-                                break;
-                            default:
-                                return error_node();
+                                case core::operators::operator_type::div:
+                                    cobnode->set_c(c * cobnode->c());
+                                    break;
+                                case core::operators::operator_type::mul:
+                                    cobnode->set_c(cobnode->c() / c);
+                                    break;
+                                default:
+                                    return error_node();
                             }
 
                             return cobnode;
@@ -13131,20 +13144,20 @@ template <typename T> class parser : public lexer::parser_helper
 
                             switch (cob_opr)
                             {
-                            case core::operators::operator_type::div:
-                                new_cobnode = expr_gen.node_allocator_->template allocate_tt<
-                                    typename details::cob_node<Type, details::mul_op<Type>>>(
-                                    c / cobnode->c(), cobnode->move_branch(0));
-                                break;
+                                case core::operators::operator_type::div:
+                                    new_cobnode = expr_gen.node_allocator_->template allocate_tt<
+                                        typename details::cob_node<Type, details::mul_op<Type>>>(
+                                        c / cobnode->c(), cobnode->move_branch(0));
+                                    break;
 
-                            case core::operators::operator_type::mul:
-                                new_cobnode = expr_gen.node_allocator_->template allocate_tt<
-                                    typename details::cob_node<Type, details::div_op<Type>>>(
-                                    c / cobnode->c(), cobnode->move_branch(0));
-                                break;
+                                case core::operators::operator_type::mul:
+                                    new_cobnode = expr_gen.node_allocator_->template allocate_tt<
+                                        typename details::cob_node<Type, details::div_op<Type>>>(
+                                        c / cobnode->c(), cobnode->move_branch(0));
+                                    break;
 
-                            default:
-                                return error_node();
+                                default:
+                                    return error_node();
                             }
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
@@ -13173,9 +13186,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_tt<typename details::cob_node<Type, op1<Type>>>(c, branch[1]);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -13187,10 +13200,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_boc_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
 
@@ -13233,14 +13245,14 @@ template <typename T> class parser : public lexer::parser_helper
                         {
                             switch (operation)
                             {
-                            case core::operators::operator_type::add:
-                                bocnode->set_c(c + bocnode->c());
-                                break;
-                            case core::operators::operator_type::mul:
-                                bocnode->set_c(c * bocnode->c());
-                                break;
-                            default:
-                                return error_node();
+                                case core::operators::operator_type::add:
+                                    bocnode->set_c(c + bocnode->c());
+                                    break;
+                                case core::operators::operator_type::mul:
+                                    bocnode->set_c(c * bocnode->c());
+                                    break;
+                                default:
+                                    return error_node();
                             }
 
                             return bocnode;
@@ -13257,14 +13269,14 @@ template <typename T> class parser : public lexer::parser_helper
                         {
                             switch (boc_opr)
                             {
-                            case core::operators::operator_type::div:
-                                bocnode->set_c(c * bocnode->c());
-                                break;
-                            case core::operators::operator_type::mul:
-                                bocnode->set_c(bocnode->c() / c);
-                                break;
-                            default:
-                                return error_node();
+                                case core::operators::operator_type::div:
+                                    bocnode->set_c(c * bocnode->c());
+                                    break;
+                                case core::operators::operator_type::mul:
+                                    bocnode->set_c(bocnode->c() / c);
+                                    break;
+                                default:
+                                    return error_node();
                             }
 
                             return bocnode;
@@ -13306,9 +13318,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_cr<typename details::boc_node<Type, op1<Type>>>(branch[0], c);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -13320,10 +13332,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_cocob_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 expression_node_ptr result = error_node();
 
@@ -13381,14 +13392,14 @@ template <typename T> class parser : public lexer::parser_helper
                     {
                         switch (operation)
                         {
-                        case core::operators::operator_type::add:
-                            cobnode->set_c(cobnode->c() + c);
-                            break;
-                        case core::operators::operator_type::sub:
-                            cobnode->set_c(cobnode->c() - c);
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                cobnode->set_c(cobnode->c() + c);
+                                break;
+                            case core::operators::operator_type::sub:
+                                cobnode->set_c(cobnode->c() - c);
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         result = cobnode;
@@ -13397,14 +13408,14 @@ template <typename T> class parser : public lexer::parser_helper
                     {
                         switch (operation)
                         {
-                        case core::operators::operator_type::mul:
-                            cobnode->set_c(cobnode->c() * c);
-                            break;
-                        case core::operators::operator_type::div:
-                            cobnode->set_c(cobnode->c() / c);
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::mul:
+                                cobnode->set_c(cobnode->c() * c);
+                                break;
+                            case core::operators::operator_type::div:
+                                cobnode->set_c(cobnode->c() / c);
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         result = cobnode;
@@ -13548,10 +13559,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_coboc_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 expression_node_ptr result = error_node();
 
@@ -13567,14 +13577,14 @@ template <typename T> class parser : public lexer::parser_helper
                     {
                         switch (operation)
                         {
-                        case core::operators::operator_type::add:
-                            bocnode->set_c(bocnode->c() + c);
-                            break;
-                        case core::operators::operator_type::sub:
-                            bocnode->set_c(bocnode->c() - c);
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                bocnode->set_c(bocnode->c() + c);
+                                break;
+                            case core::operators::operator_type::sub:
+                                bocnode->set_c(bocnode->c() - c);
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         result = bocnode;
@@ -13583,14 +13593,14 @@ template <typename T> class parser : public lexer::parser_helper
                     {
                         switch (operation)
                         {
-                        case core::operators::operator_type::mul:
-                            bocnode->set_c(bocnode->c() * c);
-                            break;
-                        case core::operators::operator_type::div:
-                            bocnode->set_c(bocnode->c() / c);
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::mul:
+                                bocnode->set_c(bocnode->c() * c);
+                                break;
+                            case core::operators::operator_type::div:
+                                bocnode->set_c(bocnode->c() / c);
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         result = bocnode;
@@ -13615,14 +13625,14 @@ template <typename T> class parser : public lexer::parser_helper
                     {
                         switch (operation)
                         {
-                        case core::operators::operator_type::div:
-                            bocnode->set_c(bocnode->c() * c);
-                            break;
-                        case core::operators::operator_type::mul:
-                            bocnode->set_c(bocnode->c() / c);
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::div:
+                                bocnode->set_c(bocnode->c() * c);
+                                break;
+                            case core::operators::operator_type::mul:
+                                bocnode->set_c(bocnode->c() / c);
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         result = bocnode;
@@ -13746,19 +13756,18 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_vov_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type& v1 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
                 const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_rr<typename details::vov_node<Type, op1<Type>>>(v1, v2);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -13770,10 +13779,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_cov_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
                 const Type& v = static_cast<details::variable_node<Type>*>(branch[1])->ref();
@@ -13795,9 +13803,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_cr<typename details::cov_node<Type, op1<Type>>>(c, v);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -13809,10 +13817,9 @@ template <typename T> class parser : public lexer::parser_helper
 
         struct synthesize_voc_expression
         {
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref();
                 const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
@@ -13844,9 +13851,9 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return expr_gen.node_allocator_                                                            \
+#define case_stmt(op0, op1)             \
+    case op0:                           \
+        return expr_gen.node_allocator_ \
             ->template allocate_rc<typename details::voc_node<Type, op1<Type>>>(v, c);
 
                     basic_opr_switch_statements extended_opr_switch_statements
@@ -13865,9 +13872,9 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 switch (sf3opr)
                 {
-#define case_stmt(op)                                                                              \
-    case core::operators::operator_type::sf##op:                                                   \
-        return details::T0oT1oT2_sf3ext<T, T0, T1, T2, details::sf##op##_op<Type>>::allocate(      \
+#define case_stmt(op)                                                                         \
+    case core::operators::operator_type::sf##op:                                              \
+        return details::T0oT1oT2_sf3ext<T, T0, T1, T2, details::sf##op##_op<Type>>::allocate( \
             *(expr_gen.node_allocator_), t0, t1, t2);
 
                     case_stmt(00) case_stmt(01) case_stmt(02) case_stmt(03) case_stmt(04)
@@ -13907,14 +13914,14 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 switch (sf4opr)
                 {
-#define case_stmt0(op)                                                                             \
-    case core::operators::operator_type::sf##op:                                                   \
-        return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sf##op##_op<Type>>::     \
+#define case_stmt0(op)                                                                         \
+    case core::operators::operator_type::sf##op:                                               \
+        return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sf##op##_op<Type>>:: \
             allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3);
 
-#define case_stmt1(op)                                                                             \
-    case core::operators::operator_type::sf4ext##op:                                               \
-        return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sfext##op##_op<Type>>::  \
+#define case_stmt1(op)                                                                            \
+    case core::operators::operator_type::sf4ext##op:                                              \
+        return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sfext##op##_op<Type>>:: \
             allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3);
 
                     case_stmt0(48) case_stmt0(49) case_stmt0(50) case_stmt0(51) case_stmt0(
@@ -13993,28 +14000,33 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (n->type())
                 {
-                case details::expression_node<Type>::node_type::e_covoc:
-                    return compile_right_impl<typename covoc_t::sf3_type_node, ExternalType, ctype,
-                                              vtype, ctype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_covoc:
+                        return compile_right_impl<typename covoc_t::sf3_type_node, ExternalType,
+                                                  ctype, vtype, ctype>(expr_gen, id, t, sf3node,
+                                                                       result);
 
-                case details::expression_node<Type>::node_type::e_covov:
-                    return compile_right_impl<typename covov_t::sf3_type_node, ExternalType, ctype,
-                                              vtype, vtype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_covov:
+                        return compile_right_impl<typename covov_t::sf3_type_node, ExternalType,
+                                                  ctype, vtype, vtype>(expr_gen, id, t, sf3node,
+                                                                       result);
 
-                case details::expression_node<Type>::node_type::e_vocov:
-                    return compile_right_impl<typename vocov_t::sf3_type_node, ExternalType, vtype,
-                                              ctype, vtype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_vocov:
+                        return compile_right_impl<typename vocov_t::sf3_type_node, ExternalType,
+                                                  vtype, ctype, vtype>(expr_gen, id, t, sf3node,
+                                                                       result);
 
-                case details::expression_node<Type>::node_type::e_vovoc:
-                    return compile_right_impl<typename vovoc_t::sf3_type_node, ExternalType, vtype,
-                                              vtype, ctype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_vovoc:
+                        return compile_right_impl<typename vovoc_t::sf3_type_node, ExternalType,
+                                                  vtype, vtype, ctype>(expr_gen, id, t, sf3node,
+                                                                       result);
 
-                case details::expression_node<Type>::node_type::e_vovov:
-                    return compile_right_impl<typename vovov_t::sf3_type_node, ExternalType, vtype,
-                                              vtype, vtype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_vovov:
+                        return compile_right_impl<typename vovov_t::sf3_type_node, ExternalType,
+                                                  vtype, vtype, vtype>(expr_gen, id, t, sf3node,
+                                                                       result);
 
-                default:
-                    return false;
+                    default:
+                        return false;
                 }
             }
 
@@ -14036,28 +14048,33 @@ template <typename T> class parser : public lexer::parser_helper
 
                 switch (n->type())
                 {
-                case details::expression_node<Type>::node_type::e_covoc:
-                    return compile_left_impl<typename covoc_t::sf3_type_node, ExternalType, ctype,
-                                             vtype, ctype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_covoc:
+                        return compile_left_impl<typename covoc_t::sf3_type_node, ExternalType,
+                                                 ctype, vtype, ctype>(expr_gen, id, t, sf3node,
+                                                                      result);
 
-                case details::expression_node<Type>::node_type::e_covov:
-                    return compile_left_impl<typename covov_t::sf3_type_node, ExternalType, ctype,
-                                             vtype, vtype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_covov:
+                        return compile_left_impl<typename covov_t::sf3_type_node, ExternalType,
+                                                 ctype, vtype, vtype>(expr_gen, id, t, sf3node,
+                                                                      result);
 
-                case details::expression_node<Type>::node_type::e_vocov:
-                    return compile_left_impl<typename vocov_t::sf3_type_node, ExternalType, vtype,
-                                             ctype, vtype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_vocov:
+                        return compile_left_impl<typename vocov_t::sf3_type_node, ExternalType,
+                                                 vtype, ctype, vtype>(expr_gen, id, t, sf3node,
+                                                                      result);
 
-                case details::expression_node<Type>::node_type::e_vovoc:
-                    return compile_left_impl<typename vovoc_t::sf3_type_node, ExternalType, vtype,
-                                             vtype, ctype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_vovoc:
+                        return compile_left_impl<typename vovoc_t::sf3_type_node, ExternalType,
+                                                 vtype, vtype, ctype>(expr_gen, id, t, sf3node,
+                                                                      result);
 
-                case details::expression_node<Type>::node_type::e_vovov:
-                    return compile_left_impl<typename vovov_t::sf3_type_node, ExternalType, vtype,
-                                             vtype, vtype>(expr_gen, id, t, sf3node, result);
+                    case details::expression_node<Type>::node_type::e_vovov:
+                        return compile_left_impl<typename vovov_t::sf3_type_node, ExternalType,
+                                                 vtype, vtype, vtype>(expr_gen, id, t, sf3node,
+                                                                      result);
 
-                default:
-                    return false;
+                    default:
+                        return false;
                 }
             }
 
@@ -14111,10 +14128,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vovov_t::type0;
             using sf3_type = typename vovov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 v1) o1 (v2)
                 const details::vov_base_node<Type>* vov =
@@ -14177,10 +14193,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vovov_t::type1;
             using sf3_type = typename vovov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0) o0 (v1 o1 v2)
                 const details::vov_base_node<Type>* vov =
@@ -14243,10 +14258,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vovoc_t::type0;
             using sf3_type = typename vovoc_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 v1) o1 (c)
                 const details::vov_base_node<Type>* vov =
@@ -14310,10 +14324,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vovoc_t::type1;
             using sf3_type = typename vovoc_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0) o0 (v1 o1 c)
                 const details::voc_base_node<Type>* voc =
@@ -14376,10 +14389,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vocov_t::type0;
             using sf3_type = typename vocov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 c) o1 (v1)
                 const details::voc_base_node<Type>* voc =
@@ -14442,10 +14454,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vocov_t::type1;
             using sf3_type = typename vocov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0) o0 (c o1 v1)
                 const details::cov_base_node<Type>* cov =
@@ -14508,10 +14519,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename covov_t::type0;
             using sf3_type = typename covov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c o0 v0) o1 (v1)
                 const details::cov_base_node<Type>* cov =
@@ -14574,10 +14584,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename covov_t::type1;
             using sf3_type = typename covov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c) o0 (v0 o1 v1)
                 const details::vov_base_node<Type>* vov =
@@ -14641,10 +14650,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename covoc_t::type0;
             using sf3_type = typename covoc_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c0 o0 v) o1 (c1)
                 const details::cov_base_node<Type>* cov =
@@ -14768,10 +14776,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename covoc_t::type1;
             using sf3_type = typename covoc_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c0) o0 (v o1 c1)
                 const details::voc_base_node<Type>* voc =
@@ -14907,10 +14914,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename cocov_t::type1;
             using sf3_type = typename cocov_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c0) o0 (c1 o1 v)
                 const details::cov_base_node<Type>* cov =
@@ -15034,10 +15040,9 @@ template <typename T> class parser : public lexer::parser_helper
             using node_type = typename vococ_t::type0;
             using sf3_type = typename vococ_t::sf3_type;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v o0 c0) o1 (c1)
                 const details::voc_base_node<Type>* voc =
@@ -15188,10 +15193,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 v1) o1 (v2 o2 v3)
                 const details::vov_base_node<Type>* vov0 =
@@ -15332,10 +15336,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 v1) o1 (v2 o2 c)
                 const details::vov_base_node<Type>* vov =
@@ -15431,10 +15434,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 v1) o1 (c o2 v2)
                 const details::vov_base_node<Type>* vov =
@@ -15530,10 +15532,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 c) o1 (v1 o2 v2)
                 const details::voc_base_node<Type>* voc =
@@ -15629,10 +15630,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c o0 v0) o1 (v1 o2 v2)
                 const details::cov_base_node<Type>* cov =
@@ -15728,10 +15728,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c0 o0 v0) o1 (c1 o2 v1)
                 const details::cov_base_node<Type>* cov0 =
@@ -15890,14 +15889,14 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (o1)
                         {
-                        case core::operators::operator_type::add:
-                            specfunc = "t*(t+t)";
-                            break;
-                        case core::operators::operator_type::sub:
-                            specfunc = "t*(t-t)";
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                specfunc = "t*(t+t)";
+                                break;
+                            case core::operators::operator_type::sub:
+                                specfunc = "t*(t-t)";
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         const bool synthesis_result =
@@ -15952,10 +15951,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 c0) o1 (v1 o2 c1)
                 const details::voc_base_node<Type>* voc0 =
@@ -16144,14 +16142,14 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (o1)
                         {
-                        case core::operators::operator_type::add:
-                            specfunc = "t*(t+t)";
-                            break;
-                        case core::operators::operator_type::sub:
-                            specfunc = "t*(t-t)";
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                specfunc = "t*(t+t)";
+                                break;
+                            case core::operators::operator_type::sub:
+                                specfunc = "t*(t-t)";
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         const bool synthesis_result =
@@ -16173,14 +16171,14 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (o1)
                         {
-                        case core::operators::operator_type::add:
-                            specfunc = "(t+t)/t";
-                            break;
-                        case core::operators::operator_type::sub:
-                            specfunc = "(t-t)/t";
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                specfunc = "(t+t)/t";
+                                break;
+                            case core::operators::operator_type::sub:
+                                specfunc = "(t-t)/t";
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         const bool synthesis_result =
@@ -16235,10 +16233,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (c0 o0 v0) o1 (v1 o2 c1)
                 const details::cov_base_node<Type>* cov =
@@ -16397,14 +16394,14 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (o1)
                         {
-                        case core::operators::operator_type::add:
-                            specfunc = "t*(t+t)";
-                            break;
-                        case core::operators::operator_type::sub:
-                            specfunc = "t*(t-t)";
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                specfunc = "t*(t+t)";
+                                break;
+                            case core::operators::operator_type::sub:
+                                specfunc = "t*(t-t)";
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         const bool synthesis_result =
@@ -16459,10 +16456,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 c0) o1 (c1 o2 v1)
                 const details::voc_base_node<Type>* voc =
@@ -16621,14 +16617,14 @@ template <typename T> class parser : public lexer::parser_helper
 
                         switch (o1)
                         {
-                        case core::operators::operator_type::add:
-                            specfunc = "t*(t+t)";
-                            break;
-                        case core::operators::operator_type::sub:
-                            specfunc = "t*(t-t)";
-                            break;
-                        default:
-                            return error_node();
+                            case core::operators::operator_type::add:
+                                specfunc = "t*(t+t)";
+                                break;
+                            case core::operators::operator_type::sub:
+                                specfunc = "t*(t-t)";
+                                break;
+                            default:
+                                return error_node();
                         }
 
                         const bool synthesis_result =
@@ -16683,10 +16679,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (v1 o1 (v2 o2 v3))
                 using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
@@ -16742,10 +16737,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (v1 o1 (v2 o2 c))
                 using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
@@ -16801,10 +16795,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (v1 o1 (c o2 v2))
                 using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
@@ -16860,10 +16853,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (c o1 (v1 o2 v2))
                 using lcl_covov_t = typename synthesize_covov_expression1::node_type;
@@ -16919,10 +16911,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // c o0 (v0 o1 (v1 o2 v2))
                 using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
@@ -16979,10 +16970,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // c0 o0 (v0 o1 (c1 o2 v1))
                 using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
@@ -17039,10 +17029,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (c0 o1 (v1 o2 c2))
                 using lcl_covoc_t = typename synthesize_covoc_expression1::node_type;
@@ -17097,10 +17086,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T1 = typename node_type::T1;
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // c0 o0 (v0 o1 (v1 o2 c1))
                 using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
@@ -17157,10 +17145,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 (c0 o1 (c1 o2 v1))
                 using lcl_cocov_t = typename synthesize_cocov_expression1::node_type;
@@ -17216,10 +17203,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((v1 o1 v2) o2 v3)
                 using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
@@ -17275,10 +17261,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((v1 o1 v2) o2 c)
                 using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
@@ -17334,10 +17319,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((v1 o1 c) o2 v2)
                 using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
@@ -17393,10 +17377,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((c o1 v1) o2 v2)
                 using lcl_covov_t = typename synthesize_covov_expression0::node_type;
@@ -17452,10 +17435,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // c o0 ((v1 o1 v2) o2 v3)
                 using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
@@ -17512,10 +17494,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // c0 o0 ((v0 o1 c1) o2 v1)
                 using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
@@ -17572,10 +17553,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // v0 o0 ((c0 o1 v1) o2 c1)
                 using lcl_covoc_t = typename synthesize_covoc_expression0::node_type;
@@ -17631,10 +17611,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // c0 o0 ((v0 o1 v1) o2 c1)
                 using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
@@ -17712,10 +17691,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 v1) o1 v2) o2 v3
                 using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
@@ -17771,10 +17749,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 v1) o1 v2) o2 c
                 using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
@@ -17831,10 +17808,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 v1) o1 c) o2 v2
                 using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
@@ -17890,10 +17866,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 c) o1 v1) o2 v2
                 using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
@@ -17949,10 +17924,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((c o0 v0) o1 v1) o2 v2
                 using lcl_covov_t = typename synthesize_covov_expression0::node_type;
@@ -18008,10 +17982,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 v0) o1 c1) o2 v1
                 using lcl_covoc_t = typename synthesize_covoc_expression0::node_type;
@@ -18067,10 +18040,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 c0) o1 v1) o2 c1
                 using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
@@ -18127,10 +18099,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 v0) o1 v1) o2 c1
                 using lcl_covov_t = typename synthesize_covov_expression0::node_type;
@@ -18187,10 +18158,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 c0) o1 c1) o2 v1
                 using lcl_vococ_t = typename synthesize_vococ_expression0::node_type;
@@ -18246,10 +18216,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // (v0 o0 (v1 o1 v2)) o2 v3
                 using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
@@ -18305,10 +18274,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (v1 o1 v2)) o2 c)
                 using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
@@ -18365,10 +18333,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (v1 o1 c)) o2 v1)
                 using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
@@ -18424,10 +18391,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (c o1 v1)) o2 v2)
                 using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
@@ -18482,10 +18448,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((c o0 (v0 o1 v1)) o2 v2)
                 using lcl_covov_t = typename synthesize_covov_expression1::node_type;
@@ -18541,10 +18506,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 (v0 o1 c1)) o2 v1)
                 using lcl_covoc_t = typename synthesize_covoc_expression1::node_type;
@@ -18600,10 +18564,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((v0 o0 (c0 o1 v1)) o2 c1)
                 using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
@@ -18660,10 +18623,9 @@ template <typename T> class parser : public lexer::parser_helper
             using T2 = typename node_type::T2;
             using T3 = typename node_type::T3;
 
-            static inline expression_node_ptr
-            process(expression_generator<Type>& expr_gen,
-                    const core::operators::operator_type& operation,
-                    expression_node_ptr (&branch)[2])
+            static inline expression_node_ptr process(
+                expression_generator<Type>& expr_gen,
+                const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
                 // ((c0 o0 (v0 o1 v1)) o2 c1)
                 using lcl_covov_t = typename synthesize_covov_expression1::node_type;
@@ -18733,9 +18695,8 @@ template <typename T> class parser : public lexer::parser_helper
         };
 #endif
 
-        inline expression_node_ptr
-        synthesize_uvouv_expression(const core::operators::operator_type& operation,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_uvouv_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
         {
             // Definition: uv o uv
             core::operators::operator_type o0 =
@@ -18762,45 +18723,38 @@ template <typename T> class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-                // (-v0 + -v1) --> -(v0 + v1)
-                case core::operators::operator_type::add:
-                    result = (*this)(
-                        core::operators::operator_type::neg,
-                        node_allocator_
-                            ->allocate_rr<typename details::vov_node<Type, details::add_op<Type>>>(
-                                v0, v1));
-                    math_expr_debug(("(-v0 + -v1) --> -(v0 + v1)\n"));
-                    break;
+                    // (-v0 + -v1) --> -(v0 + v1)
+                    case core::operators::operator_type::add:
+                        result = (*this)(
+                            core::operators::operator_type::neg,
+                            node_allocator_->allocate_rr<
+                                typename details::vov_node<Type, details::add_op<Type>>>(v0, v1));
+                        math_expr_debug(("(-v0 + -v1) --> -(v0 + v1)\n"));
+                        break;
 
-                // (-v0 - -v1) --> (v1 - v0)
-                case core::operators::operator_type::sub:
-                    result =
-                        node_allocator_
-                            ->allocate_rr<typename details::vov_node<Type, details::sub_op<Type>>>(
-                                v1, v0);
-                    math_expr_debug(("(-v0 - -v1) --> (v1 - v0)\n"));
-                    break;
+                    // (-v0 - -v1) --> (v1 - v0)
+                    case core::operators::operator_type::sub:
+                        result = node_allocator_->allocate_rr<
+                            typename details::vov_node<Type, details::sub_op<Type>>>(v1, v0);
+                        math_expr_debug(("(-v0 - -v1) --> (v1 - v0)\n"));
+                        break;
 
-                // (-v0 * -v1) --> (v0 * v1)
-                case core::operators::operator_type::mul:
-                    result =
-                        node_allocator_
-                            ->allocate_rr<typename details::vov_node<Type, details::mul_op<Type>>>(
-                                v0, v1);
-                    math_expr_debug(("(-v0 * -v1) --> (v0 * v1)\n"));
-                    break;
+                    // (-v0 * -v1) --> (v0 * v1)
+                    case core::operators::operator_type::mul:
+                        result = node_allocator_->allocate_rr<
+                            typename details::vov_node<Type, details::mul_op<Type>>>(v0, v1);
+                        math_expr_debug(("(-v0 * -v1) --> (v0 * v1)\n"));
+                        break;
 
-                // (-v0 / -v1) --> (v0 / v1)
-                case core::operators::operator_type::div:
-                    result =
-                        node_allocator_
-                            ->allocate_rr<typename details::vov_node<Type, details::div_op<Type>>>(
-                                v0, v1);
-                    math_expr_debug(("(-v0 / -v1) --> (v0 / v1)\n"));
-                    break;
+                    // (-v0 / -v1) --> (v0 / v1)
+                    case core::operators::operator_type::div:
+                        result = node_allocator_->allocate_rr<
+                            typename details::vov_node<Type, details::div_op<Type>>>(v0, v1);
+                        math_expr_debug(("(-v0 / -v1) --> (v0 / v1)\n"));
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
@@ -18820,29 +18774,28 @@ template <typename T> class parser : public lexer::parser_helper
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
-#define string_opr_switch_statements                                                               \
-    case_stmt(core::operators::operator_type::lt, details::lt_op)                                  \
-        case_stmt(core::operators::operator_type::lte, details::lte_op)                            \
-            case_stmt(core::operators::operator_type::gt, details::gt_op)                          \
-                case_stmt(core::operators::operator_type::gte, details::gte_op)                    \
-                    case_stmt(core::operators::operator_type::eq, details::eq_op)                  \
-                        case_stmt(core::operators::operator_type::ne, details::ne_op)              \
-                            case_stmt(core::operators::operator_type::in, details::in_op)          \
-                                case_stmt(core::operators::operator_type::like, details::like_op)  \
-                                    case_stmt(core::operators::operator_type::ilike,               \
+#define string_opr_switch_statements                                                              \
+    case_stmt(core::operators::operator_type::lt, details::lt_op)                                 \
+        case_stmt(core::operators::operator_type::lte, details::lte_op)                           \
+            case_stmt(core::operators::operator_type::gt, details::gt_op)                         \
+                case_stmt(core::operators::operator_type::gte, details::gte_op)                   \
+                    case_stmt(core::operators::operator_type::eq, details::eq_op)                 \
+                        case_stmt(core::operators::operator_type::ne, details::ne_op)             \
+                            case_stmt(core::operators::operator_type::in, details::in_op)         \
+                                case_stmt(core::operators::operator_type::like, details::like_op) \
+                                    case_stmt(core::operators::operator_type::ilike,              \
                                               details::ilike_op)
 
         template <typename T0, typename T1>
-        inline expression_node_ptr
-        synthesize_str_xrox_expression_impl(const core::operators::operator_type& opr, T0 s0, T1 s1,
-                                            range_t rp0)
+        inline expression_node_ptr synthesize_str_xrox_expression_impl(
+            const core::operators::operator_type& opr, T0 s0, T1 s1, range_t rp0)
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_->allocate_ttt<                                                      \
-            typename details::str_xrox_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1,     \
+#define case_stmt(op0, op1)                                                                    \
+    case op0:                                                                                  \
+        return node_allocator_->allocate_ttt<                                                  \
+            typename details::str_xrox_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
                                                                                        rp0);
 
                 string_opr_switch_statements
@@ -18852,16 +18805,15 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename T0, typename T1>
-        inline expression_node_ptr
-        synthesize_str_xoxr_expression_impl(const core::operators::operator_type& opr, T0 s0, T1 s1,
-                                            range_t rp1)
+        inline expression_node_ptr synthesize_str_xoxr_expression_impl(
+            const core::operators::operator_type& opr, T0 s0, T1 s1, range_t rp1)
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_->allocate_ttt<                                                      \
-            typename details::str_xoxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1,     \
+#define case_stmt(op0, op1)                                                                    \
+    case op0:                                                                                  \
+        return node_allocator_->allocate_ttt<                                                  \
+            typename details::str_xoxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
                                                                                        rp1);
 
                 string_opr_switch_statements
@@ -18871,16 +18823,15 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename T0, typename T1>
-        inline expression_node_ptr
-        synthesize_str_xroxr_expression_impl(const core::operators::operator_type& opr, T0 s0,
-                                             T1 s1, range_t rp0, range_t rp1)
+        inline expression_node_ptr synthesize_str_xroxr_expression_impl(
+            const core::operators::operator_type& opr, T0 s0, T1 s1, range_t rp0, range_t rp1)
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_->allocate_tttt<                                                     \
-            typename details::str_xroxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1,    \
+#define case_stmt(op0, op1)                                                                     \
+    case op0:                                                                                   \
+        return node_allocator_->allocate_tttt<                                                  \
+            typename details::str_xroxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
                                                                                         rp0, rp1);
 
                 string_opr_switch_statements
@@ -18890,14 +18841,14 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename T0, typename T1>
-        inline expression_node_ptr
-        synthesize_sos_expression_impl(const core::operators::operator_type& opr, T0 s0, T1 s1)
+        inline expression_node_ptr synthesize_sos_expression_impl(
+            const core::operators::operator_type& opr, T0 s0, T1 s1)
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_                                                                     \
+#define case_stmt(op0, op1)    \
+    case op0:                  \
+        return node_allocator_ \
             ->allocate_tt<typename details::sos_node<Type, T0, T1, op1<Type>>, T0, T1>(s0, s1);
 
                 string_opr_switch_statements
@@ -18906,9 +18857,8 @@ template <typename T> class parser : public lexer::parser_helper
             }
         }
 
-        inline expression_node_ptr
-        synthesize_sos_expression(const core::operators::operator_type& opr,
-                                  expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_sos_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
@@ -18918,9 +18868,8 @@ template <typename T> class parser : public lexer::parser_helper
             return synthesize_sos_expression_impl<std::string&, std::string&>(opr, s0, s1);
         }
 
-        inline expression_node_ptr
-        synthesize_sros_expression(const core::operators::operator_type& opr,
-                                   expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_sros_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
@@ -18939,9 +18888,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                    rp0);
         }
 
-        inline expression_node_ptr
-        synthesize_sosr_expression(const core::operators::operator_type& opr,
-                                   expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_sosr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
@@ -18960,9 +18908,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                    rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_socsr_expression(const core::operators::operator_type& opr,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_socsr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
@@ -18983,9 +18930,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                         rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_srosr_expression(const core::operators::operator_type& opr,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_srosr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
@@ -19010,9 +18956,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                     rp0, rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_socs_expression(const core::operators::operator_type& opr,
-                                   expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_socs_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
@@ -19023,9 +18968,8 @@ template <typename T> class parser : public lexer::parser_helper
             return synthesize_sos_expression_impl<std::string&, const std::string>(opr, s0, s1);
         }
 
-        inline expression_node_ptr
-        synthesize_csos_expression(const core::operators::operator_type& opr,
-                                   expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csos_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
             std::string& s1 =
@@ -19036,9 +18980,8 @@ template <typename T> class parser : public lexer::parser_helper
             return synthesize_sos_expression_impl<const std::string, std::string&>(opr, s0, s1);
         }
 
-        inline expression_node_ptr
-        synthesize_csosr_expression(const core::operators::operator_type& opr,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csosr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
             std::string& s1 =
@@ -19057,9 +19000,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                         rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_srocs_expression(const core::operators::operator_type& opr,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_srocs_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
@@ -19078,9 +19020,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                         rp0);
         }
 
-        inline expression_node_ptr
-        synthesize_srocsr_expression(const core::operators::operator_type& opr,
-                                     expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_srocsr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string& s0 =
                 static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
@@ -19107,9 +19048,8 @@ template <typename T> class parser : public lexer::parser_helper
                 opr, s0, s1, rp0, rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_csocs_expression(const core::operators::operator_type& opr,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csocs_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             const std::string s0 =
                 static_cast<details::string_literal_node<Type>*>(branch[0])->str();
@@ -19147,9 +19087,8 @@ template <typename T> class parser : public lexer::parser_helper
             return result;
         }
 
-        inline expression_node_ptr
-        synthesize_csocsr_expression(const core::operators::operator_type& opr,
-                                     expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csocsr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             const std::string s0 =
                 static_cast<details::string_literal_node<Type>*>(branch[0])->str();
@@ -19171,9 +19110,8 @@ template <typename T> class parser : public lexer::parser_helper
                 opr, s0, s1, rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_csros_expression(const core::operators::operator_type& opr,
-                                    expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csros_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             std::string s0 =
                 static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
@@ -19194,9 +19132,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                         rp0);
         }
 
-        inline expression_node_ptr
-        synthesize_csrosr_expression(const core::operators::operator_type& opr,
-                                     expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csrosr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             const std::string s0 =
                 static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
@@ -19223,9 +19160,8 @@ template <typename T> class parser : public lexer::parser_helper
                 opr, s0, s1, rp0, rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_csrocs_expression(const core::operators::operator_type& opr,
-                                     expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csrocs_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             const std::string s0 =
                 static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
@@ -19246,9 +19182,8 @@ template <typename T> class parser : public lexer::parser_helper
                                                                                        rp0);
         }
 
-        inline expression_node_ptr
-        synthesize_csrocsr_expression(const core::operators::operator_type& opr,
-                                      expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_csrocsr_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             const std::string s0 =
                 static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
@@ -19276,15 +19211,14 @@ template <typename T> class parser : public lexer::parser_helper
                 opr, s0, s1, rp0, rp1);
         }
 
-        inline expression_node_ptr
-        synthesize_strogen_expression(const core::operators::operator_type& opr,
-                                      expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_strogen_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                        \
-    case op0:                                                                                      \
-        return node_allocator_->allocate_ttt<typename details::str_sogens_node<Type, op1<Type>>>(  \
+#define case_stmt(op0, op1)                                                                       \
+    case op0:                                                                                     \
+        return node_allocator_->allocate_ttt<typename details::str_sogens_node<Type, op1<Type>>>( \
             opr, branch[0], branch[1]);
 
                 string_opr_switch_statements
@@ -19297,9 +19231,8 @@ template <typename T> class parser : public lexer::parser_helper
 #endif
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr
-        synthesize_string_expression(const core::operators::operator_type& opr,
-                                     expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_string_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
             if ((0 == branch[0]) || (0 == branch[1]))
             {
@@ -19394,9 +19327,8 @@ template <typename T> class parser : public lexer::parser_helper
             return error_node();
         }
 #else
-        inline expression_node_ptr
-        synthesize_string_expression(const core::operators::operator_type&,
-                                     expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_string_expression(
+            const core::operators::operator_type&, expression_node_ptr (&branch)[2])
         {
             details::free_all_nodes(*node_allocator_, branch);
             return error_node();
@@ -19404,9 +19336,8 @@ template <typename T> class parser : public lexer::parser_helper
 #endif
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr
-        synthesize_string_expression(const core::operators::operator_type& opr,
-                                     expression_node_ptr (&branch)[3])
+        inline expression_node_ptr synthesize_string_expression(
+            const core::operators::operator_type& opr, expression_node_ptr (&branch)[3])
         {
             if (core::operators::operator_type::inrange != opr)
                 return error_node();
@@ -19527,18 +19458,16 @@ template <typename T> class parser : public lexer::parser_helper
                 return error_node();
         }
 #else
-        inline expression_node_ptr
-        synthesize_string_expression(const core::operators::operator_type&,
-                                     expression_node_ptr (&branch)[3])
+        inline expression_node_ptr synthesize_string_expression(
+            const core::operators::operator_type&, expression_node_ptr (&branch)[3])
         {
             details::free_all_nodes(*node_allocator_, branch);
             return error_node();
         }
 #endif
 
-        inline expression_node_ptr
-        synthesize_null_expression(const core::operators::operator_type& operation,
-                                   expression_node_ptr (&branch)[2])
+        inline expression_node_ptr synthesize_null_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
         {
             /*
              Note: The following are the type promotion rules
@@ -19640,9 +19569,8 @@ template <typename T> class parser : public lexer::parser_helper
         }
 
         template <typename NodeType, std::size_t N>
-        inline expression_node_ptr
-        synthesize_expression(const core::operators::operator_type& operation,
-                              expression_node_ptr (&branch)[N])
+        inline expression_node_ptr synthesize_expression(
+            const core::operators::operator_type& operation, expression_node_ptr (&branch)[N])
         {
             if ((core::operators::operator_type::in == operation) ||
                 (core::operators::operator_type::like == operation) ||
@@ -19735,7 +19663,7 @@ template <typename T> class parser : public lexer::parser_helper
         sf3_map_t* sf3_map_;
         sf4_map_t* sf4_map_;
         parser_t* parser_;
-    }; // class expression_generator
+    };  // class expression_generator
 
     inline void set_error(const parser_error::type& error_type)
     {
@@ -20050,8 +19978,8 @@ template <typename T> class parser : public lexer::parser_helper
     {
         using pair_t = std::pair<trinary_functor_t, core::operators::operator_type>;
 
-#define register_sf3(Op)                                                                           \
-    sf3_map[details::sf##Op##_op<T>::id()] =                                                       \
+#define register_sf3(Op)                     \
+    sf3_map[details::sf##Op##_op<T>::id()] = \
         pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
 
         register_sf3(00) register_sf3(01) register_sf3(02) register_sf3(03) register_sf3(04)
@@ -20063,10 +19991,10 @@ template <typename T> class parser : public lexer::parser_helper
                                 register_sf3(27) register_sf3(28) register_sf3(29) register_sf3(30)
 #undef register_sf3
 
-#define register_sf3_extid(Id, Op)                                                                 \
+#define register_sf3_extid(Id, Op) \
     sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
 
-                                    register_sf3_extid("(t-t)-t", 23) // (t-t)-t --> t-(t+t)
+                                    register_sf3_extid("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
 #undef register_sf3_extid
     }
 
@@ -20074,8 +20002,8 @@ template <typename T> class parser : public lexer::parser_helper
     {
         using pair_t = std::pair<quaternary_functor_t, core::operators::operator_type>;
 
-#define register_sf4(Op)                                                                           \
-    sf4_map[details::sf##Op##_op<T>::id()] =                                                       \
+#define register_sf4(Op)                     \
+    sf4_map[details::sf##Op##_op<T>::id()] = \
         pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
 
         register_sf4(48) register_sf4(49) register_sf4(50) register_sf4(51) register_sf4(
@@ -20088,8 +20016,8 @@ template <typename T> class parser : public lexer::parser_helper
                         79) register_sf4(80) register_sf4(81) register_sf4(82) register_sf4(83)
 #undef register_sf4
 
-#define register_sf4ext(Op)                                                                        \
-    sf4_map[details::sfext##Op##_op<T>::id()] =                                                    \
+#define register_sf4ext(Op)                     \
+    sf4_map[details::sfext##Op##_op<T>::id()] = \
         pair_t(details::sfext##Op##_op<T>::process, core::operators::operator_type::sf4ext##Op);
 
                         register_sf4ext(00) register_sf4ext(01) register_sf4ext(02) register_sf4ext(
@@ -20170,7 +20098,7 @@ template <typename T> class parser : public lexer::parser_helper
         return true;
     }
 
-  private:
+   private:
     parser(const parser<T>&) = delete;
     parser<T>& operator=(const parser<T>&) = delete;
 
@@ -20216,9 +20144,10 @@ template <typename T> class parser : public lexer::parser_helper
     assert_check_ptr assert_check_;
     std::set<std::string> assert_ids_;
 
-    template <typename ParserType> friend void details::disable_type_checking(ParserType& p);
-}; // class parser
+    template <typename ParserType>
+    friend void details::disable_type_checking(ParserType& p);
+};  // class parser
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif

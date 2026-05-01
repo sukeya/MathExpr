@@ -42,9 +42,10 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T, typename SpecialFunction> class sf3_var_node final : public expression_node<T>
+template <typename T, typename SpecialFunction>
+class sf3_var_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     sf3_var_node(const T& v0, const T& v1, const T& v2) : v0_(v0), v1_(v1), v2_(v2) {}
@@ -59,7 +60,7 @@ template <typename T, typename SpecialFunction> class sf3_var_node final : publi
         return expression_node<T>::node_type::e_trinary;
     }
 
-  private:
+   private:
     sf3_var_node(const sf3_var_node<T, SpecialFunction>&) = delete;
     sf3_var_node<T, SpecialFunction>& operator=(const sf3_var_node<T, SpecialFunction>&) = delete;
 
@@ -68,9 +69,10 @@ template <typename T, typename SpecialFunction> class sf3_var_node final : publi
     const T& v2_;
 };
 
-template <typename T, typename SpecialFunction> class sf4_var_node final : public expression_node<T>
+template <typename T, typename SpecialFunction>
+class sf4_var_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     sf4_var_node(const T& v0, const T& v1, const T& v2, const T& v3)
@@ -88,7 +90,7 @@ template <typename T, typename SpecialFunction> class sf4_var_node final : publi
         return expression_node<T>::node_type::e_trinary;
     }
 
-  private:
+   private:
     sf4_var_node(const sf4_var_node<T, SpecialFunction>&) = delete;
     sf4_var_node<T, SpecialFunction>& operator=(const sf4_var_node<T, SpecialFunction>&) = delete;
 
@@ -98,9 +100,10 @@ template <typename T, typename SpecialFunction> class sf4_var_node final : publi
     const T& v3_;
 };
 
-template <typename T, typename VarArgFunction> class vararg_node final : public expression_node<T>
+template <typename T, typename VarArgFunction>
+class vararg_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -161,7 +164,7 @@ template <typename T, typename VarArgFunction> class vararg_node final : public 
         return arg_list_[index].first;
     }
 
-  private:
+   private:
     std::vector<branch_t> arg_list_;
     bool initialised_;
 };
@@ -169,7 +172,7 @@ template <typename T, typename VarArgFunction> class vararg_node final : public 
 template <typename T, typename VarArgFunction>
 class vararg_varnode final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     template <typename Allocator, template <typename, typename> class Sequence>
@@ -211,14 +214,15 @@ class vararg_varnode final : public expression_node<T>
         return initialised_;
     }
 
-  private:
+   private:
     std::vector<const T*> arg_list_;
     bool initialised_;
 };
 
-template <typename T, typename VecFunction> class vectorize_node final : public expression_node<T>
+template <typename T, typename VecFunction>
+class vectorize_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
@@ -258,14 +262,15 @@ template <typename T, typename VecFunction> class vectorize_node final : public 
         return expression_node<T>::ndb_t::compute_node_depth(v_);
     }
 
-  private:
+   private:
     vector_interface<T>* ivec_ptr_;
     branch_t v_;
 };
 
-template <typename T> class assignment_node final : public binary_node<T>
+template <typename T>
+class assignment_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -292,13 +297,14 @@ template <typename T> class assignment_node final : public binary_node<T>
         return var_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     variable_node<T>* var_node_ptr_;
 };
 
-template <typename T> class assignment_vec_elem_node final : public binary_node<T>
+template <typename T>
+class assignment_vec_elem_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -327,13 +333,14 @@ template <typename T> class assignment_vec_elem_node final : public binary_node<
         return vec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     vector_elem_node<T>* vec_node_ptr_;
 };
 
-template <typename T> class assignment_vec_elem_rtc_node final : public binary_node<T>
+template <typename T>
+class assignment_vec_elem_rtc_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -362,13 +369,14 @@ template <typename T> class assignment_vec_elem_rtc_node final : public binary_n
         return vec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     vector_elem_rtc_node<T>* vec_node_ptr_;
 };
 
-template <typename T> class assignment_rebasevec_elem_node final : public binary_node<T>
+template <typename T>
+class assignment_rebasevec_elem_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using expression_node<T>::branch;
 
@@ -397,13 +405,14 @@ template <typename T> class assignment_rebasevec_elem_node final : public binary
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_elem_node<T>* rbvec_node_ptr_;
 };
 
-template <typename T> class assignment_rebasevec_elem_rtc_node final : public binary_node<T>
+template <typename T>
+class assignment_rebasevec_elem_rtc_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using expression_node<T>::branch;
 
@@ -432,13 +441,14 @@ template <typename T> class assignment_rebasevec_elem_rtc_node final : public bi
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_elem_rtc_node<T>* rbvec_node_ptr_;
 };
 
-template <typename T> class assignment_rebasevec_celem_node final : public binary_node<T>
+template <typename T>
+class assignment_rebasevec_celem_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -467,7 +477,7 @@ template <typename T> class assignment_rebasevec_celem_node final : public binar
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_celem_node<T>* rbvec_node_ptr_;
 };
 
@@ -484,7 +494,7 @@ template <typename T> class assignment_rebasevec_celem_node final : public binar
 template <typename T>
 class assignment_vec_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vds_t = core::vec_data_store<T>;
@@ -574,7 +584,7 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
         return vds_;
     }
 
-  private:
+   private:
     vector_node<T>* vec_node_ptr_;
     vds_t vds_;
 };
@@ -582,7 +592,7 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
 template <typename T>
 class assignment_vecvec_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vds_t = core::vec_data_store<T>;
@@ -591,8 +601,11 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
 
     assignment_vecvec_node(const core::operators::operator_type& opr, expression_ptr branch0,
                            expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec0_node_ptr_(0), vec1_node_ptr_(0),
-          initialised_(false), src_is_ivec_(false)
+        : binary_node<T>(opr, branch0, branch1),
+          vec0_node_ptr_(0),
+          vec1_node_ptr_(0),
+          initialised_(false),
+          src_is_ivec_(false)
     {
         if (is_vector_node(branch(0)))
         {
@@ -704,7 +717,7 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
         return vds_;
     }
 
-  private:
+   private:
     vector_node<T>* vec0_node_ptr_;
     vector_node<T>* vec1_node_ptr_;
     bool initialised_;
@@ -712,9 +725,10 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
     vds_t vds_;
 };
 
-template <typename T, typename Operation> class assignment_op_node final : public binary_node<T>
+template <typename T, typename Operation>
+class assignment_op_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -743,14 +757,14 @@ template <typename T, typename Operation> class assignment_op_node final : publi
         return var_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     variable_node<T>* var_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_vec_elem_op_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -779,14 +793,14 @@ class assignment_vec_elem_op_node final : public binary_node<T>
         return vec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     vector_elem_node<T>* vec_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_vec_elem_op_rtc_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -815,14 +829,14 @@ class assignment_vec_elem_op_rtc_node final : public binary_node<T>
         return vec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     vector_elem_rtc_node<T>* vec_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_vec_celem_op_rtc_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -851,14 +865,14 @@ class assignment_vec_celem_op_rtc_node final : public binary_node<T>
         return vec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     vector_celem_rtc_node<T>* vec_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_rebasevec_elem_op_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -887,14 +901,14 @@ class assignment_rebasevec_elem_op_node final : public binary_node<T>
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_elem_node<T>* rbvec_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_rebasevec_celem_op_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -923,14 +937,14 @@ class assignment_rebasevec_celem_op_node final : public binary_node<T>
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_celem_node<T>* rbvec_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_rebasevec_elem_op_rtc_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -959,14 +973,14 @@ class assignment_rebasevec_elem_op_rtc_node final : public binary_node<T>
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_elem_rtc_node<T>* rbvec_node_ptr_;
 };
 
 template <typename T, typename Operation>
 class assignment_rebasevec_celem_op_rtc_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -995,7 +1009,7 @@ class assignment_rebasevec_celem_op_rtc_node final : public binary_node<T>
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
-  private:
+   private:
     rebasevector_celem_rtc_node<T>* rbvec_node_ptr_;
 };
 
@@ -1013,7 +1027,7 @@ class assignment_rebasevec_celem_op_rtc_node final : public binary_node<T>
 template <typename T, typename Operation>
 class assignment_vec_op_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vds_t = core::vec_data_store<T>;
@@ -1107,7 +1121,7 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
         return true;
     }
 
-  private:
+   private:
     vector_node<T>* vec_node_ptr_;
     vds_t vds_;
 };
@@ -1115,7 +1129,7 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
 template <typename T, typename Operation>
 class assignment_vecvec_op_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vds_t = core::vec_data_store<T>;
@@ -1124,7 +1138,9 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
 
     assignment_vecvec_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
                               expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec0_node_ptr_(0), vec1_node_ptr_(0),
+        : binary_node<T>(opr, branch0, branch1),
+          vec0_node_ptr_(0),
+          vec1_node_ptr_(0),
           initialised_(false)
     {
         if (is_vector_node(branch(0)))
@@ -1242,14 +1258,15 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
         return true;
     }
 
-  private:
+   private:
     vector_node<T>* vec0_node_ptr_;
     vector_node<T>* vec1_node_ptr_;
     bool initialised_;
     vds_t vds_;
 };
 
-template <typename T> struct memory_context_t
+template <typename T>
+struct memory_context_t
 {
     using vector_node_ptr = vector_node<T>*;
     using vector_holder_t = vector_holder<T>;
@@ -1309,7 +1326,7 @@ inline memory_context_t<T> make_memory_context(vector_holder<T>& vec_holder0,
 template <typename T, typename Operation>
 class vec_binop_vecvec_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vector_holder_t = vector_holder<T>;
@@ -1321,7 +1338,9 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
 
     vec_binop_vecvec_node(const core::operators::operator_type& opr, expression_ptr branch0,
                           expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec0_node_ptr_(0), vec1_node_ptr_(0),
+        : binary_node<T>(opr, branch0, branch1),
+          vec0_node_ptr_(0),
+          vec1_node_ptr_(0),
           initialised_(false)
     {
         bool v0_is_ivec = false;
@@ -1470,7 +1489,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         return vds_;
     }
 
-  private:
+   private:
     vector_node_ptr vec0_node_ptr_;
     vector_node_ptr vec1_node_ptr_;
     bool initialised_;
@@ -1481,7 +1500,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
 template <typename T, typename Operation>
 class vec_binop_vecval_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vector_holder_t = vector_holder<T>;
@@ -1609,7 +1628,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
         return vds_;
     }
 
-  private:
+   private:
     vector_node_ptr vec0_node_ptr_;
     vds_t vds_;
     memory_context memory_context_;
@@ -1618,7 +1637,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
 template <typename T, typename Operation>
 class vec_binop_valvec_node final : public binary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vector_holder_t = vector_holder<T>;
@@ -1747,7 +1766,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
         return vds_;
     }
 
-  private:
+   private:
     vector_node_ptr vec1_node_ptr_;
     vds_t vds_;
     memory_context memory_context_;
@@ -1756,7 +1775,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
 template <typename T, typename Operation>
 class unary_vector_node final : public unary_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vector_node_ptr = vector_node<T>*;
     using vector_holder_t = vector_holder<T>;
@@ -1881,7 +1900,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
         return vds_;
     }
 
-  private:
+   private:
     vector_node_ptr vec0_node_ptr_;
     vds_t vds_;
     memory_context memory_context_;
@@ -1890,7 +1909,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
 template <typename T>
 class conditional_vector_node final : public expression_node<T>, public vector_interface<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using vec_interface_ptr = vector_interface<T>*;
     using vector_node_ptr = vector_node<T>*;
@@ -1902,8 +1921,13 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
 
     conditional_vector_node(expression_ptr condition, expression_ptr consequent,
                             expression_ptr alternative)
-        : consequent_node_ptr_(0), alternative_node_ptr_(0), temp_vec_node_(0), temp_(0),
-          temp_view_(0), result_vec_size_(0), initialised_(false)
+        : consequent_node_ptr_(0),
+          alternative_node_ptr_(0),
+          temp_vec_node_(0),
+          temp_(0),
+          temp_view_(0),
+          result_vec_size_(0),
+          initialised_(false)
     {
         construct_branch_pair(condition_, condition);
         construct_branch_pair(consequent_, consequent);
@@ -2042,7 +2066,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
         return expression_node<T>::ndb_t::compute_node_depth(condition_, consequent_, alternative_);
     }
 
-  private:
+   private:
     branch_t condition_;
     branch_t consequent_;
     branch_t alternative_;
@@ -2056,9 +2080,10 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
     bool initialised_;
 };
 
-template <typename T> class scand_node final : public binary_node<T>
+template <typename T>
+class scand_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -2077,9 +2102,10 @@ template <typename T> class scand_node final : public binary_node<T>
     }
 };
 
-template <typename T> class scor_node final : public binary_node<T>
+template <typename T>
+class scor_node final : public binary_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using binary_node<T>::branch;
 
@@ -2101,7 +2127,7 @@ template <typename T> class scor_node final : public binary_node<T>
 template <typename T, typename IFunction, std::size_t N>
 class function_N_node final : public expression_node<T>
 {
-  public:
+   public:
     // Function of N parameters.
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
@@ -2109,38 +2135,32 @@ class function_N_node final : public expression_node<T>
 
     explicit function_N_node(ifunction* func)
         : function_((N == func->param_count) ? func : reinterpret_cast<ifunction*>(0)),
-          parameter_count_(func->param_count), initialised_(false)
+          parameter_count_(func->param_count),
+          initialised_(false)
     {
     }
 
-    template <std::size_t NumBranches> bool init_branches(expression_ptr (&b)[NumBranches])
+    template <std::size_t NumBranches>
+    bool init_branches(expression_ptr (&b)[NumBranches])
     {
-// Needed for incompetent and broken msvc compiler versions
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
-
-        if (N != NumBranches)
+        if constexpr (N != NumBranches)
         {
             return false;
         }
-
-        for (std::size_t i = 0; i < NumBranches; ++i)
+        else
         {
-            if (b[i] && b[i]->valid())
-                branch_[i] = std::make_pair(b[i], branch_deletable(b[i]));
-            else
-                return false;
+            for (std::size_t i = 0; i < NumBranches; ++i)
+            {
+                if (b[i] && b[i]->valid())
+                    branch_[i] = std::make_pair(b[i], branch_deletable(b[i]));
+                else
+                    return false;
+            }
+
+            initialised_ = function_;
+            assert(valid());
+            return initialised_;
         }
-
-        initialised_ = function_;
-        assert(valid());
-        return initialised_;
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
     }
 
     inline bool operator<(const function_N_node<T, IFunction, N>& fn) const
@@ -2150,19 +2170,9 @@ class function_N_node final : public expression_node<T>
 
     inline T value() const override
     {
-// Needed for incompetent and broken msvc compiler versions
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
-
         T v[N];
         evaluate_branches<T, N>::execute(v, branch_);
         return invoke<T, N>::execute(*function_, v);
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
     }
 
     inline typename expression_node<T>::node_type type() const override
@@ -2185,7 +2195,8 @@ class function_N_node final : public expression_node<T>
         return expression_node<T>::ndb_t::template compute_node_depth<N>(branch_);
     }
 
-    template <typename T_, std::size_t BranchCount> struct evaluate_branches
+    template <typename T_, std::size_t BranchCount>
+    struct evaluate_branches
     {
         static inline void execute(T_ (&v)[BranchCount], const branch_t (&b)[BranchCount])
         {
@@ -2196,7 +2207,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct evaluate_branches<T_, 6>
+    template <typename T_>
+    struct evaluate_branches<T_, 6>
     {
         static inline void execute(T_ (&v)[6], const branch_t (&b)[6])
         {
@@ -2209,7 +2221,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct evaluate_branches<T_, 5>
+    template <typename T_>
+    struct evaluate_branches<T_, 5>
     {
         static inline void execute(T_ (&v)[5], const branch_t (&b)[5])
         {
@@ -2221,7 +2234,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct evaluate_branches<T_, 4>
+    template <typename T_>
+    struct evaluate_branches<T_, 4>
     {
         static inline void execute(T_ (&v)[4], const branch_t (&b)[4])
         {
@@ -2232,7 +2246,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct evaluate_branches<T_, 3>
+    template <typename T_>
+    struct evaluate_branches<T_, 3>
     {
         static inline void execute(T_ (&v)[3], const branch_t (&b)[3])
         {
@@ -2242,7 +2257,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct evaluate_branches<T_, 2>
+    template <typename T_>
+    struct evaluate_branches<T_, 2>
     {
         static inline void execute(T_ (&v)[2], const branch_t (&b)[2])
         {
@@ -2251,7 +2267,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct evaluate_branches<T_, 1>
+    template <typename T_>
+    struct evaluate_branches<T_, 1>
     {
         static inline void execute(T_ (&v)[1], const branch_t (&b)[1])
         {
@@ -2259,7 +2276,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_, std::size_t ParamCount> struct invoke
+    template <typename T_, std::size_t ParamCount>
+    struct invoke
     {
         static inline T execute(ifunction&, branch_t (&)[ParamCount])
         {
@@ -2267,7 +2285,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 20>
+    template <typename T_>
+    struct invoke<T_, 20>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[20])
         {
@@ -2276,7 +2295,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 19>
+    template <typename T_>
+    struct invoke<T_, 19>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[19])
         {
@@ -2285,7 +2305,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 18>
+    template <typename T_>
+    struct invoke<T_, 18>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[18])
         {
@@ -2294,7 +2315,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 17>
+    template <typename T_>
+    struct invoke<T_, 17>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[17])
         {
@@ -2303,7 +2325,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 16>
+    template <typename T_>
+    struct invoke<T_, 16>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[16])
         {
@@ -2312,7 +2335,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 15>
+    template <typename T_>
+    struct invoke<T_, 15>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[15])
         {
@@ -2321,7 +2345,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 14>
+    template <typename T_>
+    struct invoke<T_, 14>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[14])
         {
@@ -2330,7 +2355,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 13>
+    template <typename T_>
+    struct invoke<T_, 13>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[13])
         {
@@ -2339,7 +2365,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 12>
+    template <typename T_>
+    struct invoke<T_, 12>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[12])
         {
@@ -2347,7 +2374,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 11>
+    template <typename T_>
+    struct invoke<T_, 11>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[11])
         {
@@ -2355,7 +2383,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 10>
+    template <typename T_>
+    struct invoke<T_, 10>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[10])
         {
@@ -2363,7 +2392,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 9>
+    template <typename T_>
+    struct invoke<T_, 9>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[9])
         {
@@ -2371,7 +2401,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 8>
+    template <typename T_>
+    struct invoke<T_, 8>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[8])
         {
@@ -2379,7 +2410,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 7>
+    template <typename T_>
+    struct invoke<T_, 7>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[7])
         {
@@ -2387,7 +2419,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 6>
+    template <typename T_>
+    struct invoke<T_, 6>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[6])
         {
@@ -2395,7 +2428,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 5>
+    template <typename T_>
+    struct invoke<T_, 5>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[5])
         {
@@ -2403,7 +2437,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 4>
+    template <typename T_>
+    struct invoke<T_, 4>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[4])
         {
@@ -2411,7 +2446,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 3>
+    template <typename T_>
+    struct invoke<T_, 3>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[3])
         {
@@ -2419,7 +2455,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 2>
+    template <typename T_>
+    struct invoke<T_, 2>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[2])
         {
@@ -2427,7 +2464,8 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-    template <typename T_> struct invoke<T_, 1>
+    template <typename T_>
+    struct invoke<T_, 1>
     {
         static inline T_ execute(ifunction& f, T_ (&v)[1])
         {
@@ -2435,7 +2473,7 @@ class function_N_node final : public expression_node<T>
         }
     };
 
-  private:
+   private:
     ifunction* function_;
     std::size_t parameter_count_;
     branch_t branch_[N];
@@ -2445,7 +2483,7 @@ class function_N_node final : public expression_node<T>
 template <typename T, typename IFunction>
 class function_N_node<T, IFunction, 0> final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
     using ifunction = IFunction;
 
@@ -2475,14 +2513,14 @@ class function_N_node<T, IFunction, 0> final : public expression_node<T>
         return function_;
     }
 
-  private:
+   private:
     ifunction* function_;
 };
 
 template <typename T, typename VarArgFunction>
 class vararg_function_node final : public expression_node<T>
 {
-  public:
+   public:
     using expression_ptr = expression_node<T>*;
 
     vararg_function_node(VarArgFunction* func, const std::vector<expression_ptr>& arg_list)
@@ -2529,7 +2567,7 @@ class vararg_function_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
     }
 
-  private:
+   private:
     inline void populate_value_list() const
     {
         for (std::size_t i = 0; i < arg_list_.size(); ++i)
@@ -2546,7 +2584,7 @@ class vararg_function_node final : public expression_node<T>
 template <typename T, typename GenericFunction>
 class generic_function_node : public expression_node<T>
 {
-  public:
+   public:
     using type_store_t = type_store<T>;
     using expression_ptr = expression_node<T>*;
     using variable_node_t = variable_node<T>;
@@ -2725,7 +2763,7 @@ class generic_function_node : public expression_node<T>
         return function_;
     }
 
-  protected:
+   protected:
     inline virtual bool populate_value_list() const
     {
         assert(branch_.size() == typestore_list_.size());
@@ -2779,7 +2817,7 @@ class generic_function_node : public expression_node<T>
     GenericFunction* function_;
     mutable typestore_list_t typestore_list_;
 
-  private:
+   private:
     std::vector<expression_ptr> arg_list_;
     std::vector<branch_t> branch_;
     std::vector<vecview_t> vv_list_;
@@ -2794,7 +2832,7 @@ class string_function_node : public generic_function_node<T, StringFunction>,
                              public string_base_node<T>,
                              public range_interface<T>
 {
-  public:
+   public:
     using gen_function_t = generic_function_node<T, StringFunction>;
     using range_t = typename range_interface<T>::range_t;
 
@@ -2867,7 +2905,7 @@ class string_function_node : public generic_function_node<T, StringFunction>,
         return range_;
     }
 
-  protected:
+   protected:
     mutable range_t range_;
     mutable std::string ret_string_;
 };
@@ -2876,7 +2914,7 @@ class string_function_node : public generic_function_node<T, StringFunction>,
 template <typename T, typename GenericFunction>
 class multimode_genfunction_node : public generic_function_node<T, GenericFunction>
 {
-  public:
+   public:
     using gen_function_t = generic_function_node<T, GenericFunction>;
     using range_t = typename gen_function_t::range_t;
 
@@ -2906,7 +2944,7 @@ class multimode_genfunction_node : public generic_function_node<T, GenericFuncti
         return expression_node<T>::node_type::e_genfunction;
     }
 
-  private:
+   private:
     std::size_t param_seq_index_;
 };
 
@@ -2914,7 +2952,7 @@ class multimode_genfunction_node : public generic_function_node<T, GenericFuncti
 template <typename T, typename StringFunction>
 class multimode_strfunction_node final : public string_function_node<T, StringFunction>
 {
-  public:
+   public:
     using str_function_t = string_function_node<T, StringFunction>;
     using range_t = typename str_function_t::range_t;
 
@@ -2948,11 +2986,11 @@ class multimode_strfunction_node final : public string_function_node<T, StringFu
         return expression_node<T>::node_type::e_strfunction;
     }
 
-  private:
+   private:
     const std::size_t param_seq_index_;
 };
 #endif
 
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

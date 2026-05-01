@@ -38,15 +38,18 @@ limitations under the License.
 
 namespace math_expr::details
 {
-template <typename T> struct range_pack
+template <typename T>
+struct range_pack
 {
     using expression_node_ptr = expression_node<T>*;
     using cached_range_t = std::pair<std::size_t, std::size_t>;
 
     range_pack()
         : n0_e(std::make_pair(false, expression_node_ptr(0))),
-          n1_e(std::make_pair(false, expression_node_ptr(0))), n0_c(std::make_pair(false, 0)),
-          n1_c(std::make_pair(false, 0)), cache(std::make_pair(0, 0))
+          n1_e(std::make_pair(false, expression_node_ptr(0))),
+          n0_c(std::make_pair(false, 0)),
+          n1_c(std::make_pair(false, 0)),
+          cache(std::make_pair(0, 0))
     {
     }
 
@@ -154,7 +157,7 @@ template <typename T> struct range_pack
         if (r0 > size)
         {
             throw std::runtime_error("range error: (r0 < 0) || (r0 > size)");
-#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+#ifdef __NVCOMPILER
             return false;
 #endif
         }
@@ -162,7 +165,7 @@ template <typename T> struct range_pack
         if (r1 > size)
         {
             throw std::runtime_error("range error: (r1 < 0) || (r1 > size)");
-#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+#ifdef __NVCOMPILER
             return false;
 #endif
         }
@@ -170,6 +173,6 @@ template <typename T> struct range_pack
         return (r0 <= r1);
     }
 };
-} // namespace math_expr::details
+}  // namespace math_expr::details
 
 #endif

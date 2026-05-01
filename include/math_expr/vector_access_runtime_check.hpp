@@ -53,7 +53,7 @@ struct vector_access_runtime_check
     virtual bool handle_runtime_violation(violation_context& /*context*/)
     {
         throw std::runtime_error("ExprTk runtime vector access violation.");
-#if !defined(_MSC_VER) && !defined(__NVCOMPILER)
+#ifdef __NVCOMPILER
         return false;
 #endif
     }
@@ -61,6 +61,6 @@ struct vector_access_runtime_check
 
 using vector_access_runtime_check_ptr = vector_access_runtime_check*;
 
-} // namespace math_expr
+}  // namespace math_expr
 
 #endif
