@@ -19118,17 +19118,16 @@ class parser : public lexer::parser_helper
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
-#define string_opr_switch_statements                                                              \
-    case_stmt(core::operators::operator_type::lt, details::lt_op)                                 \
-        case_stmt(core::operators::operator_type::lte, details::lte_op)                           \
-            case_stmt(core::operators::operator_type::gt, details::gt_op)                         \
-                case_stmt(core::operators::operator_type::gte, details::gte_op)                   \
-                    case_stmt(core::operators::operator_type::eq, details::eq_op)                 \
-                        case_stmt(core::operators::operator_type::ne, details::ne_op)             \
-                            case_stmt(core::operators::operator_type::in, details::in_op)         \
-                                case_stmt(core::operators::operator_type::like, details::like_op) \
-                                    case_stmt(core::operators::operator_type::ilike,              \
-                                              details::ilike_op)
+#define string_opr_switch_statements                                   \
+    case_stmt(core::operators::operator_type::lt, details::lt_op);     \
+    case_stmt(core::operators::operator_type::lte, details::lte_op);   \
+    case_stmt(core::operators::operator_type::gt, details::gt_op);     \
+    case_stmt(core::operators::operator_type::gte, details::gte_op);   \
+    case_stmt(core::operators::operator_type::eq, details::eq_op);     \
+    case_stmt(core::operators::operator_type::ne, details::ne_op);     \
+    case_stmt(core::operators::operator_type::in, details::in_op);     \
+    case_stmt(core::operators::operator_type::like, details::like_op); \
+    case_stmt(core::operators::operator_type::ilike, details::ilike_op);
 
         template <typename T0, typename T1>
         inline expression_node_ptr synthesize_str_xrox_expression_impl(
