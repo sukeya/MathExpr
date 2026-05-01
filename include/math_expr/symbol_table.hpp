@@ -1200,19 +1200,26 @@ class symbol_table
         return add_function(function_name, (*local_data().free_function_list_.back()));       \
     }
 
-    math_expr_define_freefunction(00) math_expr_define_freefunction(01)
-        math_expr_define_freefunction(02) math_expr_define_freefunction(03)
-            math_expr_define_freefunction(04) math_expr_define_freefunction(05)
-                math_expr_define_freefunction(06) math_expr_define_freefunction(07)
-                    math_expr_define_freefunction(08) math_expr_define_freefunction(09)
-                        math_expr_define_freefunction(10) math_expr_define_freefunction(11)
-                            math_expr_define_freefunction(12) math_expr_define_freefunction(13)
-                                math_expr_define_freefunction(14) math_expr_define_freefunction(15)
+    math_expr_define_freefunction(00);
+    math_expr_define_freefunction(01);
+    math_expr_define_freefunction(02);
+    math_expr_define_freefunction(03);
+    math_expr_define_freefunction(04);
+    math_expr_define_freefunction(05);
+    math_expr_define_freefunction(06);
+    math_expr_define_freefunction(07);
+    math_expr_define_freefunction(08);
+    math_expr_define_freefunction(09);
+    math_expr_define_freefunction(10);
+    math_expr_define_freefunction(11);
+    math_expr_define_freefunction(12);
+    math_expr_define_freefunction(13);
+    math_expr_define_freefunction(14);
+    math_expr_define_freefunction(15);
 
 #undef math_expr_define_freefunction
 
-                                    inline bool add_reserved_function(
-                                        const std::string& function_name, function_t& function)
+    inline bool add_reserved_function(const std::string& function_name, function_t& function)
     {
         if (!valid())
             return false;
