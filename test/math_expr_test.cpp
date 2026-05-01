@@ -59,10 +59,6 @@ inline bool not_equal(const T& t0, const T& t1, const T& epsilon = T(0.000000000
 
 inline bool not_equal(const float& t0, const float& t1, const float& epsilon = 0.000001f);
 
-#define math_expr_test_override override
-#define math_expr_test_final final
-#define math_expr_test_delete = delete
-
 using test_t = std::pair<std::string, numeric_type>;
 
 namespace test_support
@@ -3530,7 +3526,7 @@ bool run_test08()
 }
 
 template <typename T>
-struct myfunc math_expr_test_final : public math_expr::ifunction<T>
+struct myfunc final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
@@ -5410,26 +5406,26 @@ bool run_test12()
 }
 
 template <typename T>
-struct sine_deg math_expr_test_final : public math_expr::ifunction<T>
+struct sine_deg final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
     sine_deg() : math_expr::ifunction<T>(1) {}
 
-    inline T operator()(const T& v) math_expr_test_override
+    inline T operator()(const T& v) override
     {
         return std::sin((v * T(math_expr::core::numeric::pi)) / T(180));
     }
 };
 
 template <typename T>
-struct cosine_deg math_expr_test_final : public math_expr::ifunction<T>
+struct cosine_deg final : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
     cosine_deg() : math_expr::ifunction<T>(1) {}
 
-    inline T operator()(const T& v) math_expr_test_override
+    inline T operator()(const T& v) override
     {
         return std::cos((v * T(math_expr::core::numeric::pi)) / T(180));
     }
@@ -5850,59 +5846,59 @@ struct base_func : public math_expr::ifunction<T>
 
     using type = const T&;
     base_func(const std::size_t& n) : math_expr::ifunction<T>(n) {}
-    inline T operator()(type v0, type v1, type v2, type v3, type v4) math_expr_test_override
+    inline T operator()(type v0, type v1, type v2, type v3, type v4) override
     {
         return (v0 + v1 + v2 + v3 + v4);
     }
-    inline T operator()(type v0, type v1, type v2, type v3) math_expr_test_override
+    inline T operator()(type v0, type v1, type v2, type v3) override
     {
         return (v0 + v1 + v2 + v3);
     }
-    inline T operator()(type v0, type v1, type v2) math_expr_test_override
+    inline T operator()(type v0, type v1, type v2) override
     {
         return (v0 + v1 + v2);
     }
-    inline T operator()(type v0, type v1) math_expr_test_override
+    inline T operator()(type v0, type v1) override
     {
         return (v0 + v1);
     }
-    inline T operator()(type v0) math_expr_test_override
+    inline T operator()(type v0) override
     {
         return v0;
     }
-    inline T operator()() math_expr_test_override
+    inline T operator()() override
     {
         return T(1.1234);
     }
 };
 
 template <typename T>
-struct test_func5 math_expr_test_final : public base_func<T>
+struct test_func5 final : public base_func<T>
 {
     test_func5() : base_func<T>(5) {}
 };
 template <typename T>
-struct test_func4 math_expr_test_final : public base_func<T>
+struct test_func4 final : public base_func<T>
 {
     test_func4() : base_func<T>(4) {}
 };
 template <typename T>
-struct test_func3 math_expr_test_final : public base_func<T>
+struct test_func3 final : public base_func<T>
 {
     test_func3() : base_func<T>(3) {}
 };
 template <typename T>
-struct test_func2 math_expr_test_final : public base_func<T>
+struct test_func2 final : public base_func<T>
 {
     test_func2() : base_func<T>(2) {}
 };
 template <typename T>
-struct test_func1 math_expr_test_final : public base_func<T>
+struct test_func1 final : public base_func<T>
 {
     test_func1() : base_func<T>(1) {}
 };
 template <typename T>
-struct test_func0 math_expr_test_final : public base_func<T>
+struct test_func0 final : public base_func<T>
 {
     test_func0() : base_func<T>(0) {}
 };
@@ -6160,7 +6156,7 @@ bool run_test17()
 }
 
 template <typename T>
-struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
+struct va_func final : public math_expr::ivararg_function<T>
 {
     va_func()
     {
@@ -6169,7 +6165,7 @@ struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
         math_expr::set_max_num_args(*this, 20);
     }
 
-    inline T operator()(const std::vector<T>& arglist) math_expr_test_override
+    inline T operator()(const std::vector<T>& arglist) override
     {
         T result = T(0);
 
@@ -6183,7 +6179,7 @@ struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
 };
 
 template <typename T>
-struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
+struct gen_func final : public math_expr::igeneric_function<T>
 {
     using generic_type = typename math_expr::igeneric_function<T>::generic_type;
     using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
@@ -6196,7 +6192,7 @@ struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
 
     gen_func() : scalar_count(0), vector_count(0), string_count(0) {}
 
-    inline T operator()(parameter_list_t params) math_expr_test_override
+    inline T operator()(parameter_list_t params) override
     {
         for (std::size_t i = 0; i < params.size(); ++i)
         {
@@ -6238,7 +6234,7 @@ struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
 };
 
 template <typename T>
-struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
+struct gen_func2 final : public math_expr::igeneric_function<T>
 {
     using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
@@ -6246,19 +6242,19 @@ struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
 
     gen_func2() {}
 
-    inline T operator()(parameter_list_t) math_expr_test_override
+    inline T operator()(parameter_list_t) override
     {
         return T(0);
     }
 
-    inline T operator()(const std::size_t&, parameter_list_t params) math_expr_test_override
+    inline T operator()(const std::size_t&, parameter_list_t params) override
     {
         return this->operator()(params);
     }
 };
 
 template <typename T>
-struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
+struct inc_func final : public math_expr::igeneric_function<T>
 {
     using generic_type = typename math_expr::igeneric_function<T>::generic_type;
     using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
@@ -6271,7 +6267,7 @@ struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
 
     inc_func() {}
 
-    inline T operator()(parameter_list_t params) math_expr_test_override
+    inline T operator()(parameter_list_t params) override
     {
         for (std::size_t i = 0; i < params.size(); ++i)
         {
@@ -6316,14 +6312,14 @@ struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
         return T(0);
     }
 
-    inline T operator()(const std::size_t&, parameter_list_t params) math_expr_test_override
+    inline T operator()(const std::size_t&, parameter_list_t params) override
     {
         return this->operator()(params);
     }
 };
 
 template <typename T>
-struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric_function<T>
+struct rem_space_and_uppercase final : public math_expr::igeneric_function<T>
 {
     using igenfunc_t = typename math_expr::igeneric_function<T>;
     using generic_type = typename igenfunc_t::generic_type;
@@ -6334,7 +6330,7 @@ struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric
 
     rem_space_and_uppercase() : igenfunc_t("S", igenfunc_t::return_type::e_rtrn_string) {}
 
-    inline T operator()(std::string& result, parameter_list_t params) math_expr_test_override
+    inline T operator()(std::string& result, parameter_list_t params) override
     {
         string_t string(params[0]);
 
@@ -6353,7 +6349,7 @@ struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric
     }
 
     inline T operator()(const std::size_t& param_seq_index, std::string& result,
-                        parameter_list_t params) math_expr_test_override
+                        parameter_list_t params) override
     {
         if (1 == param_seq_index)
             return this->operator()(result, params);
@@ -6363,7 +6359,7 @@ struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric
 };
 
 template <typename T>
-struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
+struct vararg_func final : public math_expr::igeneric_function<T>
 {
     using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
@@ -6376,8 +6372,7 @@ struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
 
     vararg_func() : math_expr::igeneric_function<T>("Z|T*|V") {}
 
-    inline T operator()(const std::size_t& ps_index,
-                        parameter_list_t /*arglist*/) math_expr_test_override
+    inline T operator()(const std::size_t& ps_index, parameter_list_t /*arglist*/) override
     {
         switch (ps_index)
         {  // Overload resolution:
@@ -6394,7 +6389,7 @@ struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
 };
 
 template <typename T>
-struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function<T>
+struct vecrebase_func final : public math_expr::igeneric_function<T>
 {
     using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
@@ -6406,7 +6401,7 @@ struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function
 
     vecrebase_func() : math_expr::igeneric_function<T>("V") {}
 
-    inline T operator()(parameter_list_t params) math_expr_test_override
+    inline T operator()(parameter_list_t params) override
     {
         vector_t v(params[0]);
         return std::accumulate(v.begin(), v.end(), T(0));
@@ -6414,7 +6409,7 @@ struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function
 };
 
 template <typename T>
-struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
+struct overload_func final : math_expr::igeneric_function<T>
 {
     using igfun_t = typename math_expr::igeneric_function<T>;
     using parameter_list_t = typename igfun_t::parameter_list_t;
@@ -6436,8 +6431,7 @@ struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
         current_param_seq = "";
     }
 
-    inline T operator()(const std::size_t& ps_index,
-                        parameter_list_t parameters) math_expr_test_override
+    inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
     {
         current_ps_index = ps_index;
         determine_param_seq(parameters);
@@ -6445,7 +6439,7 @@ struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
     }
 
     inline T operator()(const std::size_t& ps_index, std::string& result,
-                        parameter_list_t parameters) math_expr_test_override
+                        parameter_list_t parameters) override
     {
         current_ps_index = ps_index;
         determine_param_seq(parameters);
@@ -6497,7 +6491,7 @@ struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
 
 struct vector_access_rtc_counter : public math_expr::vector_access_runtime_check
 {
-    bool handle_runtime_violation(violation_context&) math_expr_test_override
+    bool handle_runtime_violation(violation_context&) override
     {
         rtc_count++;
         return false;
@@ -8598,7 +8592,7 @@ bool run_test18()
 }
 
 template <typename T>
-struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T>
+struct depth_to_str final : public math_expr::igeneric_function<T>
 {
     using igenfunct_t = math_expr::igeneric_function<T>;
     using generic_t = typename igenfunct_t::generic_type;
@@ -8611,7 +8605,7 @@ struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T
 
     using igenfunct_t::operator();
 
-    inline T operator()(std::string& result, parameter_list_t parameters) math_expr_test_override
+    inline T operator()(std::string& result, parameter_list_t parameters) override
     {
         result = "depth" + math_expr::core::to_str(static_cast<int>(scalar_t(parameters[0])()));
         return T(0);
@@ -9787,7 +9781,7 @@ bool run_test19()
 }
 
 template <typename T>
-struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol_resolver
+struct my_usr final : public math_expr::parser<T>::unknown_symbol_resolver
 {
     using usr_t = typename math_expr::parser<T>::unknown_symbol_resolver;
     using usr_symbol_type = typename usr_t::usr_symbol_type;
@@ -9795,7 +9789,7 @@ struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol
     using usr_t::process;
 
     bool process(const std::string& unknown_symbol, usr_symbol_type& st, T& default_value,
-                 std::string& error_message) math_expr_test_override
+                 std::string& error_message) override
     {
         if (unknown_symbol[0] == 'v')
         {
@@ -9832,7 +9826,7 @@ struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol
 };
 
 template <typename T>
-struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_symbol_resolver
+struct my_usr_ext final : public math_expr::parser<T>::unknown_symbol_resolver
 {
     using symbol_table_t = math_expr::symbol_table<T>;
     using usr_t = typename math_expr::parser<T>::unknown_symbol_resolver;
@@ -9842,7 +9836,7 @@ struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_sy
     my_usr_ext() : usr_t(usr_t::usr_mode::e_usrmode_extended) {}
 
     bool process(const std::string& unknown_symbol, symbol_table_t& symbol_table,
-                 std::string& error_message) math_expr_test_override
+                 std::string& error_message) override
     {
         bool result = false;
 
@@ -12031,10 +12025,10 @@ bool run_test21()
     return true;
 }
 
-struct assert_handler math_expr_test_final : public math_expr::assert_check
+struct assert_handler final : public math_expr::assert_check
 {
     std::size_t assert_count;
-    void handle_assert(const assert_context& /*context*/) math_expr_test_override
+    void handle_assert(const assert_context& /*context*/) override
     {
         ++assert_count;
     }
