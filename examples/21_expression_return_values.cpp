@@ -24,9 +24,9 @@
 template <typename T>
 void binomial_option_pricing_model()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string european_option_binomial_model_program =
         " var dt     := t / n;                                              "

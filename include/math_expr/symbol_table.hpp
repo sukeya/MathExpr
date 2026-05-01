@@ -56,22 +56,22 @@ class symbol_table
         e_immutable = 2
     };
 
-    typedef T (*ff00_functor)();
-    typedef T (*ff01_functor)(T);
-    typedef T (*ff02_functor)(T, T);
-    typedef T (*ff03_functor)(T, T, T);
-    typedef T (*ff04_functor)(T, T, T, T);
-    typedef T (*ff05_functor)(T, T, T, T, T);
-    typedef T (*ff06_functor)(T, T, T, T, T, T);
-    typedef T (*ff07_functor)(T, T, T, T, T, T, T);
-    typedef T (*ff08_functor)(T, T, T, T, T, T, T, T);
-    typedef T (*ff09_functor)(T, T, T, T, T, T, T, T, T);
-    typedef T (*ff10_functor)(T, T, T, T, T, T, T, T, T, T);
-    typedef T (*ff11_functor)(T, T, T, T, T, T, T, T, T, T, T);
-    typedef T (*ff12_functor)(T, T, T, T, T, T, T, T, T, T, T, T);
-    typedef T (*ff13_functor)(T, T, T, T, T, T, T, T, T, T, T, T, T);
-    typedef T (*ff14_functor)(T, T, T, T, T, T, T, T, T, T, T, T, T, T);
-    typedef T (*ff15_functor)(T, T, T, T, T, T, T, T, T, T, T, T, T, T, T);
+    using ff00_functor = T (*)();
+    using ff01_functor = T (*)(T);
+    using ff02_functor = T (*)(T, T);
+    using ff03_functor = T (*)(T, T, T);
+    using ff04_functor = T (*)(T, T, T, T);
+    using ff05_functor = T (*)(T, T, T, T, T);
+    using ff06_functor = T (*)(T, T, T, T, T, T);
+    using ff07_functor = T (*)(T, T, T, T, T, T, T);
+    using ff08_functor = T (*)(T, T, T, T, T, T, T, T);
+    using ff09_functor = T (*)(T, T, T, T, T, T, T, T, T);
+    using ff10_functor = T (*)(T, T, T, T, T, T, T, T, T, T);
+    using ff11_functor = T (*)(T, T, T, T, T, T, T, T, T, T, T);
+    using ff12_functor = T (*)(T, T, T, T, T, T, T, T, T, T, T, T);
+    using ff13_functor = T (*)(T, T, T, T, T, T, T, T, T, T, T, T, T);
+    using ff14_functor = T (*)(T, T, T, T, T, T, T, T, T, T, T, T, T, T);
+    using ff15_functor = T (*)(T, T, T, T, T, T, T, T, T, T, T, T, T, T, T);
 
    protected:
     struct freefunc00 final : public math_expr::ifunction<T>
@@ -287,22 +287,22 @@ class symbol_table
     template <typename Type, typename RawType>
     struct type_store
     {
-        typedef details::expression_node<T>* expression_ptr;
-        typedef typename details::variable_node<T> variable_node_t;
-        typedef ifunction<T> ifunction_t;
-        typedef ivararg_function<T> ivararg_function_t;
-        typedef igeneric_function<T> igeneric_function_t;
-        typedef details::vector_holder<T> vector_t;
+        using expression_ptr = details::expression_node<T>*;
+        using variable_node_t = typename details::variable_node<T>;
+        using ifunction_t = ifunction<T>;
+        using ivararg_function_t = ivararg_function<T>;
+        using igeneric_function_t = igeneric_function<T>;
+        using vector_t = details::vector_holder<T>;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        typedef typename details::string_nodes::stringvar_node<T> stringvar_node_t;
+        using stringvar_node_t = typename details::string_nodes::stringvar_node<T>;
 #endif
 
-        typedef Type type_t;
-        typedef type_t* type_ptr;
-        typedef std::pair<bool, type_ptr> type_pair_t;
-        typedef std::map<std::string, type_pair_t, core::ilesscompare> type_map_t;
-        typedef typename type_map_t::iterator tm_itr_t;
-        typedef typename type_map_t::const_iterator tm_const_itr_t;
+        using type_t = Type;
+        using type_ptr = type_t*;
+        using type_pair_t = std::pair<bool, type_ptr>;
+        using type_map_t = std::map<std::string, type_pair_t, core::ilesscompare>;
+        using tm_itr_t = typename type_map_t::iterator;
+        using tm_const_itr_t = typename type_map_t::const_iterator;
 
         static constexpr std::int32_t lut_size = 256;
 
@@ -690,20 +690,20 @@ class symbol_table
         }
     };
 
-    typedef details::expression_node<T>* expression_ptr;
-    typedef typename details::variable_node<T> variable_t;
-    typedef typename details::vector_holder<T> vector_holder_t;
-    typedef variable_t* variable_ptr;
+    using expression_ptr = details::expression_node<T>*;
+    using variable_t = typename details::variable_node<T>;
+    using vector_holder_t = typename details::vector_holder<T>;
+    using variable_ptr = variable_t*;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    typedef typename details::string_nodes::stringvar_node<T> stringvar_t;
-    typedef stringvar_t* stringvar_ptr;
+    using stringvar_t = typename details::string_nodes::stringvar_node<T>;
+    using stringvar_ptr = stringvar_t*;
 #endif
-    typedef ifunction<T> function_t;
-    typedef ivararg_function<T> vararg_function_t;
-    typedef igeneric_function<T> generic_function_t;
-    typedef function_t* function_ptr;
-    typedef vararg_function_t* vararg_function_ptr;
-    typedef generic_function_t* generic_function_ptr;
+    using function_t = ifunction<T>;
+    using vararg_function_t = ivararg_function<T>;
+    using generic_function_t = igeneric_function<T>;
+    using function_ptr = function_t*;
+    using vararg_function_ptr = vararg_function_t*;
+    using generic_function_ptr = generic_function_t*;
 
     static constexpr std::size_t lut_size = 256;
 
@@ -1031,7 +1031,7 @@ class symbol_table
             return local_data().overload_function_store.get(function_name);
     }
 
-    typedef vector_holder_t* vector_holder_ptr;
+    using vector_holder_ptr = vector_holder_t*;
 
     inline vector_holder_ptr get_vector(const std::string& vector_name) const
     {
@@ -1837,7 +1837,7 @@ class symbol_table
         return true;
     }
 
-    typedef typename control_block::st_data local_data_t;
+    using local_data_t = typename control_block::st_data;
 
     inline local_data_t& local_data()
     {

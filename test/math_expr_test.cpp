@@ -49,9 +49,9 @@ limitations under the License.
 #include "math_expr.hpp"
 
 #ifdef math_expr_test_float32_type
-typedef float numeric_type;
+using numeric_type = float;
 #else
-typedef double numeric_type;
+using numeric_type = double;
 #endif
 
 template <typename T>
@@ -63,7 +63,7 @@ inline bool not_equal(const float& t0, const float& t1, const float& epsilon = 0
 #define math_expr_test_final final
 #define math_expr_test_delete = delete
 
-typedef std::pair<std::string, numeric_type> test_t;
+using test_t = std::pair<std::string, numeric_type>;
 
 namespace test_support
 {
@@ -2747,9 +2747,9 @@ bool run_test02()
 template <typename T>
 bool run_test03()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string expression_string =
         "A+A0+aA+Aa0+b+B1+Bb+bB1+A+A0+AA+AA0+B+B1+BB+BB1+a+a0+aa+aa0+b+b1+bb+bb1+"
@@ -3108,7 +3108,7 @@ bool run_test04()
 template <typename T>
 bool run_test05()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string =
         "clamp(-1.0,sin(2 * pi * x_var123) + cos(y_var123 / 2 * pi),+1.0)";
@@ -3180,7 +3180,7 @@ bool run_test05()
 template <typename T>
 bool run_test06()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string = "sqrt(1 - (x^2))";
 
@@ -3228,7 +3228,7 @@ bool run_test06()
 template <typename T>
 bool run_test07()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string = "sin(2x + 1 / 3)";
 
@@ -3492,7 +3492,7 @@ bool run_test08()
     {
         for (std::size_t j = 0; j < expr_str_size; ++j)
         {
-            typedef math_expr::expression<T> expression_t;
+            using expression_t = math_expr::expression<T>;
 
             T x = T(1.12345);
             T y = T(2.12345);
@@ -3579,7 +3579,7 @@ define_free_functions(foo, numeric_type)
 
         for (std::size_t i = 0; i < rounds; ++i)
         {
-            typedef math_expr::expression<T> expression_t;
+            using expression_t = math_expr::expression<T>;
             const std::string expression_string =
                 "myfunc0(sin(x * pi),y / 2) + myfunc1(sin(x * pi),y / 2)+"
                 "myfunc2(sin(x * pi),y / 2) + myfunc3(sin(x * pi),y / 2)+"
@@ -3657,8 +3657,8 @@ define_free_functions(foo, numeric_type)
     }
 
     {
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::symbol_table<T> symbol_table_t;
+        using expression_t = math_expr::expression<T>;
+        using symbol_table_t = math_expr::symbol_table<T>;
 
         bool result = true;
 
@@ -3706,7 +3706,7 @@ define_free_functions(foo, numeric_type)
 template <typename T>
 bool run_test10()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     T x = T(1.1);
     T y = T(2.2);
@@ -4188,8 +4188,8 @@ bool run_test10()
 
         std::string expression_string = "(E == '1234') and (sin(a) + C) / b";
 
-        typedef math_expr::parser<T> parser_t;
-        typedef typename parser_t::dependent_entity_collector::symbol_t symbol_t;
+        using parser_t = math_expr::parser<T>;
+        using symbol_t = typename parser_t::dependent_entity_collector::symbol_t;
 
         std::deque<symbol_t> symbol_list;
 
@@ -4253,8 +4253,8 @@ bool run_test10()
             "c := d + 1;     "
             "e := e + 'abc'; ";
 
-        typedef math_expr::parser<T> parser_t;
-        typedef typename parser_t::dependent_entity_collector::symbol_t symbol_t;
+        using parser_t = math_expr::parser<T>;
+        using symbol_t = typename parser_t::dependent_entity_collector::symbol_t;
 
         std::deque<symbol_t> variable_list;
 
@@ -5226,7 +5226,7 @@ bool run_test10()
 template <typename T>
 bool run_test11()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     std::string expression_string = "(x + y) / 3";
 
@@ -5297,7 +5297,7 @@ bool run_test11()
 template <typename T>
 bool run_test12()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     static const std::string expression_string[] = {
         "abs(poly01(x,2.2,1.1)/(2.2x^1+1.1)-1) <= 1e-10",
@@ -5438,9 +5438,9 @@ struct cosine_deg math_expr_test_final : public math_expr::ifunction<T>
 template <typename T>
 bool run_test13()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     static const std::string expression_string[] = {
         "equal(sin(30),0.5)                    ", "equal(cos(60),0.5)                    ",
@@ -5539,7 +5539,7 @@ bool run_test13()
                 const std::string& expr_str = expression_string[j];
 
                 {
-                    typedef typename parser_t::settings_store settings_t;
+                    using settings_t = typename parser_t::settings_store;
 
                     parser_t parser;
 
@@ -5606,9 +5606,9 @@ inline T isnan(const T t)
 template <typename T>
 bool run_test14()
 {
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef typename parser_t::settings_store settings_t;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using settings_t = typename parser_t::settings_store;
 
     T x = T(0);
     T y = T(0);
@@ -5751,7 +5751,7 @@ bool run_test14()
 template <typename T>
 bool run_test15()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     T x = T(1.1);
     T y = T(2.2);
@@ -5848,7 +5848,7 @@ struct base_func : public math_expr::ifunction<T>
 {
     using math_expr::ifunction<T>::operator();
 
-    typedef const T& type;
+    using type = const T&;
     base_func(const std::size_t& n) : math_expr::ifunction<T>(n) {}
     inline T operator()(type v0, type v1, type v2, type v3, type v4) math_expr_test_override
     {
@@ -5910,7 +5910,7 @@ struct test_func0 math_expr_test_final : public base_func<T>
 template <typename T>
 bool run_test16()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     T x = T(1.1);
     T y = T(2.2);
@@ -6047,7 +6047,7 @@ bool run_test16()
 template <typename T>
 bool run_test17()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     T x = T(1.1);
     T y = T(2.2);
@@ -6185,12 +6185,12 @@ struct va_func math_expr_test_final : public math_expr::ivararg_function<T>
 template <typename T>
 struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
-    typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
+    using generic_type = typename math_expr::igeneric_function<T>::generic_type;
+    using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
-    typedef typename generic_type::scalar_view scalar_t;
-    typedef typename generic_type::vector_view vector_t;
-    typedef typename generic_type::string_view string_t;
+    using scalar_t = typename generic_type::scalar_view;
+    using vector_t = typename generic_type::vector_view;
+    using string_t = typename generic_type::string_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6240,7 +6240,7 @@ struct gen_func math_expr_test_final : public math_expr::igeneric_function<T>
 template <typename T>
 struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
+    using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6260,12 +6260,12 @@ struct gen_func2 math_expr_test_final : public math_expr::igeneric_function<T>
 template <typename T>
 struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
-    typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
+    using generic_type = typename math_expr::igeneric_function<T>::generic_type;
+    using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
-    typedef typename generic_type::scalar_view scalar_t;
-    typedef typename generic_type::vector_view vector_t;
-    typedef typename generic_type::string_view string_t;
+    using scalar_t = typename generic_type::scalar_view;
+    using vector_t = typename generic_type::vector_view;
+    using string_t = typename generic_type::string_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6325,10 +6325,10 @@ struct inc_func math_expr_test_final : public math_expr::igeneric_function<T>
 template <typename T>
 struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T> igenfunc_t;
-    typedef typename igenfunc_t::generic_type generic_type;
-    typedef typename igenfunc_t::parameter_list_t parameter_list_t;
-    typedef typename generic_type::string_view string_t;
+    using igenfunc_t = typename math_expr::igeneric_function<T>;
+    using generic_type = typename igenfunc_t::generic_type;
+    using parameter_list_t = typename igenfunc_t::parameter_list_t;
+    using string_t = typename generic_type::string_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6365,12 +6365,12 @@ struct rem_space_and_uppercase math_expr_test_final : public math_expr::igeneric
 template <typename T>
 struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
+    using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
-    typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
+    using generic_type = typename math_expr::igeneric_function<T>::generic_type;
 
-    typedef typename generic_type::scalar_view scalar_t;
-    typedef typename generic_type::vector_view vector_t;
+    using scalar_t = typename generic_type::scalar_view;
+    using vector_t = typename generic_type::vector_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6396,11 +6396,11 @@ struct vararg_func math_expr_test_final : public math_expr::igeneric_function<T>
 template <typename T>
 struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T>::parameter_list_t parameter_list_t;
+    using parameter_list_t = typename math_expr::igeneric_function<T>::parameter_list_t;
 
-    typedef typename math_expr::igeneric_function<T>::generic_type generic_type;
+    using generic_type = typename math_expr::igeneric_function<T>::generic_type;
 
-    typedef typename generic_type::vector_view vector_t;
+    using vector_t = typename generic_type::vector_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6416,10 +6416,10 @@ struct vecrebase_func math_expr_test_final : public math_expr::igeneric_function
 template <typename T>
 struct overload_func math_expr_test_final : math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T> igfun_t;
-    typedef typename igfun_t::parameter_list_t parameter_list_t;
-    typedef typename igfun_t::generic_type generic_type;
-    typedef typename generic_type::vector_view vector_t;
+    using igfun_t = typename math_expr::igeneric_function<T>;
+    using parameter_list_t = typename igfun_t::parameter_list_t;
+    using generic_type = typename igfun_t::generic_type;
+    using vector_t = typename generic_type::vector_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -6600,7 +6600,7 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::expression<T> expression_t;
+        using expression_t = math_expr::expression<T>;
 
         T x = T(1.1);
         T y = T(2.2);
@@ -6684,9 +6684,9 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         T x = T(33);
         T y = T(77);
@@ -6791,9 +6791,9 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         T x = T(33);
         T y = T(77);
@@ -6976,9 +6976,9 @@ bool run_test18()
 
         for (std::size_t i = 0; i < expression_list_size; ++i)
         {
-            typedef math_expr::symbol_table<T> symbol_table_t;
-            typedef math_expr::expression<T> expression_t;
-            typedef math_expr::parser<T> parser_t;
+            using symbol_table_t = math_expr::symbol_table<T>;
+            using expression_t = math_expr::expression<T>;
+            using parser_t = math_expr::parser<T>;
 
             T x = T(33);
             T y = T(77);
@@ -7096,9 +7096,9 @@ bool run_test18()
         std::string s3 = "XXXXXXXXXXXXXXX";
         std::string s4 = "XXXXXXXXXXXXXXX";
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         symbol_table_t symbol_table;
 
@@ -7204,9 +7204,9 @@ bool run_test18()
     {
         bool error_found = false;
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         symbol_table_t symbol_table;
 
@@ -7273,9 +7273,9 @@ bool run_test18()
     {
         bool error_found = false;
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         std::vector<T> v0;
         std::vector<T> v1;
@@ -7357,9 +7357,9 @@ bool run_test18()
     {
         bool error_found = false;
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         std::vector<T> v0;
         std::vector<T> s;
@@ -7418,9 +7418,9 @@ bool run_test18()
     {
         bool error_found = false;
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         std::vector<T> v0;
         std::vector<T> s;
@@ -7478,9 +7478,9 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         const std::string const_folded_expression_list[] = {
             "(0 * dot(2 * v0,v1 - 1))",
@@ -7583,9 +7583,9 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         const std::string rebase_expression_list[] = {
             "dot(v0,v1)",
@@ -7667,9 +7667,9 @@ bool run_test18()
     {
         bool error_found = false;
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         std::vector<T> v0;
         std::vector<T> s;
@@ -7726,9 +7726,9 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         T v0[] = {T(0), T(1), T(2), T(3), T(4)};
         T v1[] = {T(5), T(6), T(7), T(8), T(9)};
@@ -7789,9 +7789,9 @@ bool run_test18()
     {
         bool error_found = false;
 
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
         math_expr::rtl::vecops::package<T> vecops_pkg;
 
@@ -8067,7 +8067,7 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::expression<T> expression_t;
+        using expression_t = math_expr::expression<T>;
 
         std::string a = "a";
         std::string b = "b";
@@ -8101,8 +8101,8 @@ bool run_test18()
 
         symbol_table.add_function("foo", ovrld_func);
 
-        typedef typename overload_func<T>::test_result_t test_result_t;
-        typedef std::pair<std::string, typename overload_func<T>::test_result_t> test_pack_t;
+        using test_result_t = typename overload_func<T>::test_result_t;
+        using test_pack_t = std::pair<std::string, typename overload_func<T>::test_result_t>;
 
         static const test_pack_t test_pack_list[] = {
             test_pack_t("foo(x)", test_result_t(0, "T")),
@@ -8210,7 +8210,7 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::expression<T> expression_t;
+        using expression_t = math_expr::expression<T>;
 
         std::string a = "a";
         std::string b = "b";
@@ -8246,8 +8246,8 @@ bool run_test18()
 
         symbol_table.add_function("foo", ovrld_func);
 
-        typedef typename overload_func<T>::test_result_t test_result_t;
-        typedef std::pair<std::string, typename overload_func<T>::test_result_t> test_pack_t;
+        using test_result_t = typename overload_func<T>::test_result_t;
+        using test_pack_t = std::pair<std::string, typename overload_func<T>::test_result_t>;
 
         static const test_pack_t test_pack_list[] = {
             test_pack_t("result := foo(x)", test_result_t(0, "T")),
@@ -8356,11 +8356,11 @@ bool run_test18()
     }
 
     {
-        typedef math_expr::symbol_table<T> symbol_table_t;
-        typedef math_expr::expression<T> expression_t;
-        typedef math_expr::parser<T> parser_t;
+        using symbol_table_t = math_expr::symbol_table<T>;
+        using expression_t = math_expr::expression<T>;
+        using parser_t = math_expr::parser<T>;
 
-        typedef std::pair<std::string, std::size_t> rtc_test_t;
+        using rtc_test_t = std::pair<std::string, std::size_t>;
         static const rtc_test_t rtc_tests[] = {
             std::make_pair(" for (var i := 0; i < v[]; i += 1) { v[i + v[]]; }                     "
                            "           ",
@@ -8600,10 +8600,10 @@ bool run_test18()
 template <typename T>
 struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T>
 {
-    typedef math_expr::igeneric_function<T> igenfunct_t;
-    typedef typename igenfunct_t::generic_type generic_t;
-    typedef typename igenfunct_t::parameter_list_t parameter_list_t;
-    typedef typename generic_t::scalar_view scalar_t;
+    using igenfunct_t = math_expr::igeneric_function<T>;
+    using generic_t = typename igenfunct_t::generic_type;
+    using parameter_list_t = typename igenfunct_t::parameter_list_t;
+    using scalar_t = typename generic_t::scalar_view;
 
     depth_to_str() : math_expr::igeneric_function<T>("T", igenfunct_t::return_type::e_rtrn_string)
     {
@@ -8621,11 +8621,11 @@ struct depth_to_str math_expr_test_final : public math_expr::igeneric_function<T
 template <typename T>
 bool run_test19()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef math_expr::function_compositor<T> compositor_t;
-    typedef typename compositor_t::function function_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using compositor_t = math_expr::function_compositor<T>;
+    using function_t = typename compositor_t::function;
 
     {
         T x = T(123.123);
@@ -9789,8 +9789,8 @@ bool run_test19()
 template <typename T>
 struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol_resolver
 {
-    typedef typename math_expr::parser<T>::unknown_symbol_resolver usr_t;
-    typedef typename usr_t::usr_symbol_type usr_symbol_type;
+    using usr_t = typename math_expr::parser<T>::unknown_symbol_resolver;
+    using usr_symbol_type = typename usr_t::usr_symbol_type;
 
     using usr_t::process;
 
@@ -9834,8 +9834,8 @@ struct my_usr math_expr_test_final : public math_expr::parser<T>::unknown_symbol
 template <typename T>
 struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_symbol_resolver
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef typename math_expr::parser<T>::unknown_symbol_resolver usr_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using usr_t = typename math_expr::parser<T>::unknown_symbol_resolver;
 
     using usr_t::process;
 
@@ -9916,8 +9916,8 @@ struct my_usr_ext math_expr_test_final : public math_expr::parser<T>::unknown_sy
 template <typename T>
 bool run_test20()
 {
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::symbol_table<T> symbol_table_t;
+    using expression_t = math_expr::expression<T>;
+    using symbol_table_t = math_expr::symbol_table<T>;
 
     {
         for (std::size_t i = 0; i < 100; ++i)
@@ -10217,8 +10217,8 @@ bool run_test20()
 template <typename T>
 inline std::string results_to_string(const math_expr::results_context<T>& results)
 {
-    typedef math_expr::results_context<T> results_context_t;
-    typedef typename results_context_t::type_store_t type_t;
+    using results_context_t = math_expr::results_context<T>;
+    using type_t = typename results_context_t::type_store_t;
 
     std::string res_str;
 
@@ -10251,9 +10251,9 @@ inline std::string results_to_string(const math_expr::results_context<T>& result
 template <typename T>
 inline bool result_equal(const math_expr::results_context<T>& results, const T& value)
 {
-    typedef math_expr::results_context<T> results_context_t;
-    typedef typename results_context_t::type_store_t type_t;
-    typedef typename type_t::scalar_view scalar_t;
+    using results_context_t = math_expr::results_context<T>;
+    using type_t = typename results_context_t::type_store_t;
+    using scalar_t = typename type_t::scalar_view;
 
     if (1 != results.count())
         return false;
@@ -10267,13 +10267,13 @@ template <typename T>
 class vv_size_handler_t : public math_expr::igeneric_function<T>
 {
    public:
-    typedef typename math_expr::igeneric_function<T> igfun_t;
-    typedef typename igfun_t::parameter_list_t parameter_list_t;
-    typedef typename igfun_t::generic_type generic_type;
-    typedef typename generic_type::vector_view vector_t;
-    typedef typename generic_type::scalar_view scalar_t;
-    typedef math_expr::vector_view<T>* vv_ptr_t;
-    typedef std::map<void*, vv_ptr_t> map_t;
+    using igfun_t = typename math_expr::igeneric_function<T>;
+    using parameter_list_t = typename igfun_t::parameter_list_t;
+    using generic_type = typename igfun_t::generic_type;
+    using vector_t = typename generic_type::vector_view;
+    using scalar_t = typename generic_type::scalar_view;
+    using vv_ptr_t = math_expr::vector_view<T>*;
+    using map_t = std::map<void*, vv_ptr_t>;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -10314,10 +10314,10 @@ class vv_size_handler_t : public math_expr::igeneric_function<T>
 template <typename T>
 bool run_test21()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef math_expr::parser_error::type error_type;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using error_type = math_expr::parser_error::type;
 
     bool error_found = false;
 
@@ -10546,7 +10546,7 @@ bool run_test21()
 
         expression.value();
 
-        typedef math_expr::results_context<T> results_context_t;
+        using results_context_t = math_expr::results_context<T>;
         const results_context_t& results = expression.results();
 
         if (results.count() != 4)
@@ -10711,7 +10711,7 @@ bool run_test21()
 
         parser_t parser;
 
-        typedef std::pair<std::string, bool> local_test_t;
+        using local_test_t = std::pair<std::string, bool>;
 
         const local_test_t expressions[] = {
             std::make_pair<std::string, bool>("x := y + (z / w)", true),
@@ -10751,7 +10751,7 @@ bool run_test21()
     }
 
     {
-        typedef typename parser_t::settings_store settings_t;
+        using settings_t = typename parser_t::settings_store;
 
         const std::string invalid_expressions[] = {
             "var result := 0; if (true) { result := 2 } if (true) { result := 3 }; result",
@@ -11849,7 +11849,7 @@ bool run_test21()
 
         std::string expressions[] = {"1 + 2", "return [1 + 2]", "z + 2", "1 + 2", "z + 2"};
 
-        typedef std::pair<T, bool> test_t;
+        using test_t = std::pair<T, bool>;
 
         test_t expected_results[] = {
             test_t(3, false), test_t(std::numeric_limits<T>::quiet_NaN(), true),
@@ -12043,9 +12043,9 @@ struct assert_handler math_expr_test_final : public math_expr::assert_check
 template <typename T>
 bool run_test22()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     bool result = true;
 
@@ -12149,7 +12149,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
@@ -12212,7 +12212,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_literal);
 
@@ -12271,7 +12271,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_literal);
 
@@ -12330,7 +12330,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_string);
 
@@ -12395,7 +12395,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_string);
 
@@ -12547,7 +12547,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
@@ -12618,7 +12618,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_literal);
 
@@ -12685,7 +12685,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_literal);
 
@@ -12752,7 +12752,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_string);
 
@@ -12825,7 +12825,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_string);
 
@@ -12884,7 +12884,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
@@ -12948,7 +12948,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
@@ -13020,7 +13020,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
@@ -13098,7 +13098,7 @@ bool run_test22()
 
             std::vector<typename math_expr::expression_helper<T>::node_types> type_sequence;
 
-            typedef typename math_expr::expression_helper<T> et_t;
+            using et_t = typename math_expr::expression_helper<T>;
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
             type_sequence.push_back(et_t::node_types::e_assert);
@@ -13132,7 +13132,7 @@ bool run_test22()
     }
 
     {
-        typedef std::pair<std::string, std::size_t> exprpack_t;
+        using exprpack_t = std::pair<std::string, std::size_t>;
 
         const exprpack_t expression_list[] = {
             exprpack_t("var x := 1;", 1 * sizeof(T)),
@@ -13233,7 +13233,7 @@ bool run_test22()
     }
 
     {
-        typedef std::pair<std::string, std::size_t> exprpack_t;
+        using exprpack_t = std::pair<std::string, std::size_t>;
 
         const exprpack_t expression_list[] = {
             exprpack_t("var x := 1;", 0 * sizeof(T)),
@@ -13329,9 +13329,9 @@ bool run_test22()
 template <typename T>
 bool run_test23()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     {
         const std::string file_path = test_support::make_temp_file_path("file_write_read");
@@ -13567,7 +13567,7 @@ void check_randomized_clamp_algorithm()
 template <typename T>
 void check_randomized_expression_instance_consistency()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string =
         "clamp(-1.0,sin(2 * pi * x_var123) + cos(y_var123 / 2 * pi),+1.0)";
@@ -13619,7 +13619,7 @@ void check_randomized_expression_instance_consistency()
 template <typename T>
 void check_randomized_integration_algorithm()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string = "sqrt(1 - (x^2))";
 
@@ -13659,7 +13659,7 @@ void check_randomized_integration_algorithm()
 template <typename T>
 void check_randomized_derivative_algorithm()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string = "sin(2x + 1 / 3)";
 
@@ -13709,7 +13709,7 @@ void check_randomized_derivative_algorithm()
 template <typename T>
 void check_randomized_custom_function_algorithm()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string =
         "myfunc0(sin(x * pi),y / 2) + myfunc1(sin(x * pi),y / 2)+"
@@ -13769,7 +13769,7 @@ void check_randomized_custom_function_algorithm()
 template <typename T>
 void check_randomized_polynomial_algorithm()
 {
-    typedef math_expr::expression<T> expression_t;
+    using expression_t = math_expr::expression<T>;
 
     const std::string expression_string = "poly03(x,a,b,c,d)";
 

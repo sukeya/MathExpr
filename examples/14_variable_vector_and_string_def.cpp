@@ -24,8 +24,8 @@
 template <typename T>
 void stddev_example()
 {
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string stddev_program =
         " var x[25] := {                     "

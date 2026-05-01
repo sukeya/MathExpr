@@ -24,9 +24,9 @@
 template <typename T>
 void trig_function()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string expression_string = "clamp(-1.0, sin(2 * pi * x) + cos(x / 2 * pi), +1.0)";
 

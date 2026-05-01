@@ -25,7 +25,7 @@
 
 struct vector_access_rtc : public math_expr::vector_access_runtime_check
 {
-    typedef std::map<void*, std::string> map_t;
+    using map_t = std::map<void*, std::string>;
     map_t vector_map;
 
     bool handle_runtime_violation(violation_context& context)
@@ -48,9 +48,9 @@ struct vector_access_rtc : public math_expr::vector_access_runtime_check
 template <typename T>
 void vector_overflow_example()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string expression_str =
         " for (var i := 0; i < max(v0[],v1[]); i += 1) "

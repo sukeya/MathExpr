@@ -44,9 +44,9 @@ struct rnd_01 : public math_expr::ifunction<T>
 template <typename T>
 void monte_carlo_pi()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string monte_carlo_pi_program =
         " var samples[2 * 10^8] := [(rnd_01^2 + rnd_01^2) <= 1]; "

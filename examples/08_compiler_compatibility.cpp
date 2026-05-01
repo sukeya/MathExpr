@@ -24,12 +24,12 @@
 template <typename T>
 void composite()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef math_expr::parser_error::type err_t;
-    typedef math_expr::function_compositor<T> compositor_t;
-    typedef typename compositor_t::function function_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using err_t = math_expr::parser_error::type;
+    using compositor_t = math_expr::function_compositor<T>;
+    using function_t = typename compositor_t::function;
 
     T x = T(1);
     T y = T(2);

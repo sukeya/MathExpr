@@ -24,10 +24,10 @@
 template <typename T, T Process(const unsigned char)>
 struct char_process : public math_expr::igeneric_function<T>
 {
-    typedef typename math_expr::igeneric_function<T> igfun_t;
-    typedef typename igfun_t::parameter_list_t parameter_list_t;
-    typedef typename igfun_t::generic_type generic_type;
-    typedef typename generic_type::string_view string_t;
+    using igfun_t = typename math_expr::igeneric_function<T>;
+    using parameter_list_t = typename igfun_t::parameter_list_t;
+    using generic_type = typename igfun_t::generic_type;
+    using string_t = typename generic_type::string_view;
 
     using math_expr::igeneric_function<T>::operator();
 
@@ -55,9 +55,9 @@ T to_num_func(const unsigned char c)
 template <typename T>
 void rpn_example()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
 
     const std::string rpn_program =
         " var stack[1000] := [0];                                                  "

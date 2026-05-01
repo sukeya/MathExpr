@@ -24,11 +24,11 @@
 template <typename T>
 void real_1d_discrete_fourier_transform()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef math_expr::function_compositor<T> compositor_t;
-    typedef typename compositor_t::function function_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using compositor_t = math_expr::function_compositor<T>;
+    using function_t = typename compositor_t::function;
 
     const T sampling_rate = 1024.0;  // ~1KHz
     const T N = 8 * sampling_rate;   // 8 seconds worth of samples

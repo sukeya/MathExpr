@@ -24,11 +24,11 @@
 template <typename T>
 void compute_european_option_implied_volatility()
 {
-    typedef math_expr::symbol_table<T> symbol_table_t;
-    typedef math_expr::expression<T> expression_t;
-    typedef math_expr::parser<T> parser_t;
-    typedef math_expr::function_compositor<T> compositor_t;
-    typedef typename compositor_t::function function_t;
+    using symbol_table_t = math_expr::symbol_table<T>;
+    using expression_t = math_expr::expression<T>;
+    using parser_t = math_expr::parser<T>;
+    using compositor_t = math_expr::function_compositor<T>;
+    using function_t = typename compositor_t::function;
 
     const std::string option_implied_volatility_program =
         " const var epsilon   := 0.0000001;                                  "
