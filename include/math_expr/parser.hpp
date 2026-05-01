@@ -349,7 +349,7 @@ class parser : public lexer::parser_helper
             const std::string& var_name,
             const std::size_t index = std::numeric_limits<std::size_t>::max())
         {
-            const std::size_t current_depth = parser().state_.scope_depth;
+            const std::size_t current_depth = ref_parser().state_.scope_depth;
 
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -368,7 +368,7 @@ class parser : public lexer::parser_helper
             const std::string& var_name,
             const std::size_t index = std::numeric_limits<std::size_t>::max())
         {
-            const std::size_t current_depth = parser().state_.scope_depth;
+            const std::size_t current_depth = ref_parser().state_.scope_depth;
 
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -422,7 +422,7 @@ class parser : public lexer::parser_helper
         inline void deactivate(const std::size_t& scope_depth)
         {
             math_expr_debug(("deactivate() - Scope depth: %d\n",
-                             static_cast<int>(parser().state_.scope_depth)));
+                             static_cast<int>(ref_parser().state_.scope_depth)));
 
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -539,7 +539,7 @@ class parser : public lexer::parser_helper
         scope_element_manager(const scope_element_manager&) = delete;
         scope_element_manager& operator=(const scope_element_manager&) = delete;
 
-        inline parser_t& parser()
+        inline parser_t& ref_parser()
         {
             assert(parser_);
             return *parser_;
