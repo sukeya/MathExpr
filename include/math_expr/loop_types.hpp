@@ -37,14 +37,36 @@ limitations under the License.
 
 class loop_types
 {
-   public:
+   private:
     using flag = uint8_t;
 
-    static constexpr flag e_invalid = 0;
-    static constexpr flag e_for_loop = 1;
-    static constexpr flag e_while_loop = 2;
-    static constexpr flag e_repeat_until_loop = 4;
-    static constexpr flag e_all_loops = 7;
+    static constexpr flag invalid_ = 0;
+    static constexpr flag for_loop_ = 1;
+    static constexpr flag while_loop_ = 2;
+    static constexpr flag repeat_until_loop_ = 4;
+    static constexpr flag all_loops_ = 7;
+
+   public:
+    static loop_types e_invalid()
+    {
+        return loop_types(invalid_);
+    }
+    static loop_types e_for_loop()
+    {
+        return loop_types(for_loop_);
+    }
+    static loop_types e_while_loop()
+    {
+        return loop_types(while_loop_);
+    }
+    static loop_types e_repeat_until_loop()
+    {
+        return loop_types(repeat_until_loop_);
+    }
+    static loop_types e_all_loops()
+    {
+        return loop_types(all_loops_);
+    }
 
     loop_types() = default;
     loop_types(const loop_types&) = default;
@@ -53,35 +75,35 @@ class loop_types
     loop_types& operator=(loop_types&&) = default;
     ~loop_types() = default;
 
-    loop_types(flag f) : loop_flags_(f)
+    explicit loop_types(flag f) : loop_flags_(f)
     {
-        assert(f <= e_all_loops);
+        assert(f <= all_loops_);
     }
 
     bool is_invalid() const
     {
-        return loop_flags_ == e_invalid;
+        return loop_flags_ == invalid_;
     }
     bool is_for_loop() const
     {
-        return (loop_flags_ & e_for_loop) == e_for_loop;
+        return (loop_flags_ & for_loop_) == for_loop_;
     }
     bool is_while_loop() const
     {
-        return (loop_flags_ & e_while_loop) == e_while_loop;
+        return (loop_flags_ & while_loop_) == while_loop_;
     }
     bool is_repeat_until_loop() const
     {
-        return (loop_flags_ & e_repeat_until_loop) == e_repeat_until_loop;
+        return (loop_flags_ & repeat_until_loop_) == repeat_until_loop_;
     }
     bool is_all_loops() const
     {
-        return (loop_flags_ & e_all_loops) == e_all_loops;
+        return (loop_flags_ & all_loops_) == all_loops_;
     }
 
     loop_types operator~() const
     {
-        return loop_types((~loop_flags_) & e_all_loops);
+        return loop_types((~loop_flags_) & all_loops_);
     }
 
     friend loop_types operator&(loop_types l, loop_types r)

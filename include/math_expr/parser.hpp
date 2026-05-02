@@ -9344,7 +9344,7 @@ class parser : public lexer::parser_helper
                 return branch;
             }
 
-            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_while_loop);
+            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_while_loop());
 
             if (!break_continue_present)
             {
@@ -9392,7 +9392,7 @@ class parser : public lexer::parser_helper
                 return branch;
             }
 
-            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_repeat_until_loop);
+            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_repeat_until_loop());
 
             if (!break_continue_present)
             {
@@ -9459,7 +9459,7 @@ class parser : public lexer::parser_helper
                 return loop_body;
             }
 
-            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_for_loop);
+            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_for_loop());
 
             if (!break_continue_present)
             {

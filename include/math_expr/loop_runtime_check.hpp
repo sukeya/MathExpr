@@ -50,7 +50,7 @@ struct loop_runtime_check
 
     loop_types loop_set;
 
-    loop_runtime_check() : loop_set(loop_types::e_invalid), max_loop_iterations(0) {}
+    loop_runtime_check() : loop_set(loop_types::e_invalid()), max_loop_iterations(0) {}
 
     std::uint64_t max_loop_iterations;
 
