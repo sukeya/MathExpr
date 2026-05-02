@@ -60,7 +60,7 @@ class loop_types
 
     bool is_invalid() const
     {
-        return (loop_flags_ & e_invalid) == e_invalid;
+        return loop_flags_ == e_invalid;
     }
     bool is_for_loop() const
     {
