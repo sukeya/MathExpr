@@ -889,9 +889,9 @@ class symbol_table
     inline variable_ptr get_variable(const std::string& variable_name) const
     {
         if (!valid())
-            return reinterpret_cast<variable_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(variable_name))
-            return reinterpret_cast<variable_ptr>(0);
+            return nullptr;
         else
             return local_data().variable_store.get(variable_name);
     }
@@ -899,7 +899,7 @@ class symbol_table
     inline variable_ptr get_variable(const T& var_ref) const
     {
         if (!valid())
-            return reinterpret_cast<variable_ptr>(0);
+            return nullptr;
         else
             return local_data().variable_store.get_from_varptr(
                 reinterpret_cast<const void*>(&var_ref));
@@ -909,16 +909,16 @@ class symbol_table
     inline stringvar_ptr get_stringvar(const std::string& string_name) const
     {
         if (!valid())
-            return reinterpret_cast<stringvar_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(string_name))
-            return reinterpret_cast<stringvar_ptr>(0);
+            return nullptr;
         else
             return local_data().stringvar_store.get(string_name);
     }
 
     inline stringvar_base<T> get_stringvar_base(const std::string& string_name) const
     {
-        static stringvar_base<T> null_stringvar_base("", reinterpret_cast<stringvar_ptr>(0));
+        static stringvar_base<T> null_stringvar_base("", nullptr);
         if (!valid())
             return null_stringvar_base;
         else if (!valid_symbol(string_name))
@@ -938,9 +938,9 @@ class symbol_table
     inline function_ptr get_function(const std::string& function_name) const
     {
         if (!valid())
-            return reinterpret_cast<function_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(function_name))
-            return reinterpret_cast<function_ptr>(0);
+            return nullptr;
         else
             return local_data().function_store.get(function_name);
     }
@@ -948,9 +948,9 @@ class symbol_table
     inline vararg_function_ptr get_vararg_function(const std::string& vararg_function_name) const
     {
         if (!valid())
-            return reinterpret_cast<vararg_function_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(vararg_function_name))
-            return reinterpret_cast<vararg_function_ptr>(0);
+            return nullptr;
         else
             return local_data().vararg_function_store.get(vararg_function_name);
     }
@@ -958,9 +958,9 @@ class symbol_table
     inline generic_function_ptr get_generic_function(const std::string& function_name) const
     {
         if (!valid())
-            return reinterpret_cast<generic_function_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(function_name))
-            return reinterpret_cast<generic_function_ptr>(0);
+            return nullptr;
         else
             return local_data().generic_function_store.get(function_name);
     }
@@ -968,9 +968,9 @@ class symbol_table
     inline generic_function_ptr get_string_function(const std::string& function_name) const
     {
         if (!valid())
-            return reinterpret_cast<generic_function_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(function_name))
-            return reinterpret_cast<generic_function_ptr>(0);
+            return nullptr;
         else
             return local_data().string_function_store.get(function_name);
     }
@@ -978,9 +978,9 @@ class symbol_table
     inline generic_function_ptr get_overload_function(const std::string& function_name) const
     {
         if (!valid())
-            return reinterpret_cast<generic_function_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(function_name))
-            return reinterpret_cast<generic_function_ptr>(0);
+            return nullptr;
         else
             return local_data().overload_function_store.get(function_name);
     }
@@ -990,9 +990,9 @@ class symbol_table
     inline vector_holder_ptr get_vector(const std::string& vector_name) const
     {
         if (!valid())
-            return reinterpret_cast<vector_holder_ptr>(0);
+            return nullptr;
         else if (!valid_symbol(vector_name))
-            return reinterpret_cast<vector_holder_ptr>(0);
+            return nullptr;
         else
             return local_data().vector_store.get(vector_name);
     }

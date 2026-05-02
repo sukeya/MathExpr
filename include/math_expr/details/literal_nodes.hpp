@@ -74,15 +74,11 @@ inline void construct_branch_pair(std::pair<expression_node<T>*, bool>& branch,
 
 template <std::size_t N, typename T>
 inline void init_branches(std::pair<expression_node<T>*, bool> (&branch)[N], expression_node<T>* b0,
-                          expression_node<T>* b1 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b2 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b3 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b4 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b5 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b6 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b7 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b8 = reinterpret_cast<expression_node<T>*>(0),
-                          expression_node<T>* b9 = reinterpret_cast<expression_node<T>*>(0))
+                          expression_node<T>* b1 = nullptr, expression_node<T>* b2 = nullptr,
+                          expression_node<T>* b3 = nullptr, expression_node<T>* b4 = nullptr,
+                          expression_node<T>* b5 = nullptr, expression_node<T>* b6 = nullptr,
+                          expression_node<T>* b7 = nullptr, expression_node<T>* b8 = nullptr,
+                          expression_node<T>* b9 = nullptr)
 {
     construct_branch_pair(branch, b0, 0);
     construct_branch_pair(branch, b1, 1);
@@ -168,7 +164,7 @@ class literal_node final : public expression_node<T>
 
     inline expression_node<T>* branch(const std::size_t&) const override
     {
-        return reinterpret_cast<expression_node<T>*>(0);
+        return nullptr;
     }
 
    private:
@@ -241,7 +237,7 @@ class string_literal_node final : public expression_node<T>,
 
     inline expression_node<T>* branch(const std::size_t&) const override
     {
-        return reinterpret_cast<expression_node<T>*>(0);
+        return nullptr;
     }
 
     std::string str() const override

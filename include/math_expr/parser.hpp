@@ -858,9 +858,9 @@ class parser : public lexer::parser_helper
         inline variable_ptr get_variable(const std::string& variable_name) const
         {
             if (!valid_symbol(variable_name))
-                return reinterpret_cast<variable_ptr>(0);
+                return nullptr;
 
-            variable_ptr result = reinterpret_cast<variable_ptr>(0);
+            variable_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -878,7 +878,7 @@ class parser : public lexer::parser_helper
 
         inline variable_ptr get_variable(const T& var_ref) const
         {
-            variable_ptr result = reinterpret_cast<variable_ptr>(0);
+            variable_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -925,9 +925,9 @@ class parser : public lexer::parser_helper
         inline stringvar_ptr get_stringvar(const std::string& string_name) const
         {
             if (!valid_symbol(string_name))
-                return reinterpret_cast<stringvar_ptr>(0);
+                return nullptr;
 
-            stringvar_ptr result = reinterpret_cast<stringvar_ptr>(0);
+            stringvar_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -947,9 +947,9 @@ class parser : public lexer::parser_helper
         inline function_ptr get_function(const std::string& function_name) const
         {
             if (!valid_function_name(function_name))
-                return reinterpret_cast<function_ptr>(0);
+                return nullptr;
 
-            function_ptr result = reinterpret_cast<function_ptr>(0);
+            function_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -969,9 +969,9 @@ class parser : public lexer::parser_helper
             const std::string& vararg_function_name) const
         {
             if (!valid_function_name(vararg_function_name))
-                return reinterpret_cast<vararg_function_ptr>(0);
+                return nullptr;
 
-            vararg_function_ptr result = reinterpret_cast<vararg_function_ptr>(0);
+            vararg_function_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -990,9 +990,9 @@ class parser : public lexer::parser_helper
         inline generic_function_ptr get_generic_function(const std::string& function_name) const
         {
             if (!valid_function_name(function_name))
-                return reinterpret_cast<generic_function_ptr>(0);
+                return nullptr;
 
-            generic_function_ptr result = reinterpret_cast<generic_function_ptr>(0);
+            generic_function_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -1011,9 +1011,9 @@ class parser : public lexer::parser_helper
         inline generic_function_ptr get_string_function(const std::string& function_name) const
         {
             if (!valid_function_name(function_name))
-                return reinterpret_cast<generic_function_ptr>(0);
+                return nullptr;
 
-            generic_function_ptr result = reinterpret_cast<generic_function_ptr>(0);
+            generic_function_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -1032,9 +1032,9 @@ class parser : public lexer::parser_helper
         inline generic_function_ptr get_overload_function(const std::string& function_name) const
         {
             if (!valid_function_name(function_name))
-                return reinterpret_cast<generic_function_ptr>(0);
+                return nullptr;
 
-            generic_function_ptr result = reinterpret_cast<generic_function_ptr>(0);
+            generic_function_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -1078,9 +1078,9 @@ class parser : public lexer::parser_helper
         inline vector_holder_ptr get_vector(const std::string& vector_name) const
         {
             if (!valid_symbol(vector_name))
-                return reinterpret_cast<vector_holder_ptr>(0);
+                return nullptr;
 
-            vector_holder_ptr result = reinterpret_cast<vector_holder_ptr>(0);
+            vector_holder_ptr result = nullptr;
 
             for (std::size_t i = 0; i < symtab_list_.size(); ++i)
             {
@@ -1336,7 +1336,7 @@ class parser : public lexer::parser_helper
         : settings_(settings),
           resolve_unknown_symbol_(false),
           results_context_(0),
-          unknown_symbol_resolver_(reinterpret_cast<unknown_symbol_resolver*>(0)),
+          unknown_symbol_resolver_(nullptr),
           sem_(),
           operator_joiner_2_(2),
           operator_joiner_3_(3),
@@ -1754,8 +1754,7 @@ class parser : public lexer::parser_helper
             return symbol_replacer_.remove(symbol);
     }
 
-    inline void enable_unknown_symbol_resolver(
-        unknown_symbol_resolver* usr = reinterpret_cast<unknown_symbol_resolver*>(0))
+    inline void enable_unknown_symbol_resolver(unknown_symbol_resolver* usr = nullptr)
     {
         resolve_unknown_symbol_ = true;
 
@@ -2478,7 +2477,7 @@ class parser : public lexer::parser_helper
 
     static inline expression_node_ptr error_node()
     {
-        return reinterpret_cast<expression_node_ptr>(0);
+        return nullptr;
     }
 
     struct scoped_expression_delete
@@ -2682,7 +2681,7 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
-        expression_node_ptr func_node = reinterpret_cast<expression_node_ptr>(0);
+        expression_node_ptr func_node = nullptr;
 
         switch (function->param_count)
         {
@@ -2791,7 +2790,7 @@ class parser : public lexer::parser_helper
             expression_node_ptr branch[NumberofParameters];
             expression_node_ptr result = error_node();
 
-            std::fill_n(branch, NumberofParameters, reinterpret_cast<expression_node_ptr>(0));
+            std::fill_n(branch, NumberofParameters, nullptr);
 
             scoped_delete<expression_node_t, NumberofParameters> sd((*this), branch);
 
@@ -2882,7 +2881,7 @@ class parser : public lexer::parser_helper
         expression_node_ptr (&param_list)[MaxNumberofParameters],
         const std::string& function_name = "")
     {
-        std::fill_n(param_list, MaxNumberofParameters, reinterpret_cast<expression_node_ptr>(0));
+        std::fill_n(param_list, MaxNumberofParameters, nullptr);
 
         scoped_delete<expression_node_t, MaxNumberofParameters> sd((*this), param_list);
 
@@ -5682,7 +5681,7 @@ class parser : public lexer::parser_helper
             expression_node_ptr branch[NumberOfParameters];
             expression_node_ptr result = error_node();
 
-            std::fill_n(branch, NumberOfParameters, reinterpret_cast<expression_node_ptr>(0));
+            std::fill_n(branch, NumberOfParameters, nullptr);
 
             scoped_delete<expression_node_t, NumberOfParameters> sd(p, branch);
 
@@ -6315,7 +6314,7 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_define_string_statement(
         const std::string& str_name, expression_node_ptr initialisation_expression)
     {
-        stringvar_node_t* str_node = reinterpret_cast<stringvar_node_t*>(0);
+        stringvar_node_t* str_node = nullptr;
 
         scope_element& se = sem_.get_element(str_name);
 
@@ -6500,7 +6499,7 @@ class parser : public lexer::parser_helper
             return parse_define_string_statement(var_name, initialisation_expression);
         }
 
-        expression_node_ptr var_node = reinterpret_cast<expression_node_ptr>(0);
+        expression_node_ptr var_node = nullptr;
 
         scope_element& se = sem_.get_element(var_name);
 
@@ -6698,7 +6697,7 @@ class parser : public lexer::parser_helper
 
         free_node(node_allocator_, initialisation_expression);
 
-        expression_node_ptr var_node = reinterpret_cast<expression_node_ptr>(0);
+        expression_node_ptr var_node = nullptr;
 
         scope_element& se = sem_.get_element(var_name);
 
@@ -6800,7 +6799,7 @@ class parser : public lexer::parser_helper
             return error_node();
         }
 
-        expression_node_ptr var_node = reinterpret_cast<expression_node_ptr>(0);
+        expression_node_ptr var_node = nullptr;
 
         scope_element& se = sem_.get_element(var_name);
 
@@ -10488,14 +10487,14 @@ class parser : public lexer::parser_helper
                 else if (!all_nodes_valid(b))
                 {
                     details::free_node(*node_allocator_, result);
-                    std::fill_n(b, N, reinterpret_cast<expression_node_ptr>(0));
+                    std::fill_n(b, N, nullptr);
 
                     return error_node();
                 }
                 else if (N != f->param_count)
                 {
                     details::free_node(*node_allocator_, result);
-                    std::fill_n(b, N, reinterpret_cast<expression_node_ptr>(0));
+                    std::fill_n(b, N, nullptr);
 
                     return error_node();
                 }
@@ -10505,7 +10504,7 @@ class parser : public lexer::parser_helper
                 if (!func_node_ptr->init_branches(b))
                 {
                     details::free_node(*node_allocator_, result);
-                    std::fill_n(b, N, reinterpret_cast<expression_node_ptr>(0));
+                    std::fill_n(b, N, nullptr);
 
                     return error_node();
                 }
@@ -11072,11 +11071,11 @@ class parser : public lexer::parser_helper
                             (static_cast<string_range_node_t*>(node)->base()));
 #endif
                     default:
-                        return reinterpret_cast<const void*>(0);
+                        return nullptr;
                 }
             }
 
-            return reinterpret_cast<const void*>(0);
+            return nullptr;
         }
 
         bool assign_immutable_symbol(expression_node_ptr node)
@@ -13519,8 +13518,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13584,8 +13583,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13650,8 +13649,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13715,8 +13714,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13780,8 +13779,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13845,8 +13844,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13910,8 +13909,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -13976,8 +13975,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14102,8 +14101,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14228,8 +14227,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14366,8 +14365,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14501,8 +14500,8 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14652,9 +14651,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14750,9 +14749,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14848,9 +14847,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -14946,9 +14945,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -15044,9 +15043,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -15267,9 +15266,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -15549,9 +15548,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -15772,9 +15771,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -15995,9 +15994,9 @@ class parser : public lexer::parser_helper
                 if (synthesis_result)
                     return result;
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f1 = reinterpret_cast<binary_functor_t>(0);
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
+                binary_functor_t f1 = nullptr;
+                binary_functor_t f2 = nullptr;
 
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
@@ -16046,7 +16045,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovov->f0();
                 binary_functor_t f2 = vovov->f1();
 
@@ -16104,7 +16103,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovoc->f0();
                 binary_functor_t f2 = vovoc->f1();
 
@@ -16162,7 +16161,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vocov->f0();
                 binary_functor_t f2 = vocov->f1();
 
@@ -16220,7 +16219,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(covov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(covov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = covov->f0();
                 binary_functor_t f2 = covov->f1();
 
@@ -16278,7 +16277,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovov->f0();
                 binary_functor_t f2 = vovov->f1();
 
@@ -16337,7 +16336,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vocov->f0();
                 binary_functor_t f2 = vocov->f1();
 
@@ -16396,7 +16395,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(covoc->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = covoc->f0();
                 binary_functor_t f2 = covoc->f1();
 
@@ -16453,7 +16452,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovoc->f0();
                 binary_functor_t f2 = vovoc->f1();
 
@@ -16512,7 +16511,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(cocov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(cocov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = cocov->f0();
                 binary_functor_t f2 = cocov->f1();
 
@@ -16570,7 +16569,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovov->f0();
                 binary_functor_t f2 = vovov->f1();
 
@@ -16628,7 +16627,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovoc->f0();
                 binary_functor_t f2 = vovoc->f1();
 
@@ -16686,7 +16685,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vocov->f0();
                 binary_functor_t f2 = vocov->f1();
 
@@ -16744,7 +16743,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(covov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(covov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = covov->f0();
                 binary_functor_t f2 = covov->f1();
 
@@ -16802,7 +16801,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovov->f0();
                 binary_functor_t f2 = vovov->f1();
 
@@ -16861,7 +16860,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vocov->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vocov->f0();
                 binary_functor_t f2 = vocov->f1();
 
@@ -16920,7 +16919,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(covoc->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = covoc->f0();
                 binary_functor_t f2 = covoc->f1();
 
@@ -16978,7 +16977,7 @@ class parser : public lexer::parser_helper
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f0());
                 const core::operators::operator_type o2 = expr_gen.get_operator(vovoc->f1());
 
-                binary_functor_t f0 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f0 = nullptr;
                 binary_functor_t f1 = vovoc->f0();
                 binary_functor_t f2 = vovoc->f1();
 
@@ -17060,7 +17059,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vovov->f0();
                 binary_functor_t f1 = vovov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17118,7 +17117,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vovov->f0();
                 binary_functor_t f1 = vovov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
@@ -17177,7 +17176,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vovoc->f0();
                 binary_functor_t f1 = vovoc->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17235,7 +17234,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vocov->f0();
                 binary_functor_t f1 = vocov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17293,7 +17292,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = covov->f0();
                 binary_functor_t f1 = covov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17351,7 +17350,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = covoc->f0();
                 binary_functor_t f1 = covoc->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17409,7 +17408,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vocov->f0();
                 binary_functor_t f1 = vocov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
@@ -17468,7 +17467,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = covov->f0();
                 binary_functor_t f1 = covov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
@@ -17527,7 +17526,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vococ->f0();
                 binary_functor_t f1 = vococ->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17585,7 +17584,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vovov->f0();
                 binary_functor_t f1 = vovov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17643,7 +17642,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vovov->f0();
                 binary_functor_t f1 = vovov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
@@ -17702,7 +17701,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vovoc->f0();
                 binary_functor_t f1 = vovoc->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17760,7 +17759,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vocov->f0();
                 binary_functor_t f1 = vocov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 expression_node_ptr result = error_node();
@@ -17817,7 +17816,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = covov->f0();
                 binary_functor_t f1 = covov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17875,7 +17874,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = covoc->f0();
                 binary_functor_t f1 = covoc->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -17933,7 +17932,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = vocov->f0();
                 binary_functor_t f1 = vocov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
@@ -17992,7 +17991,7 @@ class parser : public lexer::parser_helper
 
                 binary_functor_t f0 = covov->f0();
                 binary_functor_t f1 = covov->f1();
-                binary_functor_t f2 = reinterpret_cast<binary_functor_t>(0);
+                binary_functor_t f2 = nullptr;
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
@@ -18056,9 +18055,9 @@ class parser : public lexer::parser_helper
                 static_cast<details::uv_base_node<Type>*>(branch[1])->operation();
             const Type& v0 = static_cast<details::uv_base_node<Type>*>(branch[0])->v();
             const Type& v1 = static_cast<details::uv_base_node<Type>*>(branch[1])->v();
-            unary_functor_t u0 = reinterpret_cast<unary_functor_t>(0);
-            unary_functor_t u1 = reinterpret_cast<unary_functor_t>(0);
-            binary_functor_t f = reinterpret_cast<binary_functor_t>(0);
+            unary_functor_t u0 = nullptr;
+            unary_functor_t u1 = nullptr;
+            binary_functor_t f = nullptr;
 
             if (!valid_operator(o0, u0))
                 return error_node();

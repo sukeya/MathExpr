@@ -634,7 +634,7 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
         }
         else if (is_ivector_node(branch(1)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
             {
@@ -1200,7 +1200,7 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
         }
         else if (is_ivector_node(branch(1)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
             {
@@ -1411,7 +1411,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         }
         else if (is_ivector_node(branch(0)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
             {
@@ -1426,7 +1426,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         }
         else if (is_ivector_node(branch(1)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
             {
@@ -1596,7 +1596,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
         }
         else if (is_ivector_node(branch(0)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
             {
@@ -1748,7 +1748,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
         }
         else if (is_ivector_node(branch(1)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
             {
@@ -1900,7 +1900,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
         }
         else if (is_ivector_node(branch(0)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
             {
@@ -2253,7 +2253,7 @@ class function_N_node final : public expression_node<T>
     using ifunction = IFunction;
 
     explicit function_N_node(ifunction* func)
-        : function_((N == func->param_count) ? func : reinterpret_cast<ifunction*>(0)),
+        : function_((N == func->param_count) ? func : nullptr),
           parameter_count_(func->param_count),
           initialised_(false)
     {
@@ -2606,8 +2606,7 @@ class function_N_node<T, IFunction, 0> final : public expression_node<T>
     using expression_ptr = expression_node<T>*;
     using ifunction = IFunction;
 
-    explicit function_N_node(ifunction* func)
-        : function_((0 == func->param_count) ? func : reinterpret_cast<ifunction*>(0))
+    explicit function_N_node(ifunction* func) : function_((0 == func->param_count) ? func : nullptr)
     {
         assert(valid());
     }
@@ -2723,7 +2722,7 @@ class generic_function_node : public expression_node<T>
     using range_list_t = std::vector<range_data_type_t>;
 
     explicit generic_function_node(const std::vector<expression_ptr>& arg_list,
-                                   GenericFunction* func = reinterpret_cast<GenericFunction*>(0))
+                                   GenericFunction* func = nullptr)
         : function_(func), arg_list_(arg_list)
     {
     }
@@ -2761,7 +2760,7 @@ class generic_function_node : public expression_node<T>
         expr_as_vec1_store_.resize(arg_list_.size(), T(0));
         typestore_list_.resize(arg_list_.size(), type_store_t());
         range_list_.resize(arg_list_.size(), range_data_type_t());
-        branch_.resize(arg_list_.size(), branch_t(reinterpret_cast<expression_ptr>(0), false));
+        branch_.resize(arg_list_.size(), branch_t(nullptr, false));
         vv_list_.resize(arg_list_.size(), vecview_t(0));
 
         for (std::size_t i = 0; i < arg_list_.size(); ++i)
@@ -2772,7 +2771,7 @@ class generic_function_node : public expression_node<T>
                 return false;
             else if (is_ivector_node(arg_list_[i]))
             {
-                vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+                vector_interface<T>* vi = nullptr;
 
                 if (0 == (vi = dynamic_cast<vector_interface<T>*>(arg_list_[i])))
                     return false;
@@ -2797,7 +2796,7 @@ class generic_function_node : public expression_node<T>
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             else if (is_generally_string_node(arg_list_[i]))
             {
-                string_base_node<T>* sbn = reinterpret_cast<string_base_node<T>*>(0);
+                string_base_node<T>* sbn = nullptr;
 
                 if (0 == (sbn = dynamic_cast<string_base_node<T>*>(arg_list_[i])))
                     return false;
@@ -2811,7 +2810,7 @@ class generic_function_node : public expression_node<T>
                 range_list_[i].type_size = sizeof(char);
                 range_list_[i].str_node = sbn;
 
-                range_interface_t* ri = reinterpret_cast<range_interface_t*>(0);
+                range_interface_t* ri = nullptr;
 
                 if (0 == (ri = dynamic_cast<range_interface_t*>(arg_list_[i])))
                     return false;
@@ -2822,7 +2821,7 @@ class generic_function_node : public expression_node<T>
                 {
                     ts.size = rp.const_size();
                     ts.data = static_cast<core::char_ptr>(ts.data) + rp.n0_c.second;
-                    range_list_[i].range = reinterpret_cast<range_t*>(0);
+                    range_list_[i].range = nullptr;
                 }
                 else
                 {

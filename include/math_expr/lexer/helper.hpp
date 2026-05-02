@@ -822,7 +822,7 @@ struct helper_assembly
 
     inline bool run_modifiers(lexer::generator& g)
     {
-        error_token_modifier = reinterpret_cast<lexer::token_modifier*>(0);
+        error_token_modifier = nullptr;
 
         for (std::size_t i = 0; i < token_modifier_list.size(); ++i)
         {
@@ -844,7 +844,7 @@ struct helper_assembly
 
     inline bool run_joiners(lexer::generator& g)
     {
-        error_token_joiner = reinterpret_cast<lexer::token_joiner*>(0);
+        error_token_joiner = nullptr;
 
         for (std::size_t i = 0; i < token_joiner_list.size(); ++i)
         {
@@ -866,7 +866,7 @@ struct helper_assembly
 
     inline bool run_inserters(lexer::generator& g)
     {
-        error_token_inserter = reinterpret_cast<lexer::token_inserter*>(0);
+        error_token_inserter = nullptr;
 
         for (std::size_t i = 0; i < token_inserter_list.size(); ++i)
         {
@@ -888,7 +888,7 @@ struct helper_assembly
 
     inline bool run_scanners(lexer::generator& g)
     {
-        error_token_scanner = reinterpret_cast<lexer::token_scanner*>(0);
+        error_token_scanner = nullptr;
 
         for (std::size_t i = 0; i < token_scanner_list.size(); ++i)
         {

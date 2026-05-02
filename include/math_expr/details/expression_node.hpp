@@ -218,7 +218,7 @@ class expression_node : public node_collector_interface<expression_node<T>>,
 
     inline virtual expression_node<T>* branch(const std::size_t& index = 0) const
     {
-        return reinterpret_cast<expression_ptr>(index * 0);
+        return nullptr;
     }
 
     inline virtual node_type type() const
@@ -569,7 +569,7 @@ class node_collection_destructor
             MATH_EXPR_DEBUG(
                 ("ncd::delete_nodes() - deleting: %p\n", reinterpret_cast<void*>(node)));
             delete node;
-            node = reinterpret_cast<node_ptr_t>(0);
+            node = nullptr;
         }
     }
 
@@ -929,7 +929,7 @@ class vector_holder
 
         virtual vector_view<Type>* rebaseable_instance()
         {
-            return reinterpret_cast<vector_view<Type>*>(0);
+            return nullptr;
         }
 
        protected:

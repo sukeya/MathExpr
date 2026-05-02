@@ -1491,7 +1491,7 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
     {
         if (is_ivector_node(branch(0)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
             {
@@ -1502,7 +1502,7 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
 
         if (is_ivector_node(branch(1)))
         {
-            vector_interface<T>* vi = reinterpret_cast<vector_interface<T>*>(0);
+            vector_interface<T>* vi = nullptr;
 
             if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
             {
