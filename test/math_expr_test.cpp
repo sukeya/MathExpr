@@ -5636,10 +5636,12 @@ bool run_test14()
 
     math_expr::parser<T> parser;
 
-    static const std::size_t secondary_compile_options =
-        settings_t::e_replacer + settings_t::e_joiner + settings_t::e_numeric_check +
-        settings_t::e_bracket_check + settings_t::e_sequence_check +
-        settings_t::e_strength_reduction;
+    static const math_expr::compilation_options secondary_compile_options =
+        math_expr::compilation_options::e_replacer | math_expr::compilation_options::e_joiner |
+        math_expr::compilation_options::e_numeric_check |
+        math_expr::compilation_options::e_bracket_check |
+        math_expr::compilation_options::e_sequence_check |
+        math_expr::compilation_options::e_strength_reduction;
 
     const settings_t settings(secondary_compile_options);
     parser_t secondary_parser(settings);
@@ -10886,10 +10888,12 @@ bool run_test21()
 
         const std::size_t expressions_size = sizeof(invalid_expressions) / sizeof(std::string);
 
-        static const std::size_t compile_options =
-            settings_t::e_replacer + settings_t::e_joiner + settings_t::e_numeric_check +
-            settings_t::e_bracket_check + settings_t::e_sequence_check +
-            settings_t::e_strength_reduction;
+        static const math_expr::compilation_options compile_options =
+            math_expr::compilation_options::e_replacer | math_expr::compilation_options::e_joiner |
+            math_expr::compilation_options::e_numeric_check |
+            math_expr::compilation_options::e_bracket_check |
+            math_expr::compilation_options::e_sequence_check |
+            math_expr::compilation_options::e_strength_reduction;
 
         const settings_t settings(compile_options);
         parser_t parser(settings);
@@ -14097,8 +14101,9 @@ TEST_CASE("Boolean literals remain built-in when the replacer is disabled", "[pa
     math_expr::symbol_table<numeric_type> symbol_table;
     symbol_table.add_constants();
 
-    const settings_t no_replacer_settings(settings_t::default_compile_all_opts &
-                                          ~settings_t::e_replacer);
+    const settings_t no_replacer_settings(
+        settings_t::default_compile_all_opts &
+        ~math_expr::compilation_options(math_expr::compilation_options::e_replacer));
 
     parser_t default_parser;
     parser_t no_replacer_parser(no_replacer_settings);

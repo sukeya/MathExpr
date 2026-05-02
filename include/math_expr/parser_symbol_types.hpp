@@ -33,16 +33,12 @@ limitations under the License.
 #ifndef MATH_EXPR_PARSER_SYMBOL_TYPES_HPP
 #define MATH_EXPR_PARSER_SYMBOL_TYPES_HPP
 
+#include "math_expr/collect_types.hpp"
+
 namespace math_expr
 {
 
-enum collect_type
-{
-    e_ct_none = 0,
-    e_ct_variables = 1,
-    e_ct_functions = 2,
-    e_ct_assignments = 4
-};
+using collect_type = collect_types;
 
 enum class symbol_type
 {

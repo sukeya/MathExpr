@@ -33,6 +33,7 @@ limitations under the License.
 #ifndef MATH_EXPR_PARSER_SETTINGS_HPP
 #define MATH_EXPR_PARSER_SETTINGS_HPP
 
+#include "math_expr/compilation_options.hpp"
 #include "math_expr/core/operator_types.hpp"
 #include "math_expr/core/string_utils.hpp"
 
@@ -50,24 +51,6 @@ class settings_store
     using des_itr_t = disabled_entity_set_t::iterator;
 
    public:
-    enum settings_compilation_options
-    {
-        e_unknown = 0,
-        e_replacer = 1,
-        e_joiner = 2,
-        e_numeric_check = 4,
-        e_bracket_check = 8,
-        e_sequence_check = 16,
-        e_commutative_check = 32,
-        e_strength_reduction = 64,
-        e_disable_vardef = 128,
-        e_collect_vars = 256,
-        e_collect_funcs = 512,
-        e_collect_assings = 1024,
-        e_disable_usr_on_rsrvd = 2048,
-        e_disable_zero_return = 4096
-    };
-
     enum settings_base_funcs
     {
         e_bf_unknown = 0,
@@ -191,11 +174,10 @@ class settings_store
         e_ineq_gt
     };
 
-    static constexpr std::size_t default_compile_all_opts =
-        e_replacer + e_joiner + e_numeric_check + e_bracket_check + e_sequence_check +
-        e_commutative_check + e_strength_reduction;
+    inline static const compilation_options default_compile_all_opts =
+        compilation_options::default_all;
 
-    settings_store(const std::size_t compile_options = default_compile_all_opts)
+    settings_store(const compilation_options compile_options = default_compile_all_opts)
         : max_stack_depth_(400),
           max_node_depth_(10000),
           max_total_local_symbol_size_bytes_(2000000000),
@@ -703,23 +685,21 @@ class settings_store
     }
 
    private:
-    void load_compile_options(const std::size_t compile_options)
+    void load_compile_options(const compilation_options compile_options)
     {
-        enable_replacer_ = (compile_options & e_replacer) == e_replacer;
-        enable_joiner_ = (compile_options & e_joiner) == e_joiner;
-        enable_numeric_check_ = (compile_options & e_numeric_check) == e_numeric_check;
-        enable_bracket_check_ = (compile_options & e_bracket_check) == e_bracket_check;
-        enable_sequence_check_ = (compile_options & e_sequence_check) == e_sequence_check;
-        enable_commutative_check_ = (compile_options & e_commutative_check) == e_commutative_check;
-        enable_strength_reduction_ =
-            (compile_options & e_strength_reduction) == e_strength_reduction;
-        enable_collect_vars_ = (compile_options & e_collect_vars) == e_collect_vars;
-        enable_collect_funcs_ = (compile_options & e_collect_funcs) == e_collect_funcs;
-        enable_collect_assings_ = (compile_options & e_collect_assings) == e_collect_assings;
-        disable_vardef_ = (compile_options & e_disable_vardef) == e_disable_vardef;
-        disable_rsrvd_sym_usr_ =
-            (compile_options & e_disable_usr_on_rsrvd) == e_disable_usr_on_rsrvd;
-        disable_zero_return_ = (compile_options & e_disable_zero_return) == e_disable_zero_return;
+        enable_replacer_ = compile_options.is_replacer();
+        enable_joiner_ = compile_options.is_joiner();
+        enable_numeric_check_ = compile_options.is_numeric_check();
+        enable_bracket_check_ = compile_options.is_bracket_check();
+        enable_sequence_check_ = compile_options.is_sequence_check();
+        enable_commutative_check_ = compile_options.is_commutative_check();
+        enable_strength_reduction_ = compile_options.is_strength_reduction();
+        enable_collect_vars_ = compile_options.is_collect_vars();
+        enable_collect_funcs_ = compile_options.is_collect_funcs();
+        enable_collect_assings_ = compile_options.is_collect_assings();
+        disable_vardef_ = compile_options.is_disable_vardef();
+        disable_rsrvd_sym_usr_ = compile_options.is_disable_usr_on_rsrvd();
+        disable_zero_return_ = compile_options.is_disable_zero_return();
     }
 
     std::string assign_opr_to_string(core::operators::operator_type opr) const

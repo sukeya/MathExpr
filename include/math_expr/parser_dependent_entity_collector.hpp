@@ -48,11 +48,11 @@ class dependent_entity_collector
     using symbol_t = std::pair<std::string, symbol_type>;
     using symbol_list_t = std::vector<symbol_t>;
 
-    explicit dependent_entity_collector(const std::size_t options = e_ct_none)
+    explicit dependent_entity_collector(const collect_types options = collect_types{})
         : options_(options),
-          collect_variables_((options_ & e_ct_variables) == e_ct_variables),
-          collect_functions_((options_ & e_ct_functions) == e_ct_functions),
-          collect_assignments_((options_ & e_ct_assignments) == e_ct_assignments),
+          collect_variables_(options_.is_variables()),
+          collect_functions_(options_.is_functions()),
+          collect_assignments_(options_.is_assignments()),
           return_present_(false),
           final_stmt_return_(false)
     {
@@ -182,7 +182,7 @@ class dependent_entity_collector
         }
     }
 
-    std::size_t options_;
+    collect_types options_;
     bool collect_variables_;
     bool collect_functions_;
     bool collect_assignments_;
