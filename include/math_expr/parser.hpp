@@ -1325,7 +1325,7 @@ class parser : public lexer::parser_helper
 
    public:
     using unknown_symbol_resolver = math_expr::unknown_symbol_resolver<T>;
-    using collect_type = math_expr::collect_type;
+    using collect_type = math_expr::collect_types;
     using symbol_type = math_expr::symbol_type;
     using dependent_entity_collector = math_expr::dependent_entity_collector;
     using settings_store = math_expr::settings_store<T>;

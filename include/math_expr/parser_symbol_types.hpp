@@ -38,8 +38,6 @@ limitations under the License.
 namespace math_expr
 {
 
-using collect_type = collect_types;
-
 enum class symbol_type
 {
     e_st_unknown = 0,
