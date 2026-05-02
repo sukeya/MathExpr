@@ -35,20 +35,12 @@ limitations under the License.
 
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/types.hpp"
+#include "math_expr/loop_types.hpp"
 
 namespace math_expr
 {
 struct loop_runtime_check
 {
-    enum loop_types
-    {
-        e_invalid = 0,
-        e_for_loop = 1,
-        e_while_loop = 2,
-        e_repeat_until_loop = 4,
-        e_all_loops = 7
-    };
-
     enum class violation_type
     {
         e_unknown = 0,
@@ -58,7 +50,7 @@ struct loop_runtime_check
 
     loop_types loop_set;
 
-    loop_runtime_check() : loop_set(e_invalid), max_loop_iterations(0) {}
+    loop_runtime_check() : loop_set(loop_types::e_invalid), max_loop_iterations(0) {}
 
     std::uint64_t max_loop_iterations;
 

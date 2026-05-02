@@ -9293,8 +9293,7 @@ class parser : public lexer::parser_helper
                 return error_node();
         }
 
-        inline loop_runtime_check_ptr get_loop_runtime_check(
-            const loop_runtime_check::loop_types loop_type) const
+        inline loop_runtime_check_ptr get_loop_runtime_check(const loop_types loop_type) const
         {
             if (parser_->loop_runtime_check_ &&
                 (loop_type == (parser_->loop_runtime_check_->loop_set & loop_type)))
@@ -9345,7 +9344,7 @@ class parser : public lexer::parser_helper
                 return branch;
             }
 
-            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_runtime_check::e_while_loop);
+            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_while_loop);
 
             if (!break_continue_present)
             {
@@ -9393,8 +9392,7 @@ class parser : public lexer::parser_helper
                 return branch;
             }
 
-            loop_runtime_check_ptr rtc =
-                get_loop_runtime_check(loop_runtime_check::e_repeat_until_loop);
+            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_repeat_until_loop);
 
             if (!break_continue_present)
             {
@@ -9461,7 +9459,7 @@ class parser : public lexer::parser_helper
                 return loop_body;
             }
 
-            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_runtime_check::e_for_loop);
+            loop_runtime_check_ptr rtc = get_loop_runtime_check(loop_types::e_for_loop);
 
             if (!break_continue_present)
             {

@@ -117,7 +117,7 @@ class continue_node final : public expression_node<T>
 struct loop_runtime_checker
 {
     loop_runtime_checker(loop_runtime_check_ptr loop_runtime_check,
-                         loop_runtime_check::loop_types lp_typ = loop_runtime_check::e_invalid)
+                         loop_types lp_typ = loop_types::e_invalid)
         : iteration_count_(0),
           loop_runtime_check_(loop_runtime_check),
           max_loop_iterations_(loop_runtime_check_->max_loop_iterations),
@@ -157,7 +157,7 @@ struct loop_runtime_checker
     mutable std::uint64_t iteration_count_;
     mutable loop_runtime_check_ptr loop_runtime_check_;
     const std::uint64_t& max_loop_iterations_;
-    loop_runtime_check::loop_types loop_type_;
+    loop_types loop_type_;
 };
 
 template <typename T>
@@ -223,7 +223,7 @@ class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime
     while_loop_rtc_node(expression_ptr condition, expression_ptr loop_body,
                         loop_runtime_check_ptr loop_rt_chk)
         : parent_t(condition, loop_body),
-          loop_runtime_checker(loop_rt_chk, loop_runtime_check::e_while_loop)
+          loop_runtime_checker(loop_rt_chk, loop_types::e_while_loop)
     {
         assert(valid());
     }
@@ -314,7 +314,7 @@ class repeat_until_loop_rtc_node final : public repeat_until_loop_node<T>,
     repeat_until_loop_rtc_node(expression_ptr condition, expression_ptr loop_body,
                                loop_runtime_check_ptr loop_rt_chk)
         : parent_t(condition, loop_body),
-          loop_runtime_checker(loop_rt_chk, loop_runtime_check::e_repeat_until_loop)
+          loop_runtime_checker(loop_rt_chk, loop_types::e_repeat_until_loop)
     {
         assert(valid());
     }
@@ -426,7 +426,7 @@ class for_loop_rtc_node final : public for_loop_node<T>, public loop_runtime_che
                       expression_ptr incrementor, expression_ptr loop_body,
                       loop_runtime_check_ptr loop_rt_chk)
         : parent_t(initialiser, condition, incrementor, loop_body),
-          loop_runtime_checker(loop_rt_chk, loop_runtime_check::e_for_loop)
+          loop_runtime_checker(loop_rt_chk, loop_types::e_for_loop)
     {
         assert(valid());
     }
@@ -514,7 +514,7 @@ class while_loop_bc_rtc_node final : public while_loop_bc_node<T>, public loop_r
     while_loop_bc_rtc_node(expression_ptr condition, expression_ptr loop_body,
                            loop_runtime_check_ptr loop_rt_chk)
         : parent_t(condition, loop_body),
-          loop_runtime_checker(loop_rt_chk, loop_runtime_check::e_while_loop)
+          loop_runtime_checker(loop_rt_chk, loop_types::e_while_loop)
     {
         assert(valid());
     }
@@ -598,7 +598,7 @@ class repeat_until_loop_bc_rtc_node final : public repeat_until_loop_bc_node<T>,
     repeat_until_loop_bc_rtc_node(expression_ptr condition, expression_ptr loop_body,
                                   loop_runtime_check_ptr loop_rt_chk)
         : parent_t(condition, loop_body),
-          loop_runtime_checker(loop_rt_chk, loop_runtime_check::e_repeat_until_loop)
+          loop_runtime_checker(loop_rt_chk, loop_types::e_repeat_until_loop)
     {
         assert(valid());
     }
@@ -708,7 +708,7 @@ class for_loop_bc_rtc_node final : public for_loop_bc_node<T>, public loop_runti
                          expression_ptr incrementor, expression_ptr loop_body,
                          loop_runtime_check_ptr loop_rt_chk)
         : parent_t(initialiser, condition, incrementor, loop_body),
-          loop_runtime_checker(loop_rt_chk, loop_runtime_check::e_for_loop)
+          loop_runtime_checker(loop_rt_chk, loop_types::e_for_loop)
     {
         assert(valid());
     }
