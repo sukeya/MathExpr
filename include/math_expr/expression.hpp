@@ -339,6 +339,9 @@ class expression
                     control_block_->local_data_list.emplace_back(
                         std::unique_ptr<std::string>(reinterpret_cast<std::string*>(data)), size);
                     break;
+                default:
+                    assert(false && "register_local_data: unknown data_mode");
+                    break;
             }
         }
     }
