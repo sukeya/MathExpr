@@ -175,7 +175,7 @@ class settings_store
     };
 
     inline static const compilation_options default_compile_all_opts =
-        compilation_options::default_all;
+        compilation_options::default_all();
 
     settings_store(const compilation_options compile_options = default_compile_all_opts)
         : max_stack_depth_(400),

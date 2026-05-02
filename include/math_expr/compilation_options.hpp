@@ -40,26 +40,87 @@ namespace math_expr
 
 class compilation_options
 {
-   public:
+   private:
     using flag = uint16_t;
 
-    static constexpr flag e_unknown = 0;
-    static constexpr flag e_replacer = 1;
-    static constexpr flag e_joiner = 2;
-    static constexpr flag e_numeric_check = 4;
-    static constexpr flag e_bracket_check = 8;
-    static constexpr flag e_sequence_check = 16;
-    static constexpr flag e_commutative_check = 32;
-    static constexpr flag e_strength_reduction = 64;
-    static constexpr flag e_disable_vardef = 128;
-    static constexpr flag e_collect_vars = 256;
-    static constexpr flag e_collect_funcs = 512;
-    static constexpr flag e_collect_assings = 1024;
-    static constexpr flag e_disable_usr_on_rsrvd = 2048;
-    static constexpr flag e_disable_zero_return = 4096;
-    static constexpr flag e_all = 8191;
+    static constexpr flag unknown_ = 0;
+    static constexpr flag replacer_ = 1;
+    static constexpr flag joiner_ = 2;
+    static constexpr flag numeric_check_ = 4;
+    static constexpr flag bracket_check_ = 8;
+    static constexpr flag sequence_check_ = 16;
+    static constexpr flag commutative_check_ = 32;
+    static constexpr flag strength_reduction_ = 64;
+    static constexpr flag disable_vardef_ = 128;
+    static constexpr flag collect_vars_ = 256;
+    static constexpr flag collect_funcs_ = 512;
+    static constexpr flag collect_assings_ = 1024;
+    static constexpr flag disable_usr_on_rsrvd_ = 2048;
+    static constexpr flag disable_zero_return_ = 4096;
+    static constexpr flag all_ = 8191;
 
-    static const compilation_options default_all;
+   public:
+    static compilation_options e_unknown()
+    {
+        return compilation_options(unknown_);
+    }
+    static compilation_options e_replacer()
+    {
+        return compilation_options(replacer_);
+    }
+    static compilation_options e_joiner()
+    {
+        return compilation_options(joiner_);
+    }
+    static compilation_options e_numeric_check()
+    {
+        return compilation_options(numeric_check_);
+    }
+    static compilation_options e_bracket_check()
+    {
+        return compilation_options(bracket_check_);
+    }
+    static compilation_options e_sequence_check()
+    {
+        return compilation_options(sequence_check_);
+    }
+    static compilation_options e_commutative_check()
+    {
+        return compilation_options(commutative_check_);
+    }
+    static compilation_options e_strength_reduction()
+    {
+        return compilation_options(strength_reduction_);
+    }
+    static compilation_options e_disable_vardef()
+    {
+        return compilation_options(disable_vardef_);
+    }
+    static compilation_options e_collect_vars()
+    {
+        return compilation_options(collect_vars_);
+    }
+    static compilation_options e_collect_funcs()
+    {
+        return compilation_options(collect_funcs_);
+    }
+    static compilation_options e_collect_assings()
+    {
+        return compilation_options(collect_assings_);
+    }
+    static compilation_options e_disable_usr_on_rsrvd()
+    {
+        return compilation_options(disable_usr_on_rsrvd_);
+    }
+    static compilation_options e_disable_zero_return()
+    {
+        return compilation_options(disable_zero_return_);
+    }
+    static compilation_options default_all()
+    {
+        return compilation_options(replacer_ | joiner_ | numeric_check_ | bracket_check_ |
+                                   sequence_check_ | commutative_check_ | strength_reduction_);
+    }
 
     compilation_options() = default;
     compilation_options(const compilation_options&) = default;
@@ -68,86 +129,86 @@ class compilation_options
     compilation_options& operator=(compilation_options&&) = default;
     ~compilation_options() = default;
 
-    compilation_options(flag f) : compile_flags_(f)
+    explicit compilation_options(flag f) : compile_flags_(f)
     {
-        assert(f <= e_all);
+        assert(f <= all_);
     }
 
     bool is_unknown() const
     {
-        return compile_flags_ == e_unknown;
+        return compile_flags_ == unknown_;
     }
     bool is_replacer() const
     {
-        return (compile_flags_ & e_replacer) == e_replacer;
+        return (compile_flags_ & replacer_) == replacer_;
     }
     bool is_joiner() const
     {
-        return (compile_flags_ & e_joiner) == e_joiner;
+        return (compile_flags_ & joiner_) == joiner_;
     }
     bool is_numeric_check() const
     {
-        return (compile_flags_ & e_numeric_check) == e_numeric_check;
+        return (compile_flags_ & numeric_check_) == numeric_check_;
     }
     bool is_bracket_check() const
     {
-        return (compile_flags_ & e_bracket_check) == e_bracket_check;
+        return (compile_flags_ & bracket_check_) == bracket_check_;
     }
     bool is_sequence_check() const
     {
-        return (compile_flags_ & e_sequence_check) == e_sequence_check;
+        return (compile_flags_ & sequence_check_) == sequence_check_;
     }
     bool is_commutative_check() const
     {
-        return (compile_flags_ & e_commutative_check) == e_commutative_check;
+        return (compile_flags_ & commutative_check_) == commutative_check_;
     }
     bool is_strength_reduction() const
     {
-        return (compile_flags_ & e_strength_reduction) == e_strength_reduction;
+        return (compile_flags_ & strength_reduction_) == strength_reduction_;
     }
     bool is_disable_vardef() const
     {
-        return (compile_flags_ & e_disable_vardef) == e_disable_vardef;
+        return (compile_flags_ & disable_vardef_) == disable_vardef_;
     }
     bool is_collect_vars() const
     {
-        return (compile_flags_ & e_collect_vars) == e_collect_vars;
+        return (compile_flags_ & collect_vars_) == collect_vars_;
     }
     bool is_collect_funcs() const
     {
-        return (compile_flags_ & e_collect_funcs) == e_collect_funcs;
+        return (compile_flags_ & collect_funcs_) == collect_funcs_;
     }
     bool is_collect_assings() const
     {
-        return (compile_flags_ & e_collect_assings) == e_collect_assings;
+        return (compile_flags_ & collect_assings_) == collect_assings_;
     }
     bool is_disable_usr_on_rsrvd() const
     {
-        return (compile_flags_ & e_disable_usr_on_rsrvd) == e_disable_usr_on_rsrvd;
+        return (compile_flags_ & disable_usr_on_rsrvd_) == disable_usr_on_rsrvd_;
     }
     bool is_disable_zero_return() const
     {
-        return (compile_flags_ & e_disable_zero_return) == e_disable_zero_return;
+        return (compile_flags_ & disable_zero_return_) == disable_zero_return_;
     }
 
     compilation_options operator~() const
     {
-        return compilation_options(static_cast<flag>((~compile_flags_) & e_all));
+        return compilation_options((~compile_flags_) & all_);
     }
 
     friend compilation_options operator&(compilation_options l, compilation_options r)
     {
-        return compilation_options(static_cast<flag>(l.compile_flags_ & r.compile_flags_));
+        return compilation_options(l.compile_flags_ & r.compile_flags_);
     }
 
     friend compilation_options operator^(compilation_options l, compilation_options r)
     {
-        return compilation_options(static_cast<flag>(l.compile_flags_ ^ r.compile_flags_));
+        return compilation_options(l.compile_flags_ ^ r.compile_flags_);
     }
 
     friend compilation_options operator|(compilation_options l, compilation_options r)
     {
-        return compilation_options(static_cast<flag>(l.compile_flags_ | r.compile_flags_));
+        return compilation_options(l.compile_flags_ | r.compile_flags_);
     }
 
     friend bool operator==(compilation_options l, compilation_options r)
@@ -161,15 +222,8 @@ class compilation_options
     }
 
    private:
-    flag compile_flags_ = e_unknown;
+    flag compile_flags_;
 };
-
-inline const compilation_options compilation_options::default_all(
-    static_cast<compilation_options::flag>(
-        compilation_options::e_replacer | compilation_options::e_joiner |
-        compilation_options::e_numeric_check | compilation_options::e_bracket_check |
-        compilation_options::e_sequence_check | compilation_options::e_commutative_check |
-        compilation_options::e_strength_reduction));
 
 }  // namespace math_expr
 

@@ -40,14 +40,36 @@ namespace math_expr
 
 class collect_types
 {
-   public:
+   private:
     using flag = uint8_t;
 
-    static constexpr flag e_none = 0;
-    static constexpr flag e_variables = 1;
-    static constexpr flag e_functions = 2;
-    static constexpr flag e_assignments = 4;
-    static constexpr flag e_all = 7;
+    static constexpr flag none_ = 0;
+    static constexpr flag variables_ = 1;
+    static constexpr flag functions_ = 2;
+    static constexpr flag assignments_ = 4;
+    static constexpr flag all_ = 7;
+
+   public:
+    static collect_types e_none()
+    {
+        return collect_types(none_);
+    }
+    static collect_types e_variables()
+    {
+        return collect_types(variables_);
+    }
+    static collect_types e_functions()
+    {
+        return collect_types(functions_);
+    }
+    static collect_types e_assignments()
+    {
+        return collect_types(assignments_);
+    }
+    static collect_types e_all()
+    {
+        return collect_types(all_);
+    }
 
     collect_types() = default;
     collect_types(const collect_types&) = default;
@@ -56,35 +78,35 @@ class collect_types
     collect_types& operator=(collect_types&&) = default;
     ~collect_types() = default;
 
-    collect_types(flag f) : collect_flags_(f)
+    explicit collect_types(flag f) : collect_flags_(f)
     {
-        assert(f <= e_all);
+        assert(f <= all_);
     }
 
     bool is_none() const
     {
-        return collect_flags_ == e_none;
+        return collect_flags_ == none_;
     }
     bool is_variables() const
     {
-        return (collect_flags_ & e_variables) == e_variables;
+        return (collect_flags_ & variables_) == variables_;
     }
     bool is_functions() const
     {
-        return (collect_flags_ & e_functions) == e_functions;
+        return (collect_flags_ & functions_) == functions_;
     }
     bool is_assignments() const
     {
-        return (collect_flags_ & e_assignments) == e_assignments;
+        return (collect_flags_ & assignments_) == assignments_;
     }
     bool is_all() const
     {
-        return (collect_flags_ & e_all) == e_all;
+        return (collect_flags_ & all_) == all_;
     }
 
     collect_types operator~() const
     {
-        return collect_types((~collect_flags_) & e_all);
+        return collect_types((~collect_flags_) & all_);
     }
 
     friend collect_types operator&(collect_types l, collect_types r)
@@ -113,7 +135,7 @@ class collect_types
     }
 
    private:
-    flag collect_flags_ = e_none;
+    flag collect_flags_;
 };
 
 }  // namespace math_expr

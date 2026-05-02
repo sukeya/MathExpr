@@ -48,7 +48,7 @@ class dependent_entity_collector
     using symbol_t = std::pair<std::string, symbol_type>;
     using symbol_list_t = std::vector<symbol_t>;
 
-    explicit dependent_entity_collector(const collect_types options = collect_types{})
+    explicit dependent_entity_collector(const collect_types options = collect_types::e_none())
         : options_(options),
           collect_variables_(options_.is_variables()),
           collect_functions_(options_.is_functions()),

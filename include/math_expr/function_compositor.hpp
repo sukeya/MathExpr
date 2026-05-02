@@ -658,7 +658,7 @@ class function_compositor
    public:
     function_compositor()
         : parser_(settings_t::default_compile_all_opts |
-                  compilation_options::e_disable_zero_return),
+                  compilation_options::e_disable_zero_return()),
           fp_map_(7),
           load_variables_(false),
           load_vectors_(false)
@@ -668,7 +668,7 @@ class function_compositor
     explicit function_compositor(const symbol_table_t& st)
         : symbol_table_(st),
           parser_(settings_t::default_compile_all_opts |
-                  compilation_options::e_disable_zero_return),
+                  compilation_options::e_disable_zero_return()),
           fp_map_(7),
           load_variables_(false),
           load_vectors_(false)
