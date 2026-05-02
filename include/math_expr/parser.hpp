@@ -9168,59 +9168,66 @@ class parser : public lexer::parser_helper
 
 #define register_synthezier(S) synthesize_map_[S ::node_type::id()] = S ::process;
 
-            register_synthezier(synthesize_vovov_expression0) register_synthezier(synthesize_vovov_expression1) register_synthezier(
-                synthesize_vovoc_expression0) register_synthezier(synthesize_vovoc_expression1)
-                register_synthezier(synthesize_vocov_expression0) register_synthezier(synthesize_vocov_expression1) register_synthezier(
-                    synthesize_covov_expression0) register_synthezier(synthesize_covov_expression1)
-                    register_synthezier(synthesize_covoc_expression0) register_synthezier(synthesize_covoc_expression1) register_synthezier(
-                        synthesize_cocov_expression1) register_synthezier(synthesize_vococ_expression0)
+            register_synthezier(synthesize_vovov_expression0);
+            register_synthezier(synthesize_vovov_expression1);
+            register_synthezier(synthesize_vovoc_expression0);
+            register_synthezier(synthesize_vovoc_expression1);
+            register_synthezier(synthesize_vocov_expression0);
+            register_synthezier(synthesize_vocov_expression1);
+            register_synthezier(synthesize_covov_expression0);
+            register_synthezier(synthesize_covov_expression1);
+            register_synthezier(synthesize_covoc_expression0);
+            register_synthezier(synthesize_covoc_expression1);
+            register_synthezier(synthesize_cocov_expression1);
+            register_synthezier(synthesize_vococ_expression0);
 
-                        register_synthezier(synthesize_vovovov_expression0) register_synthezier(
-                            synthesize_vovovoc_expression0) register_synthezier(synthesize_vovocov_expression0)
-                            register_synthezier(synthesize_vocovov_expression0) register_synthezier(
-                                synthesize_covovov_expression0) register_synthezier(synthesize_covocov_expression0)
-                                register_synthezier(synthesize_vocovoc_expression0) register_synthezier(
-                                    synthesize_covovoc_expression0) register_synthezier(synthesize_vococov_expression0)
+            register_synthezier(synthesize_vovovov_expression0);
+            register_synthezier(synthesize_vovovoc_expression0);
+            register_synthezier(synthesize_vovocov_expression0);
+            register_synthezier(synthesize_vocovov_expression0);
+            register_synthezier(synthesize_covovov_expression0);
+            register_synthezier(synthesize_covocov_expression0);
+            register_synthezier(synthesize_vocovoc_expression0);
+            register_synthezier(synthesize_covovoc_expression0);
+            register_synthezier(synthesize_vococov_expression0);
 
-                                    register_synthezier(synthesize_vovovov_expression1) register_synthezier(
-                                        synthesize_vovovoc_expression1) register_synthezier(synthesize_vovocov_expression1)
-                                        register_synthezier(synthesize_vocovov_expression1) register_synthezier(
-                                            synthesize_covovov_expression1) register_synthezier(synthesize_covocov_expression1)
-                                            register_synthezier(synthesize_vocovoc_expression1) register_synthezier(
-                                                synthesize_covovoc_expression1) register_synthezier(synthesize_vococov_expression1)
+            register_synthezier(synthesize_vovovov_expression1);
+            register_synthezier(synthesize_vovovoc_expression1);
+            register_synthezier(synthesize_vovocov_expression1);
+            register_synthezier(synthesize_vocovov_expression1);
+            register_synthezier(synthesize_covovov_expression1);
+            register_synthezier(synthesize_covocov_expression1);
+            register_synthezier(synthesize_vocovoc_expression1);
+            register_synthezier(synthesize_covovoc_expression1);
+            register_synthezier(synthesize_vococov_expression1);
 
-                                                register_synthezier(synthesize_vovovov_expression2) register_synthezier(
-                                                    synthesize_vovovoc_expression2) register_synthezier(synthesize_vovocov_expression2)
-                                                    register_synthezier(synthesize_vocovov_expression2) register_synthezier(
-                                                        synthesize_covovov_expression2) register_synthezier(synthesize_covocov_expression2)
-                                                        register_synthezier(synthesize_vocovoc_expression2) register_synthezier(
-                                                            synthesize_covovoc_expression2)
+            register_synthezier(synthesize_vovovov_expression2);
+            register_synthezier(synthesize_vovovoc_expression2);
+            register_synthezier(synthesize_vovocov_expression2);
+            register_synthezier(synthesize_vocovov_expression2);
+            register_synthezier(synthesize_covovov_expression2);
+            register_synthezier(synthesize_covocov_expression2);
+            register_synthezier(synthesize_vocovoc_expression2);
+            register_synthezier(synthesize_covovoc_expression2);
 
-                                                            register_synthezier(synthesize_vovovov_expression3) register_synthezier(
-                                                                synthesize_vovovoc_expression3) register_synthezier(synthesize_vovocov_expression3)
-                                                                register_synthezier(synthesize_vocovov_expression3) register_synthezier(
-                                                                    synthesize_covovov_expression3)
-                                                                    register_synthezier(synthesize_covocov_expression3) register_synthezier(
-                                                                        synthesize_vocovoc_expression3)
-                                                                        register_synthezier(synthesize_covovoc_expression3) register_synthezier(
-                                                                            synthesize_vococov_expression3)
+            register_synthezier(synthesize_vovovov_expression3);
+            register_synthezier(synthesize_vovovoc_expression3);
+            register_synthezier(synthesize_vovocov_expression3);
+            register_synthezier(synthesize_vocovov_expression3);
+            register_synthezier(synthesize_covovov_expression3);
+            register_synthezier(synthesize_covocov_expression3);
+            register_synthezier(synthesize_vocovoc_expression3);
+            register_synthezier(synthesize_covovoc_expression3);
+            register_synthezier(synthesize_vococov_expression3);
 
-                                                                            register_synthezier(
-                                                                                synthesize_vovovov_expression4)
-                                                                                register_synthezier(
-                                                                                    synthesize_vovovoc_expression4)
-                                                                                    register_synthezier(
-                                                                                        synthesize_vovocov_expression4)
-                                                                                        register_synthezier(
-                                                                                            synthesize_vocovov_expression4)
-                                                                                            register_synthezier(
-                                                                                                synthesize_covovov_expression4)
-                                                                                                register_synthezier(
-                                                                                                    synthesize_covocov_expression4)
-                                                                                                    register_synthezier(
-                                                                                                        synthesize_vocovoc_expression4)
-                                                                                                        register_synthezier(
-                                                                                                            synthesize_covovoc_expression4)
+            register_synthezier(synthesize_vovovov_expression4);
+            register_synthezier(synthesize_vovovoc_expression4);
+            register_synthezier(synthesize_vovocov_expression4);
+            register_synthezier(synthesize_vocovov_expression4);
+            register_synthezier(synthesize_covovov_expression4);
+            register_synthezier(synthesize_covocov_expression4);
+            register_synthezier(synthesize_vocovoc_expression4);
+            register_synthezier(synthesize_covovoc_expression4);
 
 #undef register_synthezier
 #endif

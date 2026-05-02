@@ -319,15 +319,16 @@ class symbol_table
         delete n.second;                                  \
     }
 
-            math_expr_define_process(variable_node_t) math_expr_define_process(vector_t)
+            math_expr_define_process(variable_node_t);
+            math_expr_define_process(vector_t);
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                math_expr_define_process(stringvar_node_t)
+            math_expr_define_process(stringvar_node_t);
 #endif
 
 #undef math_expr_define_process
 
-                    template <typename DeleteType>
-                    static inline void process(std::pair<bool, DeleteType*>&)
+            template <typename DeleteType>
+            static inline void process(std::pair<bool, DeleteType*>&)
             {
             }
         };

@@ -124,12 +124,26 @@ class swap_genstrings_node final : public binary_node<T>
 
             while (s0 < upper_bound)
             {
-                math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                    3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                    math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                        math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                            math_expr_loop(12) math_expr_loop(13) math_expr_loop(14)
-                                math_expr_loop(15)}
+                math_expr_loop(0);
+                math_expr_loop(1);
+                math_expr_loop(2);
+                math_expr_loop(3);
+                if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                    ;
+                {
+                    math_expr_loop(4);
+                    math_expr_loop(5);
+                    math_expr_loop(6);
+                    math_expr_loop(7);
+                    math_expr_loop(8);
+                    math_expr_loop(9);
+                    math_expr_loop(10);
+                    math_expr_loop(11);
+                    math_expr_loop(12);
+                    math_expr_loop(13);
+                    math_expr_loop(14);
+                    math_expr_loop(15);
+                }
 
                 s0 += lud.batch_size;
                 s1 += lud.batch_size;

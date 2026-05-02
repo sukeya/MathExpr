@@ -1240,11 +1240,26 @@ struct vec_add_op
         {
 #define math_expr_loop(N) r[N] += vec[N];
 
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec += lud.batch_size;
         }
@@ -1298,11 +1313,26 @@ struct vec_mul_op
 
         while (vec < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec += lud.batch_size;
         }
@@ -1914,20 +1944,19 @@ synthesis_node_type_define(const T0&, const T1&, e_vov)
             expression_node<T>::node_type::v_;                           \
     };
 
-synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov)
-    synthesis_node_type_define(const T0&, const T1&, const T2, e_vovoc) synthesis_node_type_define(
-        const T0&, const T1, const T2&, e_vocov) synthesis_node_type_define(const T0, const T1&,
-                                                                            const T2&, e_covov)
-        synthesis_node_type_define(const T0, const T1&, const T2, e_covoc)
-            synthesis_node_type_define(const T0, const T1, const T2, e_none)
-                synthesis_node_type_define(const T0, const T1, const T2&, e_none)
-                    synthesis_node_type_define(const T0&, const T1, const T2,
-                                               e_none) synthesis_node_type_define(T0&, T1&, T2&,
-                                                                                  e_none)
+synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov);
+synthesis_node_type_define(const T0&, const T1&, const T2, e_vovoc);
+synthesis_node_type_define(const T0&, const T1, const T2&, e_vocov);
+synthesis_node_type_define(const T0, const T1&, const T2&, e_covov);
+synthesis_node_type_define(const T0, const T1&, const T2, e_covoc);
+synthesis_node_type_define(const T0, const T1, const T2, e_none);
+synthesis_node_type_define(const T0, const T1, const T2&, e_none);
+synthesis_node_type_define(const T0&, const T1, const T2, e_none);
+synthesis_node_type_define(T0&, T1&, T2&, e_none);
 #undef synthesis_node_type_define
 
-                        template <typename T, typename T0, typename T1, typename T2, typename T3>
-                        struct nodetype_T0oT1oT2oT3
+template <typename T, typename T0, typename T1, typename T2, typename T3>
+struct nodetype_T0oT1oT2oT3
 {
     static constexpr typename expression_node<T>::node_type result =
         expression_node<T>::node_type::e_none;

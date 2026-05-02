@@ -188,35 +188,48 @@ class function_compositor
 
         inline void update(const T& v0)
         {
-            math_expr_assign(0)
+            math_expr_assign(0);
         }
 
         inline void update(const T& v0, const T& v1)
         {
-            math_expr_assign(0) math_expr_assign(1)
+            math_expr_assign(0);
+            math_expr_assign(1);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2)
         {
-            math_expr_assign(0) math_expr_assign(1) math_expr_assign(2)
+            math_expr_assign(0);
+            math_expr_assign(1);
+            math_expr_assign(2);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3)
         {
-            math_expr_assign(0) math_expr_assign(1) math_expr_assign(2) math_expr_assign(3)
+            math_expr_assign(0);
+            math_expr_assign(1);
+            math_expr_assign(2);
+            math_expr_assign(3);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4)
         {
-            math_expr_assign(0) math_expr_assign(1) math_expr_assign(2) math_expr_assign(3)
-                math_expr_assign(4)
+            math_expr_assign(0);
+            math_expr_assign(1);
+            math_expr_assign(2);
+            math_expr_assign(3);
+            math_expr_assign(4);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
                            const T& v5)
         {
-            math_expr_assign(0) math_expr_assign(1) math_expr_assign(2) math_expr_assign(3)
-                math_expr_assign(4) math_expr_assign(5)
+            math_expr_assign(0);
+            math_expr_assign(1);
+            math_expr_assign(2);
+            math_expr_assign(3);
+            math_expr_assign(4);
+            math_expr_assign(5);
         }
 
 #ifdef math_expr_assign
@@ -595,15 +608,19 @@ class function_compositor
         }                                                        \
     };
 
-    def_fp_retval(0) def_fp_retval(1) def_fp_retval(2) def_fp_retval(3) def_fp_retval(4)
-        def_fp_retval(5) def_fp_retval(6)
+    def_fp_retval(0);
+    def_fp_retval(1);
+    def_fp_retval(2);
+    def_fp_retval(3);
+    def_fp_retval(4);
+    def_fp_retval(5);
+    def_fp_retval(6);
 
 #undef def_fp_retval
 
-            template <typename Allocator, template <typename, typename> class Sequence>
-            inline bool add(const std::string& name, const std::string& expression,
-                            const Sequence<std::string, Allocator>& var_list,
-                            const bool override = false)
+    template <typename Allocator, template <typename, typename> class Sequence>
+    inline bool add(const std::string& name, const std::string& expression,
+                    const Sequence<std::string, Allocator>& var_list, const bool override = false)
     {
         const typename std::map<std::string, expression_t>::iterator itr = expr_map_.find(name);
 

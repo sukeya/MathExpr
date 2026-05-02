@@ -116,45 +116,43 @@ struct package
         return false;                                                                   \
     }
 
-        math_expr_register_function("all_true", at) math_expr_register_function(
-            "all_false",
-            af) math_expr_register_function("any_true", nt) math_expr_register_function("any_false",
-                                                                                        nf)
-            math_expr_register_function("count", c) math_expr_register_function(
-                "copy", cp) math_expr_register_function("rotate_left",
-                                                        rl) math_expr_register_function("rol", rl)
-                math_expr_register_function("rotate_right", rr) math_expr_register_function(
-                    "ror", rr) math_expr_register_function("reverse", rev)
-                    math_expr_register_function("shftl", sl) math_expr_register_function(
-                        "shftr", sr) math_expr_register_function("sort", st)
-                        math_expr_register_function("nth_element", ne) math_expr_register_function(
-                            "assign", an) math_expr_register_function("iota", ia)
-                            math_expr_register_function("sumk", sk) math_expr_register_function(
-                                "axpy", b1_axpy) math_expr_register_function("axpby", b1_axpby)
-                                math_expr_register_function("axpyz", b1_axpyz)
-                                    math_expr_register_function(
-                                        "axpbyz", b1_axpbyz) math_expr_register_function("axpbsy",
-                                                                                         b1_axpbsy)
-                                        math_expr_register_function("axpbsyz", b1_axpbsyz)
-                                            math_expr_register_function("axpbz", b1_axpbz)
-                                                math_expr_register_function(
-                                                    "diff", df) math_expr_register_function("dot",
-                                                                                            dt)
-                                                    math_expr_register_function("dotk", dtk)
-                                                        math_expr_register_function(
-                                                            "threshold_above", ta)
-                                                            math_expr_register_function(
-                                                                "threshold_below", tb)
-                                                                math_expr_register_function(
-                                                                    "min_elemwise", miew)
-                                                                    math_expr_register_function(
-                                                                        "max_elemwise", maew)
-                                                                        math_expr_register_function(
-                                                                            "select", slct)
+        math_expr_register_function("all_true", at);
+        math_expr_register_function("all_false", af);
+        math_expr_register_function("any_true", nt);
+        math_expr_register_function("any_false", nf);
+        math_expr_register_function("count", c);
+        math_expr_register_function("copy", cp);
+        math_expr_register_function("rotate_left", rl);
+        math_expr_register_function("rol", rl);
+        math_expr_register_function("rotate_right", rr);
+        math_expr_register_function("ror", rr);
+        math_expr_register_function("reverse", rev);
+        math_expr_register_function("shftl", sl);
+        math_expr_register_function("shftr", sr);
+        math_expr_register_function("sort", st);
+        math_expr_register_function("nth_element", ne);
+        math_expr_register_function("assign", an);
+        math_expr_register_function("iota", ia);
+        math_expr_register_function("sumk", sk);
+        math_expr_register_function("axpy", b1_axpy);
+        math_expr_register_function("axpby", b1_axpby);
+        math_expr_register_function("axpyz", b1_axpyz);
+        math_expr_register_function("axpbyz", b1_axpbyz);
+        math_expr_register_function("axpbsy", b1_axpbsy);
+        math_expr_register_function("axpbsyz", b1_axpbsyz);
+        math_expr_register_function("axpbz", b1_axpbz);
+        math_expr_register_function("diff", df);
+        math_expr_register_function("dot", dt);
+        math_expr_register_function("dotk", dtk);
+        math_expr_register_function("threshold_above", ta);
+        math_expr_register_function("threshold_below", tb);
+        math_expr_register_function("min_elemwise", miew);
+        math_expr_register_function("max_elemwise", maew);
+        math_expr_register_function("select", slct);
 
 #undef math_expr_register_function
 
-                                                                            return true;
+        return true;
     }
 };
 

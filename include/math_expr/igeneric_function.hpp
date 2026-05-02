@@ -71,22 +71,22 @@ class igeneric_function : public function_traits
     }
 
     // f(i_0,i_1,....,i_N) --> Scalar
-    inline virtual T operator()(parameter_list_t) igeneric_function_empty_body(1)
+    inline virtual T operator()(parameter_list_t) igeneric_function_empty_body(1);
 
-        // f(i_0,i_1,....,i_N) --> String
-        inline virtual T operator()(std::string&, parameter_list_t) igeneric_function_empty_body(2)
+    // f(i_0,i_1,....,i_N) --> String
+    inline virtual T operator()(std::string&, parameter_list_t) igeneric_function_empty_body(2);
 
-        // f(psi,i_0,i_1,....,i_N) --> Scalar
-        inline virtual T operator()(const std::size_t&, parameter_list_t)
-            igeneric_function_empty_body(3)
+    // f(psi,i_0,i_1,....,i_N) --> Scalar
+    inline virtual T operator()(const std::size_t&, parameter_list_t)
+        igeneric_function_empty_body(3);
 
-        // f(psi,i_0,i_1,....,i_N) --> String
-        inline virtual T operator()(const std::size_t&, std::string&, parameter_list_t)
-            igeneric_function_empty_body(4)
+    // f(psi,i_0,i_1,....,i_N) --> String
+    inline virtual T operator()(const std::size_t&, std::string&, parameter_list_t)
+        igeneric_function_empty_body(4);
 
 #undef igeneric_function_empty_body
 
-                std::string parameter_sequence;
+    std::string parameter_sequence;
     return_type rtrn_type;
 
     static inline std::string generate_prefix_args(const std::string& prefix_args,

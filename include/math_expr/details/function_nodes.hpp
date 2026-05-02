@@ -526,11 +526,26 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
 
         while (vec < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec += lud.batch_size;
         }
@@ -658,11 +673,26 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
@@ -1059,11 +1089,26 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
 
         while (vec < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec += lud.batch_size;
         }
@@ -1187,11 +1232,26 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
         {
 #define math_expr_loop(N) vec0[N] = Operation::process(vec0[N], vec1[N]);
 
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
@@ -1422,11 +1482,26 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
 
         while (vec2 < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
@@ -1563,11 +1638,26 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
@@ -1700,11 +1790,26 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
@@ -1836,11 +1941,26 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0) math_expr_loop(1) math_expr_loop(2) math_expr_loop(
-                3) if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll){
-                math_expr_loop(4) math_expr_loop(5) math_expr_loop(6) math_expr_loop(7)
-                    math_expr_loop(8) math_expr_loop(9) math_expr_loop(10) math_expr_loop(11)
-                        math_expr_loop(12) math_expr_loop(13) math_expr_loop(14) math_expr_loop(15)}
+            math_expr_loop(0);
+            math_expr_loop(1);
+            math_expr_loop(2);
+            math_expr_loop(3);
+            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
+                ;
+            {
+                math_expr_loop(4);
+                math_expr_loop(5);
+                math_expr_loop(6);
+                math_expr_loop(7);
+                math_expr_loop(8);
+                math_expr_loop(9);
+                math_expr_loop(10);
+                math_expr_loop(11);
+                math_expr_loop(12);
+                math_expr_loop(13);
+                math_expr_loop(14);
+                math_expr_loop(15);
+            }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
