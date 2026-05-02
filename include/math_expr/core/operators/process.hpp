@@ -125,7 +125,7 @@ inline T process(const operator_type operation, const T arg)
             return ::math_expr::core::numeric::trunc(arg);
 
         default:
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("::math_expr::core::operators::process<T> - Invalid unary operation.\n"));
             return std::numeric_limits<T>::quiet_NaN();
     }
@@ -202,7 +202,7 @@ inline T process(const operator_type operation, const T arg0, const T arg1)
             return ::math_expr::core::numeric::shl<T>(arg0, arg1);
 
         default:
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("::math_expr::core::operators::process<T> - Invalid binary operation.\n"));
             return std::numeric_limits<T>::quiet_NaN();
     }

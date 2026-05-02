@@ -107,50 +107,50 @@ struct package
 
     bool register_package(math_expr::symbol_table<T>& symtab)
     {
-#define math_expr_register_function(FunctionName, FunctionType)                         \
+#define MATH_EXPR_REGISTER_FUNCTION(FunctionName, FunctionType)                         \
     if (!symtab.add_function(FunctionName, FunctionType))                               \
     {                                                                                   \
-        math_expr_debug(                                                                \
+        MATH_EXPR_DEBUG(                                                                \
             ("math_expr::rtl::vecops::register_package - Failed to add function: %s\n", \
              FunctionName));                                                            \
         return false;                                                                   \
     }
 
-        math_expr_register_function("all_true", at);
-        math_expr_register_function("all_false", af);
-        math_expr_register_function("any_true", nt);
-        math_expr_register_function("any_false", nf);
-        math_expr_register_function("count", c);
-        math_expr_register_function("copy", cp);
-        math_expr_register_function("rotate_left", rl);
-        math_expr_register_function("rol", rl);
-        math_expr_register_function("rotate_right", rr);
-        math_expr_register_function("ror", rr);
-        math_expr_register_function("reverse", rev);
-        math_expr_register_function("shftl", sl);
-        math_expr_register_function("shftr", sr);
-        math_expr_register_function("sort", st);
-        math_expr_register_function("nth_element", ne);
-        math_expr_register_function("assign", an);
-        math_expr_register_function("iota", ia);
-        math_expr_register_function("sumk", sk);
-        math_expr_register_function("axpy", b1_axpy);
-        math_expr_register_function("axpby", b1_axpby);
-        math_expr_register_function("axpyz", b1_axpyz);
-        math_expr_register_function("axpbyz", b1_axpbyz);
-        math_expr_register_function("axpbsy", b1_axpbsy);
-        math_expr_register_function("axpbsyz", b1_axpbsyz);
-        math_expr_register_function("axpbz", b1_axpbz);
-        math_expr_register_function("diff", df);
-        math_expr_register_function("dot", dt);
-        math_expr_register_function("dotk", dtk);
-        math_expr_register_function("threshold_above", ta);
-        math_expr_register_function("threshold_below", tb);
-        math_expr_register_function("min_elemwise", miew);
-        math_expr_register_function("max_elemwise", maew);
-        math_expr_register_function("select", slct);
+        MATH_EXPR_REGISTER_FUNCTION("all_true", at);
+        MATH_EXPR_REGISTER_FUNCTION("all_false", af);
+        MATH_EXPR_REGISTER_FUNCTION("any_true", nt);
+        MATH_EXPR_REGISTER_FUNCTION("any_false", nf);
+        MATH_EXPR_REGISTER_FUNCTION("count", c);
+        MATH_EXPR_REGISTER_FUNCTION("copy", cp);
+        MATH_EXPR_REGISTER_FUNCTION("rotate_left", rl);
+        MATH_EXPR_REGISTER_FUNCTION("rol", rl);
+        MATH_EXPR_REGISTER_FUNCTION("rotate_right", rr);
+        MATH_EXPR_REGISTER_FUNCTION("ror", rr);
+        MATH_EXPR_REGISTER_FUNCTION("reverse", rev);
+        MATH_EXPR_REGISTER_FUNCTION("shftl", sl);
+        MATH_EXPR_REGISTER_FUNCTION("shftr", sr);
+        MATH_EXPR_REGISTER_FUNCTION("sort", st);
+        MATH_EXPR_REGISTER_FUNCTION("nth_element", ne);
+        MATH_EXPR_REGISTER_FUNCTION("assign", an);
+        MATH_EXPR_REGISTER_FUNCTION("iota", ia);
+        MATH_EXPR_REGISTER_FUNCTION("sumk", sk);
+        MATH_EXPR_REGISTER_FUNCTION("axpy", b1_axpy);
+        MATH_EXPR_REGISTER_FUNCTION("axpby", b1_axpby);
+        MATH_EXPR_REGISTER_FUNCTION("axpyz", b1_axpyz);
+        MATH_EXPR_REGISTER_FUNCTION("axpbyz", b1_axpbyz);
+        MATH_EXPR_REGISTER_FUNCTION("axpbsy", b1_axpbsy);
+        MATH_EXPR_REGISTER_FUNCTION("axpbsyz", b1_axpbsyz);
+        MATH_EXPR_REGISTER_FUNCTION("axpbz", b1_axpbz);
+        MATH_EXPR_REGISTER_FUNCTION("diff", df);
+        MATH_EXPR_REGISTER_FUNCTION("dot", dt);
+        MATH_EXPR_REGISTER_FUNCTION("dotk", dtk);
+        MATH_EXPR_REGISTER_FUNCTION("threshold_above", ta);
+        MATH_EXPR_REGISTER_FUNCTION("threshold_below", tb);
+        MATH_EXPR_REGISTER_FUNCTION("min_elemwise", miew);
+        MATH_EXPR_REGISTER_FUNCTION("max_elemwise", maew);
+        MATH_EXPR_REGISTER_FUNCTION("select", slct);
 
-#undef math_expr_register_function
+#undef MATH_EXPR_REGISTER_FUNCTION
 
         return true;
     }

@@ -566,7 +566,7 @@ class node_collection_destructor
         for (std::size_t i = 0; i < node_delete_list.size(); ++i)
         {
             node_ptr_t& node = *node_delete_list[i];
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("ncd::delete_nodes() - deleting: %p\n", reinterpret_cast<void*>(node)));
             delete node;
             node = reinterpret_cast<node_ptr_t>(0);
@@ -595,7 +595,7 @@ class node_collection_destructor
 
                     if (0 == (*node))
                     {
-                        math_expr_debug(("ncd::collect_nodes() - null node encountered.\n"));
+                        MATH_EXPR_DEBUG(("ncd::collect_nodes() - null node encountered.\n"));
                     }
 
                     node_list.push_back(*node);

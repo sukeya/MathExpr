@@ -57,21 +57,24 @@ struct package
 
     bool register_package(math_expr::symbol_table<T>& symtab)
     {
-#define math_expr_register_function(FunctionName, FunctionType)                           \
+#define MATH_EXPR_REGISTER_FUNCTION(FunctionName, FunctionType)                           \
     if (!symtab.add_function(FunctionName, FunctionType))                                 \
     {                                                                                     \
-        math_expr_debug(                                                                  \
+        MATH_EXPR_DEBUG(                                                                  \
             ("math_expr::rtl::io::file::register_package - Failed to add function: %s\n", \
              FunctionName));                                                              \
         return false;                                                                     \
     }
 
-        math_expr_register_function("open", o) math_expr_register_function("close", c)
-            math_expr_register_function("write", w) math_expr_register_function("read", r)
-                math_expr_register_function("getline", g) math_expr_register_function("eof", e)
-#undef math_expr_register_function
+        MATH_EXPR_REGISTER_FUNCTION("open", o);
+        MATH_EXPR_REGISTER_FUNCTION("close", c);
+        MATH_EXPR_REGISTER_FUNCTION("write", w);
+        MATH_EXPR_REGISTER_FUNCTION("read", r);
+        MATH_EXPR_REGISTER_FUNCTION("getline", g);
+        MATH_EXPR_REGISTER_FUNCTION("eof", e);
+#undef MATH_EXPR_REGISTER_FUNCTION
 
-                    return true;
+        return true;
     }
 };
 }  // namespace math_expr::rtl::io::file

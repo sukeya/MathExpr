@@ -47,65 +47,65 @@ class ifunction : public function_traits
 
     virtual ~ifunction() {}
 
-#define empty_method_body(N)                                                                     \
+#define EMPTY_METHOD_BODY(N)                                                                     \
     {                                                                                            \
-        math_expr_debug(("ifunction::operator() - Operator(" #N ") has not been overridden\n")); \
+        MATH_EXPR_DEBUG(("ifunction::operator() - Operator(" #N ") has not been overridden\n")); \
         return std::numeric_limits<T>::quiet_NaN();                                              \
     }
 
-    inline virtual T operator()() empty_method_body(0)
+    inline virtual T operator()() EMPTY_METHOD_BODY(0)
 
-        inline virtual T operator()(const T&) empty_method_body(1)
+        inline virtual T operator()(const T&) EMPTY_METHOD_BODY(1)
 
-            inline virtual T operator()(const T&, const T&) empty_method_body(2)
+            inline virtual T operator()(const T&, const T&) EMPTY_METHOD_BODY(2)
 
-                inline virtual T operator()(const T&, const T&, const T&) empty_method_body(3)
+                inline virtual T operator()(const T&, const T&, const T&) EMPTY_METHOD_BODY(3)
 
                     inline virtual T operator()(const T&, const T&, const T&,
-                                                const T&) empty_method_body(4)
+                                                const T&) EMPTY_METHOD_BODY(4)
 
                         inline virtual T operator()(const T&, const T&, const T&, const T&,
-                                                    const T&) empty_method_body(5)
+                                                    const T&) EMPTY_METHOD_BODY(5)
 
                             inline virtual T operator()(const T&, const T&, const T&, const T&,
-                                                        const T&, const T&) empty_method_body(6)
+                                                        const T&, const T&) EMPTY_METHOD_BODY(6)
 
                                 inline virtual T operator()(const T&, const T&, const T&, const T&,
                                                             const T&, const T&,
-                                                            const T&) empty_method_body(7)
+                                                            const T&) EMPTY_METHOD_BODY(7)
 
                                     inline virtual T operator()(const T&, const T&, const T&,
                                                                 const T&, const T&, const T&,
                                                                 const T&,
-                                                                const T&) empty_method_body(8)
+                                                                const T&) EMPTY_METHOD_BODY(8)
 
                                         inline virtual T operator()(const T&, const T&, const T&,
                                                                     const T&, const T&, const T&,
                                                                     const T&, const T&,
-                                                                    const T&) empty_method_body(9)
+                                                                    const T&) EMPTY_METHOD_BODY(9)
 
                                             inline virtual T operator()(
                                                 const T&, const T&, const T&, const T&, const T&,
                                                 const T&, const T&, const T&, const T&,
-                                                const T&) empty_method_body(10)
+                                                const T&) EMPTY_METHOD_BODY(10)
 
                                                 inline virtual T operator()(
                                                     const T&, const T&, const T&, const T&,
                                                     const T&, const T&, const T&, const T&,
                                                     const T&, const T&,
-                                                    const T&) empty_method_body(11)
+                                                    const T&) EMPTY_METHOD_BODY(11)
 
                                                     inline virtual T operator()(
                                                         const T&, const T&, const T&, const T&,
                                                         const T&, const T&, const T&, const T&,
                                                         const T&, const T&, const T&,
-                                                        const T&) empty_method_body(12)
+                                                        const T&) EMPTY_METHOD_BODY(12)
 
                                                         inline virtual T operator()(
                                                             const T&, const T&, const T&, const T&,
                                                             const T&, const T&, const T&, const T&,
                                                             const T&, const T&, const T&, const T&,
-                                                            const T&) empty_method_body(13)
+                                                            const T&) EMPTY_METHOD_BODY(13)
 
                                                             inline virtual T operator()(
                                                                 const T&, const T&, const T&,
@@ -113,7 +113,7 @@ class ifunction : public function_traits
                                                                 const T&, const T&, const T&,
                                                                 const T&, const T&, const T&,
                                                                 const T&,
-                                                                const T&) empty_method_body(14)
+                                                                const T&) EMPTY_METHOD_BODY(14)
 
                                                                 inline virtual T operator()(
                                                                     const T&, const T&, const T&,
@@ -121,7 +121,7 @@ class ifunction : public function_traits
                                                                     const T&, const T&, const T&,
                                                                     const T&, const T&, const T&,
                                                                     const T&, const T&,
-                                                                    const T&) empty_method_body(15)
+                                                                    const T&) EMPTY_METHOD_BODY(15)
 
                                                                     inline virtual T operator()(
                                                                         const T&, const T&,
@@ -132,7 +132,7 @@ class ifunction : public function_traits
                                                                         const T&, const T&,
                                                                         const T&, const T&,
                                                                         const T&,
-                                                                        const T&) empty_method_body(16)
+                                                                        const T&) EMPTY_METHOD_BODY(16)
 
                                                                         inline virtual T operator()(
                                                                             const T&, const T&,
@@ -143,7 +143,7 @@ class ifunction : public function_traits
                                                                             const T&, const T&,
                                                                             const T&, const T&,
                                                                             const T&, const T&,
-                                                                            const T&) empty_method_body(17)
+                                                                            const T&) EMPTY_METHOD_BODY(17)
 
                                                                             inline virtual T
                                                                             operator()(
@@ -156,7 +156,7 @@ class ifunction : public function_traits
                                                                                 const T&, const T&,
                                                                                 const T&, const T&,
                                                                                 const T&,
-                                                                                const T&) empty_method_body(18)
+                                                                                const T&) EMPTY_METHOD_BODY(18)
 
                                                                                 inline virtual T
                                                                                 operator()(const T&,
@@ -178,7 +178,7 @@ class ifunction : public function_traits
                                                                                            const T&,
                                                                                            const T&,
                                                                                            const T&)
-                                                                                    empty_method_body(
+                                                                                    EMPTY_METHOD_BODY(
                                                                                         19)
 
                                                                                         inline virtual T
@@ -203,10 +203,10 @@ class ifunction : public function_traits
                                                                                             const T&,
                                                                                             const T&,
                                                                                             const T&)
-                                                                                            empty_method_body(
+                                                                                            EMPTY_METHOD_BODY(
                                                                                                 20)
 
-#undef empty_method_body
+#undef EMPTY_METHOD_BODY
 
                                                                                                 std::
                                                                                                     size_t

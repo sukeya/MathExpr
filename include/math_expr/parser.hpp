@@ -420,7 +420,7 @@ class parser : public lexer::parser_helper
 
         inline void deactivate(const std::size_t& scope_depth)
         {
-            math_expr_debug(("deactivate() - Scope depth: %d\n",
+            MATH_EXPR_DEBUG(("deactivate() - Scope depth: %d\n",
                              static_cast<int>(ref_parser().state_.scope_depth)));
 
             for (std::size_t i = 0; i < element_.size(); ++i)
@@ -429,7 +429,7 @@ class parser : public lexer::parser_helper
 
                 if (se.active && (se.depth >= scope_depth))
                 {
-                    math_expr_debug(("deactivate() - element[%02d] '%s'\n", static_cast<int>(i),
+                    MATH_EXPR_DEBUG(("deactivate() - element[%02d] '%s'\n", static_cast<int>(i),
                                      se.name.c_str()));
 
                     se.active = false;
@@ -439,7 +439,7 @@ class parser : public lexer::parser_helper
 
         inline void free_element(scope_element& se)
         {
-            math_expr_debug(("free_element() - se[%s]\n", se.name.c_str()));
+            MATH_EXPR_DEBUG(("free_element() - se[%s]\n", se.name.c_str()));
 
             switch (se.type)
             {
@@ -562,7 +562,7 @@ class parser : public lexer::parser_helper
             if constexpr (::math_expr::core::build_options::kEnableDebugging)
             {
                 const std::string depth(2 * parser_.state_.scope_depth, '-');
-                math_expr_debug(("%s> Scope Depth: %02d\n", depth.c_str(),
+                MATH_EXPR_DEBUG(("%s> Scope Depth: %02d\n", depth.c_str(),
                                  static_cast<int>(parser_.state_.scope_depth)));
             }
         }
@@ -574,7 +574,7 @@ class parser : public lexer::parser_helper
             if constexpr (::math_expr::core::build_options::kEnableDebugging)
             {
                 const std::string depth(2 * parser_.state_.scope_depth, '-');
-                math_expr_debug(("<%s Scope Depth: %02d\n", depth.c_str(),
+                MATH_EXPR_DEBUG(("<%s Scope Depth: %02d\n", depth.c_str(),
                                  static_cast<int>(parser_.state_.scope_depth)));
             }
         }
@@ -723,7 +723,7 @@ class parser : public lexer::parser_helper
                                                  core::to_str(parser_.state_.stack_depth) +
                                                  " exceeds maximum allowed stack depth of " +
                                                  core::to_str(parser_.settings_.max_stack_depth_),
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
             }
         }
 
@@ -1303,7 +1303,7 @@ class parser : public lexer::parser_helper
 
                 if constexpr (::math_expr::core::build_options::kEnableDebugging)
                 {
-                    math_expr_debug(("activate_side_effect() - caller: %s\n", source.c_str()));
+                    MATH_EXPR_DEBUG(("activate_side_effect() - caller: %s\n", source.c_str()));
                 }
             }
         }
@@ -2457,7 +2457,7 @@ class parser : public lexer::parser_helper
         if (expression_string.empty())
         {
             set_error(make_error(parser_error::error_mode::e_syntax, "ERR001 - Empty expression!",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return false;
         }
@@ -2471,14 +2471,14 @@ class parser : public lexer::parser_helper
         if (lexer().empty())
         {
             set_error(make_error(parser_error::error_mode::e_syntax, "ERR002 - Empty expression!",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return false;
         }
 
         if (halt_compilation_check())
         {
-            math_expr_debug(("halt_compilation_check() - compile checkpoint 0\n"));
+            MATH_EXPR_DEBUG(("halt_compilation_check() - compile checkpoint 0\n"));
             sem_.cleanup();
             return false;
         }
@@ -2491,7 +2491,7 @@ class parser : public lexer::parser_helper
 
         if (halt_compilation_check())
         {
-            math_expr_debug(("halt_compilation_check() - compile checkpoint 1\n"));
+            MATH_EXPR_DEBUG(("halt_compilation_check() - compile checkpoint 1\n"));
             sem_.cleanup();
             return false;
         }
@@ -2530,7 +2530,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR003 - Invalid expression encountered",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
             }
 
             if ((0 != e) && branch_deletable(e))
@@ -2591,7 +2591,7 @@ class parser : public lexer::parser_helper
 
                 set_error(make_error(parser_error::error_mode::e_lexer, lexer()[i],
                                      diagnostic + ": " + lexer()[i].value,
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
             }
         }
     }
@@ -2632,7 +2632,7 @@ class parser : public lexer::parser_helper
                                              bracket_checker_ptr->error_token(),
                                              "ERR005 - Mismatched brackets: '" +
                                                  bracket_checker_ptr->error_token().value + "'",
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
                     }
                     else if (0 != (numeric_checker_ptr =
                                        dynamic_cast<lexer::helper::numeric_checker<T>*>(
@@ -2645,7 +2645,7 @@ class parser : public lexer::parser_helper
                             set_error(make_error(
                                 parser_error::error_mode::e_token, error_token,
                                 "ERR006 - Invalid numeric token: '" + error_token.value + "'",
-                                math_expr_error_location));
+                                MATH_EXPR_ERROR_LOCATION));
                         }
 
                         if (numeric_checker_ptr->error_count())
@@ -2666,7 +2666,7 @@ class parser : public lexer::parser_helper
                                 parser_error::error_mode::e_token, error_token.first,
                                 "ERR007 - Invalid token sequence: '" + error_token.first.value +
                                     "' and '" + error_token.second.value + "'",
-                                math_expr_error_location));
+                                MATH_EXPR_ERROR_LOCATION));
                         }
 
                         if (sequence_validator_ptr->error_count())
@@ -2687,7 +2687,7 @@ class parser : public lexer::parser_helper
                                 parser_error::error_mode::e_token, error_token.first,
                                 "ERR008 - Invalid token sequence: '" + error_token.first.value +
                                     "' and '" + error_token.second.value + "'",
-                                math_expr_error_location));
+                                MATH_EXPR_ERROR_LOCATION));
                         }
 
                         if (sequence_validator3_ptr->error_count())
@@ -2895,7 +2895,7 @@ class parser : public lexer::parser_helper
         if constexpr (::math_expr::core::build_options::kEnableDebugging)
         {
             const std::string depth(2 * state_.scope_depth, ' ');
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("%s"
                  "prev[%s | %04d] --> curr[%s | %04d]  stack_level: %3d\n",
                  depth.c_str(), ct_str.c_str(), static_cast<unsigned int>(ct_pos),
@@ -2928,7 +2928,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR009 - Invalid expression encountered",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
                 }
 
                 return error_node();
@@ -2943,14 +2943,14 @@ class parser : public lexer::parser_helper
 
                 const std::string sub_expr = construct_subexpr(begin_token, end_token);
 
-                math_expr_debug(("parse_corpus(%02d) Subexpr: %s\n",
+                MATH_EXPR_DEBUG(("parse_corpus(%02d) Subexpr: %s\n",
                                  static_cast<int>(arg_list.size() - 1), sub_expr.c_str()));
 
-                math_expr_debug(("parse_corpus(%02d) - Side effect present: %s\n",
+                MATH_EXPR_DEBUG(("parse_corpus(%02d) - Side effect present: %s\n",
                                  static_cast<int>(arg_list.size() - 1),
                                  state_.side_effect_present ? "true" : "false"));
 
-                math_expr_debug(("-------------------------------------------------\n"));
+                MATH_EXPR_DEBUG(("-------------------------------------------------\n"));
             }
 
             if (token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
@@ -2969,7 +2969,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR010 - Invalid syntax '" + current_token().value +
                                          "' possible missing operator or context",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3058,7 +3058,7 @@ class parser : public lexer::parser_helper
 
             set_error(make_error(parser_error::error_mode::e_parser, token_t(),
                                  "ERR011 - Internal compilation check failed." + error_message,
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return true;
         }
@@ -3071,7 +3071,7 @@ class parser : public lexer::parser_helper
     {
         if (halt_compilation_check())
         {
-            math_expr_debug(("halt_compilation_check() - parse_expression checkpoint 2\n"));
+            MATH_EXPR_DEBUG(("halt_compilation_check() - parse_expression checkpoint 2\n"));
             return error_node();
         }
 
@@ -3310,7 +3310,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR012 - Invalid or disabled logic operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3321,7 +3321,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR013 - Invalid or disabled arithmetic operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3332,7 +3332,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR014 - Invalid inequality operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3343,7 +3343,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR015 - Invalid or disabled assignment operation '" +
                                          core::operators::to_str(current_state.operation) + "'",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3358,7 +3358,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, prev_token,
                                    "ERR016 - Return statements cannot be part of sub-expressions",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -3380,7 +3380,7 @@ class parser : public lexer::parser_helper
                         !synthesis_error_.empty()
                             ? synthesis_error_
                             : "ERR017 - General parsing error at token: '" + prev_token.value + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
                 }
 
                 free_node(node_allocator_, expression);
@@ -3409,7 +3409,7 @@ class parser : public lexer::parser_helper
                                      core::to_str(static_cast<int>(expression->node_depth())) +
                                      " exceeds maximum allowed expression depth of " +
                                      core::to_str(static_cast<int>(settings_.max_node_depth_)),
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, expression);
 
@@ -3425,7 +3425,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR019 - Invalid syntax '" + current_token().value +
                                      "' possible missing operator or context",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, expression);
 
@@ -3474,7 +3474,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR020 - Failed to find variable node in symbol table",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     free_node(node_allocator_, node);
 
@@ -3579,7 +3579,7 @@ class parser : public lexer::parser_helper
             {
                 for (std::size_t i = 0; i < deq_.size(); ++i)
                 {
-                    math_expr_debug(("~scoped_deq_delete() - deleting node: %p\n",
+                    MATH_EXPR_DEBUG(("~scoped_deq_delete() - deleting node: %p\n",
                                      reinterpret_cast<void*>(deq_[i])));
                     free_node(parser_.node_allocator_, deq_[i]);
                 }
@@ -3622,7 +3622,7 @@ class parser : public lexer::parser_helper
             {
                 for (std::size_t i = 0; i < vec_.size(); ++i)
                 {
-                    math_expr_debug(("~scoped_vec_delete() - deleting node: %p\n",
+                    MATH_EXPR_DEBUG(("~scoped_vec_delete() - deleting node: %p\n",
                                      reinterpret_cast<void*>(vec_[i])));
                     free_node(parser_.node_allocator_, vec_[i]);
                 }
@@ -3764,7 +3764,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR021 - Invalid number of parameters for function: '" + function_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3777,7 +3777,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR022 - Failed to generate call to function: '" + function_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -3792,7 +3792,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR023 - Expecting ifunction '" + function_name +
                                      "' to have non-zero parameter count",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -3812,7 +3812,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR024 - Expecting argument list for function: '" + function_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3826,7 +3826,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR025 - Failed to parse argument " + core::to_str(i) +
                                              " for function: '" + function_name + "'",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -3838,7 +3838,7 @@ class parser : public lexer::parser_helper
                             make_error(parser_error::error_mode::e_syntax, current_token(),
                                        "ERR026 - Invalid number of arguments for function: '" +
                                            function_name + "'",
-                                       math_expr_error_location));
+                                       MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -3850,7 +3850,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR027 - Invalid number of arguments for function: '" + function_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -3877,7 +3877,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR028 - Expecting '()' to proceed call to function: '" + function_name + "'",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, result);
 
@@ -3904,7 +3904,7 @@ class parser : public lexer::parser_helper
                                  "ERR029 - Expected a '(' at start of function call to '" +
                                      function_name + "', instead got: '" + current_token().value +
                                      "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return 0;
         }
@@ -3915,7 +3915,7 @@ class parser : public lexer::parser_helper
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR030 - Expected at least one input parameter for function call '" +
                                function_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return 0;
         }
@@ -3941,7 +3941,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR031 - Expected a ',' between function input parameters, instead got: '" +
                         current_token().value + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return 0;
             }
@@ -3953,7 +3953,7 @@ class parser : public lexer::parser_helper
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR032 - Invalid number of input parameters passed to function '" +
                                function_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return 0;
         }
@@ -3974,7 +3974,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
                                  "ERR033 - No entry found for base operation: " + operation_name,
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -3994,7 +3994,7 @@ class parser : public lexer::parser_helper
                 {
                     switch (parameter_count)
                     {
-#define base_opr_case(N)                                          \
+#define BASE_OPR_CASE(N)                                          \
     case N:                                                       \
     {                                                             \
         expression_node_ptr pl##N[N] = {0};                       \
@@ -4003,8 +4003,8 @@ class parser : public lexer::parser_helper
         return expression_generator_(operation.type, pl##N);      \
     }
 
-                        base_opr_case(1) base_opr_case(2) base_opr_case(3) base_opr_case(4)
-#undef base_opr_case
+                        BASE_OPR_CASE(1) BASE_OPR_CASE(2) BASE_OPR_CASE(3) BASE_OPR_CASE(4)
+#undef BASE_OPR_CASE
                     }
                 }
             }
@@ -4018,7 +4018,7 @@ class parser : public lexer::parser_helper
         set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
                              "ERR034 - Invalid number of input parameters for call to function: '" +
                                  operation_name + "'",
-                             math_expr_error_location));
+                             MATH_EXPR_ERROR_LOCATION));
 
         return error_node();
     }
@@ -4037,7 +4037,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR035 - Expected ',' between if-statement condition and consequent",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4045,7 +4045,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR036 - Failed to parse consequent for if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4054,7 +4054,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR037 - Expected ',' between if-statement consequent and alternative",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4062,7 +4062,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR038 - Failed to parse alternative for if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4070,7 +4070,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR039 - Expected ')' at the end of if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4095,7 +4095,7 @@ class parser : public lexer::parser_helper
 
                     set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                                          "ERR040 - Failed to synthesize node: conditional_string",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     free_node(node_allocator_, result_node);
                     return error_node();
@@ -4104,7 +4104,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR041 - Return types of if-statement differ: string/non-string",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4127,7 +4127,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR042 - Return types of if-statement differ: vector/non-vector",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4158,7 +4158,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR043 - Failed to parse body of consequent for if-statement",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4174,7 +4174,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR044 - Expected ';' at the end of the consequent for if-statement (1)",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4194,7 +4194,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR045 - Expected ';' at the end of the consequent for if-statement (2)",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     result = false;
                 }
@@ -4203,7 +4203,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR046 - Failed to parse body of consequent for if-statement",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4229,7 +4229,7 @@ class parser : public lexer::parser_helper
                         set_error(make_error(
                             parser_error::error_mode::e_syntax, current_token(),
                             "ERR047 - Failed to parse body of the 'else' for if-statement",
-                            math_expr_error_location));
+                            MATH_EXPR_ERROR_LOCATION));
 
                         result = false;
                     }
@@ -4240,7 +4240,7 @@ class parser : public lexer::parser_helper
                     {
                         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR048 - Failed to parse body of if-else statement",
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
 
                         result = false;
                     }
@@ -4254,7 +4254,7 @@ class parser : public lexer::parser_helper
                         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR049 - Expected ';' at the end of the 'else-if' "
                                              "for the if-statement",
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
 
                         result = false;
                     }
@@ -4264,7 +4264,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR050 - Failed to parse body of the 'else' for if-statement",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     result = false;
                 }
@@ -4288,7 +4288,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR051 - Return types of if-statement differ: string/non-string",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4311,7 +4311,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR052 - Return types of if-statement differ: vector/non-vector",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4340,7 +4340,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR053 - Expected '(' at start of if-statement, instead got: '" +
                                      current_token().value + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4348,7 +4348,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR054 - Failed to parse condition for if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4379,7 +4379,7 @@ class parser : public lexer::parser_helper
         }
 
         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                             "ERR055 - Invalid if-statement", math_expr_error_location));
+                             "ERR055 - Invalid if-statement", MATH_EXPR_ERROR_LOCATION));
 
         free_node(node_allocator_, condition);
 
@@ -4399,7 +4399,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR056 - Encountered invalid condition branch for ternary if-statement",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4407,7 +4407,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR057 - Expected '?' after condition of ternary if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4415,7 +4415,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR058 - Failed to parse consequent for ternary if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4424,7 +4424,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR059 - Expected ':' between ternary if-statement consequent and alternative",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4432,7 +4432,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR060 - Failed to parse alternative for ternary if-statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4453,7 +4453,7 @@ class parser : public lexer::parser_helper
 
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR061 - Return types of ternary differ: string/non-string",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4475,7 +4475,7 @@ class parser : public lexer::parser_helper
 
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR062 - Return types of ternary differ: vector/non-vector",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4499,7 +4499,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR063 - Invalid or disabled logic operation 'not'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4528,7 +4528,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR064 - Expected '(' at start of while-loop condition statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4536,7 +4536,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR065 - Failed to parse condition for while-loop",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4544,7 +4544,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR066 - Expected ')' at end of while-loop condition statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             result = false;
         }
@@ -4566,7 +4566,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR068 - Failed to synthesize while-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4590,7 +4590,7 @@ class parser : public lexer::parser_helper
 
         set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR069 - Failed to synthesize 'valid' while-loop",
-                             math_expr_error_location));
+                             MATH_EXPR_ERROR_LOCATION));
 
         free_node(node_allocator_, result_node);
 
@@ -4654,7 +4654,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR070 - Expected '" + token_t::to_str(separator) +
                                              "' in body of repeat until loop",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -4674,7 +4674,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR071 - Failed to parse body of repeat until loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -4685,7 +4685,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR072 - Expected '(' before condition statement of repeat until loop",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, branch);
             return error_node();
@@ -4694,7 +4694,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR073 - Failed to parse condition for repeat until loop",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, branch);
             return error_node();
@@ -4703,7 +4703,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR074 - Expected ')' after condition of repeat until loop",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, branch);
             free_node(node_allocator_, condition);
@@ -4718,7 +4718,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR075 - Failed to synthesize repeat until loop",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, condition);
 
@@ -4734,7 +4734,7 @@ class parser : public lexer::parser_helper
 
         set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR076 - Failed to synthesize 'valid' repeat until loop",
-                             math_expr_error_location));
+                             MATH_EXPR_ERROR_LOCATION));
 
         free_node(node_allocator_, result_node);
 
@@ -4759,7 +4759,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR077 - Expected '(' at start of for-loop",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4776,7 +4776,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR078 - Expected a variable at the start of initialiser "
                                          "section of for-loop",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -4785,7 +4785,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR079 - Expected variable assignment of initialiser section of for-loop",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -4799,7 +4799,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR080 - For-loop variable '" + loop_counter_symbol +
                                              "' is being shadowed by a previous declaration",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -4829,7 +4829,7 @@ class parser : public lexer::parser_helper
                                                  current_token(),
                                                  "ERR081 - Failed to add new local variable '" +
                                                      loop_counter_symbol + "' to SEM",
-                                                 math_expr_error_location));
+                                                 MATH_EXPR_ERROR_LOCATION));
 
                             sem_.free_element(nse);
 
@@ -4837,7 +4837,7 @@ class parser : public lexer::parser_helper
                         }
                         else
                         {
-                            math_expr_debug(
+                            MATH_EXPR_DEBUG(
                                 ("parse_for_loop() - INFO - Added new local variable: %s\n",
                                  nse.name.c_str()));
 
@@ -4851,7 +4851,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR082 - Failed to parse initialiser of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4859,7 +4859,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR083 - Expected ';' after initialiser of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4871,7 +4871,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR084 - Failed to parse condition of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4879,7 +4879,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR085 - Expected ';' after condition section of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4891,7 +4891,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR086 - Failed to parse incrementor of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4899,7 +4899,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR087 - Expected ')' after incrementor section of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4915,7 +4915,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR088 - Failed to parse body of for-loop",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 result = false;
             }
@@ -4946,7 +4946,7 @@ class parser : public lexer::parser_helper
 
         set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR089 - Failed to synthesize 'valid' for-loop",
-                             math_expr_error_location));
+                             MATH_EXPR_ERROR_LOCATION));
 
         free_node(node_allocator_, result_node);
 
@@ -4960,7 +4960,7 @@ class parser : public lexer::parser_helper
         if (!core::imatch(current_token().value, "switch"))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR090 - Expected keyword 'switch'", math_expr_error_location));
+                                 "ERR090 - Expected keyword 'switch'", MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4973,7 +4973,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR091 - Expected '{' for call to switch statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -4996,7 +4996,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR092 - Expected ':' for case of switch statement",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     free_node(node_allocator_, condition);
 
@@ -5019,7 +5019,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR093 - Expected ';' at end of case for switch statement",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     free_node(node_allocator_, condition);
                     free_node(node_allocator_, consequent);
@@ -5045,7 +5045,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR094 - Multiple default cases for switch statement",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -5056,7 +5056,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR095 - Expected ':' for default of switch statement",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -5073,7 +5073,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR096 - Expected ';' at end of default for switch statement",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -5084,7 +5084,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR097 - Expected '}' at end of switch statement",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5118,7 +5118,7 @@ class parser : public lexer::parser_helper
         if (!core::imatch(current_token().value, "[*]"))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR098 - Expected token '[*]'", math_expr_error_location));
+                                 "ERR098 - Expected token '[*]'", MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5131,7 +5131,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR099 - Expected '{' for call to [*] statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5142,7 +5142,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR100 - Expected a 'case' statement for multi-switch",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5158,7 +5158,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR101 - Expected ':' for case of [*] statement",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5175,7 +5175,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR102 - Expected ';' at end of case for [*] statement",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5202,7 +5202,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR103 - Expected '}' at end of [*] statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5248,7 +5248,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR104 - Unsupported built-in vararg function: " + symbol,
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5263,7 +5263,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR105 - Expected '(' for call to vararg function: " + symbol,
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5273,7 +5273,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR106 - vararg function: " + symbol + " requires at least one input parameter",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5293,7 +5293,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR107 - Expected ',' for call to vararg function: " + symbol,
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5313,7 +5313,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR108 - Expected '[' as start of string range definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, expression);
 
@@ -5339,7 +5339,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR109 - Failed to generate string range node",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, expression);
             rp.free();
@@ -5354,7 +5354,7 @@ class parser : public lexer::parser_helper
 
         set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
                              "ERR110 - Failed to synthesize node: string_range_node",
-                             math_expr_error_location));
+                             MATH_EXPR_ERROR_LOCATION));
 
         free_node(node_allocator_, result);
         rp.free();
@@ -5442,7 +5442,7 @@ class parser : public lexer::parser_helper
 
         Sequence<expression_node_ptr, Allocator1> tmp_expression_list;
 
-        math_expr_debug(("simplify() - expression_list.size: %d  side_effect_list.size(): %d\n",
+        MATH_EXPR_DEBUG(("simplify() - expression_list.size: %d  side_effect_list.size(): %d\n",
                          static_cast<int>(expression_list.size()),
                          static_cast<int>(side_effect_list.size())));
 
@@ -5488,7 +5488,7 @@ class parser : public lexer::parser_helper
 
         if (tmp_expression_list.size() > expression_list.size())
         {
-            math_expr_debug(("simplify() - Reduced subexpressions from %d to %d\n",
+            MATH_EXPR_DEBUG(("simplify() - Reduced subexpressions from %d to %d\n",
                              static_cast<int>(tmp_expression_list.size()),
                              static_cast<int>(expression_list.size())));
         }
@@ -5528,7 +5528,7 @@ class parser : public lexer::parser_helper
                                "ERR111 - Expected '" + token_t::to_str(open_bracket) +
                                    "' for call to multi-sequence" +
                                    ((!source.empty()) ? std::string(" section of " + source) : ""),
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5572,7 +5572,7 @@ class parser : public lexer::parser_helper
                                      "ERR112 - Expected '" +
                                          lexer::token::seperator_to_str(separator) +
                                          "' for call to multi-sequence section of " + source,
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5604,7 +5604,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR113 - Expected '[' for start of range",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return false;
         }
@@ -5623,7 +5623,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR114 - Failed parse begin section of range",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return false;
             }
@@ -5645,7 +5645,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR115 - Range lower bound less than zero! Constraint: r0 >= 0",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     return false;
                 }
@@ -5660,7 +5660,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR116 - Expected ':' for break  in range",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 rp.free();
 
@@ -5681,7 +5681,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR117 - Failed parse end section of range",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 rp.free();
 
@@ -5705,7 +5705,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR118 - Range upper bound less than zero! Constraint: r1 >= 0",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     rp.free();
 
@@ -5722,7 +5722,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR119 - Expected ']' for start of range",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 rp.free();
 
@@ -5749,7 +5749,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR120 - Invalid range, Constraint: r0 <= r1",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return false;
             }
@@ -5789,7 +5789,7 @@ class parser : public lexer::parser_helper
             if ((0 == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR121 - Unknown string symbol", math_expr_error_location));
+                                     "ERR121 - Unknown string symbol", MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -5914,7 +5914,7 @@ class parser : public lexer::parser_helper
                         ":" +
                         (rp.n1_c.first ? core::to_str(static_cast<int>(rp.n1_c.second)) : "?") +
                         "]",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 rp.free();
 
@@ -5946,7 +5946,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR123 - Failed to parse index for vector: '" + vector_name + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -5954,7 +5954,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR124 - Expected ']' for index of vector: '" + vector_name + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, index_expr);
 
@@ -5982,7 +5982,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR125 - Symbol '" + vector_name + " not a vector",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -6049,7 +6049,7 @@ class parser : public lexer::parser_helper
                                          " out of range for "
                                          "vector '" +
                                          vector_name + "' of size " + core::to_str(vec_size),
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, vec_node);
                 free_node(node_allocator_, index_expr);
@@ -6079,7 +6079,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR127 - Zero parameter call to vararg function: " +
                                              vararg_function_name + " not allowed",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -6102,7 +6102,7 @@ class parser : public lexer::parser_helper
                         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR128 - Expected ',' for call to vararg function: " +
                                                  vararg_function_name,
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -6114,7 +6114,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR129 - Zero parameter call to vararg function: " +
                                      vararg_function_name + " not allowed",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6126,7 +6126,7 @@ class parser : public lexer::parser_helper
                 "ERR130 - Invalid number of parameters to call to vararg function: " +
                     vararg_function_name + ", require at least " +
                     core::to_str(static_cast<int>(vararg_function->min_num_args())) + " parameters",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6137,7 +6137,7 @@ class parser : public lexer::parser_helper
                 "ERR131 - Invalid number of parameters to call to vararg function: " +
                     vararg_function_name + ", require no more than " +
                     core::to_str(static_cast<int>(vararg_function->max_num_args())) + " parameters",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6211,7 +6211,7 @@ class parser : public lexer::parser_helper
                         "', "
                         "Expected '" +
                         function_definition_list_[0].param_seq + "' call set: '" + param_seq + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
             }
             else
             {
@@ -6233,7 +6233,7 @@ class parser : public lexer::parser_helper
                         "Best match: '" +
                         function_definition_list_[max_diff_index].param_seq + "' call set: '" +
                         param_seq + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
             }
 
             return false;
@@ -6369,7 +6369,7 @@ class parser : public lexer::parser_helper
                         make_error(parser_error::error_mode::e_syntax, parser_.current_token(),
                                    "ERR134 - Invalid parameter sequence of '" + param_seq_list[i] +
                                        "' for function: " + function_name_,
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
                     return;
                 }
 
@@ -6385,7 +6385,7 @@ class parser : public lexer::parser_helper
                             "' has a parameter sequence conflict between " + "pseq_idx[" +
                             core::to_str(seq_itr->second) + "] and" + "pseq_idx[" +
                             core::to_str(i) + "] " + "param seq: " + param_seq_list[i],
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
                     return;
                 }
 
@@ -6423,7 +6423,7 @@ class parser : public lexer::parser_helper
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR136 - Type checker instantiation failure for generic function: " +
                                function_name,
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6437,7 +6437,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR137 - Zero parameter call to generic function: " +
                                              function_name + " not allowed",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -6467,7 +6467,7 @@ class parser : public lexer::parser_helper
                         set_error(make_error(
                             parser_error::error_mode::e_syntax, current_token(),
                             "ERR138 - Expected ',' for call to generic function: " + function_name,
-                            math_expr_error_location));
+                            MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -6480,7 +6480,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR139 - Zero parameter call to generic function: " +
                                      function_name + " not allowed",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6493,7 +6493,7 @@ class parser : public lexer::parser_helper
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR140 - Invalid input parameter sequence for call to generic function: " +
                     function_name,
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6523,7 +6523,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR141 - Zero parameter call to generic function: " +
                                              function_name + " not allowed",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return false;
                 }
@@ -6553,7 +6553,7 @@ class parser : public lexer::parser_helper
                         set_error(make_error(
                             parser_error::error_mode::e_syntax, current_token(),
                             "ERR142 - Expected ',' for call to string function: " + function_name,
-                            math_expr_error_location));
+                            MATH_EXPR_ERROR_LOCATION));
 
                         return false;
                     }
@@ -6599,7 +6599,7 @@ class parser : public lexer::parser_helper
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR143 - Invalid input parameter sequence for call to string function: " +
                     function_name,
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6646,7 +6646,7 @@ class parser : public lexer::parser_helper
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR144 - Invalid input parameter sequence for call to overloaded function: " +
                     function_name,
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6674,7 +6674,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR145 - Invalid return type for call to overloaded function: " + function_name,
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
         }
 
         svd.delete_ptr = (0 == result);
@@ -6703,7 +6703,7 @@ class parser : public lexer::parser_helper
                 p.set_error(
                     make_error(parser_error::error_mode::e_syntax, p.current_token(),
                                "ERR146 - Expected '(' for special function '" + sf_name + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -6724,7 +6724,7 @@ class parser : public lexer::parser_helper
                             parser_error::error_mode::e_syntax, p.current_token(),
                             "ERR147 - Expected ',' before next parameter of special function '" +
                                 sf_name + "'",
-                            math_expr_error_location));
+                            MATH_EXPR_ERROR_LOCATION));
 
                         return p.error_node();
                     }
@@ -6736,7 +6736,7 @@ class parser : public lexer::parser_helper
                 p.set_error(make_error(
                     parser_error::error_mode::e_syntax, p.current_token(),
                     "ERR148 - Invalid number of parameters for special function '" + sf_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return p.error_node();
             }
@@ -6758,7 +6758,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_token, current_token(),
                                  "ERR149 - Invalid special function[1]: " + sf_name,
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6769,7 +6769,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_token, current_token(),
                                  "ERR150 - Invalid special function[2]: " + sf_name,
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6803,7 +6803,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR151 - Invoking 'break' within a break call is not allowed",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6812,7 +6812,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR152 - Invalid use of 'break', allowed only in the scope of a loop",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6834,7 +6834,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR153 - Failed to parse return expression for 'break' statement",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -6843,7 +6843,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR154 - Expected ']' at the completion of break's return expression",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     free_node(node_allocator_, return_expr);
 
@@ -6860,7 +6860,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR155 - Invalid use of 'break', allowed only in the scope of a loop",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
         }
 
         return error_node();
@@ -6873,7 +6873,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR156 - Invalid use of 'continue', allowed only in the scope of a loop",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6897,7 +6897,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR157 - Expected '[' as part of vector size definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6905,7 +6905,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR158 - Failed to determine size of vector '" + vec_name + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6927,7 +6927,7 @@ class parser : public lexer::parser_helper
                     : std::string("Expected a constant literal number as size of vector");
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR159 - " + error_msg + " '" + vec_name + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6948,7 +6948,7 @@ class parser : public lexer::parser_helper
                            "range [0," +
                                core::to_str(static_cast<std::size_t>(max_vector_size)) +
                                "], size: " + core::to_str(core::numeric::to_int32(vector_size)),
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6971,7 +6971,7 @@ class parser : public lexer::parser_helper
                                      " bytes, "
                                      "current total size: " +
                                      core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -6985,7 +6985,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR162 - Illegal redefinition of local vector: '" + vec_name + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7018,7 +7018,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR163 - Failed to add new local vector '" + vec_name + "' to SEM",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 sem_.free_element(nse);
 
@@ -7030,7 +7030,7 @@ class parser : public lexer::parser_helper
 
             vec_holder = nse.vec_node;
 
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("parse_define_vector_statement() - INFO - Added new local vector: %s[%d]\n",
                  nse.name.c_str(), static_cast<int>(nse.size)));
         }
@@ -7052,7 +7052,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR164 - Expected ']' as part of vector size definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7062,7 +7062,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR165 - Expected ':=' as part of vector definition",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7076,7 +7076,7 @@ class parser : public lexer::parser_helper
                                          "ERR166 - Failed to parse first component of vector "
                                          "initialiser for vector: " +
                                              vec_name,
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -7093,7 +7093,7 @@ class parser : public lexer::parser_helper
                                              "ERR167 - Failed to parse second component of vector "
                                              "initialiser for vector: " +
                                                  vec_name,
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -7106,7 +7106,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR168 - Expected ']' to close single value vector initialiser",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -7160,7 +7160,7 @@ class parser : public lexer::parser_helper
                         set_error(
                             make_error(parser_error::error_mode::e_syntax, current_token(),
                                        "ERR169 - Expected '{' as part of vector initialiser list",
-                                       math_expr_error_location));
+                                       MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -7179,7 +7179,7 @@ class parser : public lexer::parser_helper
                         set_error(
                             make_error(parser_error::error_mode::e_syntax, current_token(),
                                        "ERR170 - Expected '{' as part of vector initialiser list",
-                                       math_expr_error_location));
+                                       MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -7195,7 +7195,7 @@ class parser : public lexer::parser_helper
                     {
                         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR171 - Expected ',' between vector initialisers",
-                                             math_expr_error_location));
+                                             MATH_EXPR_ERROR_LOCATION));
 
                         return error_node();
                     }
@@ -7213,7 +7213,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR172 - Expected ';' at end of vector definition",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -7226,7 +7226,7 @@ class parser : public lexer::parser_helper
                                      "ERR173 - Initialiser list larger than the number of elements "
                                      "in the vector: '" +
                                          vec_name + "'",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7316,7 +7316,7 @@ class parser : public lexer::parser_helper
         set_error(
             make_error(parser_error::error_mode::e_synthesis, current_token(),
                        "ERR174 - Failed to generate initialisation node for vector: " + vec_name,
-                       math_expr_error_location));
+                       MATH_EXPR_ERROR_LOCATION));
 
         return error_node();
     }
@@ -7336,7 +7336,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR175 - Illegal redefinition of local variable: '" + str_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7367,7 +7367,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR176 - Failed to add new local string variable '" + str_name + "' to SEM",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7381,7 +7381,7 @@ class parser : public lexer::parser_helper
 
             str_node = nse.str_node;
 
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("parse_define_string_statement() - INFO - Added new local string variable: %s\n",
                  nse.name.c_str()));
         }
@@ -7416,7 +7416,7 @@ class parser : public lexer::parser_helper
         if (settings_.vardef_disabled())
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR177 - Illegal variable definition", math_expr_error_location));
+                                 "ERR177 - Illegal variable definition", MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7435,7 +7435,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR178 - Expected a symbol for variable definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7444,7 +7444,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR179 - Illegal redefinition of reserved keyword: '" + var_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7452,7 +7452,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR180 - Illegal redefinition of variable '" + var_name + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7461,7 +7461,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR181 - Illegal redefinition of local variable: '" + var_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7481,7 +7481,7 @@ class parser : public lexer::parser_helper
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR182 - Failed to parse initialisation expression for variable '" +
                                    var_name + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7496,7 +7496,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR183 - Expected ';' after variable '" + var_name + "' definition",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7521,7 +7521,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR184 - Illegal redefinition of local variable: '" + var_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7552,7 +7552,7 @@ class parser : public lexer::parser_helper
                                    " bytes, "
                                    "current total size: " +
                                    core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7574,7 +7574,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR186 - Failed to add new local variable '" + var_name + "' to SEM",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 free_node(node_allocator_, initialisation_expression);
 
@@ -7588,7 +7588,7 @@ class parser : public lexer::parser_helper
 
             var_node = nse.var_node;
 
-            math_expr_debug(("parse_define_var_statement() - INFO - Added new local variable: %s\n",
+            MATH_EXPR_DEBUG(("parse_define_var_statement() - INFO - Added new local variable: %s\n",
                              nse.name.c_str()));
         }
 
@@ -7611,7 +7611,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR187 - Illegal const variable definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7619,7 +7619,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR188 - Expected 'const' keyword for const-variable definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7627,7 +7627,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR189 - Expected 'var' keyword for const-variable definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7640,7 +7640,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR190 - Expected a symbol for const-variable definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7649,7 +7649,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR191 - Illegal redefinition of reserved keyword: '" + var_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7657,7 +7657,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR192 - Illegal redefinition of variable '" + var_name + "'",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7666,7 +7666,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR193 - Illegal redefinition of local variable: '" + var_name + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7675,7 +7675,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR194 - Expected assignment operator after const-variable: '" +
                                      var_name + "' definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7685,7 +7685,7 @@ class parser : public lexer::parser_helper
                 parser_error::error_mode::e_syntax, current_token(),
                 "ERR195 - Failed to parse initialisation expression for const-variable: '" +
                     var_name + "'",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7695,7 +7695,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR196 - initialisation expression for const-variable: '" +
                                      var_name + "' must be a constant/literal",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             free_node(node_allocator_, initialisation_expression);
 
@@ -7719,7 +7719,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR197 - Illegal redefinition of local variable: '" + var_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7748,7 +7748,7 @@ class parser : public lexer::parser_helper
                                    " bytes, "
                                    "current total size: " +
                                    core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7767,7 +7767,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR199 - Failed to add new local const-variable '" + var_name + "' to SEM",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 sem_.free_element(nse);
 
@@ -7779,7 +7779,7 @@ class parser : public lexer::parser_helper
 
             var_node = nse.var_node;
 
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("parse_define_constvar_statement() - INFO - Added new local const-variable: %s\n",
                  nse.name.c_str()));
         }
@@ -7797,7 +7797,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR200 - Expected a '{}' for uninitialised var definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7805,7 +7805,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR201 - Expected ';' after uninitialised variable definition",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7821,7 +7821,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR202 - Illegal redefinition of local variable: '" + var_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7849,7 +7849,7 @@ class parser : public lexer::parser_helper
                                    " bytes, "
                                    "current total size: " +
                                    core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7870,7 +7870,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR204 - Failed to add new local variable '" + var_name + "' to SEM",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 sem_.free_element(nse);
 
@@ -7880,7 +7880,7 @@ class parser : public lexer::parser_helper
             assert(sem_.total_local_symb_size_bytes() <=
                    settings().max_total_local_symbol_size_bytes());
 
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("parse_uninitialised_var_statement() - INFO - Added new local variable: %s\n",
                  nse.name.c_str()));
         }
@@ -7905,7 +7905,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR205 - Expected '(' at start of swap statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7923,7 +7923,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR206 - Expected a symbol for variable or vector element definition",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -7935,7 +7935,7 @@ class parser : public lexer::parser_helper
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR207 - First parameter to swap is an invalid vector element: '" +
                                    var0_name + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7964,7 +7964,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR208 - First parameter to swap is an invalid variable: '" + var0_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -7976,7 +7976,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR209 - Expected ',' between parameters to swap",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             if (variable0_generated)
             {
@@ -7993,7 +7993,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR210 - Expected a symbol for variable or vector element definition",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             if (variable0_generated)
             {
@@ -8010,7 +8010,7 @@ class parser : public lexer::parser_helper
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR211 - Second parameter to swap is an invalid vector element: '" +
                                    var1_name + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 if (variable0_generated)
                 {
@@ -8044,7 +8044,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR212 - Second parameter to swap is an invalid variable: '" + var1_name + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 if (variable0_generated)
                 {
@@ -8061,7 +8061,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR213 - Expected ')' at end of swap statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             if (variable0_generated)
             {
@@ -8113,7 +8113,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR214 - Return call within a return call is not allowed",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8135,7 +8135,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR215 - Expected '[' at start of return statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8157,7 +8157,7 @@ class parser : public lexer::parser_helper
                     set_error(
                         make_error(parser_error::error_mode::e_syntax, current_token(),
                                    "ERR216 - Expected ',' between values during call to return",
-                                   math_expr_error_location));
+                                   MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8167,7 +8167,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR217 - Zero parameter return statement not allowed",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8180,7 +8180,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
                                      "ERR218 - Invalid ']' found during return call",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -8228,7 +8228,7 @@ class parser : public lexer::parser_helper
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
                            "ERR219 - Assert statement within an assert statement is not allowed",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8248,7 +8248,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR220 - Expected '(' at start of assert statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8260,7 +8260,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR221 - Failed to parse condition for assert statement",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8274,7 +8274,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
                     "ERR222 - Expected ',' between condition and message for assert statement",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -8288,7 +8288,7 @@ class parser : public lexer::parser_helper
                         (assert_message
                              ? std::string("Expected string for assert message")
                              : std::string("Failed to parse message for assert statement")),
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -8299,7 +8299,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR224 - Expected ',' between message and ID for assert statement",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8312,7 +8312,7 @@ class parser : public lexer::parser_helper
                         "ERR225 - " + (assert_id
                                            ? std::string("Expected literal string for assert ID")
                                            : std::string("Failed to parse string for assert ID")),
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8320,7 +8320,7 @@ class parser : public lexer::parser_helper
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR226 - Expected ')' at start of assert statement",
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8333,7 +8333,7 @@ class parser : public lexer::parser_helper
 
         if (0 == assert_check_)
         {
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("parse_assert_statement() - assert functionality is disabled. assert "
                  "condition: %s\n",
                  context.condition.c_str()));
@@ -8355,7 +8355,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR227 - Duplicate assert ID: " + context.id,
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -8368,19 +8368,19 @@ class parser : public lexer::parser_helper
         expression_node_ptr result_node =
             expression_generator_.assert_call(assert_condition, assert_message, context);
 
-        math_expr_debug(
+        MATH_EXPR_DEBUG(
             ("parse_assert_statement() - assert condition: [%s]\n", context.condition.c_str()));
-        math_expr_debug(
+        MATH_EXPR_DEBUG(
             ("parse_assert_statement() - assert message:   [%s]\n", context.message.c_str()));
-        math_expr_debug(
+        MATH_EXPR_DEBUG(
             ("parse_assert_statement() - assert id:        [%s]\n", context.id.c_str()));
-        math_expr_debug(("parse_assert_statement() - assert offset:    [%d]\n",
+        MATH_EXPR_DEBUG(("parse_assert_statement() - assert offset:    [%d]\n",
                          static_cast<int>(context.offet)));
 
         if (0 == result_node)
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR228 - Failed to synthesize assert", math_expr_error_location));
+                                 "ERR228 - Failed to synthesize assert", MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8399,7 +8399,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR229 - Invalid sequence of variable '" + symbol + "' and bracket",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 return false;
             }
@@ -8454,7 +8454,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR230 - Invalid sequence of brackets",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return false;
             }
@@ -8591,7 +8591,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR231 - Failed to generate node for function: '" + symbol + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8616,7 +8616,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR232 - Failed to generate node for vararg function: '" + symbol + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8641,7 +8641,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR233 - Failed to generate node for generic function: '" + symbol + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8667,7 +8667,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR234 - Failed to generate node for string function: '" + symbol + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8692,7 +8692,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
                         "ERR235 - Failed to generate node for overload function: '" + symbol + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8713,7 +8713,7 @@ class parser : public lexer::parser_helper
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR236 - Invalid use of reserved symbol '" + symbol + "'",
-                                     math_expr_error_location));
+                                     MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -8781,7 +8781,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
                                          "ERR237 - Failed to create variable: '" + symbol + "'" +
                                              (error_message.empty() ? "" : " - " + error_message),
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
                 }
                 else if (unknown_symbol_resolver::usr_mode::e_usrmode_extended ==
                          unknown_symbol_resolver_->mode)
@@ -8799,7 +8799,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
                                          "ERR238 - Failed to resolve symbol: '" + symbol + "'" +
                                              (error_message.empty() ? "" : " - " + error_message),
-                                         math_expr_error_location));
+                                         MATH_EXPR_ERROR_LOCATION));
                 }
 
                 return error_node();
@@ -8808,7 +8808,7 @@ class parser : public lexer::parser_helper
 
         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                              "ERR239 - Undefined symbol: '" + symbol + "'",
-                             math_expr_error_location));
+                             MATH_EXPR_ERROR_LOCATION));
 
         return error_node();
     }
@@ -8823,7 +8823,7 @@ class parser : public lexer::parser_helper
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR240 - Invalid syntax '" + current_token().value +
                                      "' possible missing operator or context",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8945,7 +8945,7 @@ class parser : public lexer::parser_helper
                            "ERR241 - Unknown variable or function encountered. Symbol table(s) "
                            "is either invalid or does not contain symbol: '" +
                                symbol + "'",
-                           math_expr_error_location));
+                           MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -8976,7 +8976,7 @@ class parser : public lexer::parser_helper
                     set_error(make_error(
                         parser_error::error_mode::e_numeric, current_token(),
                         "ERR242 - Failed generate node for scalar: '" + current_token().value + "'",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     return error_node();
                 }
@@ -8989,7 +8989,7 @@ class parser : public lexer::parser_helper
                 set_error(make_error(
                     parser_error::error_mode::e_numeric, current_token(),
                     "ERR243 - Failed to convert '" + current_token().value + "' to a number",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -9020,7 +9020,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR244 - Expected ')' instead of: '" + current_token().value + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(node_allocator_, branch);
 
@@ -9046,7 +9046,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR245 - Expected ']' instead of: '" + current_token().value + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(node_allocator_, branch);
 
@@ -9070,7 +9070,7 @@ class parser : public lexer::parser_helper
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
                                "ERR246 - Expected '}' instead of: '" + current_token().value + "'",
-                               math_expr_error_location));
+                               MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(node_allocator_, branch);
 
@@ -9113,7 +9113,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR247 - Premature end of expression[1]",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -9121,7 +9121,7 @@ class parser : public lexer::parser_helper
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR248 - Premature end of expression[2]",
-                                 math_expr_error_location));
+                                 MATH_EXPR_ERROR_LOCATION));
 
             return error_node();
         }
@@ -9166,70 +9166,70 @@ class parser : public lexer::parser_helper
             synthesize_map_["(c)o(v)"] = synthesize_cov_expression::process;
             synthesize_map_["(v)o(c)"] = synthesize_voc_expression::process;
 
-#define register_synthezier(S) synthesize_map_[S ::node_type::id()] = S ::process;
+#define REGISTER_SYNTHEZIER(S) synthesize_map_[S ::node_type::id()] = S ::process;
 
-            register_synthezier(synthesize_vovov_expression0);
-            register_synthezier(synthesize_vovov_expression1);
-            register_synthezier(synthesize_vovoc_expression0);
-            register_synthezier(synthesize_vovoc_expression1);
-            register_synthezier(synthesize_vocov_expression0);
-            register_synthezier(synthesize_vocov_expression1);
-            register_synthezier(synthesize_covov_expression0);
-            register_synthezier(synthesize_covov_expression1);
-            register_synthezier(synthesize_covoc_expression0);
-            register_synthezier(synthesize_covoc_expression1);
-            register_synthezier(synthesize_cocov_expression1);
-            register_synthezier(synthesize_vococ_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vovov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vovov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vovoc_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vovoc_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vocov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vocov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_covov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_covov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_covoc_expression0);
+            REGISTER_SYNTHEZIER(synthesize_covoc_expression1);
+            REGISTER_SYNTHEZIER(synthesize_cocov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vococ_expression0);
 
-            register_synthezier(synthesize_vovovov_expression0);
-            register_synthezier(synthesize_vovovoc_expression0);
-            register_synthezier(synthesize_vovocov_expression0);
-            register_synthezier(synthesize_vocovov_expression0);
-            register_synthezier(synthesize_covovov_expression0);
-            register_synthezier(synthesize_covocov_expression0);
-            register_synthezier(synthesize_vocovoc_expression0);
-            register_synthezier(synthesize_covovoc_expression0);
-            register_synthezier(synthesize_vococov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vovovov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vovovoc_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vovocov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vocovov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_covovov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_covocov_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vocovoc_expression0);
+            REGISTER_SYNTHEZIER(synthesize_covovoc_expression0);
+            REGISTER_SYNTHEZIER(synthesize_vococov_expression0);
 
-            register_synthezier(synthesize_vovovov_expression1);
-            register_synthezier(synthesize_vovovoc_expression1);
-            register_synthezier(synthesize_vovocov_expression1);
-            register_synthezier(synthesize_vocovov_expression1);
-            register_synthezier(synthesize_covovov_expression1);
-            register_synthezier(synthesize_covocov_expression1);
-            register_synthezier(synthesize_vocovoc_expression1);
-            register_synthezier(synthesize_covovoc_expression1);
-            register_synthezier(synthesize_vococov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vovovov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vovovoc_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vovocov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vocovov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_covovov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_covocov_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vocovoc_expression1);
+            REGISTER_SYNTHEZIER(synthesize_covovoc_expression1);
+            REGISTER_SYNTHEZIER(synthesize_vococov_expression1);
 
-            register_synthezier(synthesize_vovovov_expression2);
-            register_synthezier(synthesize_vovovoc_expression2);
-            register_synthezier(synthesize_vovocov_expression2);
-            register_synthezier(synthesize_vocovov_expression2);
-            register_synthezier(synthesize_covovov_expression2);
-            register_synthezier(synthesize_covocov_expression2);
-            register_synthezier(synthesize_vocovoc_expression2);
-            register_synthezier(synthesize_covovoc_expression2);
+            REGISTER_SYNTHEZIER(synthesize_vovovov_expression2);
+            REGISTER_SYNTHEZIER(synthesize_vovovoc_expression2);
+            REGISTER_SYNTHEZIER(synthesize_vovocov_expression2);
+            REGISTER_SYNTHEZIER(synthesize_vocovov_expression2);
+            REGISTER_SYNTHEZIER(synthesize_covovov_expression2);
+            REGISTER_SYNTHEZIER(synthesize_covocov_expression2);
+            REGISTER_SYNTHEZIER(synthesize_vocovoc_expression2);
+            REGISTER_SYNTHEZIER(synthesize_covovoc_expression2);
 
-            register_synthezier(synthesize_vovovov_expression3);
-            register_synthezier(synthesize_vovovoc_expression3);
-            register_synthezier(synthesize_vovocov_expression3);
-            register_synthezier(synthesize_vocovov_expression3);
-            register_synthezier(synthesize_covovov_expression3);
-            register_synthezier(synthesize_covocov_expression3);
-            register_synthezier(synthesize_vocovoc_expression3);
-            register_synthezier(synthesize_covovoc_expression3);
-            register_synthezier(synthesize_vococov_expression3);
+            REGISTER_SYNTHEZIER(synthesize_vovovov_expression3);
+            REGISTER_SYNTHEZIER(synthesize_vovovoc_expression3);
+            REGISTER_SYNTHEZIER(synthesize_vovocov_expression3);
+            REGISTER_SYNTHEZIER(synthesize_vocovov_expression3);
+            REGISTER_SYNTHEZIER(synthesize_covovov_expression3);
+            REGISTER_SYNTHEZIER(synthesize_covocov_expression3);
+            REGISTER_SYNTHEZIER(synthesize_vocovoc_expression3);
+            REGISTER_SYNTHEZIER(synthesize_covovoc_expression3);
+            REGISTER_SYNTHEZIER(synthesize_vococov_expression3);
 
-            register_synthezier(synthesize_vovovov_expression4);
-            register_synthezier(synthesize_vovovoc_expression4);
-            register_synthezier(synthesize_vovocov_expression4);
-            register_synthezier(synthesize_vocovov_expression4);
-            register_synthezier(synthesize_covovov_expression4);
-            register_synthezier(synthesize_covocov_expression4);
-            register_synthezier(synthesize_vocovoc_expression4);
-            register_synthezier(synthesize_covovoc_expression4);
+            REGISTER_SYNTHEZIER(synthesize_vovovov_expression4);
+            REGISTER_SYNTHEZIER(synthesize_vovovoc_expression4);
+            REGISTER_SYNTHEZIER(synthesize_vovocov_expression4);
+            REGISTER_SYNTHEZIER(synthesize_vocovov_expression4);
+            REGISTER_SYNTHEZIER(synthesize_covovov_expression4);
+            REGISTER_SYNTHEZIER(synthesize_covocov_expression4);
+            REGISTER_SYNTHEZIER(synthesize_vocovoc_expression4);
+            REGISTER_SYNTHEZIER(synthesize_covovoc_expression4);
 
-#undef register_synthezier
+#undef REGISTER_SYNTHEZIER
 #endif
         }
 
@@ -9905,7 +9905,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR249 - Invalid branches received for operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -9915,7 +9915,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR250 - Invalid branch pair for string operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -9925,7 +9925,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR251 - Invalid branch pair for assignment operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -9935,7 +9935,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR252 - Invalid branch pair for break/continue operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -10054,7 +10054,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR253 - Invalid branches operator '" + core::operators::to_str(operation) +
                         "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -10064,7 +10064,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR254 - Invalid branches for string operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -10122,7 +10122,7 @@ class parser : public lexer::parser_helper
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, parser_->current_state().token,
                     "ERR255 - Invalid " + invalid_branches + " for conditional statement",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -10172,7 +10172,7 @@ class parser : public lexer::parser_helper
 
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_parser, token_t(),
-                "ERR256 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                "ERR256 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
@@ -10196,7 +10196,7 @@ class parser : public lexer::parser_helper
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, parser_->current_state().token,
                     "ERR257 - Invalid " + invalid_branches + " for string conditional statement",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -10236,7 +10236,7 @@ class parser : public lexer::parser_helper
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, token_t(),
                     "ERR258 - Failed to synthesize node: conditional_string_node_t",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
             }
@@ -10268,7 +10268,7 @@ class parser : public lexer::parser_helper
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, parser_->current_state().token,
                     "ERR259 - Invalid " + invalid_branches + " for vector conditional statement",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -10337,7 +10337,7 @@ class parser : public lexer::parser_helper
                         parser_error::error_mode::e_parser, parser_->current_state().token,
                         "ERR260 - Infinite loop condition without 'break' or 'return' not allowed "
                         "in while-loops",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     result = error_node();
                 }
@@ -10449,7 +10449,7 @@ class parser : public lexer::parser_helper
                         parser_error::error_mode::e_parser, parser_->current_state().token,
                         "ERR261 - Infinite loop condition without 'break' or 'return' not allowed "
                         "in for-loop",
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     result = error_node();
                 }
@@ -10574,7 +10574,7 @@ class parser : public lexer::parser_helper
         {
             using arg_list_t = std::vector<std::pair<expression_node_ptr, bool>>;
 
-#define case_stmt(N)                            \
+#define CASE_STMT(N)                            \
     if (is_true(arg[(2 * N)].first))            \
     {                                           \
         return arg[(2 * N) + 1].first->value(); \
@@ -10584,7 +10584,7 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
+                    CASE_STMT(0);
 
                     assert(arg.size() == ((2 * 1) + 1));
 
@@ -10596,8 +10596,8 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
-                    case_stmt(1);
+                    CASE_STMT(0);
+                    CASE_STMT(1);
 
                     assert(arg.size() == ((2 * 2) + 1));
 
@@ -10609,9 +10609,9 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
-                    case_stmt(1);
-                    case_stmt(2);
+                    CASE_STMT(0);
+                    CASE_STMT(1);
+                    CASE_STMT(2);
 
                     assert(arg.size() == ((2 * 3) + 1));
 
@@ -10623,10 +10623,10 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
-                    case_stmt(1);
-                    case_stmt(2);
-                    case_stmt(3);
+                    CASE_STMT(0);
+                    CASE_STMT(1);
+                    CASE_STMT(2);
+                    CASE_STMT(3);
 
                     assert(arg.size() == ((2 * 4) + 1));
 
@@ -10638,11 +10638,11 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
-                    case_stmt(1);
-                    case_stmt(2);
-                    case_stmt(3);
-                    case_stmt(4);
+                    CASE_STMT(0);
+                    CASE_STMT(1);
+                    CASE_STMT(2);
+                    CASE_STMT(3);
+                    CASE_STMT(4);
 
                     assert(arg.size() == ((2 * 5) + 1));
 
@@ -10654,12 +10654,12 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
-                    case_stmt(1);
-                    case_stmt(2);
-                    case_stmt(3);
-                    case_stmt(4);
-                    case_stmt(5);
+                    CASE_STMT(0);
+                    CASE_STMT(1);
+                    CASE_STMT(2);
+                    CASE_STMT(3);
+                    CASE_STMT(4);
+                    CASE_STMT(5);
 
                     assert(arg.size() == ((2 * 6) + 1));
 
@@ -10671,13 +10671,13 @@ class parser : public lexer::parser_helper
             {
                 static inline T process(const arg_list_t& arg)
                 {
-                    case_stmt(0);
-                    case_stmt(1);
-                    case_stmt(2);
-                    case_stmt(3);
-                    case_stmt(4);
-                    case_stmt(5);
-                    case_stmt(6);
+                    CASE_STMT(0);
+                    CASE_STMT(1);
+                    CASE_STMT(2);
+                    CASE_STMT(3);
+                    CASE_STMT(4);
+                    CASE_STMT(5);
+                    CASE_STMT(6);
 
                     assert(arg.size() == ((2 * 7) + 1));
 
@@ -10685,7 +10685,7 @@ class parser : public lexer::parser_helper
                 }
             };
 
-#undef case_stmt
+#undef CASE_STMT
         };
 
         template <typename Allocator, template <typename, typename> class Sequence>
@@ -10707,20 +10707,20 @@ class parser : public lexer::parser_helper
 
             switch ((arg_list.size() - 1) / 2)
             {
-#define case_stmt(N)                                                                          \
+#define CASE_STMT(N)                                                                          \
     case N:                                                                                   \
         return node_allocator_                                                                \
             ->allocate<details::switch_n_node<Type, typename switch_nodes::switch_impl_##N>>( \
                 arg_list);
 
-                case_stmt(1);
-                case_stmt(2);
-                case_stmt(3);
-                case_stmt(4);
-                case_stmt(5);
-                case_stmt(6);
-                case_stmt(7);
-#undef case_stmt
+                CASE_STMT(1);
+                CASE_STMT(2);
+                CASE_STMT(3);
+                CASE_STMT(4);
+                CASE_STMT(5);
+                CASE_STMT(6);
+                CASE_STMT(7);
+#undef CASE_STMT
 
                 default:
                     return node_allocator_->allocate<details::switch_node<Type>>(arg_list);
@@ -10765,47 +10765,47 @@ class parser : public lexer::parser_helper
             return error_node();
         }
 
-#define unary_opr_switch_statements                                      \
-    case_stmt(core::operators::operator_type::abs, details::abs_op);     \
-    case_stmt(core::operators::operator_type::acos, details::acos_op);   \
-    case_stmt(core::operators::operator_type::acosh, details::acosh_op); \
-    case_stmt(core::operators::operator_type::asin, details::asin_op);   \
-    case_stmt(core::operators::operator_type::asinh, details::asinh_op); \
-    case_stmt(core::operators::operator_type::atan, details::atan_op);   \
-    case_stmt(core::operators::operator_type::atanh, details::atanh_op); \
-    case_stmt(core::operators::operator_type::ceil, details::ceil_op);   \
-    case_stmt(core::operators::operator_type::cos, details::cos_op);     \
-    case_stmt(core::operators::operator_type::cosh, details::cosh_op);   \
-    case_stmt(core::operators::operator_type::exp, details::exp_op);     \
-    case_stmt(core::operators::operator_type::expm1, details::expm1_op); \
-    case_stmt(core::operators::operator_type::floor, details::floor_op); \
-    case_stmt(core::operators::operator_type::log, details::log_op);     \
-    case_stmt(core::operators::operator_type::log10, details::log10_op); \
-    case_stmt(core::operators::operator_type::log2, details::log2_op);   \
-    case_stmt(core::operators::operator_type::log1p, details::log1p_op); \
-    case_stmt(core::operators::operator_type::neg, details::neg_op);     \
-    case_stmt(core::operators::operator_type::pos, details::pos_op);     \
-    case_stmt(core::operators::operator_type::round, details::round_op); \
-    case_stmt(core::operators::operator_type::sin, details::sin_op);     \
-    case_stmt(core::operators::operator_type::sinc, details::sinc_op);   \
-    case_stmt(core::operators::operator_type::sinh, details::sinh_op);   \
-    case_stmt(core::operators::operator_type::sqrt, details::sqrt_op);   \
-    case_stmt(core::operators::operator_type::tan, details::tan_op);     \
-    case_stmt(core::operators::operator_type::tanh, details::tanh_op);   \
-    case_stmt(core::operators::operator_type::cot, details::cot_op);     \
-    case_stmt(core::operators::operator_type::sec, details::sec_op);     \
-    case_stmt(core::operators::operator_type::csc, details::csc_op);     \
-    case_stmt(core::operators::operator_type::r2d, details::r2d_op);     \
-    case_stmt(core::operators::operator_type::d2r, details::d2r_op);     \
-    case_stmt(core::operators::operator_type::d2g, details::d2g_op);     \
-    case_stmt(core::operators::operator_type::g2d, details::g2d_op);     \
-    case_stmt(core::operators::operator_type::notl, details::notl_op);   \
-    case_stmt(core::operators::operator_type::sgn, details::sgn_op);     \
-    case_stmt(core::operators::operator_type::erf, details::erf_op);     \
-    case_stmt(core::operators::operator_type::erfc, details::erfc_op);   \
-    case_stmt(core::operators::operator_type::ncdf, details::ncdf_op);   \
-    case_stmt(core::operators::operator_type::frac, details::frac_op);   \
-    case_stmt(core::operators::operator_type::trunc, details::trunc_op);
+#define UNARY_OPR_SWITCH_STATEMENTS                                      \
+    CASE_STMT(core::operators::operator_type::abs, details::abs_op);     \
+    CASE_STMT(core::operators::operator_type::acos, details::acos_op);   \
+    CASE_STMT(core::operators::operator_type::acosh, details::acosh_op); \
+    CASE_STMT(core::operators::operator_type::asin, details::asin_op);   \
+    CASE_STMT(core::operators::operator_type::asinh, details::asinh_op); \
+    CASE_STMT(core::operators::operator_type::atan, details::atan_op);   \
+    CASE_STMT(core::operators::operator_type::atanh, details::atanh_op); \
+    CASE_STMT(core::operators::operator_type::ceil, details::ceil_op);   \
+    CASE_STMT(core::operators::operator_type::cos, details::cos_op);     \
+    CASE_STMT(core::operators::operator_type::cosh, details::cosh_op);   \
+    CASE_STMT(core::operators::operator_type::exp, details::exp_op);     \
+    CASE_STMT(core::operators::operator_type::expm1, details::expm1_op); \
+    CASE_STMT(core::operators::operator_type::floor, details::floor_op); \
+    CASE_STMT(core::operators::operator_type::log, details::log_op);     \
+    CASE_STMT(core::operators::operator_type::log10, details::log10_op); \
+    CASE_STMT(core::operators::operator_type::log2, details::log2_op);   \
+    CASE_STMT(core::operators::operator_type::log1p, details::log1p_op); \
+    CASE_STMT(core::operators::operator_type::neg, details::neg_op);     \
+    CASE_STMT(core::operators::operator_type::pos, details::pos_op);     \
+    CASE_STMT(core::operators::operator_type::round, details::round_op); \
+    CASE_STMT(core::operators::operator_type::sin, details::sin_op);     \
+    CASE_STMT(core::operators::operator_type::sinc, details::sinc_op);   \
+    CASE_STMT(core::operators::operator_type::sinh, details::sinh_op);   \
+    CASE_STMT(core::operators::operator_type::sqrt, details::sqrt_op);   \
+    CASE_STMT(core::operators::operator_type::tan, details::tan_op);     \
+    CASE_STMT(core::operators::operator_type::tanh, details::tanh_op);   \
+    CASE_STMT(core::operators::operator_type::cot, details::cot_op);     \
+    CASE_STMT(core::operators::operator_type::sec, details::sec_op);     \
+    CASE_STMT(core::operators::operator_type::csc, details::csc_op);     \
+    CASE_STMT(core::operators::operator_type::r2d, details::r2d_op);     \
+    CASE_STMT(core::operators::operator_type::d2r, details::d2r_op);     \
+    CASE_STMT(core::operators::operator_type::d2g, details::d2g_op);     \
+    CASE_STMT(core::operators::operator_type::g2d, details::g2d_op);     \
+    CASE_STMT(core::operators::operator_type::notl, details::notl_op);   \
+    CASE_STMT(core::operators::operator_type::sgn, details::sgn_op);     \
+    CASE_STMT(core::operators::operator_type::erf, details::erf_op);     \
+    CASE_STMT(core::operators::operator_type::erfc, details::erfc_op);   \
+    CASE_STMT(core::operators::operator_type::ncdf, details::ncdf_op);   \
+    CASE_STMT(core::operators::operator_type::frac, details::frac_op);   \
+    CASE_STMT(core::operators::operator_type::trunc, details::trunc_op);
 
         inline expression_node_ptr synthesize_uv_expression(
             const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
@@ -10814,13 +10814,14 @@ class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op0, op1) \
+#define CASE_STMT(op0, op1) \
     case op0:               \
         return node_allocator_->allocate<typename details::unary_variable_node<Type, op1<Type>>>(v);
 
-                unary_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                UNARY_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -10829,14 +10830,15 @@ class parser : public lexer::parser_helper
         {
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                     \
+#define CASE_STMT(op0, op1)                                                                     \
     case op0:                                                                                   \
         return node_allocator_->allocate<typename details::unary_vector_node<Type, op1<Type>>>( \
             operation, branch[0]);
 
-                unary_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                UNARY_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -10845,14 +10847,15 @@ class parser : public lexer::parser_helper
         {
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                     \
+#define CASE_STMT(op0, op1)                                                                     \
     case op0:                                                                                   \
         return node_allocator_->allocate<typename details::unary_branch_node<Type, op1<Type>>>( \
             branch[0]);
 
-                unary_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                UNARY_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -10863,62 +10866,62 @@ class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op)                                                                       \
+#define CASE_STMT(op)                                                                       \
     case core::operators::operator_type::sf##op:                                            \
         temp_node =                                                                         \
             node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>( \
                 operation, branch);                                                         \
         break;
 
-                case_stmt(00);
-                case_stmt(01);
-                case_stmt(02);
-                case_stmt(03);
-                case_stmt(04);
-                case_stmt(05);
-                case_stmt(06);
-                case_stmt(07);
-                case_stmt(08);
-                case_stmt(09);
-                case_stmt(10);
-                case_stmt(11);
-                case_stmt(12);
-                case_stmt(13);
-                case_stmt(14);
-                case_stmt(15);
-                case_stmt(16);
-                case_stmt(17);
-                case_stmt(18);
-                case_stmt(19);
-                case_stmt(20);
-                case_stmt(21);
-                case_stmt(22);
-                case_stmt(23);
-                case_stmt(24);
-                case_stmt(25);
-                case_stmt(26);
-                case_stmt(27);
-                case_stmt(28);
-                case_stmt(29);
-                case_stmt(30);
-                case_stmt(31);
-                case_stmt(32);
-                case_stmt(33);
-                case_stmt(34);
-                case_stmt(35);
-                case_stmt(36);
-                case_stmt(37);
-                case_stmt(38);
-                case_stmt(39);
-                case_stmt(40);
-                case_stmt(41);
-                case_stmt(42);
-                case_stmt(43);
-                case_stmt(44);
-                case_stmt(45);
-                case_stmt(46);
-                case_stmt(47);
-#undef case_stmt
+                CASE_STMT(00);
+                CASE_STMT(01);
+                CASE_STMT(02);
+                CASE_STMT(03);
+                CASE_STMT(04);
+                CASE_STMT(05);
+                CASE_STMT(06);
+                CASE_STMT(07);
+                CASE_STMT(08);
+                CASE_STMT(09);
+                CASE_STMT(10);
+                CASE_STMT(11);
+                CASE_STMT(12);
+                CASE_STMT(13);
+                CASE_STMT(14);
+                CASE_STMT(15);
+                CASE_STMT(16);
+                CASE_STMT(17);
+                CASE_STMT(18);
+                CASE_STMT(19);
+                CASE_STMT(20);
+                CASE_STMT(21);
+                CASE_STMT(22);
+                CASE_STMT(23);
+                CASE_STMT(24);
+                CASE_STMT(25);
+                CASE_STMT(26);
+                CASE_STMT(27);
+                CASE_STMT(28);
+                CASE_STMT(29);
+                CASE_STMT(30);
+                CASE_STMT(31);
+                CASE_STMT(32);
+                CASE_STMT(33);
+                CASE_STMT(34);
+                CASE_STMT(35);
+                CASE_STMT(36);
+                CASE_STMT(37);
+                CASE_STMT(38);
+                CASE_STMT(39);
+                CASE_STMT(40);
+                CASE_STMT(41);
+                CASE_STMT(42);
+                CASE_STMT(43);
+                CASE_STMT(44);
+                CASE_STMT(45);
+                CASE_STMT(46);
+                CASE_STMT(47);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -10943,60 +10946,60 @@ class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op)                            \
+#define CASE_STMT(op)                            \
     case core::operators::operator_type::sf##op: \
         return node_allocator_                   \
             ->allocate_rrr<details::sf3_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2);
 
-                case_stmt(00);
-                case_stmt(01);
-                case_stmt(02);
-                case_stmt(03);
-                case_stmt(04);
-                case_stmt(05);
-                case_stmt(06);
-                case_stmt(07);
-                case_stmt(08);
-                case_stmt(09);
-                case_stmt(10);
-                case_stmt(11);
-                case_stmt(12);
-                case_stmt(13);
-                case_stmt(14);
-                case_stmt(15);
-                case_stmt(16);
-                case_stmt(17);
-                case_stmt(18);
-                case_stmt(19);
-                case_stmt(20);
-                case_stmt(21);
-                case_stmt(22);
-                case_stmt(23);
-                case_stmt(24);
-                case_stmt(25);
-                case_stmt(26);
-                case_stmt(27);
-                case_stmt(28);
-                case_stmt(29);
-                case_stmt(30);
-                case_stmt(31);
-                case_stmt(32);
-                case_stmt(33);
-                case_stmt(34);
-                case_stmt(35);
-                case_stmt(36);
-                case_stmt(37);
-                case_stmt(38);
-                case_stmt(39);
-                case_stmt(40);
-                case_stmt(41);
-                case_stmt(42);
-                case_stmt(43);
-                case_stmt(44);
-                case_stmt(45);
-                case_stmt(46);
-                case_stmt(47);
-#undef case_stmt
+                CASE_STMT(00);
+                CASE_STMT(01);
+                CASE_STMT(02);
+                CASE_STMT(03);
+                CASE_STMT(04);
+                CASE_STMT(05);
+                CASE_STMT(06);
+                CASE_STMT(07);
+                CASE_STMT(08);
+                CASE_STMT(09);
+                CASE_STMT(10);
+                CASE_STMT(11);
+                CASE_STMT(12);
+                CASE_STMT(13);
+                CASE_STMT(14);
+                CASE_STMT(15);
+                CASE_STMT(16);
+                CASE_STMT(17);
+                CASE_STMT(18);
+                CASE_STMT(19);
+                CASE_STMT(20);
+                CASE_STMT(21);
+                CASE_STMT(22);
+                CASE_STMT(23);
+                CASE_STMT(24);
+                CASE_STMT(25);
+                CASE_STMT(26);
+                CASE_STMT(27);
+                CASE_STMT(28);
+                CASE_STMT(29);
+                CASE_STMT(30);
+                CASE_STMT(31);
+                CASE_STMT(32);
+                CASE_STMT(33);
+                CASE_STMT(34);
+                CASE_STMT(35);
+                CASE_STMT(36);
+                CASE_STMT(37);
+                CASE_STMT(38);
+                CASE_STMT(39);
+                CASE_STMT(40);
+                CASE_STMT(41);
+                CASE_STMT(42);
+                CASE_STMT(43);
+                CASE_STMT(44);
+                CASE_STMT(45);
+                CASE_STMT(46);
+                CASE_STMT(47);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -11015,60 +11018,60 @@ class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op)                                                                          \
+#define CASE_STMT(op)                                                                          \
     case core::operators::operator_type::sf##op:                                               \
         return node_allocator_->allocate<details::sf3_node<Type, details::sf##op##_op<Type>>>( \
             operation, branch);
 
-                    case_stmt(00);
-                    case_stmt(01);
-                    case_stmt(02);
-                    case_stmt(03);
-                    case_stmt(04);
-                    case_stmt(05);
-                    case_stmt(06);
-                    case_stmt(07);
-                    case_stmt(08);
-                    case_stmt(09);
-                    case_stmt(10);
-                    case_stmt(11);
-                    case_stmt(12);
-                    case_stmt(13);
-                    case_stmt(14);
-                    case_stmt(15);
-                    case_stmt(16);
-                    case_stmt(17);
-                    case_stmt(18);
-                    case_stmt(19);
-                    case_stmt(20);
-                    case_stmt(21);
-                    case_stmt(22);
-                    case_stmt(23);
-                    case_stmt(24);
-                    case_stmt(25);
-                    case_stmt(26);
-                    case_stmt(27);
-                    case_stmt(28);
-                    case_stmt(29);
-                    case_stmt(30);
-                    case_stmt(31);
-                    case_stmt(32);
-                    case_stmt(33);
-                    case_stmt(34);
-                    case_stmt(35);
-                    case_stmt(36);
-                    case_stmt(37);
-                    case_stmt(38);
-                    case_stmt(39);
-                    case_stmt(40);
-                    case_stmt(41);
-                    case_stmt(42);
-                    case_stmt(43);
-                    case_stmt(44);
-                    case_stmt(45);
-                    case_stmt(46);
-                    case_stmt(47);
-#undef case_stmt
+                    CASE_STMT(00);
+                    CASE_STMT(01);
+                    CASE_STMT(02);
+                    CASE_STMT(03);
+                    CASE_STMT(04);
+                    CASE_STMT(05);
+                    CASE_STMT(06);
+                    CASE_STMT(07);
+                    CASE_STMT(08);
+                    CASE_STMT(09);
+                    CASE_STMT(10);
+                    CASE_STMT(11);
+                    CASE_STMT(12);
+                    CASE_STMT(13);
+                    CASE_STMT(14);
+                    CASE_STMT(15);
+                    CASE_STMT(16);
+                    CASE_STMT(17);
+                    CASE_STMT(18);
+                    CASE_STMT(19);
+                    CASE_STMT(20);
+                    CASE_STMT(21);
+                    CASE_STMT(22);
+                    CASE_STMT(23);
+                    CASE_STMT(24);
+                    CASE_STMT(25);
+                    CASE_STMT(26);
+                    CASE_STMT(27);
+                    CASE_STMT(28);
+                    CASE_STMT(29);
+                    CASE_STMT(30);
+                    CASE_STMT(31);
+                    CASE_STMT(32);
+                    CASE_STMT(33);
+                    CASE_STMT(34);
+                    CASE_STMT(35);
+                    CASE_STMT(36);
+                    CASE_STMT(37);
+                    CASE_STMT(38);
+                    CASE_STMT(39);
+                    CASE_STMT(40);
+                    CASE_STMT(41);
+                    CASE_STMT(42);
+                    CASE_STMT(43);
+                    CASE_STMT(44);
+                    CASE_STMT(45);
+                    CASE_STMT(46);
+                    CASE_STMT(47);
+#undef CASE_STMT
                     default:
                         return error_node();
                 }
@@ -11082,66 +11085,66 @@ class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op)                                                                       \
+#define CASE_STMT(op)                                                                       \
     case core::operators::operator_type::sf##op:                                            \
         temp_node =                                                                         \
             node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>( \
                 operation, branch);                                                         \
         break;
 
-                case_stmt(48);
-                case_stmt(49);
-                case_stmt(50);
-                case_stmt(51);
-                case_stmt(52);
-                case_stmt(53);
-                case_stmt(54);
-                case_stmt(55);
-                case_stmt(56);
-                case_stmt(57);
-                case_stmt(58);
-                case_stmt(59);
-                case_stmt(60);
-                case_stmt(61);
-                case_stmt(62);
-                case_stmt(63);
-                case_stmt(64);
-                case_stmt(65);
-                case_stmt(66);
-                case_stmt(67);
-                case_stmt(68);
-                case_stmt(69);
-                case_stmt(70);
-                case_stmt(71);
-                case_stmt(72);
-                case_stmt(73);
-                case_stmt(74);
-                case_stmt(75);
-                case_stmt(76);
-                case_stmt(77);
-                case_stmt(78);
-                case_stmt(79);
-                case_stmt(80);
-                case_stmt(81);
-                case_stmt(82);
-                case_stmt(83);
-                case_stmt(84);
-                case_stmt(85);
-                case_stmt(86);
-                case_stmt(87);
-                case_stmt(88);
-                case_stmt(89);
-                case_stmt(90);
-                case_stmt(91);
-                case_stmt(92);
-                case_stmt(93);
-                case_stmt(94);
-                case_stmt(95);
-                case_stmt(96);
-                case_stmt(97);
-                case_stmt(98);
-                case_stmt(99);
-#undef case_stmt
+                CASE_STMT(48);
+                CASE_STMT(49);
+                CASE_STMT(50);
+                CASE_STMT(51);
+                CASE_STMT(52);
+                CASE_STMT(53);
+                CASE_STMT(54);
+                CASE_STMT(55);
+                CASE_STMT(56);
+                CASE_STMT(57);
+                CASE_STMT(58);
+                CASE_STMT(59);
+                CASE_STMT(60);
+                CASE_STMT(61);
+                CASE_STMT(62);
+                CASE_STMT(63);
+                CASE_STMT(64);
+                CASE_STMT(65);
+                CASE_STMT(66);
+                CASE_STMT(67);
+                CASE_STMT(68);
+                CASE_STMT(69);
+                CASE_STMT(70);
+                CASE_STMT(71);
+                CASE_STMT(72);
+                CASE_STMT(73);
+                CASE_STMT(74);
+                CASE_STMT(75);
+                CASE_STMT(76);
+                CASE_STMT(77);
+                CASE_STMT(78);
+                CASE_STMT(79);
+                CASE_STMT(80);
+                CASE_STMT(81);
+                CASE_STMT(82);
+                CASE_STMT(83);
+                CASE_STMT(84);
+                CASE_STMT(85);
+                CASE_STMT(86);
+                CASE_STMT(87);
+                CASE_STMT(88);
+                CASE_STMT(89);
+                CASE_STMT(90);
+                CASE_STMT(91);
+                CASE_STMT(92);
+                CASE_STMT(93);
+                CASE_STMT(94);
+                CASE_STMT(95);
+                CASE_STMT(96);
+                CASE_STMT(97);
+                CASE_STMT(98);
+                CASE_STMT(99);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -11167,65 +11170,65 @@ class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op)                                                                            \
+#define CASE_STMT(op)                                                                            \
     case core::operators::operator_type::sf##op:                                                 \
         return node_allocator_                                                                   \
             ->allocate_rrrr<details::sf4_var_node<Type, details::sf##op##_op<Type>>>(v0, v1, v2, \
                                                                                      v3);
 
-                case_stmt(48);
-                case_stmt(49);
-                case_stmt(50);
-                case_stmt(51);
-                case_stmt(52);
-                case_stmt(53);
-                case_stmt(54);
-                case_stmt(55);
-                case_stmt(56);
-                case_stmt(57);
-                case_stmt(58);
-                case_stmt(59);
-                case_stmt(60);
-                case_stmt(61);
-                case_stmt(62);
-                case_stmt(63);
-                case_stmt(64);
-                case_stmt(65);
-                case_stmt(66);
-                case_stmt(67);
-                case_stmt(68);
-                case_stmt(69);
-                case_stmt(70);
-                case_stmt(71);
-                case_stmt(72);
-                case_stmt(73);
-                case_stmt(74);
-                case_stmt(75);
-                case_stmt(76);
-                case_stmt(77);
-                case_stmt(78);
-                case_stmt(79);
-                case_stmt(80);
-                case_stmt(81);
-                case_stmt(82);
-                case_stmt(83);
-                case_stmt(84);
-                case_stmt(85);
-                case_stmt(86);
-                case_stmt(87);
-                case_stmt(88);
-                case_stmt(89);
-                case_stmt(90);
-                case_stmt(91);
-                case_stmt(92);
-                case_stmt(93);
-                case_stmt(94);
-                case_stmt(95);
-                case_stmt(96);
-                case_stmt(97);
-                case_stmt(98);
-                case_stmt(99);
-#undef case_stmt
+                CASE_STMT(48);
+                CASE_STMT(49);
+                CASE_STMT(50);
+                CASE_STMT(51);
+                CASE_STMT(52);
+                CASE_STMT(53);
+                CASE_STMT(54);
+                CASE_STMT(55);
+                CASE_STMT(56);
+                CASE_STMT(57);
+                CASE_STMT(58);
+                CASE_STMT(59);
+                CASE_STMT(60);
+                CASE_STMT(61);
+                CASE_STMT(62);
+                CASE_STMT(63);
+                CASE_STMT(64);
+                CASE_STMT(65);
+                CASE_STMT(66);
+                CASE_STMT(67);
+                CASE_STMT(68);
+                CASE_STMT(69);
+                CASE_STMT(70);
+                CASE_STMT(71);
+                CASE_STMT(72);
+                CASE_STMT(73);
+                CASE_STMT(74);
+                CASE_STMT(75);
+                CASE_STMT(76);
+                CASE_STMT(77);
+                CASE_STMT(78);
+                CASE_STMT(79);
+                CASE_STMT(80);
+                CASE_STMT(81);
+                CASE_STMT(82);
+                CASE_STMT(83);
+                CASE_STMT(84);
+                CASE_STMT(85);
+                CASE_STMT(86);
+                CASE_STMT(87);
+                CASE_STMT(88);
+                CASE_STMT(89);
+                CASE_STMT(90);
+                CASE_STMT(91);
+                CASE_STMT(92);
+                CASE_STMT(93);
+                CASE_STMT(94);
+                CASE_STMT(95);
+                CASE_STMT(96);
+                CASE_STMT(97);
+                CASE_STMT(98);
+                CASE_STMT(99);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -11242,64 +11245,64 @@ class parser : public lexer::parser_helper
                 return varnode_optimise_sf4(operation, branch);
             switch (operation)
             {
-#define case_stmt(op)                                                                          \
+#define CASE_STMT(op)                                                                          \
     case core::operators::operator_type::sf##op:                                               \
         return node_allocator_->allocate<details::sf4_node<Type, details::sf##op##_op<Type>>>( \
             operation, branch);
 
-                case_stmt(48);
-                case_stmt(49);
-                case_stmt(50);
-                case_stmt(51);
-                case_stmt(52);
-                case_stmt(53);
-                case_stmt(54);
-                case_stmt(55);
-                case_stmt(56);
-                case_stmt(57);
-                case_stmt(58);
-                case_stmt(59);
-                case_stmt(60);
-                case_stmt(61);
-                case_stmt(62);
-                case_stmt(63);
-                case_stmt(64);
-                case_stmt(65);
-                case_stmt(66);
-                case_stmt(67);
-                case_stmt(68);
-                case_stmt(69);
-                case_stmt(70);
-                case_stmt(71);
-                case_stmt(72);
-                case_stmt(73);
-                case_stmt(74);
-                case_stmt(75);
-                case_stmt(76);
-                case_stmt(77);
-                case_stmt(78);
-                case_stmt(79);
-                case_stmt(80);
-                case_stmt(81);
-                case_stmt(82);
-                case_stmt(83);
-                case_stmt(84);
-                case_stmt(85);
-                case_stmt(86);
-                case_stmt(87);
-                case_stmt(88);
-                case_stmt(89);
-                case_stmt(90);
-                case_stmt(91);
-                case_stmt(92);
-                case_stmt(93);
-                case_stmt(94);
-                case_stmt(95);
-                case_stmt(96);
-                case_stmt(97);
-                case_stmt(98);
-                case_stmt(99);
-#undef case_stmt
+                CASE_STMT(48);
+                CASE_STMT(49);
+                CASE_STMT(50);
+                CASE_STMT(51);
+                CASE_STMT(52);
+                CASE_STMT(53);
+                CASE_STMT(54);
+                CASE_STMT(55);
+                CASE_STMT(56);
+                CASE_STMT(57);
+                CASE_STMT(58);
+                CASE_STMT(59);
+                CASE_STMT(60);
+                CASE_STMT(61);
+                CASE_STMT(62);
+                CASE_STMT(63);
+                CASE_STMT(64);
+                CASE_STMT(65);
+                CASE_STMT(66);
+                CASE_STMT(67);
+                CASE_STMT(68);
+                CASE_STMT(69);
+                CASE_STMT(70);
+                CASE_STMT(71);
+                CASE_STMT(72);
+                CASE_STMT(73);
+                CASE_STMT(74);
+                CASE_STMT(75);
+                CASE_STMT(76);
+                CASE_STMT(77);
+                CASE_STMT(78);
+                CASE_STMT(79);
+                CASE_STMT(80);
+                CASE_STMT(81);
+                CASE_STMT(82);
+                CASE_STMT(83);
+                CASE_STMT(84);
+                CASE_STMT(85);
+                CASE_STMT(86);
+                CASE_STMT(87);
+                CASE_STMT(88);
+                CASE_STMT(89);
+                CASE_STMT(90);
+                CASE_STMT(91);
+                CASE_STMT(92);
+                CASE_STMT(93);
+                CASE_STMT(94);
+                CASE_STMT(95);
+                CASE_STMT(96);
+                CASE_STMT(97);
+                CASE_STMT(98);
+                CASE_STMT(99);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -11314,20 +11317,20 @@ class parser : public lexer::parser_helper
 
             switch (operation)
             {
-#define case_stmt(op0, op1)                                                                     \
+#define CASE_STMT(op0, op1)                                                                     \
     case op0:                                                                                   \
         temp_node = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list); \
         break;
 
-                case_stmt(core::operators::operator_type::sum, details::vararg_add_op);
-                case_stmt(core::operators::operator_type::prod, details::vararg_mul_op);
-                case_stmt(core::operators::operator_type::avg, details::vararg_avg_op);
-                case_stmt(core::operators::operator_type::min, details::vararg_min_op);
-                case_stmt(core::operators::operator_type::max, details::vararg_max_op);
-                case_stmt(core::operators::operator_type::mand, details::vararg_mand_op);
-                case_stmt(core::operators::operator_type::mor, details::vararg_mor_op);
-                case_stmt(core::operators::operator_type::multi, details::vararg_multi_op);
-#undef case_stmt
+                CASE_STMT(core::operators::operator_type::sum, details::vararg_add_op);
+                CASE_STMT(core::operators::operator_type::prod, details::vararg_mul_op);
+                CASE_STMT(core::operators::operator_type::avg, details::vararg_avg_op);
+                CASE_STMT(core::operators::operator_type::min, details::vararg_min_op);
+                CASE_STMT(core::operators::operator_type::max, details::vararg_max_op);
+                CASE_STMT(core::operators::operator_type::mand, details::vararg_mand_op);
+                CASE_STMT(core::operators::operator_type::mor, details::vararg_mor_op);
+                CASE_STMT(core::operators::operator_type::multi, details::vararg_multi_op);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -11356,19 +11359,19 @@ class parser : public lexer::parser_helper
         {
             switch (operation)
             {
-#define case_stmt(op0, op1) \
+#define CASE_STMT(op0, op1) \
     case op0:               \
         return node_allocator_->allocate<details::vararg_varnode<Type, op1<Type>>>(arg_list);
 
-                case_stmt(core::operators::operator_type::sum, details::vararg_add_op);
-                case_stmt(core::operators::operator_type::prod, details::vararg_mul_op);
-                case_stmt(core::operators::operator_type::avg, details::vararg_avg_op);
-                case_stmt(core::operators::operator_type::min, details::vararg_min_op);
-                case_stmt(core::operators::operator_type::max, details::vararg_max_op);
-                case_stmt(core::operators::operator_type::mand, details::vararg_mand_op);
-                case_stmt(core::operators::operator_type::mor, details::vararg_mor_op);
-                case_stmt(core::operators::operator_type::multi, details::vararg_multi_op);
-#undef case_stmt
+                CASE_STMT(core::operators::operator_type::sum, details::vararg_add_op);
+                CASE_STMT(core::operators::operator_type::prod, details::vararg_mul_op);
+                CASE_STMT(core::operators::operator_type::avg, details::vararg_avg_op);
+                CASE_STMT(core::operators::operator_type::min, details::vararg_min_op);
+                CASE_STMT(core::operators::operator_type::max, details::vararg_max_op);
+                CASE_STMT(core::operators::operator_type::mand, details::vararg_mand_op);
+                CASE_STMT(core::operators::operator_type::mor, details::vararg_mor_op);
+                CASE_STMT(core::operators::operator_type::multi, details::vararg_multi_op);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -11383,17 +11386,18 @@ class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1) \
+#define CASE_STMT(op0, op1) \
     case op0:               \
         return node_allocator_->allocate<details::vectorize_node<Type, op1<Type>>>(arg_list[0]);
 
-                    case_stmt(core::operators::operator_type::sum, details::vec_add_op) case_stmt(
-                        core::operators::operator_type::prod, details::vec_mul_op)
-                        case_stmt(core::operators::operator_type::avg, details::vec_avg_op)
-                            case_stmt(core::operators::operator_type::min, details::vec_min_op)
-                                case_stmt(core::operators::operator_type::max, details::vec_max_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::sum, details::vec_add_op)
+                    CASE_STMT(core::operators::operator_type::prod, details::vec_mul_op)
+                    CASE_STMT(core::operators::operator_type::avg, details::vec_avg_op)
+                    CASE_STMT(core::operators::operator_type::min, details::vec_min_op)
+                    CASE_STMT(core::operators::operator_type::max, details::vec_max_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else
@@ -11434,7 +11438,7 @@ class parser : public lexer::parser_helper
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_synthesis, token_t(),
                     "ERR262 - Failed to synthesize node: str_vararg_node<vararg_multi_op>",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
             }
@@ -11445,26 +11449,22 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                  \
+#define CASE_STMT(op0, op1)                                                                  \
     case op0:                                                                                \
         result = node_allocator_->allocate<details::vararg_node<Type, op1<Type>>>(arg_list); \
         break;
 
-                    case_stmt(core::operators::operator_type::sum, details::vararg_add_op)
-                        case_stmt(core::operators::operator_type::prod, details::vararg_mul_op)
-                            case_stmt(core::operators::operator_type::avg, details::vararg_avg_op)
-                                case_stmt(core::operators::operator_type::min,
-                                          details::vararg_min_op)
-                                    case_stmt(core::operators::operator_type::max,
-                                              details::vararg_max_op)
-                                        case_stmt(core::operators::operator_type::mand,
-                                                  details::vararg_mand_op)
-                                            case_stmt(core::operators::operator_type::mor,
-                                                      details::vararg_mor_op)
-                                                case_stmt(core::operators::operator_type::multi,
-                                                          details::vararg_multi_op)
-#undef case_stmt
-                                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::sum, details::vararg_add_op)
+                    CASE_STMT(core::operators::operator_type::prod, details::vararg_mul_op)
+                    CASE_STMT(core::operators::operator_type::avg, details::vararg_avg_op)
+                    CASE_STMT(core::operators::operator_type::min, details::vararg_min_op)
+                    CASE_STMT(core::operators::operator_type::max, details::vararg_max_op)
+                    CASE_STMT(core::operators::operator_type::mand, details::vararg_mand_op)
+                    CASE_STMT(core::operators::operator_type::mor, details::vararg_mor_op)
+                    CASE_STMT(core::operators::operator_type::multi, details::vararg_multi_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
 
                 if (result && result->valid())
@@ -11474,7 +11474,7 @@ class parser : public lexer::parser_helper
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_synthesis, token_t(),
-                    "ERR263 - Failed to synthesize node: vararg_node", math_expr_error_location));
+                    "ERR263 - Failed to synthesize node: vararg_node", MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
             }
@@ -11528,7 +11528,7 @@ class parser : public lexer::parser_helper
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_synthesis, token_t(),
                     "ERR264 - Failed to synthesize node: function_N_node_t",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
                 return error_node();
@@ -11572,7 +11572,7 @@ class parser : public lexer::parser_helper
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_synthesis, token_t(),
                 "ERR265 - Failed to synthesize node: vararg_function_node<ivararg_function_t>",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
@@ -11632,7 +11632,7 @@ class parser : public lexer::parser_helper
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_synthesis, token_t(),
-                    "ERR266 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                    "ERR266 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
                 return error_node();
@@ -11700,7 +11700,7 @@ class parser : public lexer::parser_helper
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_synthesis, token_t(),
-                    "ERR267 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                    "ERR267 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
                 return error_node();
@@ -11743,7 +11743,7 @@ class parser : public lexer::parser_helper
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_synthesis, token_t(),
-                    "ERR268 - Failed to synthesize node: return_node", math_expr_error_location));
+                    "ERR268 - Failed to synthesize node: return_node", MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, result);
                 return error_node();
@@ -11803,7 +11803,7 @@ class parser : public lexer::parser_helper
                             " out of range for "
                             "vector '" +
                             symbol + "' of size " + core::to_str(vector_base->size()),
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     details::free_node(*node_allocator_, vec_node);
 
@@ -11830,7 +11830,7 @@ class parser : public lexer::parser_helper
                         parser_error::error_mode::e_synthesis, token_t(),
                         "ERR270 - Failed to synthesize node: " + node_name +
                             " for vector: " + symbol,
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     details::free_node(*node_allocator_, result);
                     return error_node();
@@ -11855,7 +11855,7 @@ class parser : public lexer::parser_helper
                         parser_error::error_mode::e_synthesis, token_t(),
                         "ERR271 - Failed to synthesize node: " + node_name +
                             " for vector: " + symbol,
-                        math_expr_error_location));
+                        MATH_EXPR_ERROR_LOCATION));
 
                     details::free_node(*node_allocator_, result);
                     return error_node();
@@ -11896,7 +11896,7 @@ class parser : public lexer::parser_helper
 
                     details::free_node(*node_allocator_, vec_node);
 
-                    math_expr_debug(
+                    MATH_EXPR_DEBUG(
                         ("vector_element() - INFO - Added new local vector element: %s\n",
                          nse.name.c_str()));
 
@@ -11937,7 +11937,7 @@ class parser : public lexer::parser_helper
 
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_synthesis, token_t(),
-                "ERR272 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                "ERR272 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
@@ -12094,7 +12094,7 @@ class parser : public lexer::parser_helper
             interval_t interval;
             const void* baseptr_addr = base_ptr(node);
 
-            math_expr_debug(("assign_immutable_symbol - base ptr addr: %p\n", baseptr_addr));
+            MATH_EXPR_DEBUG(("assign_immutable_symbol - base ptr addr: %p\n", baseptr_addr));
 
             if (parser_->immutable_memory_map_.in_interval(baseptr_addr, interval))
             {
@@ -12108,7 +12108,7 @@ class parser : public lexer::parser_helper
                         parser_error::make_error(parser_error::error_mode::e_parser, token,
                                                  "ERR273 - Symbol '" + token.value +
                                                      "' cannot be assigned-to as it is immutable.",
-                                                 math_expr_error_location));
+                                                 MATH_EXPR_ERROR_LOCATION));
                 }
                 else
                     parser_->set_synthesis_error("Unable to assign symbol is immutable.");
@@ -12186,7 +12186,7 @@ class parser : public lexer::parser_helper
             {
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
-                    "ERR274 - Cannot assign value to const variable", math_expr_error_location));
+                    "ERR274 - Cannot assign value to const variable", MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -12196,7 +12196,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR275 - Invalid branches for assignment operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -12219,7 +12219,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                     \
+#define CASE_STMT(op0, op1)                                                                     \
     case op0:                                                                                   \
         result =                                                                                \
             node_allocator_                                                                     \
@@ -12228,13 +12228,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_op_node";                                                       \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_vector_elem_node(branch[0]))
@@ -12243,7 +12244,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                       \
+#define CASE_STMT(op0, op1)                                                                       \
     case op0:                                                                                     \
         result = node_allocator_->template allocate_rrr<                                          \
             typename details::assignment_vec_elem_op_node<Type, op1<Type>>>(operation, branch[0], \
@@ -12251,13 +12252,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_vec_elem_op_node";                                                \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_vector_elem_rtc_node(branch[0]))
@@ -12266,7 +12268,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                      \
+#define CASE_STMT(op0, op1)                                                      \
     case op0:                                                                    \
         result = node_allocator_->template allocate_rrr<                         \
             typename details::assignment_vec_elem_op_rtc_node<Type, op1<Type>>>( \
@@ -12274,13 +12276,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_vec_elem_op_rtc_node";                           \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_vector_celem_rtc_node(branch[0]))
@@ -12289,7 +12292,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                       \
+#define CASE_STMT(op0, op1)                                                       \
     case op0:                                                                     \
         result = node_allocator_->template allocate_rrr<                          \
             typename details::assignment_vec_celem_op_rtc_node<Type, op1<Type>>>( \
@@ -12297,13 +12300,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_vec_celem_op_rtc_node";                           \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_rebasevector_elem_node(branch[0]))
@@ -12312,7 +12316,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                        \
+#define CASE_STMT(op0, op1)                                                        \
     case op0:                                                                      \
         result = node_allocator_->template allocate_rrr<                           \
             typename details::assignment_rebasevec_elem_op_node<Type, op1<Type>>>( \
@@ -12320,13 +12324,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_rebasevec_elem_op_node";                           \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_rebasevector_celem_node(branch[0]))
@@ -12335,7 +12340,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                         \
+#define CASE_STMT(op0, op1)                                                         \
     case op0:                                                                       \
         result = node_allocator_->template allocate_rrr<                            \
             typename details::assignment_rebasevec_celem_op_node<Type, op1<Type>>>( \
@@ -12343,13 +12348,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_rebasevec_celem_op_node";                           \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_rebasevector_elem_rtc_node(branch[0]))
@@ -12358,7 +12364,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                            \
+#define CASE_STMT(op0, op1)                                                            \
     case op0:                                                                          \
         result = node_allocator_->template allocate_rrr<                               \
             typename details::assignment_rebasevec_elem_op_rtc_node<Type, op1<Type>>>( \
@@ -12366,13 +12372,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_rebasevec_elem_op_rtc_node";                           \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_rebasevector_celem_rtc_node(branch[0]))
@@ -12381,7 +12388,7 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                             \
+#define CASE_STMT(op0, op1)                                                             \
     case op0:                                                                           \
         result = node_allocator_->template allocate_rrr<                                \
             typename details::assignment_rebasevec_celem_op_rtc_node<Type, op1<Type>>>( \
@@ -12389,13 +12396,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_rebasevec_celem_op_rtc_node";                           \
         break;
 
-                    case_stmt(core::operators::operator_type::addass, details::add_op) case_stmt(
-                        core::operators::operator_type::subass, details::sub_op)
-                        case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                            case_stmt(core::operators::operator_type::divass, details::div_op)
-                                case_stmt(core::operators::operator_type::modass, details::mod_op)
-#undef case_stmt
-                                    default : return error_node();
+                    CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                    CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                    CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                    CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                    CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (details::is_vector_node(branch[0]))
@@ -12406,7 +12414,7 @@ class parser : public lexer::parser_helper
                 {
                     switch (operation)
                     {
-#define case_stmt(op0, op1)                                                                     \
+#define CASE_STMT(op0, op1)                                                                     \
     case op0:                                                                                   \
         result = node_allocator_->template allocate_rrr<                                        \
             typename details::assignment_vecvec_op_node<Type, op1<Type>>>(operation, branch[0], \
@@ -12414,22 +12422,21 @@ class parser : public lexer::parser_helper
         node_name = "assignment_rebasevec_celem_op_node";                                       \
         break;
 
-                        case_stmt(core::operators::operator_type::addass, details::add_op)
-                            case_stmt(core::operators::operator_type::subass, details::sub_op)
-                                case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                                    case_stmt(core::operators::operator_type::divass,
-                                              details::div_op)
-                                        case_stmt(core::operators::operator_type::modass,
-                                                  details::mod_op)
-#undef case_stmt
-                                            default : return error_node();
+                        CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                        CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                        CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                        CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                        CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                        default:
+                            return error_node();
                     }
                 }
                 else
                 {
                     switch (operation)
                     {
-#define case_stmt(op0, op1)                                                                  \
+#define CASE_STMT(op0, op1)                                                                  \
     case op0:                                                                                \
         result = node_allocator_->template allocate_rrr<                                     \
             typename details::assignment_vec_op_node<Type, op1<Type>>>(operation, branch[0], \
@@ -12437,15 +12444,14 @@ class parser : public lexer::parser_helper
         node_name = "assignment_vec_op_node";                                                \
         break;
 
-                        case_stmt(core::operators::operator_type::addass, details::add_op)
-                            case_stmt(core::operators::operator_type::subass, details::sub_op)
-                                case_stmt(core::operators::operator_type::mulass, details::mul_op)
-                                    case_stmt(core::operators::operator_type::divass,
-                                              details::div_op)
-                                        case_stmt(core::operators::operator_type::modass,
-                                                  details::mod_op)
-#undef case_stmt
-                                            default : return error_node();
+                        CASE_STMT(core::operators::operator_type::addass, details::add_op)
+                        CASE_STMT(core::operators::operator_type::subass, details::sub_op)
+                        CASE_STMT(core::operators::operator_type::mulass, details::mul_op)
+                        CASE_STMT(core::operators::operator_type::divass, details::div_op)
+                        CASE_STMT(core::operators::operator_type::modass, details::mod_op)
+#undef CASE_STMT
+                        default:
+                            return error_node();
                     }
                 }
             }
@@ -12468,7 +12474,7 @@ class parser : public lexer::parser_helper
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
                     "ERR276 - Invalid branches for assignment operator '" +
                         core::operators::to_str(operation) + "'",
-                    math_expr_error_location));
+                    MATH_EXPR_ERROR_LOCATION));
 
                 return error_node();
             }
@@ -12480,7 +12486,7 @@ class parser : public lexer::parser_helper
 
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_synthesis, token_t(),
-                "ERR277 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                "ERR277 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
@@ -12492,20 +12498,20 @@ class parser : public lexer::parser_helper
             const bool is_b0_ivec = details::is_ivector_node(branch[0]);
             const bool is_b1_ivec = details::is_ivector_node(branch[1]);
 
-#define batch_eqineq_logic_case                                                                    \
-    case_stmt(core::operators::operator_type::lt, details::lt_op) case_stmt(                       \
-        core::operators::operator_type::lte, details::lte_op)                                      \
-        case_stmt(core::operators::operator_type::gt, details::gt_op) case_stmt(                   \
-            core::operators::operator_type::gte, details::gte_op)                                  \
-            case_stmt(core::operators::operator_type::eq, details::eq_op) case_stmt(               \
-                core::operators::operator_type::ne, details::ne_op)                                \
-                case_stmt(core::operators::operator_type::equal, details::equal_op) case_stmt(     \
-                    core::operators::operator_type::logical_and, details::and_op)                  \
-                    case_stmt(core::operators::operator_type::nand, details::nand_op) case_stmt(   \
-                        core::operators::operator_type::logical_or, details::or_op)                \
-                        case_stmt(core::operators::operator_type::nor, details::nor_op) case_stmt( \
-                            core::operators::operator_type::logical_xor, details::xor_op)          \
-                            case_stmt(core::operators::operator_type::xnor, details::xnor_op)
+#define BATCH_EQINEQ_LOGIC_CASE                                             \
+    CASE_STMT(core::operators::operator_type::lt, details::lt_op)           \
+    CASE_STMT(core::operators::operator_type::lte, details::lte_op)         \
+    CASE_STMT(core::operators::operator_type::gt, details::gt_op)           \
+    CASE_STMT(core::operators::operator_type::gte, details::gte_op)         \
+    CASE_STMT(core::operators::operator_type::eq, details::eq_op)           \
+    CASE_STMT(core::operators::operator_type::ne, details::ne_op)           \
+    CASE_STMT(core::operators::operator_type::equal, details::equal_op)     \
+    CASE_STMT(core::operators::operator_type::logical_and, details::and_op) \
+    CASE_STMT(core::operators::operator_type::nand, details::nand_op)       \
+    CASE_STMT(core::operators::operator_type::logical_or, details::or_op)   \
+    CASE_STMT(core::operators::operator_type::nor, details::nor_op)         \
+    CASE_STMT(core::operators::operator_type::logical_xor, details::xor_op) \
+    CASE_STMT(core::operators::operator_type::xnor, details::xnor_op)
 
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown";
@@ -12514,7 +12520,7 @@ class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
+#define CASE_STMT(op0, op1)                                                                        \
     case op0:                                                                                      \
         result =                                                                                   \
             node_allocator_                                                                        \
@@ -12523,16 +12529,17 @@ class parser : public lexer::parser_helper
         node_name = "vec_binop_vecvec_node";                                                       \
         break;
 
-                    batch_eqineq_logic_case
-#undef case_stmt
-                        default : return error_node();
+                    BATCH_EQINEQ_LOGIC_CASE
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (is_b0_ivec && !is_b1_ivec)
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
+#define CASE_STMT(op0, op1)                                                                        \
     case op0:                                                                                      \
         result =                                                                                   \
             node_allocator_                                                                        \
@@ -12541,16 +12548,17 @@ class parser : public lexer::parser_helper
         node_name = "vec_binop_vecval_node";                                                       \
         break;
 
-                    batch_eqineq_logic_case
-#undef case_stmt
-                        default : return error_node();
+                    BATCH_EQINEQ_LOGIC_CASE
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else if (!is_b0_ivec && is_b1_ivec)
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
+#define CASE_STMT(op0, op1)                                                                        \
     case op0:                                                                                      \
         result =                                                                                   \
             node_allocator_                                                                        \
@@ -12559,9 +12567,10 @@ class parser : public lexer::parser_helper
         node_name = "vec_binop_valvec_node";                                                       \
         break;
 
-                    batch_eqineq_logic_case
-#undef case_stmt
-                        default : return error_node();
+                    BATCH_EQINEQ_LOGIC_CASE
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else
@@ -12574,12 +12583,12 @@ class parser : public lexer::parser_helper
 
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_synthesis, token_t(),
-                "ERR278 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                "ERR278 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
 
-#undef batch_eqineq_logic_case
+#undef BATCH_EQINEQ_LOGIC_CASE
         }
 
         inline expression_node_ptr synthesize_vecarithmetic_operation_expression(
@@ -12588,12 +12597,12 @@ class parser : public lexer::parser_helper
             const bool is_b0_ivec = details::is_ivector_node(branch[0]);
             const bool is_b1_ivec = details::is_ivector_node(branch[1]);
 
-#define vector_ops                                                              \
-    case_stmt(core::operators::operator_type::add, details::add_op)             \
-        case_stmt(core::operators::operator_type::sub, details::sub_op)         \
-            case_stmt(core::operators::operator_type::mul, details::mul_op)     \
-                case_stmt(core::operators::operator_type::div, details::div_op) \
-                    case_stmt(core::operators::operator_type::mod, details::mod_op)
+#define VECTOR_OPS                                                  \
+    CASE_STMT(core::operators::operator_type::add, details::add_op) \
+    CASE_STMT(core::operators::operator_type::sub, details::sub_op) \
+    CASE_STMT(core::operators::operator_type::mul, details::mul_op) \
+    CASE_STMT(core::operators::operator_type::div, details::div_op) \
+    CASE_STMT(core::operators::operator_type::mod, details::mod_op)
 
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown";
@@ -12602,7 +12611,7 @@ class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
+#define CASE_STMT(op0, op1)                                                                        \
     case op0:                                                                                      \
         result =                                                                                   \
             node_allocator_                                                                        \
@@ -12611,8 +12620,8 @@ class parser : public lexer::parser_helper
         node_name = "vec_binop_vecvec_node";                                                       \
         break;
 
-                    vector_ops case_stmt(core::operators::operator_type::pow, details::pow_op)
-#undef case_stmt
+                    VECTOR_OPS CASE_STMT(core::operators::operator_type::pow, details::pow_op)
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -12620,7 +12629,7 @@ class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
+#define CASE_STMT(op0, op1)                                                                        \
     case op0:                                                                                      \
         result =                                                                                   \
             node_allocator_                                                                        \
@@ -12629,8 +12638,8 @@ class parser : public lexer::parser_helper
         node_name = "vec_binop_vecval_node(b0ivec,!b1ivec)";                                       \
         break;
 
-                    vector_ops case_stmt(core::operators::operator_type::pow, details::pow_op)
-#undef case_stmt
+                    VECTOR_OPS CASE_STMT(core::operators::operator_type::pow, details::pow_op)
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -12638,7 +12647,7 @@ class parser : public lexer::parser_helper
             {
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                        \
+#define CASE_STMT(op0, op1)                                                                        \
     case op0:                                                                                      \
         result =                                                                                   \
             node_allocator_                                                                        \
@@ -12647,9 +12656,10 @@ class parser : public lexer::parser_helper
         node_name = "vec_binop_vecval_node(!b0ivec,b1ivec)";                                       \
         break;
 
-                    vector_ops
-#undef case_stmt
-                        default : return error_node();
+                    VECTOR_OPS
+#undef CASE_STMT
+                    default:
+                        return error_node();
                 }
             }
             else
@@ -12662,12 +12672,12 @@ class parser : public lexer::parser_helper
 
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_synthesis, token_t(),
-                "ERR279 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                "ERR279 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
 
-#undef vector_ops
+#undef VECTOR_OPS
         }
 
         inline expression_node_ptr synthesize_swap_expression(expression_node_ptr (&branch)[2])
@@ -12745,7 +12755,7 @@ class parser : public lexer::parser_helper
 
             parser_->set_error(parser_error::make_error(
                 parser_error::error_mode::e_synthesis, token_t(),
-                "ERR280 - Failed to synthesize node: " + node_name, math_expr_error_location));
+                "ERR280 - Failed to synthesize node: " + node_name, MATH_EXPR_ERROR_LOCATION));
 
             details::free_node(*node_allocator_, result);
             return error_node();
@@ -12800,27 +12810,27 @@ class parser : public lexer::parser_helper
                 return error_node();
         }
 
-#define basic_opr_switch_statements                                                 \
-    case_stmt(core::operators::operator_type::add, details::add_op)                 \
-        case_stmt(core::operators::operator_type::sub, details::sub_op)             \
-            case_stmt(core::operators::operator_type::mul, details::mul_op)         \
-                case_stmt(core::operators::operator_type::div, details::div_op)     \
-                    case_stmt(core::operators::operator_type::mod, details::mod_op) \
-                        case_stmt(core::operators::operator_type::pow, details::pow_op)
+#define BASIC_OPR_SWITCH_STATEMENTS                                 \
+    CASE_STMT(core::operators::operator_type::add, details::add_op) \
+    CASE_STMT(core::operators::operator_type::sub, details::sub_op) \
+    CASE_STMT(core::operators::operator_type::mul, details::mul_op) \
+    CASE_STMT(core::operators::operator_type::div, details::div_op) \
+    CASE_STMT(core::operators::operator_type::mod, details::mod_op) \
+    CASE_STMT(core::operators::operator_type::pow, details::pow_op)
 
-#define extended_opr_switch_statements                                                             \
-    case_stmt(core::operators::operator_type::lt, details::lt_op)                                  \
-        case_stmt(core::operators::operator_type::lte, details::lte_op) case_stmt(                 \
-            core::operators::operator_type::gt, details::gt_op)                                    \
-            case_stmt(core::operators::operator_type::gte, details::gte_op) case_stmt(             \
-                core::operators::operator_type::eq, details::eq_op)                                \
-                case_stmt(core::operators::operator_type::ne, details::ne_op) case_stmt(           \
-                    core::operators::operator_type::logical_and, details::and_op)                  \
-                    case_stmt(core::operators::operator_type::nand, details::nand_op) case_stmt(   \
-                        core::operators::operator_type::logical_or, details::or_op)                \
-                        case_stmt(core::operators::operator_type::nor, details::nor_op) case_stmt( \
-                            core::operators::operator_type::logical_xor, details::xor_op)          \
-                            case_stmt(core::operators::operator_type::xnor, details::xnor_op)
+#define EXTENDED_OPR_SWITCH_STATEMENTS                                      \
+    CASE_STMT(core::operators::operator_type::lt, details::lt_op)           \
+    CASE_STMT(core::operators::operator_type::lte, details::lte_op)         \
+    CASE_STMT(core::operators::operator_type::gt, details::gt_op)           \
+    CASE_STMT(core::operators::operator_type::gte, details::gte_op)         \
+    CASE_STMT(core::operators::operator_type::eq, details::eq_op)           \
+    CASE_STMT(core::operators::operator_type::ne, details::ne_op)           \
+    CASE_STMT(core::operators::operator_type::logical_and, details::and_op) \
+    CASE_STMT(core::operators::operator_type::nand, details::nand_op)       \
+    CASE_STMT(core::operators::operator_type::logical_or, details::or_op)   \
+    CASE_STMT(core::operators::operator_type::nor, details::nor_op)         \
+    CASE_STMT(core::operators::operator_type::logical_xor, details::xor_op) \
+    CASE_STMT(core::operators::operator_type::xnor, details::xnor_op)
 
 #ifndef MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION
         /**
@@ -12839,71 +12849,71 @@ class parser : public lexer::parser_helper
         {
             switch (p)
             {
-#define case_stmt(cp) \
+#define CASE_STMT(cp) \
     case cp:          \
         return node_allocator_->allocate<IPowNode<T, core::numeric::fast_exp<T, cp>>>(v);
 
-                case_stmt(1);
-                case_stmt(2);
-                case_stmt(3);
-                case_stmt(4);
-                case_stmt(5);
-                case_stmt(6);
-                case_stmt(7);
-                case_stmt(8);
-                case_stmt(9);
-                case_stmt(10);
-                case_stmt(11);
-                case_stmt(12);
-                case_stmt(13);
-                case_stmt(14);
-                case_stmt(15);
-                case_stmt(16);
-                case_stmt(17);
-                case_stmt(18);
-                case_stmt(19);
-                case_stmt(20);
-                case_stmt(21);
-                case_stmt(22);
-                case_stmt(23);
-                case_stmt(24);
-                case_stmt(25);
-                case_stmt(26);
-                case_stmt(27);
-                case_stmt(28);
-                case_stmt(29);
-                case_stmt(30);
-                case_stmt(31);
-                case_stmt(32);
-                case_stmt(33);
-                case_stmt(34);
-                case_stmt(35);
-                case_stmt(36);
-                case_stmt(37);
-                case_stmt(38);
-                case_stmt(39);
-                case_stmt(40);
-                case_stmt(41);
-                case_stmt(42);
-                case_stmt(43);
-                case_stmt(44);
-                case_stmt(45);
-                case_stmt(46);
-                case_stmt(47);
-                case_stmt(48);
-                case_stmt(49);
-                case_stmt(50);
-                case_stmt(51);
-                case_stmt(52);
-                case_stmt(53);
-                case_stmt(54);
-                case_stmt(55);
-                case_stmt(56);
-                case_stmt(57);
-                case_stmt(58);
-                case_stmt(59);
-                case_stmt(60);
-#undef case_stmt
+                CASE_STMT(1);
+                CASE_STMT(2);
+                CASE_STMT(3);
+                CASE_STMT(4);
+                CASE_STMT(5);
+                CASE_STMT(6);
+                CASE_STMT(7);
+                CASE_STMT(8);
+                CASE_STMT(9);
+                CASE_STMT(10);
+                CASE_STMT(11);
+                CASE_STMT(12);
+                CASE_STMT(13);
+                CASE_STMT(14);
+                CASE_STMT(15);
+                CASE_STMT(16);
+                CASE_STMT(17);
+                CASE_STMT(18);
+                CASE_STMT(19);
+                CASE_STMT(20);
+                CASE_STMT(21);
+                CASE_STMT(22);
+                CASE_STMT(23);
+                CASE_STMT(24);
+                CASE_STMT(25);
+                CASE_STMT(26);
+                CASE_STMT(27);
+                CASE_STMT(28);
+                CASE_STMT(29);
+                CASE_STMT(30);
+                CASE_STMT(31);
+                CASE_STMT(32);
+                CASE_STMT(33);
+                CASE_STMT(34);
+                CASE_STMT(35);
+                CASE_STMT(36);
+                CASE_STMT(37);
+                CASE_STMT(38);
+                CASE_STMT(39);
+                CASE_STMT(40);
+                CASE_STMT(41);
+                CASE_STMT(42);
+                CASE_STMT(43);
+                CASE_STMT(44);
+                CASE_STMT(45);
+                CASE_STMT(46);
+                CASE_STMT(47);
+                CASE_STMT(48);
+                CASE_STMT(49);
+                CASE_STMT(50);
+                CASE_STMT(51);
+                CASE_STMT(52);
+                CASE_STMT(53);
+                CASE_STMT(54);
+                CASE_STMT(55);
+                CASE_STMT(56);
+                CASE_STMT(57);
+                CASE_STMT(58);
+                CASE_STMT(59);
+                CASE_STMT(60);
+#undef CASE_STMT
                 default:
                     return error_node();
             }
@@ -13126,14 +13136,14 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)                                                                    \
+#define CASE_STMT(op0, op1)                                                                    \
     case op0:                                                                                  \
         return expr_gen.node_allocator_                                                        \
             ->template allocate<typename details::binary_ext_node<Type, op1<Type>>>(branch[0], \
                                                                                     branch[1]);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -13205,13 +13215,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_rc<typename details::vob_node<Type, op1<Type>>>(v, branch[1]);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -13297,13 +13307,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_cr<typename details::bov_node<Type, op1<Type>>>(branch[0], v);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -13449,13 +13459,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_tt<typename details::cob_node<Type, op1<Type>>>(c, branch[1]);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -13581,13 +13591,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_cr<typename details::boc_node<Type, op1<Type>>>(branch[0], c);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -14028,13 +14038,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_rr<typename details::vov_node<Type, op1<Type>>>(v1, v2);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -14066,13 +14076,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_cr<typename details::cov_node<Type, op1<Type>>>(c, v);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -14114,13 +14124,13 @@ class parser : public lexer::parser_helper
 
                 switch (operation)
                 {
-#define case_stmt(op0, op1)             \
+#define CASE_STMT(op0, op1)             \
     case op0:                           \
         return expr_gen.node_allocator_ \
             ->template allocate_rc<typename details::voc_node<Type, op1<Type>>>(v, c);
 
-                    basic_opr_switch_statements extended_opr_switch_statements
-#undef case_stmt
+                    BASIC_OPR_SWITCH_STATEMENTS EXTENDED_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
                         default : return error_node();
                 }
             }
@@ -14135,43 +14145,43 @@ class parser : public lexer::parser_helper
             {
                 switch (sf3opr)
                 {
-#define case_stmt(op)                                                                         \
+#define CASE_STMT(op)                                                                         \
     case core::operators::operator_type::sf##op:                                              \
         return details::T0oT1oT2_sf3ext<T, T0, T1, T2, details::sf##op##_op<Type>>::allocate( \
             *(expr_gen.node_allocator_), t0, t1, t2);
 
-                    case_stmt(00);
-                    case_stmt(01);
-                    case_stmt(02);
-                    case_stmt(03);
-                    case_stmt(04);
-                    case_stmt(05);
-                    case_stmt(06);
-                    case_stmt(07);
-                    case_stmt(08);
-                    case_stmt(09);
-                    case_stmt(10);
-                    case_stmt(11);
-                    case_stmt(12);
-                    case_stmt(13);
-                    case_stmt(14);
-                    case_stmt(15);
-                    case_stmt(16);
-                    case_stmt(17);
-                    case_stmt(18);
-                    case_stmt(19);
-                    case_stmt(20);
-                    case_stmt(21);
-                    case_stmt(22);
-                    case_stmt(23);
-                    case_stmt(24);
-                    case_stmt(25);
-                    case_stmt(26);
-                    case_stmt(27);
-                    case_stmt(28);
-                    case_stmt(29);
-                    case_stmt(30);
-#undef case_stmt
+                    CASE_STMT(00);
+                    CASE_STMT(01);
+                    CASE_STMT(02);
+                    CASE_STMT(03);
+                    CASE_STMT(04);
+                    CASE_STMT(05);
+                    CASE_STMT(06);
+                    CASE_STMT(07);
+                    CASE_STMT(08);
+                    CASE_STMT(09);
+                    CASE_STMT(10);
+                    CASE_STMT(11);
+                    CASE_STMT(12);
+                    CASE_STMT(13);
+                    CASE_STMT(14);
+                    CASE_STMT(15);
+                    CASE_STMT(16);
+                    CASE_STMT(17);
+                    CASE_STMT(18);
+                    CASE_STMT(19);
+                    CASE_STMT(20);
+                    CASE_STMT(21);
+                    CASE_STMT(22);
+                    CASE_STMT(23);
+                    CASE_STMT(24);
+                    CASE_STMT(25);
+                    CASE_STMT(26);
+                    CASE_STMT(27);
+                    CASE_STMT(28);
+                    CASE_STMT(29);
+                    CASE_STMT(30);
+#undef CASE_STMT
                     default:
                         return error_node();
                 }
@@ -14202,118 +14212,118 @@ class parser : public lexer::parser_helper
             {
                 switch (sf4opr)
                 {
-#define case_stmt0(op)                                                                         \
+#define CASE_STMT0(op)                                                                         \
     case core::operators::operator_type::sf##op:                                               \
         return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sf##op##_op<Type>>:: \
             allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3);
 
-#define case_stmt1(op)                                                                            \
+#define CASE_STMT1(op)                                                                            \
     case core::operators::operator_type::sf4ext##op:                                              \
         return details::T0oT1oT2oT3_sf4ext<Type, T0, T1, T2, T3, details::sfext##op##_op<Type>>:: \
             allocate(*(expr_gen.node_allocator_), t0, t1, t2, t3)
 
-                    case_stmt0(48);
-                    case_stmt0(49);
-                    case_stmt0(50);
-                    case_stmt0(51);
-                    case_stmt0(52);
-                    case_stmt0(53);
-                    case_stmt0(54);
-                    case_stmt0(55);
-                    case_stmt0(56);
-                    case_stmt0(57);
-                    case_stmt0(58);
-                    case_stmt0(59);
-                    case_stmt0(60);
-                    case_stmt0(61);
-                    case_stmt0(62);
-                    case_stmt0(63);
-                    case_stmt0(64);
-                    case_stmt0(65);
-                    case_stmt0(66);
-                    case_stmt0(67);
-                    case_stmt0(68);
-                    case_stmt0(69);
-                    case_stmt0(70);
-                    case_stmt0(71);
-                    case_stmt0(72);
-                    case_stmt0(73);
-                    case_stmt0(74);
-                    case_stmt0(75);
-                    case_stmt0(76);
-                    case_stmt0(77);
-                    case_stmt0(78);
-                    case_stmt0(79);
-                    case_stmt0(80);
-                    case_stmt0(81);
-                    case_stmt0(82);
-                    case_stmt0(83);
+                    CASE_STMT0(48);
+                    CASE_STMT0(49);
+                    CASE_STMT0(50);
+                    CASE_STMT0(51);
+                    CASE_STMT0(52);
+                    CASE_STMT0(53);
+                    CASE_STMT0(54);
+                    CASE_STMT0(55);
+                    CASE_STMT0(56);
+                    CASE_STMT0(57);
+                    CASE_STMT0(58);
+                    CASE_STMT0(59);
+                    CASE_STMT0(60);
+                    CASE_STMT0(61);
+                    CASE_STMT0(62);
+                    CASE_STMT0(63);
+                    CASE_STMT0(64);
+                    CASE_STMT0(65);
+                    CASE_STMT0(66);
+                    CASE_STMT0(67);
+                    CASE_STMT0(68);
+                    CASE_STMT0(69);
+                    CASE_STMT0(70);
+                    CASE_STMT0(71);
+                    CASE_STMT0(72);
+                    CASE_STMT0(73);
+                    CASE_STMT0(74);
+                    CASE_STMT0(75);
+                    CASE_STMT0(76);
+                    CASE_STMT0(77);
+                    CASE_STMT0(78);
+                    CASE_STMT0(79);
+                    CASE_STMT0(80);
+                    CASE_STMT0(81);
+                    CASE_STMT0(82);
+                    CASE_STMT0(83);
 
-                    case_stmt1(00);
-                    case_stmt1(01);
-                    case_stmt1(02);
-                    case_stmt1(03);
-                    case_stmt1(04);
-                    case_stmt1(05);
-                    case_stmt1(06);
-                    case_stmt1(07);
-                    case_stmt1(08);
-                    case_stmt1(09);
-                    case_stmt1(10);
-                    case_stmt1(11);
-                    case_stmt1(12);
-                    case_stmt1(13);
-                    case_stmt1(14);
-                    case_stmt1(15);
-                    case_stmt1(16);
-                    case_stmt1(17);
-                    case_stmt1(18);
-                    case_stmt1(19);
-                    case_stmt1(20);
-                    case_stmt1(21);
-                    case_stmt1(22);
-                    case_stmt1(23);
-                    case_stmt1(24);
-                    case_stmt1(25);
-                    case_stmt1(26);
-                    case_stmt1(27);
-                    case_stmt1(28);
-                    case_stmt1(29);
-                    case_stmt1(30);
-                    case_stmt1(31);
-                    case_stmt1(32);
-                    case_stmt1(33);
-                    case_stmt1(34);
-                    case_stmt1(35);
-                    case_stmt1(36);
-                    case_stmt1(37);
-                    case_stmt1(38);
-                    case_stmt1(39);
-                    case_stmt1(40);
-                    case_stmt1(41);
-                    case_stmt1(42);
-                    case_stmt1(43);
-                    case_stmt1(44);
-                    case_stmt1(45);
-                    case_stmt1(46);
-                    case_stmt1(47);
-                    case_stmt1(48);
-                    case_stmt1(49);
-                    case_stmt1(50);
-                    case_stmt1(51);
-                    case_stmt1(52);
-                    case_stmt1(53);
-                    case_stmt1(54);
-                    case_stmt1(55);
-                    case_stmt1(56);
-                    case_stmt1(57);
-                    case_stmt1(58);
-                    case_stmt1(59);
-                    case_stmt1(60);
-                    case_stmt1(61);
+                    CASE_STMT1(00);
+                    CASE_STMT1(01);
+                    CASE_STMT1(02);
+                    CASE_STMT1(03);
+                    CASE_STMT1(04);
+                    CASE_STMT1(05);
+                    CASE_STMT1(06);
+                    CASE_STMT1(07);
+                    CASE_STMT1(08);
+                    CASE_STMT1(09);
+                    CASE_STMT1(10);
+                    CASE_STMT1(11);
+                    CASE_STMT1(12);
+                    CASE_STMT1(13);
+                    CASE_STMT1(14);
+                    CASE_STMT1(15);
+                    CASE_STMT1(16);
+                    CASE_STMT1(17);
+                    CASE_STMT1(18);
+                    CASE_STMT1(19);
+                    CASE_STMT1(20);
+                    CASE_STMT1(21);
+                    CASE_STMT1(22);
+                    CASE_STMT1(23);
+                    CASE_STMT1(24);
+                    CASE_STMT1(25);
+                    CASE_STMT1(26);
+                    CASE_STMT1(27);
+                    CASE_STMT1(28);
+                    CASE_STMT1(29);
+                    CASE_STMT1(30);
+                    CASE_STMT1(31);
+                    CASE_STMT1(32);
+                    CASE_STMT1(33);
+                    CASE_STMT1(34);
+                    CASE_STMT1(35);
+                    CASE_STMT1(36);
+                    CASE_STMT1(37);
+                    CASE_STMT1(38);
+                    CASE_STMT1(39);
+                    CASE_STMT1(40);
+                    CASE_STMT1(41);
+                    CASE_STMT1(42);
+                    CASE_STMT1(43);
+                    CASE_STMT1(44);
+                    CASE_STMT1(45);
+                    CASE_STMT1(46);
+                    CASE_STMT1(47);
+                    CASE_STMT1(48);
+                    CASE_STMT1(49);
+                    CASE_STMT1(50);
+                    CASE_STMT1(51);
+                    CASE_STMT1(52);
+                    CASE_STMT1(53);
+                    CASE_STMT1(54);
+                    CASE_STMT1(55);
+                    CASE_STMT1(56);
+                    CASE_STMT1(57);
+                    CASE_STMT1(58);
+                    CASE_STMT1(59);
+                    CASE_STMT1(60);
+                    CASE_STMT1(61);
 
-#undef case_stmt0
-#undef case_stmt1
+#undef CASE_STMT0
+#undef CASE_STMT1
                     default:
                         return error_node();
                 }
@@ -14506,7 +14516,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, vtype>(
                                 expr_gen, "t/(t*t)", v0, v1, v2, result);
 
-                        math_expr_debug(("(v0 / v1) / v2 --> (vovov) v0 / (v1 * v2)\n"));
+                        MATH_EXPR_DEBUG(("(v0 / v1) / v2 --> (vovov) v0 / (v1 * v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14571,7 +14581,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", v0, v2, v1, result);
 
-                        math_expr_debug(("v0 / (v1 / v2) --> (vovov) (v0 * v2) / v1\n"));
+                        MATH_EXPR_DEBUG(("v0 / (v1 / v2) --> (vovov) (v0 * v2) / v1\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14637,7 +14647,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, ctype>(
                                 expr_gen, "t/(t*t)", v0, v1, c, result);
 
-                        math_expr_debug(("(v0 / v1) / c --> (vovoc) v0 / (v1 * c)\n"));
+                        MATH_EXPR_DEBUG(("(v0 / v1) / c --> (vovoc) v0 / (v1 * c)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14702,7 +14712,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, ctype, vtype>(
                                 expr_gen, "(t*t)/t", v0, c, v1, result);
 
-                        math_expr_debug(("v0 / (v1 / c) --> (vocov) (v0 * c) / v1\n"));
+                        MATH_EXPR_DEBUG(("v0 / (v1 / c) --> (vocov) (v0 * c) / v1\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14767,7 +14777,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, ctype>(
                                 expr_gen, "t/(t*t)", v0, v1, c, result);
 
-                        math_expr_debug(("(v0 / c) / v1 --> (vovoc) v0 / (v1 * c)\n"));
+                        MATH_EXPR_DEBUG(("(v0 / c) / v1 --> (vovoc) v0 / (v1 * c)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14832,7 +14842,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, ctype>(
                                 expr_gen, "(t*t)/t", v0, v1, c, result);
 
-                        math_expr_debug(("v0 / (c / v1) --> (vovoc) (v0 * v1) / c\n"));
+                        MATH_EXPR_DEBUG(("v0 / (c / v1) --> (vovoc) (v0 * v1) / c\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14897,7 +14907,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t/(t*t)", c, v0, v1, result);
 
-                        math_expr_debug(("(c / v0) / v1 --> (covov) c / (v0 * v1)\n"));
+                        MATH_EXPR_DEBUG(("(c / v0) / v1 --> (covov) c / (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -14963,7 +14973,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", c, v1, v0, result);
 
-                        math_expr_debug(("c / (v0 / v1) --> (covov) (c * v1) / v0\n"));
+                        MATH_EXPR_DEBUG(("c / (v0 / v1) --> (covov) (c * v1) / v0\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -15025,7 +15035,7 @@ class parser : public lexer::parser_helper
                     if ((core::operators::operator_type::add == o0) &&
                         (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(c0 + v) + c1 --> (cov) (c0 + c1) + v\n"));
+                        MATH_EXPR_DEBUG(("(c0 + v) + c1 --> (cov) (c0 + c1) + v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::add_op<Type>>>(c0 + c1, v);
@@ -15034,7 +15044,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::add == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(c0 + v) - c1 --> (cov) (c0 - c1) + v\n"));
+                        MATH_EXPR_DEBUG(("(c0 + v) - c1 --> (cov) (c0 - c1) + v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::add_op<Type>>>(c0 - c1, v);
@@ -15043,7 +15053,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(c0 - v) + c1 --> (cov) (c0 + c1) - v\n"));
+                        MATH_EXPR_DEBUG(("(c0 - v) + c1 --> (cov) (c0 + c1) - v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::sub_op<Type>>>(c0 + c1, v);
@@ -15052,7 +15062,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(c0 - v) - c1 --> (cov) (c0 - c1) - v\n"));
+                        MATH_EXPR_DEBUG(("(c0 - v) - c1 --> (cov) (c0 - c1) - v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::sub_op<Type>>>(c0 - c1, v);
@@ -15061,7 +15071,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(c0 * v) * c1 --> (cov) (c0 * c1) * v\n"));
+                        MATH_EXPR_DEBUG(("(c0 * v) * c1 --> (cov) (c0 * c1) * v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::mul_op<Type>>>(c0 * c1, v);
@@ -15070,7 +15080,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(c0 * v) / c1 --> (cov) (c0 / c1) * v\n"));
+                        MATH_EXPR_DEBUG(("(c0 * v) / c1 --> (cov) (c0 / c1) * v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::mul_op<Type>>>(c0 / c1, v);
@@ -15079,7 +15089,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(c0 / v) * c1 --> (cov) (c0 * c1) / v\n"));
+                        MATH_EXPR_DEBUG(("(c0 / v) * c1 --> (cov) (c0 * c1) / v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::div_op<Type>>>(c0 * c1, v);
@@ -15088,7 +15098,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(c0 / v) / c1 --> (cov) (c0 / c1) / v\n"));
+                        MATH_EXPR_DEBUG(("(c0 / v) / c1 --> (cov) (c0 / c1) / v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::div_op<Type>>>(c0 / c1, v);
@@ -15151,7 +15161,7 @@ class parser : public lexer::parser_helper
                     if ((core::operators::operator_type::add == o0) &&
                         (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(c0) + (v + c1) --> (cov) (c0 + c1) + v\n"));
+                        MATH_EXPR_DEBUG(("(c0) + (v + c1) --> (cov) (c0 + c1) + v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::add_op<Type>>>(c0 + c1, v);
@@ -15160,7 +15170,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::add == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(c0) + (v - c1) --> (cov) (c0 - c1) + v\n"));
+                        MATH_EXPR_DEBUG(("(c0) + (v - c1) --> (cov) (c0 - c1) + v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::add_op<Type>>>(c0 - c1, v);
@@ -15169,7 +15179,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(c0) - (v + c1) --> (cov) (c0 - c1) - v\n"));
+                        MATH_EXPR_DEBUG(("(c0) - (v + c1) --> (cov) (c0 - c1) - v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::sub_op<Type>>>(c0 - c1, v);
@@ -15178,7 +15188,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(c0) - (v - c1) --> (cov) (c0 + c1) - v\n"));
+                        MATH_EXPR_DEBUG(("(c0) - (v - c1) --> (cov) (c0 + c1) - v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::sub_op<Type>>>(c0 + c1, v);
@@ -15187,7 +15197,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(c0) * (v * c1) --> (voc) v * (c0 * c1)\n"));
+                        MATH_EXPR_DEBUG(("(c0) * (v * c1) --> (voc) v * (c0 * c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::mul_op<Type>>>(c0 * c1, v);
@@ -15196,7 +15206,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(c0) * (v / c1) --> (cov) (c0 / c1) * v\n"));
+                        MATH_EXPR_DEBUG(("(c0) * (v / c1) --> (cov) (c0 / c1) * v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::mul_op<Type>>>(c0 / c1, v);
@@ -15205,7 +15215,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(c0) / (v * c1) --> (cov) (c0 / c1) / v\n"));
+                        MATH_EXPR_DEBUG(("(c0) / (v * c1) --> (cov) (c0 / c1) / v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::div_op<Type>>>(c0 / c1, v);
@@ -15214,7 +15224,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(c0) / (v / c1) --> (cov) (c0 * c1) / v\n"));
+                        MATH_EXPR_DEBUG(("(c0) / (v / c1) --> (cov) (c0 * c1) / v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::div_op<Type>>>(c0 * c1, v);
@@ -15289,7 +15299,7 @@ class parser : public lexer::parser_helper
                     if ((core::operators::operator_type::add == o0) &&
                         (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(c0) + (c1 + v) --> (cov) (c0 + c1) + v\n"));
+                        MATH_EXPR_DEBUG(("(c0) + (c1 + v) --> (cov) (c0 + c1) + v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::add_op<Type>>>(c0 + c1, v);
@@ -15298,7 +15308,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::add == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(c0) + (c1 - v) --> (cov) (c0 + c1) - v\n"));
+                        MATH_EXPR_DEBUG(("(c0) + (c1 - v) --> (cov) (c0 + c1) - v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::sub_op<Type>>>(c0 + c1, v);
@@ -15307,7 +15317,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(c0) - (c1 + v) --> (cov) (c0 - c1) - v\n"));
+                        MATH_EXPR_DEBUG(("(c0) - (c1 + v) --> (cov) (c0 - c1) - v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::sub_op<Type>>>(c0 - c1, v);
@@ -15316,7 +15326,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(c0) - (c1 - v) --> (cov) (c0 - c1) + v\n"));
+                        MATH_EXPR_DEBUG(("(c0) - (c1 - v) --> (cov) (c0 - c1) + v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::add_op<Type>>>(c0 - c1, v);
@@ -15325,7 +15335,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(c0) * (c1 * v) --> (cov) (c0 * c1) * v\n"));
+                        MATH_EXPR_DEBUG(("(c0) * (c1 * v) --> (cov) (c0 * c1) * v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::mul_op<Type>>>(c0 * c1, v);
@@ -15334,7 +15344,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(c0) * (c1 / v) --> (cov) (c0 * c1) / v\n"));
+                        MATH_EXPR_DEBUG(("(c0) * (c1 / v) --> (cov) (c0 * c1) / v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::div_op<Type>>>(c0 * c1, v);
@@ -15343,7 +15353,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(c0) / (c1 * v) --> (cov) (c0 / c1) / v\n"));
+                        MATH_EXPR_DEBUG(("(c0) / (c1 * v) --> (cov) (c0 / c1) / v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::div_op<Type>>>(c0 / c1, v);
@@ -15352,7 +15362,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(c0) / (c1 / v) --> (cov) (c0 / c1) * v\n"));
+                        MATH_EXPR_DEBUG(("(c0) / (c1 / v) --> (cov) (c0 / c1) * v\n"));
 
                         return expr_gen.node_allocator_->template allocate_cr<
                             typename details::cov_node<Type, details::mul_op<Type>>>(c0 / c1, v);
@@ -15415,7 +15425,7 @@ class parser : public lexer::parser_helper
                     if ((core::operators::operator_type::add == o0) &&
                         (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(v + c0) + c1 --> (voc) v + (c0 + c1)\n"));
+                        MATH_EXPR_DEBUG(("(v + c0) + c1 --> (voc) v + (c0 + c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::add_op<Type>>>(v, c0 + c1);
@@ -15424,7 +15434,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::add == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(v + c0) - c1 --> (voc) v + (c0 - c1)\n"));
+                        MATH_EXPR_DEBUG(("(v + c0) - c1 --> (voc) v + (c0 - c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::add_op<Type>>>(v, c0 - c1);
@@ -15433,7 +15443,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::add == o1))
                     {
-                        math_expr_debug(("(v - c0) + c1 --> (voc) v - (c0 + c1)\n"));
+                        MATH_EXPR_DEBUG(("(v - c0) + c1 --> (voc) v - (c0 + c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::add_op<Type>>>(v, c1 - c0);
@@ -15442,7 +15452,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::sub == o0) &&
                              (core::operators::operator_type::sub == o1))
                     {
-                        math_expr_debug(("(v - c0) - c1 --> (voc) v - (c0 + c1)\n"));
+                        MATH_EXPR_DEBUG(("(v - c0) - c1 --> (voc) v - (c0 + c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::sub_op<Type>>>(v, c0 + c1);
@@ -15451,7 +15461,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(v * c0) * c1 --> (voc) v * (c0 * c1)\n"));
+                        MATH_EXPR_DEBUG(("(v * c0) * c1 --> (voc) v * (c0 * c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::mul_op<Type>>>(v, c0 * c1);
@@ -15460,7 +15470,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::mul == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(v * c0) / c1 --> (voc) v * (c0 / c1)\n"));
+                        MATH_EXPR_DEBUG(("(v * c0) / c1 --> (voc) v * (c0 / c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::mul_op<Type>>>(v, c0 / c1);
@@ -15469,7 +15479,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::mul == o1))
                     {
-                        math_expr_debug(("(v / c0) * c1 --> (voc) v * (c1 / c0)\n"));
+                        MATH_EXPR_DEBUG(("(v / c0) * c1 --> (voc) v * (c1 / c0)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::mul_op<Type>>>(v, c1 / c0);
@@ -15478,7 +15488,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::div == o0) &&
                              (core::operators::operator_type::div == o1))
                     {
-                        math_expr_debug(("(v / c0) / c1 --> (voc) v / (c0 * c1)\n"));
+                        MATH_EXPR_DEBUG(("(v / c0) / c1 --> (voc) v / (c0 * c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::div_op<Type>>>(v, c0 * c1);
@@ -15487,7 +15497,7 @@ class parser : public lexer::parser_helper
                     else if ((core::operators::operator_type::pow == o0) &&
                              (core::operators::operator_type::pow == o1))
                     {
-                        math_expr_debug(("(v ^ c0) ^ c1 --> (voc) v ^ (c0 * c1)\n"));
+                        MATH_EXPR_DEBUG(("(v ^ c0) ^ c1 --> (voc) v ^ (c0 * c1)\n"));
 
                         return expr_gen.node_allocator_->template allocate_rc<
                             typename details::voc_node<Type, details::pow_op<Type>>>(v, c0 * c1);
@@ -15530,7 +15540,7 @@ class parser : public lexer::parser_helper
                                                       expression_node_ptr (&)[2])
             {
                 // (v) o0 (c0 o1 c1) - Not possible.
-                math_expr_debug(("(v) o0 (c0 o1 c1) - Not possible.\n"));
+                MATH_EXPR_DEBUG(("(v) o0 (c0 o1 c1) - Not possible.\n"));
                 return error_node();
             }
         };
@@ -15578,7 +15588,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", v0, v2, v1, v3, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / v1) * (v2 / v3) --> (vovovov) (v0 * v2) / (v1 * v3)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15593,7 +15603,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", v0, v3, v1, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / v1) / (v2 / v3) --> (vovovov) (v0 * v3) / (v1 * v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15608,7 +15618,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t+t)*(t/t)", v0, v1, v3, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 + v1) / (v2 / v3) --> (vovovov) (v0 + v1) * (v3 / v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15623,7 +15633,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t-t)*(t/t)", v0, v1, v3, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 - v1) / (v2 / v3) --> (vovovov) (v0 - v1) * (v3 / v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15638,7 +15648,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "((t*t)*t)/t", v0, v1, v3, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * v1) / (v2 / v3) --> (vovovov) ((v0 * v1) * v3) / v2\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15721,7 +15731,7 @@ class parser : public lexer::parser_helper
                                                                            ctype>(
                                 expr_gen, "(t*t)/(t*t)", v0, v2, v1, c, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / v1) * (v2 / c) --> (vovovoc) (v0 * v2) / (v1 * c)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15736,7 +15746,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", v0, c, v1, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / v1) / (v2 / c) --> (vocovov) (v0 * c) / (v1 * v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15819,7 +15829,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", v0, c, v1, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / v1) * (c / v2) --> (vocovov) (v0 * c) / (v1 * v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15834,7 +15844,7 @@ class parser : public lexer::parser_helper
                                                                            ctype>(
                                 expr_gen, "(t*t)/(t*t)", v0, v2, v1, c, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / v1) / (c / v2) --> (vovovoc) (v0 * v2) / (v1 * c)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15917,7 +15927,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", v0, v1, c, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c) * (v1 / v2) --> (vovocov) (v0 * v1) / (c * v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -15932,7 +15942,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", v0, v2, c, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c) / (v1 / v2) --> (vovocov) (v0 * v2) / (c * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16015,7 +16025,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", c, v1, v0, v2, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c / v0) * (v1 / v2) --> (covovov) (c * v1) / (v0 * v2)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16030,7 +16040,7 @@ class parser : public lexer::parser_helper
                                                                            vtype>(
                                 expr_gen, "(t*t)/(t*t)", c, v2, v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c / v0) / (v1 / v2) --> (covovov) (c * v2) / (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16112,7 +16122,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)+t", (c0 + c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 + v0) + (c1 + v1) --> (covov) (c0 + c1) + v0 + v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16126,7 +16136,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)-t", (c0 - c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 + v0) - (c1 + v1) --> (covov) (c0 - c1) + v0 - v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16140,7 +16150,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t-t)+t", (c0 - c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 - v0) - (c1 - v1) --> (covov) (c0 - c1) - v0 + v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16154,7 +16164,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)*t", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 * v0) * (c1 * v1) --> (covov) (c0 * c1) * v0 * v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16168,7 +16178,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 * v0) / (c1 * v1) --> (covov) (c0 / c1) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16182,7 +16192,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t/(t*t)", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 / v0) * (c1 / v1) --> (covov) (c0 * c1) / (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16196,7 +16206,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c0 / c1), v1, v0, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 / v0) / (c1 / v1) --> (covov) ((c0 / c1) * v1) / v0\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16210,7 +16220,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t*(t*t)", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 * v0) / (c1 / v1) --> (covov) (c0 / c1) * (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16224,7 +16234,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t/(t*t)", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 / v0) / (c1 * v1) --> (covov) (c0 / c1) / (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16254,7 +16264,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, specfunc, c0, v0, v1, result);
 
-                        math_expr_debug(("(c * v0) +/- (c * v1) --> (covov) c * (v0 +/- v1)\n"));
+                        MATH_EXPR_DEBUG(("(c * v0) +/- (c * v1) --> (covov) c * (v0 +/- v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -16335,7 +16345,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)+t", (c0 + c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 + c0) + (v1 + c1) --> (covov) (c0 + c1) + v0 + v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16349,7 +16359,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)-t", (c0 - c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 + c0) - (v1 + c1) --> (covov) (c0 - c1) + v0 - v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16363,7 +16373,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)-t", (c1 - c0), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 - c0) - (v1 - c1) --> (covov) (c1 - c0) + v0 - v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16377,7 +16387,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)*t", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * c0) * (v1 * c1) --> (covov) (c0 * c1) * v0 * v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16391,7 +16401,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * c0) / (v1 * c1) --> (covov) (c0 / c1) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16405,7 +16415,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)*t", Type(1) / (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) * (v1 / c1) --> (covov) (1 / (c0 * c1)) * v0 * v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16419,7 +16429,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c1 / c0), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) / (v1 / c1) --> (covov) ((c1 / c0) * v0) / v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16433,7 +16443,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t*(t/t)", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * c0) / (v1 / c1) --> (covov) (c0 * c1) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16447,7 +16457,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t*(t/t)", Type(1) / (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) / (v1 * c1) --> (covov) (1 / (c0 * c1)) * v0 / v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16462,7 +16472,7 @@ class parser : public lexer::parser_helper
                                                                            ctype>(
                                 expr_gen, "(t*t)*(t+t)", v0, T(1) / c0, v1, c1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) * (v1 + c1) --> (vocovoc) (v0 * (1 / c0)) * (v1 + c1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16477,7 +16487,7 @@ class parser : public lexer::parser_helper
                                                                            ctype>(
                                 expr_gen, "(t*t)*(t-t)", v0, T(1) / c0, v1, c1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) * (v1 - c1) --> (vocovoc) (v0 * (1 / c0)) * (v1 - c1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16507,7 +16517,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, specfunc, c0, v0, v1, result);
 
-                        math_expr_debug(("(v0 * c) +/- (v1 * c) --> (covov) c * (v0 +/- v1)\n"));
+                        MATH_EXPR_DEBUG(("(v0 * c) +/- (v1 * c) --> (covov) c * (v0 +/- v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -16536,7 +16546,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, ctype>(
                                 expr_gen, specfunc, v0, v1, c0, result);
 
-                        math_expr_debug(("(v0 / c) +/- (v1 / c) --> (vovoc) (v0 +/- v1) / c\n"));
+                        MATH_EXPR_DEBUG(("(v0 / c) +/- (v1 / c) --> (vovoc) (v0 +/- v1) / c\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -16617,7 +16627,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)+t", (c0 + c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 + v0) + (v1 + c1) --> (covov) (c0 + c1) + v0 + v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16631,7 +16641,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)-t", (c0 - c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 + v0) - (v1 + c1) --> (covov) (c0 - c1) + v0 - v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16645,7 +16655,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t-(t+t)", (c0 + c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 - v0) - (v1 - c1) --> (covov) (c0 + c1) - v0 - v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16659,7 +16669,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)*t", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 * v0) * (v1 * c1) --> (covov) (c0 * c1) * v0 * v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16673,7 +16683,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 * v0) / (v1 * c1) --> (covov) (c0 / c1) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16687,7 +16697,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t*(t/t)", (c0 / c1), v1, v0, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 / v0) * (v1 / c1) --> (covov) (c0 / c1) * (v1 / v0)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16701,7 +16711,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t/(t*t)", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 / v0) / (v1 / c1) --> (covov) (c0 * c1) / (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16715,7 +16725,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 * v0) / (v1 / c1) --> (covov) (c0 * c1) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16729,7 +16739,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "t/(t*t)", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(c0 / v0) / (v1 * c1) --> (covov) (c0 / c1) / (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16759,7 +16769,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, specfunc, c0, v0, v1, result);
 
-                        math_expr_debug(("(c * v0) +/- (v1 * c) --> (covov) c * (v0 +/- v1)\n"));
+                        MATH_EXPR_DEBUG(("(c * v0) +/- (v1 * c) --> (covov) c * (v0 +/- v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -16840,7 +16850,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)+t", (c0 + c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 + c0) + (c1 + v1) --> (covov) (c0 + c1) + v0 + v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16854,7 +16864,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t+t)-t", (c0 - c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 + c0) - (c1 + v1) --> (covov) (c0 - c1) + v0 - v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16868,7 +16878,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, ctype>(
                                 expr_gen, "(t+t)-t", v0, v1, (c1 + c0), result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 - c0) - (c1 - v1) --> (vovoc) v0 + v1 - (c1 + c0)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16882,7 +16892,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)*t", (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * c0) * (c1 * v1) --> (covov) (c0 * c1) * v0 * v1\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16896,7 +16906,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * c0) / (c1 * v1) --> (covov) (c0 / c1) * (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16910,7 +16920,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", (c1 / c0), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) * (c1 / v1) --> (covov) (c1 / c0) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16924,7 +16934,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)*t", (c0 / c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 * c0) / (c1 / v1) --> (covov) (c0 / c1) * (v0 * v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16938,7 +16948,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, "(t*t)/t", Type(1) / (c0 * c1), v0, v1, result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) / (c1 * v1) --> (covov) (1 / (c0 * c1)) * (v0 / v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16952,7 +16962,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<vtype, vtype, ctype>(
                                 expr_gen, "(t*t)*t", v0, v1, Type(1) / (c0 * c1), result);
 
-                        math_expr_debug(
+                        MATH_EXPR_DEBUG(
                             ("(v0 / c0) / (c1 / v1) --> (vovoc) (v0 * v1) * (1 / (c0 * c1))\n"));
 
                         return (synthesis_result) ? result : error_node();
@@ -16982,7 +16992,7 @@ class parser : public lexer::parser_helper
                             synthesize_sf3ext_expression::template compile<ctype, vtype, vtype>(
                                 expr_gen, specfunc, c0, v0, v1, result);
 
-                        math_expr_debug(("(v0 * c) +/- (c * v1) --> (covov) c * (v0 +/- v1)\n"));
+                        MATH_EXPR_DEBUG(("(v0 * c) +/- (c * v1) --> (covov) c * (v0 +/- v1)\n"));
 
                         return (synthesis_result) ? result : error_node();
                     }
@@ -17063,7 +17073,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 (v1 o1 (v2 o2 v3))\n"));
+                MATH_EXPR_DEBUG(("v0 o0 (v1 o1 (v2 o2 v3))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, v3, f0, f1, f2);
             }
@@ -17121,7 +17131,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 (v1 o1 (v2 o2 c))\n"));
+                MATH_EXPR_DEBUG(("v0 o0 (v1 o1 (v2 o2 c))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, c, f0, f1, f2);
             }
@@ -17179,7 +17189,7 @@ class parser : public lexer::parser_helper
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 (v1 o1 (c o2 v2))\n"));
+                MATH_EXPR_DEBUG(("v0 o0 (v1 o1 (c o2 v2))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, c, v2, f0, f1, f2);
             }
@@ -17237,7 +17247,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 (c o1 (v1 o2 v2))\n"));
+                MATH_EXPR_DEBUG(("v0 o0 (c o1 (v1 o2 v2))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c, v1, v2, f0, f1, f2);
             }
@@ -17296,7 +17306,7 @@ class parser : public lexer::parser_helper
                 if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("c o0 (v0 o1 (v1 o2 v2))\n"));
+                MATH_EXPR_DEBUG(("c o0 (v0 o1 (v1 o2 v2))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c, v0, v1, v2, f0, f1, f2);
             }
@@ -17355,7 +17365,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("c0 o0 (v0 o1 (c1 o2 v1))\n"));
+                MATH_EXPR_DEBUG(("c0 o0 (v0 o1 (c1 o2 v1))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, c1, v1, f0, f1, f2);
             }
@@ -17413,7 +17423,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 (c0 o1 (v1 o2 c2))\n"));
+                MATH_EXPR_DEBUG(("v0 o0 (c0 o1 (v1 o2 c2))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c0, v1, c1, f0, f1, f2);
             }
@@ -17471,7 +17481,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("c0 o0 (v0 o1 (v1 o2 c1))\n"));
+                MATH_EXPR_DEBUG(("c0 o0 (v0 o1 (v1 o2 c1))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, v1, c1, f0, f1, f2);
             }
@@ -17529,7 +17539,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 (c0 o1 (c1 o2 v1))\n"));
+                MATH_EXPR_DEBUG(("v0 o0 (c0 o1 (c1 o2 v1))\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c0, c1, v1, f0, f1, f2);
             }
@@ -17587,7 +17597,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 ((v1 o1 v2) o2 v3)\n"));
+                MATH_EXPR_DEBUG(("v0 o0 ((v1 o1 v2) o2 v3)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, v3, f0, f1, f2);
             }
@@ -17645,7 +17655,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 ((v1 o1 v2) o2 c)\n"));
+                MATH_EXPR_DEBUG(("v0 o0 ((v1 o1 v2) o2 c)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, c, f0, f1, f2);
             }
@@ -17703,7 +17713,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 ((v1 o1 c) o2 v2)\n"));
+                MATH_EXPR_DEBUG(("v0 o0 ((v1 o1 c) o2 v2)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, c, v2, f0, f1, f2);
             }
@@ -17761,7 +17771,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 ((c o1 v1) o2 v2)\n"));
+                MATH_EXPR_DEBUG(("v0 o0 ((c o1 v1) o2 v2)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c, v1, v2, f0, f1, f2);
             }
@@ -17820,7 +17830,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("c o0 ((v1 o1 v2) o2 v3)\n"));
+                MATH_EXPR_DEBUG(("c o0 ((v1 o1 v2) o2 v3)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c, v0, v1, v2, f0, f1, f2);
             }
@@ -17879,7 +17889,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("c0 o0 ((v0 o1 c1) o2 v1)\n"));
+                MATH_EXPR_DEBUG(("c0 o0 ((v0 o1 c1) o2 v1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, c1, v1, f0, f1, f2);
             }
@@ -17937,7 +17947,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("v0 o0 ((c0 o1 v1) o2 c1)\n"));
+                MATH_EXPR_DEBUG(("v0 o0 ((c0 o1 v1) o2 c1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c0, v1, c1, f0, f1, f2);
             }
@@ -17996,7 +18006,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o0, f0))
                     return error_node();
 
-                math_expr_debug(("c0 o0 ((v0 o1 v1) o2 c1)\n"));
+                MATH_EXPR_DEBUG(("c0 o0 ((v0 o1 v1) o2 c1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, v1, c1, f0, f1, f2);
             }
@@ -18020,7 +18030,7 @@ class parser : public lexer::parser_helper
                                                       expression_node_ptr (&)[2])
             {
                 // v0 o0 ((c0 o1 c1) o2 v1) - Not possible
-                math_expr_debug(("v0 o0 ((c0 o1 c1) o2 v1) - Not possible\n"));
+                MATH_EXPR_DEBUG(("v0 o0 ((c0 o1 c1) o2 v1) - Not possible\n"));
                 return error_node();
             }
 
@@ -18075,7 +18085,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 v1) o1 v2) o2 v3\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 v1) o1 v2) o2 v3\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, v3, f0, f1, f2);
             }
@@ -18134,7 +18144,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 v1) o1 v2) o2 c\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 v1) o1 v2) o2 c\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, c, f0, f1, f2);
             }
@@ -18192,7 +18202,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 v1) o1 c) o2 v2\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 v1) o1 c) o2 v2\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, c, v2, f0, f1, f2);
             }
@@ -18250,7 +18260,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 c) o1 v1) o2 v2\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 c) o1 v1) o2 v2\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c, v1, v2, f0, f1, f2);
             }
@@ -18308,7 +18318,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((c o0 v0) o1 v1) o2 v2\n"));
+                MATH_EXPR_DEBUG(("((c o0 v0) o1 v1) o2 v2\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c, v0, v1, v2, f0, f1, f2);
             }
@@ -18366,7 +18376,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((c0 o0 v0) o1 c1) o2 v1\n"));
+                MATH_EXPR_DEBUG(("((c0 o0 v0) o1 c1) o2 v1\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, c1, v1, f0, f1, f2);
             }
@@ -18425,7 +18435,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 c0) o1 v1) o2 c1\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 c0) o1 v1) o2 c1\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c0, v1, c1, f0, f1, f2);
             }
@@ -18484,7 +18494,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((c0 o0 v0) o1 v1) o2 c1\n"));
+                MATH_EXPR_DEBUG(("((c0 o0 v0) o1 v1) o2 c1\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, v1, c1, f0, f1, f2);
             }
@@ -18542,7 +18552,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 c0) o1 c1) o2 v1\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 c0) o1 c1) o2 v1\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c0, c1, v1, f0, f1, f2);
             }
@@ -18600,7 +18610,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("(v0 o0 (v1 o1 v2)) o2 v3\n"));
+                MATH_EXPR_DEBUG(("(v0 o0 (v1 o1 v2)) o2 v3\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, v3, f0, f1, f2);
             }
@@ -18659,7 +18669,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 (v1 o1 v2)) o2 c)\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 (v1 o1 v2)) o2 c)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, v2, c, f0, f1, f2);
             }
@@ -18717,7 +18727,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 (v1 o1 c)) o2 v1)\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 (v1 o1 c)) o2 v1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, v1, c, v2, f0, f1, f2);
             }
@@ -18774,7 +18784,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 (c o1 v1)) o2 v2)\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 (c o1 v1)) o2 v2)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c, v1, v2, f0, f1, f2);
             }
@@ -18832,7 +18842,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((c o0 (v0 o1 v1)) o2 v2)\n"));
+                MATH_EXPR_DEBUG(("((c o0 (v0 o1 v1)) o2 v2)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c, v0, v1, v2, f0, f1, f2);
             }
@@ -18890,7 +18900,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((c0 o0 (v0 o1 c1)) o2 v1)\n"));
+                MATH_EXPR_DEBUG(("((c0 o0 (v0 o1 c1)) o2 v1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, c1, v1, f0, f1, f2);
             }
@@ -18949,7 +18959,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((v0 o0 (c0 o1 v1)) o2 c1)\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 (c0 o1 v1)) o2 c1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), v0, c0, v1, c1, f0, f1, f2);
             }
@@ -19008,7 +19018,7 @@ class parser : public lexer::parser_helper
                 else if (!expr_gen.valid_operator(o2, f2))
                     return error_node();
 
-                math_expr_debug(("((c0 o0 (v0 o1 v1)) o2 c1)\n"));
+                MATH_EXPR_DEBUG(("((c0 o0 (v0 o1 v1)) o2 c1)\n"));
 
                 return node_type::allocate(*(expr_gen.node_allocator_), c0, v0, v1, c1, f0, f1, f2);
             }
@@ -19032,7 +19042,7 @@ class parser : public lexer::parser_helper
                                                       expression_node_ptr (&)[2])
             {
                 // ((v0 o0 (c0 o1 c1)) o2 v1) - Not possible
-                math_expr_debug(("((v0 o0 (c0 o1 c1)) o2 v1) - Not possible\n"));
+                MATH_EXPR_DEBUG(("((v0 o0 (c0 o1 c1)) o2 v1) - Not possible\n"));
                 return error_node();
             }
 
@@ -19080,28 +19090,28 @@ class parser : public lexer::parser_helper
                             core::operators::operator_type::neg,
                             node_allocator_->allocate_rr<
                                 typename details::vov_node<Type, details::add_op<Type>>>(v0, v1));
-                        math_expr_debug(("(-v0 + -v1) --> -(v0 + v1)\n"));
+                        MATH_EXPR_DEBUG(("(-v0 + -v1) --> -(v0 + v1)\n"));
                         break;
 
                     // (-v0 - -v1) --> (v1 - v0)
                     case core::operators::operator_type::sub:
                         result = node_allocator_->allocate_rr<
                             typename details::vov_node<Type, details::sub_op<Type>>>(v1, v0);
-                        math_expr_debug(("(-v0 - -v1) --> (v1 - v0)\n"));
+                        MATH_EXPR_DEBUG(("(-v0 - -v1) --> (v1 - v0)\n"));
                         break;
 
                     // (-v0 * -v1) --> (v0 * v1)
                     case core::operators::operator_type::mul:
                         result = node_allocator_->allocate_rr<
                             typename details::vov_node<Type, details::mul_op<Type>>>(v0, v1);
-                        math_expr_debug(("(-v0 * -v1) --> (v0 * v1)\n"));
+                        MATH_EXPR_DEBUG(("(-v0 * -v1) --> (v0 * v1)\n"));
                         break;
 
                     // (-v0 / -v1) --> (v0 / v1)
                     case core::operators::operator_type::div:
                         result = node_allocator_->allocate_rr<
                             typename details::vov_node<Type, details::div_op<Type>>>(v0, v1);
-                        math_expr_debug(("(-v0 / -v1) --> (v0 / v1)\n"));
+                        MATH_EXPR_DEBUG(("(-v0 / -v1) --> (v0 / v1)\n"));
                         break;
 
                     default:
@@ -19119,22 +19129,22 @@ class parser : public lexer::parser_helper
             return result;
         }
 
-#undef basic_opr_switch_statements
-#undef extended_opr_switch_statements
-#undef unary_opr_switch_statements
+#undef BASIC_OPR_SWITCH_STATEMENTS
+#undef EXTENDED_OPR_SWITCH_STATEMENTS
+#undef UNARY_OPR_SWITCH_STATEMENTS
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
-#define string_opr_switch_statements                                   \
-    case_stmt(core::operators::operator_type::lt, details::lt_op);     \
-    case_stmt(core::operators::operator_type::lte, details::lte_op);   \
-    case_stmt(core::operators::operator_type::gt, details::gt_op);     \
-    case_stmt(core::operators::operator_type::gte, details::gte_op);   \
-    case_stmt(core::operators::operator_type::eq, details::eq_op);     \
-    case_stmt(core::operators::operator_type::ne, details::ne_op);     \
-    case_stmt(core::operators::operator_type::in, details::in_op);     \
-    case_stmt(core::operators::operator_type::like, details::like_op); \
-    case_stmt(core::operators::operator_type::ilike, details::ilike_op);
+#define STRING_OPR_SWITCH_STATEMENTS                                   \
+    CASE_STMT(core::operators::operator_type::lt, details::lt_op);     \
+    CASE_STMT(core::operators::operator_type::lte, details::lte_op);   \
+    CASE_STMT(core::operators::operator_type::gt, details::gt_op);     \
+    CASE_STMT(core::operators::operator_type::gte, details::gte_op);   \
+    CASE_STMT(core::operators::operator_type::eq, details::eq_op);     \
+    CASE_STMT(core::operators::operator_type::ne, details::ne_op);     \
+    CASE_STMT(core::operators::operator_type::in, details::in_op);     \
+    CASE_STMT(core::operators::operator_type::like, details::like_op); \
+    CASE_STMT(core::operators::operator_type::ilike, details::ilike_op);
 
         template <typename T0, typename T1>
         inline expression_node_ptr synthesize_str_xrox_expression_impl(
@@ -19142,15 +19152,16 @@ class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                    \
+#define CASE_STMT(op0, op1)                                                                    \
     case op0:                                                                                  \
         return node_allocator_->allocate_ttt<                                                  \
             typename details::str_xrox_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
                                                                                        rp0);
 
-                string_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                STRING_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -19160,15 +19171,16 @@ class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                    \
+#define CASE_STMT(op0, op1)                                                                    \
     case op0:                                                                                  \
         return node_allocator_->allocate_ttt<                                                  \
             typename details::str_xoxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
                                                                                        rp1);
 
-                string_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                STRING_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -19178,15 +19190,16 @@ class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                     \
+#define CASE_STMT(op0, op1)                                                                     \
     case op0:                                                                                   \
         return node_allocator_->allocate_tttt<                                                  \
             typename details::str_xroxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
                                                                                         rp0, rp1);
 
-                string_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                STRING_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -19196,14 +19209,15 @@ class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)    \
+#define CASE_STMT(op0, op1)    \
     case op0:                  \
         return node_allocator_ \
             ->allocate_tt<typename details::sos_node<Type, T0, T1, op1<Type>>, T0, T1>(s0, s1);
 
-                string_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                STRING_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
@@ -19566,18 +19580,19 @@ class parser : public lexer::parser_helper
         {
             switch (opr)
             {
-#define case_stmt(op0, op1)                                                                       \
+#define CASE_STMT(op0, op1)                                                                       \
     case op0:                                                                                     \
         return node_allocator_->allocate_ttt<typename details::str_sogens_node<Type, op1<Type>>>( \
             opr, branch[0], branch[1]);
 
-                string_opr_switch_statements
-#undef case_stmt
-                    default : return error_node();
+                STRING_OPR_SWITCH_STATEMENTS
+#undef CASE_STMT
+                default:
+                    return error_node();
             }
         }
 
-#undef string_opr_switch_statements
+#undef STRING_OPR_SWITCH_STATEMENTS
 #endif
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -19957,7 +19972,7 @@ class parser : public lexer::parser_helper
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, token_t(),
-                    "ERR281 - Failed to synthesize node: NodeType", math_expr_error_location));
+                    "ERR281 - Failed to synthesize node: NodeType", MATH_EXPR_ERROR_LOCATION));
 
                 details::free_node(*node_allocator_, expression_point);
             }
@@ -20042,7 +20057,7 @@ class parser : public lexer::parser_helper
         {
             scope_element& se = sem_.get_element(i);
 
-            math_expr_debug(("register_local_vars() - se[%s]\n", se.name.c_str()));
+            MATH_EXPR_DEBUG(("register_local_vars() - se[%s]\n", se.name.c_str()));
 
             if ((scope_element::element_type::e_variable == se.type) ||
                 (scope_element::element_type::e_literal == se.type) ||
@@ -20104,265 +20119,265 @@ class parser : public lexer::parser_helper
 
     inline void load_unary_operations_map(unary_op_map_t& m)
     {
-#define register_unary_op(Op, UnaryFunctor) m.insert(std::make_pair(Op, UnaryFunctor<T>::process))
+#define REGISTER_UNARY_OP(Op, UnaryFunctor) m.insert(std::make_pair(Op, UnaryFunctor<T>::process))
 
-        register_unary_op(core::operators::operator_type::abs, details::abs_op);
-        register_unary_op(core::operators::operator_type::acos, details::acos_op);
-        register_unary_op(core::operators::operator_type::acosh, details::acosh_op);
-        register_unary_op(core::operators::operator_type::asin, details::asin_op);
-        register_unary_op(core::operators::operator_type::asinh, details::asinh_op);
-        register_unary_op(core::operators::operator_type::atanh, details::atanh_op);
-        register_unary_op(core::operators::operator_type::ceil, details::ceil_op);
-        register_unary_op(core::operators::operator_type::cos, details::cos_op);
-        register_unary_op(core::operators::operator_type::cosh, details::cosh_op);
-        register_unary_op(core::operators::operator_type::exp, details::exp_op);
-        register_unary_op(core::operators::operator_type::expm1, details::expm1_op);
-        register_unary_op(core::operators::operator_type::floor, details::floor_op);
-        register_unary_op(core::operators::operator_type::log, details::log_op);
-        register_unary_op(core::operators::operator_type::log10, details::log10_op);
-        register_unary_op(core::operators::operator_type::log2, details::log2_op);
-        register_unary_op(core::operators::operator_type::log1p, details::log1p_op);
-        register_unary_op(core::operators::operator_type::neg, details::neg_op);
-        register_unary_op(core::operators::operator_type::pos, details::pos_op);
-        register_unary_op(core::operators::operator_type::round, details::round_op);
-        register_unary_op(core::operators::operator_type::sin, details::sin_op);
-        register_unary_op(core::operators::operator_type::sinc, details::sinc_op);
-        register_unary_op(core::operators::operator_type::sinh, details::sinh_op);
-        register_unary_op(core::operators::operator_type::sqrt, details::sqrt_op);
-        register_unary_op(core::operators::operator_type::tan, details::tan_op);
-        register_unary_op(core::operators::operator_type::tanh, details::tanh_op);
-        register_unary_op(core::operators::operator_type::cot, details::cot_op);
-        register_unary_op(core::operators::operator_type::sec, details::sec_op);
-        register_unary_op(core::operators::operator_type::csc, details::csc_op);
-        register_unary_op(core::operators::operator_type::r2d, details::r2d_op);
-        register_unary_op(core::operators::operator_type::d2r, details::d2r_op);
-        register_unary_op(core::operators::operator_type::d2g, details::d2g_op);
-        register_unary_op(core::operators::operator_type::g2d, details::g2d_op);
-        register_unary_op(core::operators::operator_type::notl, details::notl_op);
-        register_unary_op(core::operators::operator_type::sgn, details::sgn_op);
-        register_unary_op(core::operators::operator_type::erf, details::erf_op);
-        register_unary_op(core::operators::operator_type::erfc, details::erfc_op);
-        register_unary_op(core::operators::operator_type::ncdf, details::ncdf_op);
-        register_unary_op(core::operators::operator_type::frac, details::frac_op);
-        register_unary_op(core::operators::operator_type::trunc, details::trunc_op);
-#undef register_unary_op
+        REGISTER_UNARY_OP(core::operators::operator_type::abs, details::abs_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::acos, details::acos_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::acosh, details::acosh_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::asin, details::asin_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::asinh, details::asinh_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::atanh, details::atanh_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::ceil, details::ceil_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::cos, details::cos_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::cosh, details::cosh_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::exp, details::exp_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::expm1, details::expm1_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::floor, details::floor_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::log, details::log_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::log10, details::log10_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::log2, details::log2_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::log1p, details::log1p_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::neg, details::neg_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::pos, details::pos_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::round, details::round_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::sin, details::sin_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::sinc, details::sinc_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::sinh, details::sinh_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::sqrt, details::sqrt_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::tan, details::tan_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::tanh, details::tanh_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::cot, details::cot_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::sec, details::sec_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::csc, details::csc_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::r2d, details::r2d_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::d2r, details::d2r_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::d2g, details::d2g_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::g2d, details::g2d_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::notl, details::notl_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::sgn, details::sgn_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::erf, details::erf_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::erfc, details::erfc_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::ncdf, details::ncdf_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::frac, details::frac_op);
+        REGISTER_UNARY_OP(core::operators::operator_type::trunc, details::trunc_op);
+#undef REGISTER_UNARY_OP
     }
 
     inline void load_binary_operations_map(binary_op_map_t& m)
     {
         using value_type = typename binary_op_map_t::value_type;
 
-#define register_binary_op(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process))
+#define REGISTER_BINARY_OP(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process))
 
-        register_binary_op(core::operators::operator_type::add, details::add_op);
-        register_binary_op(core::operators::operator_type::sub, details::sub_op);
-        register_binary_op(core::operators::operator_type::mul, details::mul_op);
-        register_binary_op(core::operators::operator_type::div, details::div_op);
-        register_binary_op(core::operators::operator_type::mod, details::mod_op);
-        register_binary_op(core::operators::operator_type::pow, details::pow_op);
-        register_binary_op(core::operators::operator_type::lt, details::lt_op);
-        register_binary_op(core::operators::operator_type::lte, details::lte_op);
-        register_binary_op(core::operators::operator_type::gt, details::gt_op);
-        register_binary_op(core::operators::operator_type::gte, details::gte_op);
-        register_binary_op(core::operators::operator_type::eq, details::eq_op);
-        register_binary_op(core::operators::operator_type::ne, details::ne_op);
-        register_binary_op(core::operators::operator_type::logical_and, details::and_op);
-        register_binary_op(core::operators::operator_type::nand, details::nand_op);
-        register_binary_op(core::operators::operator_type::logical_or, details::or_op);
-        register_binary_op(core::operators::operator_type::nor, details::nor_op);
-        register_binary_op(core::operators::operator_type::logical_xor, details::xor_op);
-        register_binary_op(core::operators::operator_type::xnor, details::xnor_op);
-#undef register_binary_op
+        REGISTER_BINARY_OP(core::operators::operator_type::add, details::add_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::sub, details::sub_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::mul, details::mul_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::div, details::div_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::mod, details::mod_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::pow, details::pow_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::lt, details::lt_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::lte, details::lte_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::gt, details::gt_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::gte, details::gte_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::eq, details::eq_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::ne, details::ne_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::logical_and, details::and_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::nand, details::nand_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::logical_or, details::or_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::nor, details::nor_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::logical_xor, details::xor_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::xnor, details::xnor_op);
+#undef REGISTER_BINARY_OP
     }
 
     inline void load_inv_binary_operations_map(inv_binary_op_map_t& m)
     {
         using value_type = typename inv_binary_op_map_t::value_type;
 
-#define register_binary_op(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op))
+#define REGISTER_BINARY_OP(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op))
 
-        register_binary_op(core::operators::operator_type::add, details::add_op);
-        register_binary_op(core::operators::operator_type::sub, details::sub_op);
-        register_binary_op(core::operators::operator_type::mul, details::mul_op);
-        register_binary_op(core::operators::operator_type::div, details::div_op);
-        register_binary_op(core::operators::operator_type::mod, details::mod_op);
-        register_binary_op(core::operators::operator_type::pow, details::pow_op);
-        register_binary_op(core::operators::operator_type::lt, details::lt_op);
-        register_binary_op(core::operators::operator_type::lte, details::lte_op);
-        register_binary_op(core::operators::operator_type::gt, details::gt_op);
-        register_binary_op(core::operators::operator_type::gte, details::gte_op);
-        register_binary_op(core::operators::operator_type::eq, details::eq_op);
-        register_binary_op(core::operators::operator_type::ne, details::ne_op);
-        register_binary_op(core::operators::operator_type::logical_and, details::and_op);
-        register_binary_op(core::operators::operator_type::nand, details::nand_op);
-        register_binary_op(core::operators::operator_type::logical_or, details::or_op);
-        register_binary_op(core::operators::operator_type::nor, details::nor_op);
-        register_binary_op(core::operators::operator_type::logical_xor, details::xor_op);
-        register_binary_op(core::operators::operator_type::xnor, details::xnor_op);
-#undef register_binary_op
+        REGISTER_BINARY_OP(core::operators::operator_type::add, details::add_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::sub, details::sub_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::mul, details::mul_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::div, details::div_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::mod, details::mod_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::pow, details::pow_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::lt, details::lt_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::lte, details::lte_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::gt, details::gt_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::gte, details::gte_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::eq, details::eq_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::ne, details::ne_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::logical_and, details::and_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::nand, details::nand_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::logical_or, details::or_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::nor, details::nor_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::logical_xor, details::xor_op);
+        REGISTER_BINARY_OP(core::operators::operator_type::xnor, details::xnor_op);
+#undef REGISTER_BINARY_OP
     }
 
     inline void load_sf3_map(sf3_map_t& sf3_map)
     {
         using pair_t = std::pair<trinary_functor_t, core::operators::operator_type>;
 
-#define register_sf3(Op)                     \
+#define REGISTER_SF3(Op)                     \
     sf3_map[details::sf##Op##_op<T>::id()] = \
         pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
 
-        register_sf3(00);
-        register_sf3(01);
-        register_sf3(02);
-        register_sf3(03);
-        register_sf3(04);
-        register_sf3(05);
-        register_sf3(06);
-        register_sf3(07);
-        register_sf3(08);
-        register_sf3(09);
-        register_sf3(10);
-        register_sf3(11);
-        register_sf3(12);
-        register_sf3(13);
-        register_sf3(14);
-        register_sf3(15);
-        register_sf3(16);
-        register_sf3(17);
-        register_sf3(18);
-        register_sf3(19);
-        register_sf3(20);
-        register_sf3(21);
-        register_sf3(22);
-        register_sf3(23);
-        register_sf3(24);
-        register_sf3(25);
-        register_sf3(26);
-        register_sf3(27);
-        register_sf3(28);
-        register_sf3(29);
-        register_sf3(30);
-#undef register_sf3
+        REGISTER_SF3(00);
+        REGISTER_SF3(01);
+        REGISTER_SF3(02);
+        REGISTER_SF3(03);
+        REGISTER_SF3(04);
+        REGISTER_SF3(05);
+        REGISTER_SF3(06);
+        REGISTER_SF3(07);
+        REGISTER_SF3(08);
+        REGISTER_SF3(09);
+        REGISTER_SF3(10);
+        REGISTER_SF3(11);
+        REGISTER_SF3(12);
+        REGISTER_SF3(13);
+        REGISTER_SF3(14);
+        REGISTER_SF3(15);
+        REGISTER_SF3(16);
+        REGISTER_SF3(17);
+        REGISTER_SF3(18);
+        REGISTER_SF3(19);
+        REGISTER_SF3(20);
+        REGISTER_SF3(21);
+        REGISTER_SF3(22);
+        REGISTER_SF3(23);
+        REGISTER_SF3(24);
+        REGISTER_SF3(25);
+        REGISTER_SF3(26);
+        REGISTER_SF3(27);
+        REGISTER_SF3(28);
+        REGISTER_SF3(29);
+        REGISTER_SF3(30);
+#undef REGISTER_SF3
 
-#define register_sf3_extid(Id, Op) \
+#define REGISTER_SF3_EXTID(Id, Op) \
     sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
 
-        register_sf3_extid("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
-#undef register_sf3_extid
+        REGISTER_SF3_EXTID("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
+#undef REGISTER_SF3_EXTID
     }
 
     inline void load_sf4_map(sf4_map_t& sf4_map)
     {
         using pair_t = std::pair<quaternary_functor_t, core::operators::operator_type>;
 
-#define register_sf4(Op)                     \
+#define REGISTER_SF4(Op)                     \
     sf4_map[details::sf##Op##_op<T>::id()] = \
         pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
 
-        register_sf4(48);
-        register_sf4(49);
-        register_sf4(50);
-        register_sf4(51);
-        register_sf4(52);
-        register_sf4(53);
-        register_sf4(54);
-        register_sf4(55);
-        register_sf4(56);
-        register_sf4(57);
-        register_sf4(58);
-        register_sf4(59);
-        register_sf4(60);
-        register_sf4(61);
-        register_sf4(62);
-        register_sf4(63);
-        register_sf4(64);
-        register_sf4(65);
-        register_sf4(66);
-        register_sf4(67);
-        register_sf4(68);
-        register_sf4(69);
-        register_sf4(70);
-        register_sf4(71);
-        register_sf4(72);
-        register_sf4(73);
-        register_sf4(74);
-        register_sf4(75);
-        register_sf4(76);
-        register_sf4(77);
-        register_sf4(78);
-        register_sf4(79);
-        register_sf4(80);
-        register_sf4(81);
-        register_sf4(82);
-        register_sf4(83);
-#undef register_sf4
+        REGISTER_SF4(48);
+        REGISTER_SF4(49);
+        REGISTER_SF4(50);
+        REGISTER_SF4(51);
+        REGISTER_SF4(52);
+        REGISTER_SF4(53);
+        REGISTER_SF4(54);
+        REGISTER_SF4(55);
+        REGISTER_SF4(56);
+        REGISTER_SF4(57);
+        REGISTER_SF4(58);
+        REGISTER_SF4(59);
+        REGISTER_SF4(60);
+        REGISTER_SF4(61);
+        REGISTER_SF4(62);
+        REGISTER_SF4(63);
+        REGISTER_SF4(64);
+        REGISTER_SF4(65);
+        REGISTER_SF4(66);
+        REGISTER_SF4(67);
+        REGISTER_SF4(68);
+        REGISTER_SF4(69);
+        REGISTER_SF4(70);
+        REGISTER_SF4(71);
+        REGISTER_SF4(72);
+        REGISTER_SF4(73);
+        REGISTER_SF4(74);
+        REGISTER_SF4(75);
+        REGISTER_SF4(76);
+        REGISTER_SF4(77);
+        REGISTER_SF4(78);
+        REGISTER_SF4(79);
+        REGISTER_SF4(80);
+        REGISTER_SF4(81);
+        REGISTER_SF4(82);
+        REGISTER_SF4(83);
+#undef REGISTER_SF4
 
-#define register_sf4ext(Op)                     \
+#define REGISTER_SF4EXT(Op)                     \
     sf4_map[details::sfext##Op##_op<T>::id()] = \
         pair_t(details::sfext##Op##_op<T>::process, core::operators::operator_type::sf4ext##Op)
 
-        register_sf4ext(00);
-        register_sf4ext(01);
-        register_sf4ext(02);
-        register_sf4ext(03);
-        register_sf4ext(04);
-        register_sf4ext(05);
-        register_sf4ext(06);
-        register_sf4ext(07);
-        register_sf4ext(08);
-        register_sf4ext(09);
-        register_sf4ext(10);
-        register_sf4ext(11);
-        register_sf4ext(12);
-        register_sf4ext(13);
-        register_sf4ext(14);
-        register_sf4ext(15);
-        register_sf4ext(16);
-        register_sf4ext(17);
-        register_sf4ext(18);
-        register_sf4ext(19);
-        register_sf4ext(20);
-        register_sf4ext(21);
-        register_sf4ext(22);
-        register_sf4ext(23);
-        register_sf4ext(24);
-        register_sf4ext(25);
-        register_sf4ext(26);
-        register_sf4ext(27);
-        register_sf4ext(28);
-        register_sf4ext(29);
-        register_sf4ext(30);
-        register_sf4ext(31);
-        register_sf4ext(32);
-        register_sf4ext(33);
-        register_sf4ext(34);
-        register_sf4ext(35);
-        register_sf4ext(36);
-        register_sf4ext(36);
-        register_sf4ext(38);
-        register_sf4ext(39);
-        register_sf4ext(40);
-        register_sf4ext(41);
-        register_sf4ext(42);
-        register_sf4ext(43);
-        register_sf4ext(44);
-        register_sf4ext(45);
-        register_sf4ext(46);
-        register_sf4ext(47);
-        register_sf4ext(48);
-        register_sf4ext(49);
-        register_sf4ext(50);
-        register_sf4ext(51);
-        register_sf4ext(52);
-        register_sf4ext(53);
-        register_sf4ext(54);
-        register_sf4ext(55);
-        register_sf4ext(56);
-        register_sf4ext(57);
-        register_sf4ext(58);
-        register_sf4ext(59);
-        register_sf4ext(60);
-        register_sf4ext(61);
-#undef register_sf4ext
+        REGISTER_SF4EXT(00);
+        REGISTER_SF4EXT(01);
+        REGISTER_SF4EXT(02);
+        REGISTER_SF4EXT(03);
+        REGISTER_SF4EXT(04);
+        REGISTER_SF4EXT(05);
+        REGISTER_SF4EXT(06);
+        REGISTER_SF4EXT(07);
+        REGISTER_SF4EXT(08);
+        REGISTER_SF4EXT(09);
+        REGISTER_SF4EXT(10);
+        REGISTER_SF4EXT(11);
+        REGISTER_SF4EXT(12);
+        REGISTER_SF4EXT(13);
+        REGISTER_SF4EXT(14);
+        REGISTER_SF4EXT(15);
+        REGISTER_SF4EXT(16);
+        REGISTER_SF4EXT(17);
+        REGISTER_SF4EXT(18);
+        REGISTER_SF4EXT(19);
+        REGISTER_SF4EXT(20);
+        REGISTER_SF4EXT(21);
+        REGISTER_SF4EXT(22);
+        REGISTER_SF4EXT(23);
+        REGISTER_SF4EXT(24);
+        REGISTER_SF4EXT(25);
+        REGISTER_SF4EXT(26);
+        REGISTER_SF4EXT(27);
+        REGISTER_SF4EXT(28);
+        REGISTER_SF4EXT(29);
+        REGISTER_SF4EXT(30);
+        REGISTER_SF4EXT(31);
+        REGISTER_SF4EXT(32);
+        REGISTER_SF4EXT(33);
+        REGISTER_SF4EXT(34);
+        REGISTER_SF4EXT(35);
+        REGISTER_SF4EXT(36);
+        REGISTER_SF4EXT(36);
+        REGISTER_SF4EXT(38);
+        REGISTER_SF4EXT(39);
+        REGISTER_SF4EXT(40);
+        REGISTER_SF4EXT(41);
+        REGISTER_SF4EXT(42);
+        REGISTER_SF4EXT(43);
+        REGISTER_SF4EXT(44);
+        REGISTER_SF4EXT(45);
+        REGISTER_SF4EXT(46);
+        REGISTER_SF4EXT(47);
+        REGISTER_SF4EXT(48);
+        REGISTER_SF4EXT(49);
+        REGISTER_SF4EXT(50);
+        REGISTER_SF4EXT(51);
+        REGISTER_SF4EXT(52);
+        REGISTER_SF4EXT(53);
+        REGISTER_SF4EXT(54);
+        REGISTER_SF4EXT(55);
+        REGISTER_SF4EXT(56);
+        REGISTER_SF4EXT(57);
+        REGISTER_SF4EXT(58);
+        REGISTER_SF4EXT(59);
+        REGISTER_SF4EXT(60);
+        REGISTER_SF4EXT(61);
+#undef REGISTER_SF4EXT
     }
 
     inline results_context_t& results_ctx()
@@ -20401,7 +20416,7 @@ class parser : public lexer::parser_helper
                     " bytes "
                     "is larger than max total local symbol size of " +
                     core::to_str(settings_.max_total_local_symbol_size_bytes()) + " bytes",
-                math_expr_error_location));
+                MATH_EXPR_ERROR_LOCATION));
 
             return false;
         }

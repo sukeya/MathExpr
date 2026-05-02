@@ -48,18 +48,19 @@ struct package
 
     bool register_package(math_expr::symbol_table<T>& symtab)
     {
-#define math_expr_register_function(FunctionName, FunctionType)                                 \
+#define MATH_EXPR_REGISTER_FUNCTION(FunctionName, FunctionType)                                 \
     if (!symtab.add_function(FunctionName, FunctionType))                                       \
     {                                                                                           \
-        math_expr_debug(("math_expr::rtl::io::register_package - Failed to add function: %s\n", \
+        MATH_EXPR_DEBUG(("math_expr::rtl::io::register_package - Failed to add function: %s\n", \
                          FunctionName));                                                        \
         return false;                                                                           \
     }
 
-        math_expr_register_function("print", p) math_expr_register_function("println", pl)
-#undef math_expr_register_function
+        MATH_EXPR_REGISTER_FUNCTION("print", p)
+        MATH_EXPR_REGISTER_FUNCTION("println", pl)
+#undef MATH_EXPR_REGISTER_FUNCTION
 
-            return true;
+        return true;
     }
 };
 }  // namespace math_expr::rtl::io

@@ -726,74 +726,74 @@ class polynomial : public ifunction<T>
 
     virtual ~polynomial() override {}
 
-#define poly_rtrn(NN) return (NN != N) ? std::numeric_limits<T>::quiet_NaN():
+#define POLY_RTRN(NN) return (NN != N) ? std::numeric_limits<T>::quiet_NaN():
 
     inline virtual T operator()(const T& x, const T& c1, const T& c0) override
     {
-        poly_rtrn(1)(poly_impl<T, 1>::evaluate(x, c1, c0));
+        POLY_RTRN(1)(poly_impl<T, 1>::evaluate(x, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c2, const T& c1, const T& c0) override
     {
-        poly_rtrn(2)(poly_impl<T, 2>::evaluate(x, c2, c1, c0));
+        POLY_RTRN(2)(poly_impl<T, 2>::evaluate(x, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c3, const T& c2, const T& c1,
                                 const T& c0) override
     {
-        poly_rtrn(3)(poly_impl<T, 3>::evaluate(x, c3, c2, c1, c0));
+        POLY_RTRN(3)(poly_impl<T, 3>::evaluate(x, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c4, const T& c3, const T& c2, const T& c1,
                                 const T& c0) override
     {
-        poly_rtrn(4)(poly_impl<T, 4>::evaluate(x, c4, c3, c2, c1, c0));
+        POLY_RTRN(4)(poly_impl<T, 4>::evaluate(x, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c5, const T& c4, const T& c3, const T& c2,
                                 const T& c1, const T& c0) override
     {
-        poly_rtrn(5)(poly_impl<T, 5>::evaluate(x, c5, c4, c3, c2, c1, c0));
+        POLY_RTRN(5)(poly_impl<T, 5>::evaluate(x, c5, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c6, const T& c5, const T& c4, const T& c3,
                                 const T& c2, const T& c1, const T& c0) override
     {
-        poly_rtrn(6)(poly_impl<T, 6>::evaluate(x, c6, c5, c4, c3, c2, c1, c0));
+        POLY_RTRN(6)(poly_impl<T, 6>::evaluate(x, c6, c5, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c7, const T& c6, const T& c5, const T& c4,
                                 const T& c3, const T& c2, const T& c1, const T& c0) override
     {
-        poly_rtrn(7)(poly_impl<T, 7>::evaluate(x, c7, c6, c5, c4, c3, c2, c1, c0));
+        POLY_RTRN(7)(poly_impl<T, 7>::evaluate(x, c7, c6, c5, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c8, const T& c7, const T& c6, const T& c5,
                                 const T& c4, const T& c3, const T& c2, const T& c1,
                                 const T& c0) override
     {
-        poly_rtrn(8)(poly_impl<T, 8>::evaluate(x, c8, c7, c6, c5, c4, c3, c2, c1, c0));
+        POLY_RTRN(8)(poly_impl<T, 8>::evaluate(x, c8, c7, c6, c5, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c9, const T& c8, const T& c7, const T& c6,
                                 const T& c5, const T& c4, const T& c3, const T& c2, const T& c1,
                                 const T& c0) override
     {
-        poly_rtrn(9)(poly_impl<T, 9>::evaluate(x, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
+        POLY_RTRN(9)(poly_impl<T, 9>::evaluate(x, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c10, const T& c9, const T& c8, const T& c7,
                                 const T& c6, const T& c5, const T& c4, const T& c3, const T& c2,
                                 const T& c1, const T& c0) override
     {
-        poly_rtrn(10)(poly_impl<T, 10>::evaluate(x, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
+        POLY_RTRN(10)(poly_impl<T, 10>::evaluate(x, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
     }
 
     inline virtual T operator()(const T& x, const T& c11, const T& c10, const T& c9, const T& c8,
                                 const T& c7, const T& c6, const T& c5, const T& c4, const T& c3,
                                 const T& c2, const T& c1, const T& c0) override
     {
-        poly_rtrn(11)(
+        POLY_RTRN(11)(
             poly_impl<T, 11>::evaluate(x, c11, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
     }
 
@@ -801,11 +801,11 @@ class polynomial : public ifunction<T>
                                 const T& c8, const T& c7, const T& c6, const T& c5, const T& c4,
                                 const T& c3, const T& c2, const T& c1, const T& c0) override
     {
-        poly_rtrn(12)(
+        POLY_RTRN(12)(
             poly_impl<T, 12>::evaluate(x, c12, c11, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0));
     }
 
-#undef poly_rtrn
+#undef POLY_RTRN
 
     inline virtual T operator()() override
     {

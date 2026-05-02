@@ -522,35 +522,35 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec + lud.upper_bound;
 
-#define math_expr_loop(N) vec[N] = v;
+#define MATH_EXPR_LOOP(N) vec[N] = v;
 
         while (vec < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         lud.foreach_remainder([&vec, v]() { *vec++ = v; });
 
@@ -669,36 +669,36 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec0 + lud.upper_bound;
 
-#define math_expr_loop(N) vec0[N] = vec1[N];
+#define MATH_EXPR_LOOP(N) vec0[N] = vec1[N];
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         lud.foreach_remainder([&vec0, &vec1]() { *vec0++ = *vec1++; });
 
@@ -1085,35 +1085,35 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec + lud.upper_bound;
 
-#define math_expr_loop(N) Operation::assign(vec[N], v);
+#define MATH_EXPR_LOOP(N) Operation::assign(vec[N], v);
 
         while (vec < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         lud.foreach_remainder([&vec, v]() { Operation::assign(*vec++, v); });
 
@@ -1230,27 +1230,27 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
 
         while (vec0 < upper_bound)
         {
-#define math_expr_loop(N) vec0[N] = Operation::process(vec0[N], vec1[N]);
+#define MATH_EXPR_LOOP(N) vec0[N] = Operation::process(vec0[N], vec1[N]);
 
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec0 += lud.batch_size;
@@ -1266,7 +1266,7 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
                 ++i;
             });
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         return vec0_node_ptr_->value();
     }
@@ -1478,29 +1478,29 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec2 + lud.upper_bound;
 
-#define math_expr_loop(N) vec2[N] = Operation::process(vec0[N], vec1[N]);
+#define MATH_EXPR_LOOP(N) vec2[N] = Operation::process(vec0[N], vec1[N]);
 
         while (vec2 < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec0 += lud.batch_size;
@@ -1508,7 +1508,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
             vec2 += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         int i = 0;
 
@@ -1634,36 +1634,36 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec0 + lud.upper_bound;
 
-#define math_expr_loop(N) vec1[N] = Operation::process(vec0[N], v);
+#define MATH_EXPR_LOOP(N) vec1[N] = Operation::process(vec0[N], v);
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         int i = 0;
 
@@ -1786,36 +1786,36 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec0 + lud.upper_bound;
 
-#define math_expr_loop(N) vec0[N] = Operation::process(v, vec1[N]);
+#define MATH_EXPR_LOOP(N) vec0[N] = Operation::process(v, vec1[N]);
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         int i = 0;
 
@@ -1937,36 +1937,36 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
         core::operators::loop_unroll lud(size());
         const T* upper_bound = vec0 + lud.upper_bound;
 
-#define math_expr_loop(N) vec1[N] = Operation::process(vec0[N]);
+#define MATH_EXPR_LOOP(N) vec1[N] = Operation::process(vec0[N]);
 
         while (vec0 < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec0 += lud.batch_size;
             vec1 += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         int i = 0;
         lud.foreach_remainder(

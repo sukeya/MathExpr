@@ -52,7 +52,7 @@ struct set_zero_value_impl
     }
 };
 
-#define pod_set_zero_value(T)                                           \
+#define POD_SET_ZERO_VALUE(T)                                           \
     template <>                                                         \
     struct set_zero_value_impl<T>                                       \
     {                                                                   \
@@ -62,12 +62,12 @@ struct set_zero_value_impl
         }                                                               \
     }
 
-pod_set_zero_value(float);
-pod_set_zero_value(double);
-pod_set_zero_value(long double);
+POD_SET_ZERO_VALUE(float);
+POD_SET_ZERO_VALUE(double);
+POD_SET_ZERO_VALUE(long double);
 
-#ifdef pod_set_zero_value
-#undef pod_set_zero_value
+#ifdef POD_SET_ZERO_VALUE
+#undef POD_SET_ZERO_VALUE
 #endif
 
 template <typename T>
@@ -1212,7 +1212,7 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
         {
 #ifdef math_expr_use_lut
 
-#define math_expr_process_digit                           \
+#define MATH_EXPR_PROCESS_DIGIT                           \
     if ((digit = details::digit_table[(int)*itr++]) < 10) \
         result = result * 10 + (digit);                   \
     else                                                  \
@@ -1224,7 +1224,7 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
 
 #else
 
-#define math_expr_process_digit          \
+#define MATH_EXPR_PROCESS_DIGIT          \
     if ((digit = (*itr++ - zero)) < 10)  \
         result = result * T(10) + digit; \
     else                                 \
@@ -1237,11 +1237,11 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
 #endif
 
             case 4:
-                math_expr_process_digit;
+                MATH_EXPR_PROCESS_DIGIT;
             case 3:
-                math_expr_process_digit;
+                MATH_EXPR_PROCESS_DIGIT;
             case 2:
-                math_expr_process_digit;
+                MATH_EXPR_PROCESS_DIGIT;
             case 1:
                 if ((digit = (*itr - zero)) >= 10)
                 {
@@ -1249,7 +1249,7 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
                     return_result = false;
                 }
 
-#undef math_expr_process_digit
+#undef MATH_EXPR_PROCESS_DIGIT
         }
     }
     else
@@ -1358,7 +1358,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
     static constexpr ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
 
-#define parse_digit_1(d)              \
+#define PARSE_DIGIT_1(d)              \
     if ((digit = (*itr - zero)) < 10) \
     {                                 \
         d = d * T(10) + digit;        \
@@ -1370,7 +1370,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
     if (end == ++itr)                 \
         break;
 
-#define parse_digit_2(d)              \
+#define PARSE_DIGIT_2(d)              \
     if ((digit = (*itr - zero)) < 10) \
     {                                 \
         d = d * T(10) + digit;        \
@@ -1390,9 +1390,9 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
         while (end != itr)
         {
             unsigned int digit;
-            parse_digit_1(d);
-            parse_digit_1(d);
-            parse_digit_2(d);
+            PARSE_DIGIT_1(d);
+            PARSE_DIGIT_1(d);
+            PARSE_DIGIT_2(d);
         }
 
         if (curr != itr)
@@ -1411,9 +1411,9 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
             while (end != itr)
             {
                 unsigned int digit;
-                parse_digit_1(tmp_d);
-                parse_digit_1(tmp_d);
-                parse_digit_2(tmp_d);
+                PARSE_DIGIT_1(tmp_d);
+                PARSE_DIGIT_1(tmp_d);
+                PARSE_DIGIT_2(tmp_d);
             }
 
             if (curr != itr)
@@ -1428,8 +1428,8 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
                 d += compute_pow10(tmp_d, frac_exponent);
             }
 
-#undef parse_digit_1
-#undef parse_digit_2
+#undef PARSE_DIGIT_1
+#undef PARSE_DIGIT_2
         }
 
         if (end != itr)

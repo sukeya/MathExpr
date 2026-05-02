@@ -313,19 +313,19 @@ class symbol_table
 
         struct deleter
         {
-#define math_expr_define_process(Type)                    \
+#define MATH_EXPR_DEFINE_PROCESS(Type)                    \
     static inline void process(std::pair<bool, Type*>& n) \
     {                                                     \
         delete n.second;                                  \
     }
 
-            math_expr_define_process(variable_node_t);
-            math_expr_define_process(vector_t);
+            MATH_EXPR_DEFINE_PROCESS(variable_node_t);
+            MATH_EXPR_DEFINE_PROCESS(vector_t);
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            math_expr_define_process(stringvar_node_t);
+            MATH_EXPR_DEFINE_PROCESS(stringvar_node_t);
 #endif
 
-#undef math_expr_define_process
+#undef MATH_EXPR_DEFINE_PROCESS
 
             template <typename DeleteType>
             static inline void process(std::pair<bool, DeleteType*>&)
@@ -548,7 +548,7 @@ class symbol_table
         {
             static inline bool test(const variable_node_t* p, const void* ptr)
             {
-                math_expr_debug(("ptr_match::test() - %p <--> %p\n",
+                MATH_EXPR_DEBUG(("ptr_match::test() - %p <--> %p\n",
                                  reinterpret_cast<const void*>(&(p->ref())), ptr));
                 return (&(p->ref()) == ptr);
             }
@@ -1180,7 +1180,7 @@ class symbol_table
         return false;
     }
 
-#define math_expr_define_freefunction(NN)                                                     \
+#define MATH_EXPR_DEFINE_FREEFUNCTION(NN)                                                     \
     inline bool add_function(const std::string& function_name, ff##NN##_functor function)     \
     {                                                                                         \
         if (!valid())                                                                         \
@@ -1201,24 +1201,24 @@ class symbol_table
         return add_function(function_name, (*local_data().free_function_list_.back()));       \
     }
 
-    math_expr_define_freefunction(00);
-    math_expr_define_freefunction(01);
-    math_expr_define_freefunction(02);
-    math_expr_define_freefunction(03);
-    math_expr_define_freefunction(04);
-    math_expr_define_freefunction(05);
-    math_expr_define_freefunction(06);
-    math_expr_define_freefunction(07);
-    math_expr_define_freefunction(08);
-    math_expr_define_freefunction(09);
-    math_expr_define_freefunction(10);
-    math_expr_define_freefunction(11);
-    math_expr_define_freefunction(12);
-    math_expr_define_freefunction(13);
-    math_expr_define_freefunction(14);
-    math_expr_define_freefunction(15);
+    MATH_EXPR_DEFINE_FREEFUNCTION(00);
+    MATH_EXPR_DEFINE_FREEFUNCTION(01);
+    MATH_EXPR_DEFINE_FREEFUNCTION(02);
+    MATH_EXPR_DEFINE_FREEFUNCTION(03);
+    MATH_EXPR_DEFINE_FREEFUNCTION(04);
+    MATH_EXPR_DEFINE_FREEFUNCTION(05);
+    MATH_EXPR_DEFINE_FREEFUNCTION(06);
+    MATH_EXPR_DEFINE_FREEFUNCTION(07);
+    MATH_EXPR_DEFINE_FREEFUNCTION(08);
+    MATH_EXPR_DEFINE_FREEFUNCTION(09);
+    MATH_EXPR_DEFINE_FREEFUNCTION(10);
+    MATH_EXPR_DEFINE_FREEFUNCTION(11);
+    MATH_EXPR_DEFINE_FREEFUNCTION(12);
+    MATH_EXPR_DEFINE_FREEFUNCTION(13);
+    MATH_EXPR_DEFINE_FREEFUNCTION(14);
+    MATH_EXPR_DEFINE_FREEFUNCTION(15);
 
-#undef math_expr_define_freefunction
+#undef MATH_EXPR_DEFINE_FREEFUNCTION
 
     inline bool add_reserved_function(const std::string& function_name, function_t& function)
     {
@@ -1281,7 +1281,7 @@ class symbol_table
         return false;
     }
 
-#define math_expr_define_reserved_function(NN)                                                     \
+#define MATH_EXPR_DEFINE_RESERVED_FUNCTION(NN)                                                     \
     inline bool add_reserved_function(const std::string& function_name, ff##NN##_functor function) \
     {                                                                                              \
         if (!valid())                                                                              \
@@ -1302,24 +1302,24 @@ class symbol_table
         return add_reserved_function(function_name, (*local_data().free_function_list_.back()));   \
     }
 
-    math_expr_define_reserved_function(00);
-    math_expr_define_reserved_function(01);
-    math_expr_define_reserved_function(02);
-    math_expr_define_reserved_function(03);
-    math_expr_define_reserved_function(04);
-    math_expr_define_reserved_function(05);
-    math_expr_define_reserved_function(06);
-    math_expr_define_reserved_function(07);
-    math_expr_define_reserved_function(08);
-    math_expr_define_reserved_function(09);
-    math_expr_define_reserved_function(10);
-    math_expr_define_reserved_function(11);
-    math_expr_define_reserved_function(12);
-    math_expr_define_reserved_function(13);
-    math_expr_define_reserved_function(14);
-    math_expr_define_reserved_function(15);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(00);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(01);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(02);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(03);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(04);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(05);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(06);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(07);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(08);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(09);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(10);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(11);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(12);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(13);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(14);
+    MATH_EXPR_DEFINE_RESERVED_FUNCTION(15);
 
-#undef math_expr_define_reserved_function
+#undef MATH_EXPR_DEFINE_RESERVED_FUNCTION
 
     template <std::size_t N>
     inline bool add_vector(const std::string& vector_name, T (&v)[N])

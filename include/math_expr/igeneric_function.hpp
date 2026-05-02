@@ -63,28 +63,28 @@ class igeneric_function : public function_traits
 
     virtual ~igeneric_function() {}
 
-#define igeneric_function_empty_body(N)                                                      \
+#define IGENERIC_FUNCTION_EMPTY_BODY(N)                                                      \
     {                                                                                        \
-        math_expr_debug(                                                                     \
+        MATH_EXPR_DEBUG(                                                                     \
             ("igeneric_function::operator() - Operator(" #N ") has not been overridden\n")); \
         return std::numeric_limits<T>::quiet_NaN();                                          \
     }
 
     // f(i_0,i_1,....,i_N) --> Scalar
-    inline virtual T operator()(parameter_list_t) igeneric_function_empty_body(1);
+    inline virtual T operator()(parameter_list_t) IGENERIC_FUNCTION_EMPTY_BODY(1);
 
     // f(i_0,i_1,....,i_N) --> String
-    inline virtual T operator()(std::string&, parameter_list_t) igeneric_function_empty_body(2);
+    inline virtual T operator()(std::string&, parameter_list_t) IGENERIC_FUNCTION_EMPTY_BODY(2);
 
     // f(psi,i_0,i_1,....,i_N) --> Scalar
     inline virtual T operator()(const std::size_t&, parameter_list_t)
-        igeneric_function_empty_body(3);
+        IGENERIC_FUNCTION_EMPTY_BODY(3);
 
     // f(psi,i_0,i_1,....,i_N) --> String
     inline virtual T operator()(const std::size_t&, std::string&, parameter_list_t)
-        igeneric_function_empty_body(4);
+        IGENERIC_FUNCTION_EMPTY_BODY(4);
 
-#undef igeneric_function_empty_body
+#undef IGENERIC_FUNCTION_EMPTY_BODY
 
     std::string parameter_sequence;
     return_type rtrn_type;

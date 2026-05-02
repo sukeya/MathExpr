@@ -123,25 +123,25 @@ class token_inserter : public helper_interface
         return changes;
     }
 
-#define token_inserter_empty_body \
+#define TOKEN_INSERTER_EMPTY_BODY \
     {                             \
         return -1;                \
     }
 
-   inline virtual int insert(const token&, token&) token_inserter_empty_body
+   inline virtual int insert(const token&, token&) TOKEN_INSERTER_EMPTY_BODY
 
-       inline virtual int insert(const token&, const token&, token&) token_inserter_empty_body
+       inline virtual int insert(const token&, const token&, token&) TOKEN_INSERTER_EMPTY_BODY
 
        inline virtual int insert(const token&, const token&, const token&,
-                                 token&) token_inserter_empty_body
+                                 token&) TOKEN_INSERTER_EMPTY_BODY
 
        inline virtual int insert(const token&, const token&, const token&, const token&,
-                                 token&) token_inserter_empty_body
+                                 token&) TOKEN_INSERTER_EMPTY_BODY
 
        inline virtual int insert(const token&, const token&, const token&, const token&,
-                                 const token&, token&) token_inserter_empty_body
+                                 const token&, token&) TOKEN_INSERTER_EMPTY_BODY
 
-#undef token_inserter_empty_body
+#undef TOKEN_INSERTER_EMPTY_BODY
 
        private :
 

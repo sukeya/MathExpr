@@ -44,10 +44,10 @@ inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t si
     if constexpr (::math_expr::core::build_options::kEnableDebugging)
     {
         if (size)
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("%s - addr: %p size: %d\n", s.c_str(), ptr, static_cast<unsigned int>(size)));
         else
-            math_expr_debug(("%s - addr: %p\n", s.c_str(), ptr));
+            MATH_EXPR_DEBUG(("%s - addr: %p\n", s.c_str(), ptr));
     }
 }
 

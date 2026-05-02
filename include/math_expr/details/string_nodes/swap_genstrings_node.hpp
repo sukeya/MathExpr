@@ -120,36 +120,36 @@ class swap_genstrings_node final : public binary_node<T>
             core::operators::loop_unroll lud(max_size);
             core::char_cptr upper_bound = s0 + lud.upper_bound;
 
-#define math_expr_loop(N) std::swap(s0[N], s1[N]);
+#define MATH_EXPR_LOOP(N) std::swap(s0[N], s1[N]);
 
             while (s0 < upper_bound)
             {
-                math_expr_loop(0);
-                math_expr_loop(1);
-                math_expr_loop(2);
-                math_expr_loop(3);
+                MATH_EXPR_LOOP(0);
+                MATH_EXPR_LOOP(1);
+                MATH_EXPR_LOOP(2);
+                MATH_EXPR_LOOP(3);
                 if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                     ;
                 {
-                    math_expr_loop(4);
-                    math_expr_loop(5);
-                    math_expr_loop(6);
-                    math_expr_loop(7);
-                    math_expr_loop(8);
-                    math_expr_loop(9);
-                    math_expr_loop(10);
-                    math_expr_loop(11);
-                    math_expr_loop(12);
-                    math_expr_loop(13);
-                    math_expr_loop(14);
-                    math_expr_loop(15);
+                    MATH_EXPR_LOOP(4);
+                    MATH_EXPR_LOOP(5);
+                    MATH_EXPR_LOOP(6);
+                    MATH_EXPR_LOOP(7);
+                    MATH_EXPR_LOOP(8);
+                    MATH_EXPR_LOOP(9);
+                    MATH_EXPR_LOOP(10);
+                    MATH_EXPR_LOOP(11);
+                    MATH_EXPR_LOOP(12);
+                    MATH_EXPR_LOOP(13);
+                    MATH_EXPR_LOOP(14);
+                    MATH_EXPR_LOOP(15);
                 }
 
                 s0 += lud.batch_size;
                 s1 += lud.batch_size;
             }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
             int i = 0;
 

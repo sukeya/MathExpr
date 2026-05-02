@@ -1238,33 +1238,33 @@ struct vec_add_op
 
         while (vec < upper_bound)
         {
-#define math_expr_loop(N) r[N] += vec[N];
+#define MATH_EXPR_LOOP(N) r[N] += vec[N];
 
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         int i = 0;
 
@@ -1309,35 +1309,35 @@ struct vec_mul_op
 
         const T* upper_bound = vec + lud.upper_bound;
 
-#define math_expr_loop(N) r[N] *= vec[N];
+#define MATH_EXPR_LOOP(N) r[N] *= vec[N];
 
         while (vec < upper_bound)
         {
-            math_expr_loop(0);
-            math_expr_loop(1);
-            math_expr_loop(2);
-            math_expr_loop(3);
+            MATH_EXPR_LOOP(0);
+            MATH_EXPR_LOOP(1);
+            MATH_EXPR_LOOP(2);
+            MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
                 ;
             {
-                math_expr_loop(4);
-                math_expr_loop(5);
-                math_expr_loop(6);
-                math_expr_loop(7);
-                math_expr_loop(8);
-                math_expr_loop(9);
-                math_expr_loop(10);
-                math_expr_loop(11);
-                math_expr_loop(12);
-                math_expr_loop(13);
-                math_expr_loop(14);
-                math_expr_loop(15);
+                MATH_EXPR_LOOP(4);
+                MATH_EXPR_LOOP(5);
+                MATH_EXPR_LOOP(6);
+                MATH_EXPR_LOOP(7);
+                MATH_EXPR_LOOP(8);
+                MATH_EXPR_LOOP(9);
+                MATH_EXPR_LOOP(10);
+                MATH_EXPR_LOOP(11);
+                MATH_EXPR_LOOP(12);
+                MATH_EXPR_LOOP(13);
+                MATH_EXPR_LOOP(14);
+                MATH_EXPR_LOOP(15);
             }
 
             vec += lud.batch_size;
         }
 
-#undef math_expr_loop
+#undef MATH_EXPR_LOOP
 
         int i = 0;
 
@@ -1753,7 +1753,7 @@ struct param_to_str<0>
     }
 };
 
-#define math_expr_crtype(Type) param_to_str<is_variable_param_v<Type> ? 1 : 0>::result()
+#define MATH_EXPR_CRTYPE(Type) param_to_str<is_variable_param_v<Type> ? 1 : 0>::result()
 
 template <typename T>
 struct T0oT1oT2process
@@ -1773,8 +1773,8 @@ struct T0oT1oT2process
         template <typename T0, typename T1, typename T2>
         static inline std::string id()
         {
-            static const std::string result = "(" + math_expr_crtype(T0) + "o" +
-                                              math_expr_crtype(T1) + ")o(" + math_expr_crtype(T2) +
+            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + "o" +
+                                              MATH_EXPR_CRTYPE(T1) + ")o(" + MATH_EXPR_CRTYPE(T2) +
                                               ")";
             return result;
         }
@@ -1792,8 +1792,8 @@ struct T0oT1oT2process
         template <typename T0, typename T1, typename T2>
         static inline std::string id()
         {
-            static const std::string result = "(" + math_expr_crtype(T0) + ")o(" +
-                                              math_expr_crtype(T1) + "o" + math_expr_crtype(T2) +
+            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + ")o(" +
+                                              MATH_EXPR_CRTYPE(T1) + "o" + MATH_EXPR_CRTYPE(T2) +
                                               ")";
             return result;
         }
@@ -1819,8 +1819,8 @@ struct T0oT1oT20T3process
         static inline std::string id()
         {
             static const std::string result =
-                "(" + math_expr_crtype(T0) + "o" + math_expr_crtype(T1) + ")o" + "(" +
-                math_expr_crtype(T2) + "o" + math_expr_crtype(T3) + ")";
+                "(" + MATH_EXPR_CRTYPE(T0) + "o" + MATH_EXPR_CRTYPE(T1) + ")o" + "(" +
+                MATH_EXPR_CRTYPE(T2) + "o" + MATH_EXPR_CRTYPE(T3) + ")";
             return result;
         }
     };
@@ -1836,9 +1836,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "(" + math_expr_crtype(T0) + ")o((" +
-                                              math_expr_crtype(T1) + ")o(" + math_expr_crtype(T2) +
-                                              "o" + math_expr_crtype(T3) + "))";
+            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + ")o((" +
+                                              MATH_EXPR_CRTYPE(T1) + ")o(" + MATH_EXPR_CRTYPE(T2) +
+                                              "o" + MATH_EXPR_CRTYPE(T3) + "))";
             return result;
         }
     };
@@ -1855,9 +1855,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "(" + math_expr_crtype(T0) + ")o((" +
-                                              math_expr_crtype(T1) + "o" + math_expr_crtype(T2) +
-                                              ")o(" + math_expr_crtype(T3) + "))";
+            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + ")o((" +
+                                              MATH_EXPR_CRTYPE(T1) + "o" + MATH_EXPR_CRTYPE(T2) +
+                                              ")o(" + MATH_EXPR_CRTYPE(T3) + "))";
             return result;
         }
     };
@@ -1874,9 +1874,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "((" + math_expr_crtype(T0) + "o" +
-                                              math_expr_crtype(T1) + ")o(" + math_expr_crtype(T2) +
-                                              "))o(" + math_expr_crtype(T3) + ")";
+            static const std::string result = "((" + MATH_EXPR_CRTYPE(T0) + "o" +
+                                              MATH_EXPR_CRTYPE(T1) + ")o(" + MATH_EXPR_CRTYPE(T2) +
+                                              "))o(" + MATH_EXPR_CRTYPE(T3) + ")";
             return result;
         }
     };
@@ -1893,15 +1893,15 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "((" + math_expr_crtype(T0) + ")o(" +
-                                              math_expr_crtype(T1) + "o" + math_expr_crtype(T2) +
-                                              "))o(" + math_expr_crtype(T3) + ")";
+            static const std::string result = "((" + MATH_EXPR_CRTYPE(T0) + ")o(" +
+                                              MATH_EXPR_CRTYPE(T1) + "o" + MATH_EXPR_CRTYPE(T2) +
+                                              "))o(" + MATH_EXPR_CRTYPE(T3) + ")";
             return result;
         }
     };
 };
 
-#undef math_expr_crtype
+#undef MATH_EXPR_CRTYPE
 
 template <typename T, typename T0, typename T1>
 struct nodetype_T0oT1
@@ -1910,7 +1910,7 @@ struct nodetype_T0oT1
         expression_node<T>::node_type::e_none;
 };
 
-#define synthesis_node_type_define(T0_, T1_, v_)                         \
+#define SYNTHESIS_NODE_TYPE_DEFINE(T0_, T1_, v_)                         \
     template <typename T, typename T0, typename T1>                      \
     struct nodetype_T0oT1<T, T0_, T1_>                                   \
     {                                                                    \
@@ -1918,25 +1918,25 @@ struct nodetype_T0oT1
             expression_node<T>::node_type::v_;                           \
     };
 
-synthesis_node_type_define(const T0&, const T1&, e_vov)
-    synthesis_node_type_define(const T0&, const T1, e_voc)
-        synthesis_node_type_define(const T0, const T1&, e_cov)
-            synthesis_node_type_define(T0&, T1&, e_none)
-                synthesis_node_type_define(const T0, const T1, e_none)
-                    synthesis_node_type_define(T0&, const T1, e_none)
-                        synthesis_node_type_define(const T0, T1&, e_none)
-                            synthesis_node_type_define(const T0&, T1&, e_none)
-                                synthesis_node_type_define(T0&, const T1&, e_none)
-#undef synthesis_node_type_define
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, e_vov)
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, e_voc)
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, e_cov)
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, T1&, e_none)
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, e_none)
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, const T1, e_none)
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, T1&, e_none)
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, T1&, e_none)
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, const T1&, e_none)
+#undef SYNTHESIS_NODE_TYPE_DEFINE
 
-                                    template <typename T, typename T0, typename T1, typename T2>
-                                    struct nodetype_T0oT1oT2
+template <typename T, typename T0, typename T1, typename T2>
+struct nodetype_T0oT1oT2
 {
     static constexpr typename expression_node<T>::node_type result =
         expression_node<T>::node_type::e_none;
 };
 
-#define synthesis_node_type_define(T0_, T1_, T2_, v_)                    \
+#define SYNTHESIS_NODE_TYPE_DEFINE(T0_, T1_, T2_, v_)                    \
     template <typename T, typename T0, typename T1, typename T2>         \
     struct nodetype_T0oT1oT2<T, T0_, T1_, T2_>                           \
     {                                                                    \
@@ -1944,16 +1944,16 @@ synthesis_node_type_define(const T0&, const T1&, e_vov)
             expression_node<T>::node_type::v_;                           \
     };
 
-synthesis_node_type_define(const T0&, const T1&, const T2&, e_vovov);
-synthesis_node_type_define(const T0&, const T1&, const T2, e_vovoc);
-synthesis_node_type_define(const T0&, const T1, const T2&, e_vocov);
-synthesis_node_type_define(const T0, const T1&, const T2&, e_covov);
-synthesis_node_type_define(const T0, const T1&, const T2, e_covoc);
-synthesis_node_type_define(const T0, const T1, const T2, e_none);
-synthesis_node_type_define(const T0, const T1, const T2&, e_none);
-synthesis_node_type_define(const T0&, const T1, const T2, e_none);
-synthesis_node_type_define(T0&, T1&, T2&, e_none);
-#undef synthesis_node_type_define
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2&, e_vovov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2, e_vovoc);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, const T2&, e_vocov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, const T2&, e_covov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, const T2, e_covoc);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, const T2, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, const T2&, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, const T2, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, T1&, T2&, e_none);
+#undef SYNTHESIS_NODE_TYPE_DEFINE
 
 template <typename T, typename T0, typename T1, typename T2, typename T3>
 struct nodetype_T0oT1oT2oT3
@@ -1962,7 +1962,7 @@ struct nodetype_T0oT1oT2oT3
         expression_node<T>::node_type::e_none;
 };
 
-#define synthesis_node_type_define(T0_, T1_, T2_, T3_, v_)                    \
+#define SYNTHESIS_NODE_TYPE_DEFINE(T0_, T1_, T2_, T3_, v_)                    \
     template <typename T, typename T0, typename T1, typename T2, typename T3> \
     struct nodetype_T0oT1oT2oT3<T, T0_, T1_, T2_, T3_>                        \
     {                                                                         \
@@ -1970,37 +1970,26 @@ struct nodetype_T0oT1oT2oT3
             expression_node<T>::node_type::v_;                                \
     };
 
-synthesis_node_type_define(const T0&, const T1&, const T2&, const T3&,
-                           e_vovovov) synthesis_node_type_define(const T0&, const T1&, const T2&,
-                                                                 const T3, e_vovovoc)
-    synthesis_node_type_define(const T0&, const T1&, const T2, const T3&,
-                               e_vovocov) synthesis_node_type_define(const T0&, const T1, const T2&,
-                                                                     const T3&, e_vocovov)
-        synthesis_node_type_define(const T0, const T1&, const T2&, const T3&, e_covovov)
-            synthesis_node_type_define(const T0, const T1&, const T2, const T3&,
-                                       e_covocov) synthesis_node_type_define(const T0&, const T1,
-                                                                             const T2&, const T3,
-                                                                             e_vocovoc)
-                synthesis_node_type_define(const T0, const T1&, const T2&, const T3, e_covovoc)
-                    synthesis_node_type_define(const T0&, const T1, const T2, const T3&, e_vococov)
-                        synthesis_node_type_define(const T0, const T1, const T2, const T3, e_none)
-                            synthesis_node_type_define(const T0, const T1, const T2, const T3&,
-                                                       e_none)
-                                synthesis_node_type_define(const T0, const T1, const T2&, const T3,
-                                                           e_none)
-                                    synthesis_node_type_define(const T0, const T1&, const T2,
-                                                               const T3, e_none)
-                                        synthesis_node_type_define(const T0&, const T1, const T2,
-                                                                   const T3, e_none)
-                                            synthesis_node_type_define(const T0, const T1,
-                                                                       const T2&, const T3&, e_none)
-                                                synthesis_node_type_define(const T0&, const T1&,
-                                                                           const T2, const T3,
-                                                                           e_none)
-#undef synthesis_node_type_define
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2&, const T3&, e_vovovov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2&, const T3, e_vovovoc);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2, const T3&, e_vovocov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, const T2&, const T3&, e_vocovov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, const T2&, const T3&, e_covovov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, const T2, const T3&, e_covocov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, const T2&, const T3, e_vocovoc);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, const T2&, const T3, e_covovoc);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, const T2, const T3&, e_vococov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, const T2, const T3, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, const T2, const T3&, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, const T2&, const T3, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, const T2, const T3, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, const T2, const T3, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, const T2&, const T3&, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2, const T3, e_none);
+#undef SYNTHESIS_NODE_TYPE_DEFINE
 
-                                                    template <typename T, typename T0, typename T1>
-                                                    class T0oT1 final : public expression_node<T>
+template <typename T, typename T0, typename T1>
+class T0oT1 final : public expression_node<T>
 {
    public:
     using functor_t = typename core::numeric::functor_t<T>;
@@ -4017,7 +4006,7 @@ class node_allocator
     template <typename T>
     void inline free(expression_node<T>*& e) const
     {
-        math_expr_debug(
+        MATH_EXPR_DEBUG(
             ("node_allocator::free() - deleting expression_node "
              "type: %03d addr: %p\n",
              static_cast<int>(e->type()), reinterpret_cast<void*>(e)));
@@ -4029,127 +4018,62 @@ class node_allocator
 inline void load_operations_map(
     std::multimap<std::string, core::operators::base_operation_t, core::ilesscompare>& m)
 {
-#define register_op(Symbol, Type, Args) \
+#define REGISTER_OP(Symbol, Type, Args) \
     m.insert(std::make_pair(std::string(Symbol), core::operators::base_operation_t(Type, Args)));
 
-    register_op("abs", core::operators::operator_type::abs, 1) register_op(
-        "acos", core::operators::operator_type::acos,
-        1) register_op("acosh", core::operators::operator_type::acosh,
-                       1) register_op("asin", core::operators::operator_type::asin, 1)
-        register_op("asinh", core::operators::operator_type::asinh, 1) register_op(
-            "atan", core::operators::operator_type::atan,
-            1) register_op("atanh", core::operators::operator_type::atanh,
-                           1) register_op("ceil", core::operators::operator_type::ceil,
-                                          1) register_op("cos", core::operators::operator_type::cos,
-                                                         1)
-            register_op("cosh", core::operators::operator_type::cosh, 1) register_op(
-                "exp", core::operators::operator_type::exp,
-                1) register_op("expm1", core::operators::operator_type::expm1,
-                               1) register_op("floor", core::operators::operator_type::floor,
-                                              1) register_op("log",
-                                                             core::operators::operator_type::log, 1)
-                register_op("log10", core::operators::operator_type::log10, 1) register_op(
-                    "log2", core::operators::operator_type::log2,
-                    1) register_op("log1p", core::operators::operator_type::log1p,
-                                   1) register_op("round", core::operators::operator_type::round, 1)
-                    register_op("sin", core::operators::operator_type::sin, 1) register_op(
-                        "sinc", core::operators::operator_type::sinc,
-                        1) register_op("sinh", core::operators::operator_type::sinh,
-                                       1) register_op("sec", core::operators::operator_type::sec, 1)
-                        register_op("csc", core::operators::operator_type::csc, 1) register_op(
-                            "sqrt", core::operators::operator_type::sqrt,
-                            1) register_op("tan", core::operators::operator_type::tan,
-                                           1) register_op("tanh",
-                                                          core::operators::operator_type::tanh, 1)
-                            register_op("cot", core::operators::operator_type::cot, 1) register_op(
-                                "rad2deg", core::operators::operator_type::r2d,
-                                1) register_op("deg2rad", core::operators::operator_type::d2r,
-                                               1) register_op("deg2grad",
-                                                              core::operators::operator_type::d2g,
-                                                              1)
-                                register_op(
-                                    "grad2deg",
-                                    core::operators::operator_type::g2d,
-                                    1) register_op("sgn", core::operators::operator_type::sgn,
-                                                   1) register_op("not",
-                                                                  core::operators::operator_type::
-                                                                      notl,
-                                                                  1)
-                                    register_op("erf", core::operators::operator_type::erf, 1) register_op(
-                                        "erfc",
-                                        core::operators::operator_type::
-                                            erfc,
-                                        1) register_op("ncdf", core::operators::operator_type::ncdf,
-                                                       1)
-                                        register_op(
-                                            "frac",
-                                            core::operators::operator_type::
-                                                frac,
-                                            1) register_op("trunc", core::operators::operator_type::trunc,
-                                                           1)
-                                            register_op(
-                                                "atan2", core::operators::operator_type::atan2, 2)
-                                                register_op(
-                                                    "mod",
-                                                    core::operators::operator_type::
-                                                        mod,
-                                                    2) register_op("logn",
-                                                                   core::
-                                                                       operators::operator_type::logn,
-                                                                   2)
-                                                    register_op(
-                                                        "pow",
-                                                        core::operators::operator_type::
-                                                            pow,
-                                                        2) register_op("root",
-                                                                       core::operators::
-                                                                           operator_type::root,
-                                                                       2)
-                                                        register_op(
-                                                            "roundn",
-                                                            core::operators::operator_type::
-                                                                roundn,
-                                                            2) register_op("equal",
-                                                                           core::operators::
-                                                                               operator_type::equal,
-                                                                           2)
-                                                            register_op(
-                                                                "not_equal",
-                                                                core::operators::operator_type::
-                                                                    nequal,
-                                                                2) register_op("hypot",
-                                                                               core::operators::
-                                                                                   operator_type::hypot,
-                                                                               2)
-                                                                register_op(
-                                                                    "shr",
-                                                                    core::operators::operator_type::
-                                                                        shr,
-                                                                    2)
-                                                                    register_op(
-                                                                        "shl",
-                                                                        core::operators::
-                                                                            operator_type::shl,
-                                                                        2)
-                                                                        register_op(
-                                                                            "clamp",
-                                                                            core::operators::
-                                                                                operator_type::
-                                                                                    clamp,
-                                                                            3)
-                                                                            register_op(
-                                                                                "iclamp",
-                                                                                core::operators::
-                                                                                    operator_type::
-                                                                                        iclamp,
-                                                                                3)
-                                                                                register_op(
-                                                                                    "inrange",
-                                                                                    core::operators::
-                                                                                        operator_type::
-                                                                                            inrange,
-                                                                                    3)
-#undef register_op
+    REGISTER_OP("abs", core::operators::operator_type::abs, 1);
+    REGISTER_OP("acos", core::operators::operator_type::acos, 1);
+    REGISTER_OP("acosh", core::operators::operator_type::acosh, 1);
+    REGISTER_OP("asin", core::operators::operator_type::asin, 1);
+    REGISTER_OP("asinh", core::operators::operator_type::asinh, 1);
+    REGISTER_OP("atan", core::operators::operator_type::atan, 1);
+    REGISTER_OP("atanh", core::operators::operator_type::atanh, 1);
+    REGISTER_OP("ceil", core::operators::operator_type::ceil, 1);
+    REGISTER_OP("cos", core::operators::operator_type::cos, 1);
+    REGISTER_OP("cosh", core::operators::operator_type::cosh, 1);
+    REGISTER_OP("exp", core::operators::operator_type::exp, 1);
+    REGISTER_OP("expm1", core::operators::operator_type::expm1, 1);
+    REGISTER_OP("floor", core::operators::operator_type::floor, 1);
+    REGISTER_OP("log", core::operators::operator_type::log, 1);
+    REGISTER_OP("log10", core::operators::operator_type::log10, 1);
+    REGISTER_OP("log2", core::operators::operator_type::log2, 1);
+    REGISTER_OP("log1p", core::operators::operator_type::log1p, 1);
+    REGISTER_OP("round", core::operators::operator_type::round, 1);
+    REGISTER_OP("sin", core::operators::operator_type::sin, 1);
+    REGISTER_OP("sinc", core::operators::operator_type::sinc, 1);
+    REGISTER_OP("sinh", core::operators::operator_type::sinh, 1);
+    REGISTER_OP("sec", core::operators::operator_type::sec, 1);
+    REGISTER_OP("csc", core::operators::operator_type::csc, 1);
+    REGISTER_OP("sqrt", core::operators::operator_type::sqrt, 1);
+    REGISTER_OP("tan", core::operators::operator_type::tan, 1);
+    REGISTER_OP("tanh", core::operators::operator_type::tanh, 1);
+    REGISTER_OP("cot", core::operators::operator_type::cot, 1);
+    REGISTER_OP("rad2deg", core::operators::operator_type::r2d, 1);
+    REGISTER_OP("deg2rad", core::operators::operator_type::d2r, 1);
+    REGISTER_OP("deg2grad", core::operators::operator_type::d2g, 1);
+    REGISTER_OP("grad2deg", core::operators::operator_type::g2d, 1);
+    REGISTER_OP("sgn", core::operators::operator_type::sgn, 1);
+    REGISTER_OP("not", core::operators::operator_type::notl, 1);
+    REGISTER_OP("erf", core::operators::operator_type::erf, 1);
+    REGISTER_OP("erfc", core::operators::operator_type::erfc, 1);
+    REGISTER_OP("ncdf", core::operators::operator_type::ncdf, 1);
+    REGISTER_OP("frac", core::operators::operator_type::frac, 1);
+    REGISTER_OP("trunc", core::operators::operator_type::trunc, 1);
+    REGISTER_OP("atan2", core::operators::operator_type::atan2, 2);
+    REGISTER_OP("mod", core::operators::operator_type::mod, 2);
+    REGISTER_OP("logn", core::operators::operator_type::logn, 2);
+    REGISTER_OP("pow", core::operators::operator_type::pow, 2);
+    REGISTER_OP("root", core::operators::operator_type::root, 2);
+    REGISTER_OP("roundn", core::operators::operator_type::roundn, 2);
+    REGISTER_OP("equal", core::operators::operator_type::equal, 2);
+    REGISTER_OP("not_equal", core::operators::operator_type::nequal, 2);
+    REGISTER_OP("hypot", core::operators::operator_type::hypot, 2);
+    REGISTER_OP("shr", core::operators::operator_type::shr, 2);
+    REGISTER_OP("shl", core::operators::operator_type::shl, 2);
+    REGISTER_OP("clamp", core::operators::operator_type::clamp, 3);
+    REGISTER_OP("iclamp", core::operators::operator_type::iclamp, 3);
+    REGISTER_OP("inrange", core::operators::operator_type::inrange, 3)
+#undef REGISTER_OP
 }
 
 }  // namespace math_expr::details

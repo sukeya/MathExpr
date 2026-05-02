@@ -33,12 +33,12 @@ limitations under the License.
 #ifndef MATH_EXPR_CORE_CLEANUP_HPP
 #define MATH_EXPR_CORE_CLEANUP_HPP
 
-#ifdef math_expr_debug
-#undef math_expr_debug
+#ifdef MATH_EXPR_DEBUG
+#undef MATH_EXPR_DEBUG
 #endif
 
-#ifdef math_expr_error_location
-#undef math_expr_error_location
+#ifdef MATH_EXPR_ERROR_LOCATION
+#undef MATH_EXPR_ERROR_LOCATION
 #endif
 
 #ifdef override

@@ -181,7 +181,7 @@ class return_envelope_node final : public expression_node<T>
 };
 #endif
 
-#define math_expr_define_unary_op(OpName)                        \
+#define MATH_EXPR_DEFINE_UNARY_OP(OpName)                        \
     template <typename T>                                        \
     struct OpName##_op                                           \
     {                                                            \
@@ -204,47 +204,47 @@ class return_envelope_node final : public expression_node<T>
         }                                                        \
     }
 
-math_expr_define_unary_op(abs);
-math_expr_define_unary_op(acos);
-math_expr_define_unary_op(acosh);
-math_expr_define_unary_op(asin);
-math_expr_define_unary_op(asinh);
-math_expr_define_unary_op(atan);
-math_expr_define_unary_op(atanh);
-math_expr_define_unary_op(ceil);
-math_expr_define_unary_op(cos);
-math_expr_define_unary_op(cosh);
-math_expr_define_unary_op(cot);
-math_expr_define_unary_op(csc);
-math_expr_define_unary_op(d2g);
-math_expr_define_unary_op(d2r);
-math_expr_define_unary_op(erf);
-math_expr_define_unary_op(erfc);
-math_expr_define_unary_op(exp);
-math_expr_define_unary_op(expm1);
-math_expr_define_unary_op(floor);
-math_expr_define_unary_op(frac);
-math_expr_define_unary_op(g2d);
-math_expr_define_unary_op(log);
-math_expr_define_unary_op(log10);
-math_expr_define_unary_op(log2);
-math_expr_define_unary_op(log1p);
-math_expr_define_unary_op(ncdf);
-math_expr_define_unary_op(neg);
-math_expr_define_unary_op(notl);
-math_expr_define_unary_op(pos);
-math_expr_define_unary_op(r2d);
-math_expr_define_unary_op(round);
-math_expr_define_unary_op(sec);
-math_expr_define_unary_op(sgn);
-math_expr_define_unary_op(sin);
-math_expr_define_unary_op(sinc);
-math_expr_define_unary_op(sinh);
-math_expr_define_unary_op(sqrt);
-math_expr_define_unary_op(tan);
-math_expr_define_unary_op(tanh);
-math_expr_define_unary_op(trunc);
-#undef math_expr_define_unary_op
+MATH_EXPR_DEFINE_UNARY_OP(abs);
+MATH_EXPR_DEFINE_UNARY_OP(acos);
+MATH_EXPR_DEFINE_UNARY_OP(acosh);
+MATH_EXPR_DEFINE_UNARY_OP(asin);
+MATH_EXPR_DEFINE_UNARY_OP(asinh);
+MATH_EXPR_DEFINE_UNARY_OP(atan);
+MATH_EXPR_DEFINE_UNARY_OP(atanh);
+MATH_EXPR_DEFINE_UNARY_OP(ceil);
+MATH_EXPR_DEFINE_UNARY_OP(cos);
+MATH_EXPR_DEFINE_UNARY_OP(cosh);
+MATH_EXPR_DEFINE_UNARY_OP(cot);
+MATH_EXPR_DEFINE_UNARY_OP(csc);
+MATH_EXPR_DEFINE_UNARY_OP(d2g);
+MATH_EXPR_DEFINE_UNARY_OP(d2r);
+MATH_EXPR_DEFINE_UNARY_OP(erf);
+MATH_EXPR_DEFINE_UNARY_OP(erfc);
+MATH_EXPR_DEFINE_UNARY_OP(exp);
+MATH_EXPR_DEFINE_UNARY_OP(expm1);
+MATH_EXPR_DEFINE_UNARY_OP(floor);
+MATH_EXPR_DEFINE_UNARY_OP(frac);
+MATH_EXPR_DEFINE_UNARY_OP(g2d);
+MATH_EXPR_DEFINE_UNARY_OP(log);
+MATH_EXPR_DEFINE_UNARY_OP(log10);
+MATH_EXPR_DEFINE_UNARY_OP(log2);
+MATH_EXPR_DEFINE_UNARY_OP(log1p);
+MATH_EXPR_DEFINE_UNARY_OP(ncdf);
+MATH_EXPR_DEFINE_UNARY_OP(neg);
+MATH_EXPR_DEFINE_UNARY_OP(notl);
+MATH_EXPR_DEFINE_UNARY_OP(pos);
+MATH_EXPR_DEFINE_UNARY_OP(r2d);
+MATH_EXPR_DEFINE_UNARY_OP(round);
+MATH_EXPR_DEFINE_UNARY_OP(sec);
+MATH_EXPR_DEFINE_UNARY_OP(sgn);
+MATH_EXPR_DEFINE_UNARY_OP(sin);
+MATH_EXPR_DEFINE_UNARY_OP(sinc);
+MATH_EXPR_DEFINE_UNARY_OP(sinh);
+MATH_EXPR_DEFINE_UNARY_OP(sqrt);
+MATH_EXPR_DEFINE_UNARY_OP(tan);
+MATH_EXPR_DEFINE_UNARY_OP(tanh);
+MATH_EXPR_DEFINE_UNARY_OP(trunc);
+#undef MATH_EXPR_DEFINE_UNARY_OP
 
 }  // namespace math_expr::details
 

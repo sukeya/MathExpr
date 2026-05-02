@@ -247,7 +247,7 @@ class trinary_node : public expression_node<T>
                     return ((T(2) * arg1 <= (arg2 + arg0)) ? arg0 : arg2);
 
             default:
-                math_expr_debug(("trinary_node::value() - Error: Invalid operation\n"));
+                MATH_EXPR_DEBUG(("trinary_node::value() - Error: Invalid operation\n"));
                 return std::numeric_limits<T>::quiet_NaN();
         }
     }

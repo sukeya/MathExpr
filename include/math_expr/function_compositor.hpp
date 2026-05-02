@@ -184,56 +184,56 @@ class function_compositor
 
         virtual ~base_func() {}
 
-#define math_expr_assign(Index) (*v[Index]) = v##Index;
+#define MATH_EXPR_ASSIGN(Index) (*v[Index]) = v##Index;
 
         inline void update(const T& v0)
         {
-            math_expr_assign(0);
+            MATH_EXPR_ASSIGN(0);
         }
 
         inline void update(const T& v0, const T& v1)
         {
-            math_expr_assign(0);
-            math_expr_assign(1);
+            MATH_EXPR_ASSIGN(0);
+            MATH_EXPR_ASSIGN(1);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2)
         {
-            math_expr_assign(0);
-            math_expr_assign(1);
-            math_expr_assign(2);
+            MATH_EXPR_ASSIGN(0);
+            MATH_EXPR_ASSIGN(1);
+            MATH_EXPR_ASSIGN(2);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3)
         {
-            math_expr_assign(0);
-            math_expr_assign(1);
-            math_expr_assign(2);
-            math_expr_assign(3);
+            MATH_EXPR_ASSIGN(0);
+            MATH_EXPR_ASSIGN(1);
+            MATH_EXPR_ASSIGN(2);
+            MATH_EXPR_ASSIGN(3);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4)
         {
-            math_expr_assign(0);
-            math_expr_assign(1);
-            math_expr_assign(2);
-            math_expr_assign(3);
-            math_expr_assign(4);
+            MATH_EXPR_ASSIGN(0);
+            MATH_EXPR_ASSIGN(1);
+            MATH_EXPR_ASSIGN(2);
+            MATH_EXPR_ASSIGN(3);
+            MATH_EXPR_ASSIGN(4);
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
                            const T& v5)
         {
-            math_expr_assign(0);
-            math_expr_assign(1);
-            math_expr_assign(2);
-            math_expr_assign(3);
-            math_expr_assign(4);
-            math_expr_assign(5);
+            MATH_EXPR_ASSIGN(0);
+            MATH_EXPR_ASSIGN(1);
+            MATH_EXPR_ASSIGN(2);
+            MATH_EXPR_ASSIGN(3);
+            MATH_EXPR_ASSIGN(4);
+            MATH_EXPR_ASSIGN(5);
         }
 
-#ifdef math_expr_assign
-#undef math_expr_assign
+#ifdef MATH_EXPR_ASSIGN
+#undef MATH_EXPR_ASSIGN
 #endif
 
         inline function_t& setup(expression_t& expr)
@@ -251,7 +251,7 @@ class function_compositor
 
             for (std::size_t i = 0; i < ldl.size(); ++i)
             {
-                math_expr_debug(("base_func::setup() - element[%02d] type: %s size: %d\n",
+                MATH_EXPR_DEBUG(("base_func::setup() - element[%02d] type: %s size: %d\n",
                                  static_cast<int>(i),
                                  expression_t::control_block::to_str(ldl[i].type).c_str(),
                                  static_cast<int>(ldl[i].size)));
@@ -599,7 +599,7 @@ class function_compositor
         return result;
     }
 
-#define def_fp_retval(N)                                         \
+#define DEF_FP_RETVAL(N)                                         \
     struct func_##N##param_retval final : public func_##N##param \
     {                                                            \
         inline T value(expression_t& e) override                 \
@@ -608,15 +608,15 @@ class function_compositor
         }                                                        \
     };
 
-    def_fp_retval(0);
-    def_fp_retval(1);
-    def_fp_retval(2);
-    def_fp_retval(3);
-    def_fp_retval(4);
-    def_fp_retval(5);
-    def_fp_retval(6);
+    DEF_FP_RETVAL(0);
+    DEF_FP_RETVAL(1);
+    DEF_FP_RETVAL(2);
+    DEF_FP_RETVAL(3);
+    DEF_FP_RETVAL(4);
+    DEF_FP_RETVAL(5);
+    DEF_FP_RETVAL(6);
 
-#undef def_fp_retval
+#undef DEF_FP_RETVAL
 
     template <typename Allocator, template <typename, typename> class Sequence>
     inline bool add(const std::string& name, const std::string& expression,
@@ -628,7 +628,7 @@ class function_compositor
         {
             if (!override)
             {
-                math_expr_debug(
+                MATH_EXPR_DEBUG(
                     ("Compositor error(add): function '%s' already defined\n", name.c_str()));
 
                 return false;
@@ -647,7 +647,7 @@ class function_compositor
         }
         else
         {
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("Compositor error(add): Failed to compile function '%s'\n", name.c_str()));
 
             return false;
@@ -815,7 +815,7 @@ class function_compositor
             parser_error::type error =
                 parser_error::make_error(parser_error::error_mode::e_parser, lexer::token(),
                                          "ERR283 - Function '" + name + "' is an invalid overload",
-                                         math_expr_error_location);
+                                         MATH_EXPR_ERROR_LOCATION);
 
             error_list_.push_back(error);
             return false;
@@ -845,8 +845,8 @@ class function_compositor
 
         if (!parser_.compile(mod_expression, compiled_expression))
         {
-            math_expr_debug(("Compositor Error: %s\n", parser_.error().c_str()));
-            math_expr_debug(("Compositor modified expression: \n%s\n", mod_expression.c_str()));
+            MATH_EXPR_DEBUG(("Compositor Error: %s\n", parser_.error().c_str()));
+            MATH_EXPR_DEBUG(("Compositor modified expression: \n%s\n", mod_expression.c_str()));
 
             remove(name, input_var_list.size());
 
@@ -877,7 +877,7 @@ class function_compositor
 
                 if (params.empty() || ('T' != params[0]))
                 {
-                    math_expr_debug(
+                    MATH_EXPR_DEBUG(
                         ("Compositor Error: Return statement in function '%s' is invalid\n",
                          name.c_str()));
 
@@ -896,7 +896,7 @@ class function_compositor
             return true;
         else
         {
-            math_expr_debug(
+            MATH_EXPR_DEBUG(
                 ("Compositor Error: Failed to add function '%s' to symbol table\n", name.c_str()));
             return false;
         }
@@ -926,21 +926,21 @@ class function_compositor
     {
         switch (arg_count)
         {
-#define case_stmt(N)                                                                            \
+#define CASE_STMT(N)                                                                            \
     case N:                                                                                     \
         (fp_map_[arg_count])[name] = (!ret_present)                                             \
                                          ? static_cast<base_func*>(new func_##N##param)         \
                                          : static_cast<base_func*>(new func_##N##param_retval); \
         break;
 
-            case_stmt(0);
-            case_stmt(1);
-            case_stmt(2);
-            case_stmt(3);
-            case_stmt(4);
-            case_stmt(5);
-            case_stmt(6);
-#undef case_stmt
+            CASE_STMT(0);
+            CASE_STMT(1);
+            CASE_STMT(2);
+            CASE_STMT(3);
+            CASE_STMT(4);
+            CASE_STMT(5);
+            CASE_STMT(6);
+#undef CASE_STMT
         }
 
         math_expr::ifunction<T>& ifunc = (*(fp_map_[arg_count])[name]);

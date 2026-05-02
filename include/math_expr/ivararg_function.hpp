@@ -47,7 +47,7 @@ class ivararg_function : public function_traits
 
     inline virtual T operator()(const std::vector<T>&)
     {
-        math_expr_debug(("ivararg_function::operator() - Operator has not been overridden\n"));
+        MATH_EXPR_DEBUG(("ivararg_function::operator() - Operator has not been overridden\n"));
         return std::numeric_limits<T>::quiet_NaN();
     }
 };
