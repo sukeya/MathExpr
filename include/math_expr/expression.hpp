@@ -83,16 +83,61 @@ class expression
 
         struct data_pack
         {
-            data_pack() : pointer(0), type(data_type::e_unknown), size(0) {}
+            data_pack() = default;
+            data_pack(data_pack&&) = default;
+            data_pack& operator=(data_pack&&) = default;
+            data_pack(const data_pack&) = delete;
+            data_pack& operator=(const data_pack&) = delete;
 
-            data_pack(void* ptr, const data_type dt, const std::size_t sz = 0)
-                : pointer(ptr), type(dt), size(sz)
+            explicit data_pack(std::unique_ptr<details::expression_node<T>> p)
+                : owned_(std::move(p)), type(data_type::e_expr), size(0)
             {
             }
 
-            void* pointer;
-            data_type type;
-            std::size_t size;
+            explicit data_pack(std::unique_ptr<details::vector_holder<T>> p)
+                : owned_(std::move(p)), type(data_type::e_vecholder), size(0)
+            {
+            }
+
+            data_pack(std::unique_ptr<T> p, std::size_t sz)
+                : owned_(std::move(p)), type(data_type::e_data), size(sz)
+            {
+            }
+
+            data_pack(std::unique_ptr<T[]> p, std::size_t sz)
+                : owned_(std::move(p)), type(data_type::e_vecdata), size(sz)
+            {
+            }
+
+            data_pack(std::unique_ptr<std::string> p, std::size_t sz)
+                : owned_(std::move(p)), type(data_type::e_string), size(sz)
+            {
+            }
+
+            void* pointer() const noexcept
+            {
+                return std::visit(
+                    [](const auto& p) -> void*
+                    {
+                        using P = std::decay_t<decltype(p)>;
+                        if constexpr (std::is_same_v<P, std::monostate>)
+                            return nullptr;
+                        else
+                            return static_cast<void*>(p.get());
+                    },
+                    owned_);
+            }
+
+            data_type type{data_type::e_unknown};
+            std::size_t size{0};
+
+           private:
+            using owned_t =
+                std::variant<std::monostate, std::unique_ptr<details::expression_node<T>>,
+                             std::unique_ptr<details::vector_holder<T>>, std::unique_ptr<T>,
+                             std::unique_ptr<T[]>, std::unique_ptr<std::string>>;
+
+            owned_t owned_{std::monostate{}};
         };
 
         using local_data_list_t = std::vector<data_pack>;
@@ -110,38 +155,6 @@ class expression
             if (expr && details::branch_deletable(expr))
             {
                 destroy_node(expr);
-            }
-
-            if (!local_data_list.empty())
-            {
-                for (std::size_t i = 0; i < local_data_list.size(); ++i)
-                {
-                    switch (local_data_list[i].type)
-                    {
-                        case data_type::e_expr:
-                            delete reinterpret_cast<expression_ptr>(local_data_list[i].pointer);
-                            break;
-
-                        case data_type::e_vecholder:
-                            delete reinterpret_cast<vector_holder_ptr>(local_data_list[i].pointer);
-                            break;
-
-                        case data_type::e_data:
-                            delete reinterpret_cast<T*>(local_data_list[i].pointer);
-                            break;
-
-                        case data_type::e_vecdata:
-                            delete[] reinterpret_cast<T*>(local_data_list[i].pointer);
-                            break;
-
-                        case data_type::e_string:
-                            delete reinterpret_cast<std::string*>(local_data_list[i].pointer);
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
             }
         }
 
@@ -291,56 +304,41 @@ class expression
 
     inline void register_local_var(expression_ptr expr)
     {
-        if (expr)
+        if (expr && control_block_)
         {
-            if (control_block_)
-            {
-                control_block_->local_data_list.push_back(
-                    typename expression<T>::control_block::data_pack(
-                        reinterpret_cast<void*>(expr), control_block::data_type::e_expr));
-            }
+            control_block_->local_data_list.emplace_back(
+                std::unique_ptr<details::expression_node<T>>(expr));
         }
     }
 
     inline void register_local_var(vector_holder_ptr vec_holder)
     {
-        if (vec_holder)
+        if (vec_holder && control_block_)
         {
-            if (control_block_)
-            {
-                control_block_->local_data_list.push_back(
-                    typename expression<T>::control_block::data_pack(
-                        reinterpret_cast<void*>(vec_holder),
-                        control_block::data_type::e_vecholder));
-            }
+            control_block_->local_data_list.emplace_back(
+                std::unique_ptr<details::vector_holder<T>>(vec_holder));
         }
     }
 
     inline void register_local_data(void* data, const std::size_t& size = 0,
                                     const std::size_t data_mode = 0)
     {
-        if (data)
+        if (data && control_block_)
         {
-            if (control_block_)
+            switch (data_mode)
             {
-                typename control_block::data_type dt = control_block::data_type::e_data;
-
-                switch (data_mode)
-                {
-                    case 0:
-                        dt = control_block::data_type::e_data;
-                        break;
-                    case 1:
-                        dt = control_block::data_type::e_vecdata;
-                        break;
-                    case 2:
-                        dt = control_block::data_type::e_string;
-                        break;
-                }
-
-                control_block_->local_data_list.push_back(
-                    typename expression<T>::control_block::data_pack(reinterpret_cast<void*>(data),
-                                                                     dt, size));
+                case 0:
+                    control_block_->local_data_list.emplace_back(
+                        std::unique_ptr<T>(reinterpret_cast<T*>(data)), size);
+                    break;
+                case 1:
+                    control_block_->local_data_list.emplace_back(
+                        std::unique_ptr<T[]>(reinterpret_cast<T*>(data)), size);
+                    break;
+                case 2:
+                    control_block_->local_data_list.emplace_back(
+                        std::unique_ptr<std::string>(reinterpret_cast<std::string*>(data)), size);
+                    break;
             }
         }
     }

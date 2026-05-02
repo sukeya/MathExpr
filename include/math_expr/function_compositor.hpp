@@ -245,7 +245,7 @@ class function_compositor
             using data_t = typename ctrlblk_t::data_type;
             using ldl_value_type = typename ldl_t::value_type;
 
-            const ldl_t ldl = expr.local_data_list();
+            const ldl_t& ldl = expr.local_data_list();
 
             std::vector<std::pair<std::size_t, data_t>> index_list;
 
@@ -281,26 +281,27 @@ class function_compositor
                 const std::size_t index = index_list[i].first;
                 const ldl_value_type& local_var = ldl[index];
 
-                assert(local_var.pointer);
+                assert(local_var.pointer());
 
                 if (i < (index_list.size() - v.size()))
                 {
                     if (local_var.type == ctrlblk_t::data_type::e_string)
                     {
-                        local_str_vars.push_back(reinterpret_cast<std::string*>(local_var.pointer));
+                        local_str_vars.push_back(
+                            reinterpret_cast<std::string*>(local_var.pointer()));
                     }
                     else if ((local_var.type == ctrlblk_t::data_type::e_data) ||
                              (local_var.type == ctrlblk_t::data_type::e_vecdata))
                     {
-                        local_vars.push_back(std::make_pair(reinterpret_cast<T*>(local_var.pointer),
-                                                            local_var.size));
+                        local_vars.push_back(std::make_pair(
+                            reinterpret_cast<T*>(local_var.pointer()), local_var.size));
 
                         local_var_stack_size += local_var.size;
                     }
                 }
                 else
                 {
-                    v[input_param_count++] = reinterpret_cast<T*>(local_var.pointer);
+                    v[input_param_count++] = reinterpret_cast<T*>(local_var.pointer());
                 }
             }
 
