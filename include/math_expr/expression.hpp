@@ -329,15 +329,15 @@ class expression
             {
                 case 0:
                     control_block_->local_data_list.emplace_back(
-                        std::unique_ptr<T>(reinterpret_cast<T*>(data)), size);
+                        std::unique_ptr<T>(static_cast<T*>(data)), size);
                     break;
                 case 1:
                     control_block_->local_data_list.emplace_back(
-                        std::unique_ptr<T[]>(reinterpret_cast<T*>(data)), size);
+                        std::unique_ptr<T[]>(static_cast<T*>(data)), size);
                     break;
                 case 2:
                     control_block_->local_data_list.emplace_back(
-                        std::unique_ptr<std::string>(reinterpret_cast<std::string*>(data)), size);
+                        std::unique_ptr<std::string>(static_cast<std::string*>(data)), size);
                     break;
                 default:
                     assert(false && "register_local_data: unknown data_mode");
