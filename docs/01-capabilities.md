@@ -1,10 +1,10 @@
-# Section 01: Capabilities
+# Capabilities
 
 [Back to index](index.md)
 
 [Previous](00-introduction.md) | [Index](index.md) | [Next](02-example-expressions.md)
 
-The ExprTk expression evaluator supports the following fundamental arithmetic operations, functions and processes:
+The MathExpr expression evaluator supports the following fundamental arithmetic operations, functions and processes:
 
 1. Types: Scalar, Vector, String
 

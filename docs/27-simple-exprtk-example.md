@@ -1,10 +1,10 @@
-# Section 27: Simple Exprtk Example
+# Simple Exprtk Example
 
 [Back to index](index.md)
 
 [Previous](26-exprtk-notes.md) | [Index](index.md) | [Next](28-build-options.md)
 
-The following is a simple yet complete example demonstrating typical usage of the ExprTk Library. The example instantiates a symbol table object, adding to it three variables named x, y and z, and a custom user defined function, that accepts only two parameters, named myfunc. The example then proceeds to instantiate an expression object and register to it the symbol table instance.
+The following is a simple yet complete example demonstrating typical usage of the MathExpr Library. The example instantiates a symbol table object, adding to it three variables named x, y and z, and a custom user defined function, that accepts only two parameters, named myfunc. The example then proceeds to instantiate an expression object and register to it the symbol table instance.
 
 A parser is then instantiated, and the string representation of the expression and the expression object are passed to the parser's compile method for compilation. If an error occurred during compilation, the compile method will return false, leading to a series of error diagnostics being printed to stdout. Otherwise the newly compiled expression is evaluated by invoking the expression object's value method, and subsequently printing the result of the computation to stdout.
 

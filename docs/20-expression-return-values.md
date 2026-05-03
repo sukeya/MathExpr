@@ -1,10 +1,10 @@
-# Section 20: Expression Return Values
+# Expression Return Values
 
 [Back to index](index.md)
 
 [Previous](19-enabling-and-disabling-features.md) | [Index](index.md) | [Next](21-compilation-errors.md)
 
-ExprTk expressions can return immediately from any point by utilising the return call. Furthermore the return call can be used to transfer out multiple return values from within the expression.
+MathExpr expressions can return immediately from any point by utilising the return call. Furthermore the return call can be used to transfer out multiple return values from within the expression.
 
 If an expression evaluation exits using a return point, the result of the call to the 'value' method will be NaN, and it is expected that the return values will be available from the results_context.
 

@@ -1,10 +1,10 @@
-# Section 19: Enabling & Disabling Features
+# Enabling & Disabling Features
 
 [Back to index](index.md)
 
 [Previous](18-unknown-unknowns.md) | [Index](index.md) | [Next](20-expression-return-values.md)
 
-The parser can be configured via its settings instance to either allow or disallow certain features that are available within the ExprTk grammar. The features fall into one of the following six categories:
+The parser can be configured via its settings instance to either allow or disallow certain features that are available within the MathExpr grammar. The features fall into one of the following six categories:
 
 1. Base Functions
 1. Control Flow Structures
@@ -340,6 +340,6 @@ parser.settings()
 parser.compile("1 + sin(30)",expression);
 ```
 
-In the example above, the custom 'sin' function is registered with the symbol_table using the method 'add_reserved_function'. This is done so as to bypass the checks for reserved words that are carried out on the provided symbol names when calling the standard 'add_function' method. Normally if a user specified symbol name conflicts with any of the ExprTk reserved words, the add_function call will fail.
+In the example above, the custom 'sin' function is registered with the symbol_table using the method 'add_reserved_function'. This is done so as to bypass the checks for reserved words that are carried out on the provided symbol names when calling the standard 'add_function' method. Normally if a user specified symbol name conflicts with any of the MathExpr reserved words, the add_function call will fail.
 
 [Previous](18-unknown-unknowns.md) | [Index](index.md) | [Next](20-expression-return-values.md)

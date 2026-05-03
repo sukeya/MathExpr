@@ -1,10 +1,10 @@
-# Section 23: Helpers & Utils
+# Helpers & Utils
 
 [Back to index](index.md)
 
 [Previous](22-runtime-library-packages.md) | [Index](index.md) | [Next](24-runtime-checks.md)
 
-The ExprTk library provides a series of usage simplifications via helper routines that combine various processes into a single 'function call' making certain actions easier to carry out though not necessarily in the most efficient way possible. A list of the routines are as follows:
+The MathExpr library provides a series of usage simplifications via helper routines that combine various processes into a single 'function call' making certain actions easier to carry out though not necessarily in the most efficient way possible. A list of the routines are as follows:
 
 1. `collect_variables`
 1. `collect_functions`
@@ -56,7 +56,7 @@ else
 
 **Note 34.** When either the 'collect_variables' or 'collect_functions' free functions return true - that does not necessarily indicate the expression itself is valid. It is still possible that when compiled the expression may have certain 'type' related errors - though it is highly likely that no semantic errors will occur if either return true.
 
-**Note 35.** The default interface provided for both the collect_variables and collect_functions free_functions, assumes that expressions will only be utilising the ExprTk reserved functions (eg: abs, cos, min etc). When user defined functions are to be used in an expression, a symbol_table instance containing said functions can be passed to either routine, and will be incorporated during the compilation and Dependent Entity Collection processes. In the following example, a user defined free function named 'foo' is registered with a symbol_table. Finally the symbol_table instance and associated expression string are passed to the math_expr::collect_functions routine.
+**Note 35.** The default interface provided for both the collect_variables and collect_functions free_functions, assumes that expressions will only be utilising the MathExpr reserved functions (eg: abs, cos, min etc). When user defined functions are to be used in an expression, a symbol_table instance containing said functions can be passed to either routine, and will be incorporated during the compilation and Dependent Entity Collection processes. In the following example, a user defined free function named 'foo' is registered with a symbol_table. Finally the symbol_table instance and associated expression string are passed to the math_expr::collect_functions routine.
 
 ```cpp
 template <typename T>

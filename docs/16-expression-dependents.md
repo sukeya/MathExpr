@@ -1,4 +1,4 @@
-# Section 16: Expression Dependents
+# Expression Dependents
 
 [Back to index](index.md)
 
@@ -20,7 +20,7 @@ z := abs(x + sin(2 * pi / y))
 1. Functions: abs, sin
 1. Assignments: z
 
-ExprTk allows for the derivation of expression dependencies via the 'dependent_entity_collector' (DEC). When activated either through 'compile_options' at the construction of the parser or through calls to enabler methods just prior to compilation, the DEC will proceed to collect any of the relevant types that are encountered during the parsing phase. Once the compilation process has successfully completed, the caller can then obtain a list of symbols and their associated types from the DEC.
+MathExpr allows for the derivation of expression dependencies via the 'dependent_entity_collector' (DEC). When activated either through 'compile_options' at the construction of the parser or through calls to enabler methods just prior to compilation, the DEC will proceed to collect any of the relevant types that are encountered during the parsing phase. Once the compilation process has successfully completed, the caller can then obtain a list of symbols and their associated types from the DEC.
 
 The kinds of questions one can ask regarding the dependent entities within an expression are as follows:
 

@@ -1,10 +1,10 @@
-# Section 24: Runtime Checks
+# Runtime Checks
 
 [Back to index](index.md)
 
 [Previous](23-helpers-and-utils.md) | [Index](index.md) | [Next](25-benchmarking.md)
 
-The ExprTk library provides the ability to perform runtime checks during expression evaluation so as to ensure situations such as memory access violation, compilation stack-overflow and evaluation time limit errors are caught and handled without causing further issues. The checks typically cover:
+The MathExpr library provides the ability to perform runtime checks during expression evaluation so as to ensure situations such as memory access violation, compilation stack-overflow and evaluation time limit errors are caught and handled without causing further issues. The checks typically cover:
 
 1. Vector access and handling
 1. String access and handling
@@ -25,7 +25,7 @@ Expressions that contain vectors where elements of the vectors may be accessed u
 
 In the above expressions, it is assumed that the values used in the index operator may either exceed the vector bounds or precede the vector's start, In short, the indexes may not necessarily be within the range [0,vec[]).
 
-ExprTk provides the ability to inject a runtime check at the point of index evaluation and handle situations where the index violates the vector's bounds. This capability is done by registering a user- implemented Vector Access Runtime Check (VARTC) to the parser before expression compilation. Initially a VARTC can be defined as follows:
+MathExpr provides the ability to inject a runtime check at the point of index evaluation and handle situations where the index violates the vector's bounds. This capability is done by registering a user- implemented Vector Access Runtime Check (VARTC) to the parser before expression compilation. Initially a VARTC can be defined as follows:
 
 ```cpp
 struct my_vector_access_rtc final :
@@ -141,7 +141,7 @@ Expressions that contain strings where elements or substrings of the strings may
 1. s += s[i : j + k]
 1. s[i : j + k] := 'chappy days'[1 : ]
 
-To enable string access runtime checks all one needs to do is simply use the following define before the ExprTk header is included or as part of the compilation define parameters, or enable the same-named CMake cache variable:
+To enable string access runtime checks all one needs to do is simply use the following define before the MathExpr header is included or as part of the compilation define parameters, or enable the same-named CMake cache variable:
 
 ```text
 MATH_EXPR_ENABLE_RANGE_RUNTIME_CHECKS
@@ -170,7 +170,7 @@ Expressions that contain loop structures (eg: for/while/repeat et al) can be pro
 1. Will the loop ever complete (aka is this an infinite loop?)
 1. Maximum loop execution time
 
-ExprTk provides the ability to inject a runtime check within loop conditionals, and to have the result of the check either signal the loop to continue or for the check to raise a loop violation error.
+MathExpr provides the ability to inject a runtime check within loop conditionals, and to have the result of the check either signal the loop to continue or for the check to raise a loop violation error.
 
 The process involves instantiating a user defined loop_runtime_check (LRTC), registering the instance with a math_expr::parser instance and specifying which loop types the check is to performed upon. The following code demonstrates a how custom LRTC can be instantiated and registered with the associated parser:
 
@@ -301,7 +301,7 @@ The following are reasons one may want to checkpoint the compilation process:
 1. Determine if the current stack frame size exceeds a limit
 1. Enforce an external termination request
 
-ExprTk provides the ability to inject a checkpoint into the compilation process that will be evaluated periodically. This capability is achieved by registering a user-implemented compilation check (CCK) to the parser before expression compilation. Initially a CCK can be defined as follows:
+MathExpr provides the ability to inject a checkpoint into the compilation process that will be evaluated periodically. This capability is achieved by registering a user-implemented compilation check (CCK) to the parser before expression compilation. Initially a CCK can be defined as follows:
 
 ```cpp
 struct compilation_timeout_check final :
@@ -385,7 +385,7 @@ if (!parser.compile(large_expression_string, expression))
 
 ## Assert statements
 
-ExprTk supports the use of assert statements to verify pre and post conditions during the evaluation of expressions. The assert statements are only active when a user defined assert handler is registered with the parser before expression compilation, otherwise they are compiled out, this is similar to how asserts are included/excluded in C++ coupled with the definition of NDEBUG. The assert syntax has three variations as described below:
+MathExpr supports the use of assert statements to verify pre and post conditions during the evaluation of expressions. The assert statements are only active when a user defined assert handler is registered with the parser before expression compilation, otherwise they are compiled out, this is similar to how asserts are included/excluded in C++ coupled with the definition of NDEBUG. The assert syntax has three variations as described below:
 
 ```text
 assert(x + y > i);
@@ -447,7 +447,7 @@ A recommendation to consider, that is not demonstrated above, is that in the che
 
 ## Runtime Check Limitations
 
-The available RTC mechanisms in ExprTk are limited to implementing said checks only within ExprTk based syntax sections of an expression. The RTCs will not be active within user defined functions, or composited functions that have been compiled with parser instances that don't have the same set of RTC configurations enabled.
+The available RTC mechanisms in MathExpr are limited to implementing said checks only within MathExpr based syntax sections of an expression. The RTCs will not be active within user defined functions, or composited functions that have been compiled with parser instances that don't have the same set of RTC configurations enabled.
 
 ## Runtime Handlers
 

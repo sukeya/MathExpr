@@ -1,10 +1,10 @@
-# Section 21: Compilation Errors
+# Compilation Errors
 
 [Back to index](index.md)
 
 [Previous](20-expression-return-values.md) | [Index](index.md) | [Next](22-runtime-library-packages.md)
 
-When attempting to compile a malformed or otherwise erroneous ExprTk expression, the compilation process will result in an error, as is indicated by the 'compile' method returning a false value. A diagnostic indicating the first error encountered and its cause can be obtained by invoking the 'error' method, as is demonstrated in the following example:
+When attempting to compile a malformed or otherwise erroneous MathExpr expression, the compilation process will result in an error, as is indicated by the 'compile' method returning a false value. A diagnostic indicating the first error encountered and its cause can be obtained by invoking the 'error' method, as is demonstrated in the following example:
 
 ```text
 if (!parser.compile(expression_string,expression))
@@ -66,7 +66,7 @@ if (!parser.compile(program_str,expression))
 }
 ```
 
-**Note 32.** There are five distinct error modes in ExprTk which denote the class of an error. These classes are as follows:
+**Note 32.** There are five distinct error modes in MathExpr which denote the class of an error. These classes are as follows:
 
 1. `Syntax`
 1. `Token`

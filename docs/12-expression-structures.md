@@ -1,10 +1,10 @@
-# Section 12: Expression Structures
+# Expression Structures
 
 [Back to index](index.md)
 
 [Previous](11-compilation-options.md) | [Index](index.md) | [Next](13-variable-vector-and-string-definition.md)
 
-Exprtk supports mathematical expressions in numerous forms based on a simple imperative programming model. This section will cover the following topics related to general structure and programming of expressions using ExprTk:
+Exprtk supports mathematical expressions in numerous forms based on a simple imperative programming model. This section will cover the following topics related to general structure and programming of expressions using MathExpr:
 
 1. Multi-Statement Expressions
 1. Statements And Side-Effects
@@ -13,7 +13,7 @@ Exprtk supports mathematical expressions in numerous forms based on a simple imp
 
 ## Multi-Statement Expressions
 
-Expressions in ExprTk can be comprised of one or more statements, which may sometimes be called sub-expressions. The following are two examples of expressions stored in std::string variables, the first a single statement and the second a multi-statement expression:
+Expressions in MathExpr can be comprised of one or more statements, which may sometimes be called sub-expressions. The following are two examples of expressions stored in std::string variables, the first a single statement and the second a multi-statement expression:
 
 ```cpp
 std::string single_statement = " z := x + y ";
@@ -49,7 +49,7 @@ var y:= 3;
 x + 1 * y * 2;   // 2 + 1 * 3 * 2 == 8
 ```
 
-In ExprTk any valid statement will itself return a value. This value can further be used in conjunction with other statements. This includes language structures such as if-statements, loops (for, while) and the switch statement. Typically the last statement executed in the given construct (conditional, loop etc), will be the value that is returned.
+In MathExpr any valid statement will itself return a value. This value can further be used in conjunction with other statements. This includes language structures such as if-statements, loops (for, while) and the switch statement. Typically the last statement executed in the given construct (conditional, loop etc), will be the value that is returned.
 
 In the following example, the return value of the expression will be 11, which is the sum of the variable 'x' and the final value computed within the loop body upon its last iteration:
 
@@ -96,7 +96,7 @@ The following are examples of expressions where the side-effect status of the st
 
 **Note 09.** In example 5 from the above set, it is assumed the user defined function foo has been registered as having a side-effect. By default all user defined functions are assumed to have side-effects, unless they are configured in their constructors to not have side- effects using the 'disable_has_side_effects' free function. For more information review Section 15 - User Defined Functions sub-section 7 Function Side-Effects.
 
-At this point we can see that there will be expressions composed of certain kinds of statements that when executed will not affect the nature of the expression's result. These statements are typically called 'dead code'. These statements though not influencing the final result will still be executed and as such they will consume processing time that could otherwise be saved. Consequently ExprTk attempts to detect and remove such statements from expressions.
+At this point we can see that there will be expressions composed of certain kinds of statements that when executed will not affect the nature of the expression's result. These statements are typically called 'dead code'. These statements though not influencing the final result will still be executed and as such they will consume processing time that could otherwise be saved. Consequently MathExpr attempts to detect and remove such statements from expressions.
 
 The 'Dead Code Elimination' (DCE) optimisation process, which is enabled by default, will remove any statements that are determined to not have a side-effect in a multi-statement expression, excluding the final or last statement.
 
@@ -125,7 +125,7 @@ x - y;           // Statement 4
 
 ## Conditional Statements (If-Then-Else)
 
-ExprTk supports two forms of conditional branching or otherwise known as if-statements. The first form, is a simple function based conditional statement, that takes exactly three input expressions: condition, consequent and alternative. The following is an example expression that utilises the function based if-statement.
+MathExpr supports two forms of conditional branching or otherwise known as if-statements. The first form, is a simple function based conditional statement, that takes exactly three input expressions: condition, consequent and alternative. The following is an example expression that utilises the function based if-statement.
 
 x := if (y < z, y + 1, 2 * z)
 
@@ -213,7 +213,7 @@ In the case where there is no final else statement and the flow through the cond
 
 ## Special Functions
 
-The purpose of special functions in ExprTk is to provide compiler generated equivalents of common mathematical expressions which can be invoked by using the 'special function' syntax (eg: $f12(x,y,z) or $f82(x,y,z,w)).
+The purpose of special functions in MathExpr is to provide compiler generated equivalents of common mathematical expressions which can be invoked by using the 'special function' syntax (eg: $f12(x,y,z) or $f82(x,y,z,w)).
 
 Special functions dramatically decrease the total evaluation time of expressions which would otherwise have been written using the common form by reducing the total number of nodes in the evaluation tree of an expression and by also leveraging the compiler's ability to correctly optimise such expressions for a given architecture.
 

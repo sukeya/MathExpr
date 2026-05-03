@@ -1,10 +1,10 @@
-# Section 02: Example Expressions
+# Example Expressions
 
 [Back to index](index.md)
 
 [Previous](01-capabilities.md) | [Index](index.md) | [Next](03-copyright-notice.md)
 
-The following is a short listing of infix format based mathematical expressions that can be parsed and evaluated using the ExprTk library.
+The following is a short listing of infix format based mathematical expressions that can be parsed and evaluated using the MathExpr library.
 
 1. `sqrt(1 - (3 / x^2))`
 1. `clamp(-1, sin(2 * pi * x) + cos(y / 2 * pi), +1)`

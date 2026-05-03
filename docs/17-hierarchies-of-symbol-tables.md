@@ -1,4 +1,4 @@
-# Section 17: Hierarchies Of Symbol Tables
+# Hierarchies Of Symbol Tables
 
 [Back to index](index.md)
 

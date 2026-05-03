@@ -1,10 +1,10 @@
-# Section 25: Benchmarking
+# Benchmarking
 
 [Back to index](index.md)
 
 [Previous](24-runtime-checks.md) | [Index](index.md) | [Next](26-exprtk-notes.md)
 
-As part of the ExprTk package there is an expression benchmark utility named 'math_expr_benchmark'. The utility attempts to determine expression evaluation speed (or rate of evaluations - evals per second), by evaluating each expression numerous times and mutating the underlying variables of the expression between each evaluation. The utility assumes any valid ExprTk expression (containing conditionals, loops etc), however it will only make use of a predefined set of scalar variables, namely: a, b, c, x, y, z and w. That being said expressions themselves can contain any number of local variables, vectors or strings. There are two modes of operation:
+As part of the MathExpr package there is an expression benchmark utility named 'math_expr_benchmark'. The utility attempts to determine expression evaluation speed (or rate of evaluations - evals per second), by evaluating each expression numerous times and mutating the underlying variables of the expression between each evaluation. The utility assumes any valid MathExpr expression (containing conditionals, loops etc), however it will only make use of a predefined set of scalar variables, namely: a, b, c, x, y, z and w. That being said expressions themselves can contain any number of local variables, vectors or strings. There are two modes of operation:
 
 1. `Default`
 1. User Specified Expressions
@@ -13,11 +13,11 @@ As part of the ExprTk package there is an expression benchmark utility named 'ma
 
 The default mode is enabled simply by executing the math_expr_benchmark binary with no command line parameters. In this mode a predefined set of expressions will be evaluated in three phases:
 
-1. ExprTk evaluation
+1. MathExpr evaluation
 1. Native evaluation
-1. ExprTk parse
+1. MathExpr parse
 
-In the first two phases (a and b) a list of predefined (hard-coded) expressions will be evaluated using both ExprTk and native mode implementations. This is done so as to compare evaluation times between ExprTk and native implementations. The set of expressions used are as follows:
+In the first two phases (a and b) a list of predefined (hard-coded) expressions will be evaluated using both MathExpr and native mode implementations. This is done so as to compare evaluation times between MathExpr and native implementations. The set of expressions used are as follows:
 
 1. (y + x)
 1. 2 * (y + x)
@@ -56,7 +56,7 @@ The above invocation will load the expressions from the file 'my_expressions.txt
 
 Expression 1 of 7 4.770 ns 47700 ns ( 9370368.0) '((((x+y)+z)))' Expression 2 of 7 4.750 ns 47500 ns ( 1123455.9) '((((x+y)-z)))' Expression 3 of 7 4.766 ns 47659 ns (21635410.7) '((((x+y)*z)))' Expression 4 of 7 5.662 ns 56619 ns ( 1272454.9) '((((x+y)/z)))' Expression 5 of 7 4.950 ns 49500 ns ( 4123455.9) '((((x-y)+z)))' Expression 6 of 7 7.581 ns 75810 ns (-4123455.9) '((((x-y)-z)))' Expression 7 of 7 4.801 ns 48010 ns ( 0.0) '((((x-y)*z)))'
 
-The benchmark utility can be very useful when investigating evaluation efficiency issues with ExprTk or simply during the prototyping of expressions. As an example, lets take the following expression:
+The benchmark utility can be very useful when investigating evaluation efficiency issues with MathExpr or simply during the prototyping of expressions. As an example, lets take the following expression:
 
 1 / sqrt(2x) * e^(3y)
 

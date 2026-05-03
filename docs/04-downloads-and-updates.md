@@ -1,4 +1,4 @@
-# Section 04: Downloads & Updates
+# Downloads & Updates
 
 [Back to index](index.md)
 

@@ -1,10 +1,10 @@
-# Section 10: Components
+# Components
 
 [Back to index](index.md)
 
 [Previous](09-fundamental-types.md) | [Index](index.md) | [Next](11-compilation-options.md)
 
-There are three primary components, that are specialised upon a given numeric type, which make up the core of ExprTk. The components are as follows:
+There are three primary components, that are specialised upon a given numeric type, which make up the core of MathExpr. The components are as follows:
 
 1. Symbol Table math_expr::symbol_table<NumericType>
 1. Expression math_expr::expression<NumericType>
@@ -356,7 +356,7 @@ The above denoted AST shall be evaluated in the following order:
 1. Load Constant (pi) (17) Assignment (01 & 16)
 1. Load Variable (w)
 
-Generally an expression in ExprTk can be thought of as a free function similar to those found in imperative languages. This form of pseudo function will have a name, it may have a set of one or more inputs and will return at least one value as its result. Furthermore the function when invoked, may cause a side-effect that changes the state of the host program.
+Generally an expression in MathExpr can be thought of as a free function similar to those found in imperative languages. This form of pseudo function will have a name, it may have a set of one or more inputs and will return at least one value as its result. Furthermore the function when invoked, may cause a side-effect that changes the state of the host program.
 
 As an example the following is a pseudo-code definition of a free function that performs a computation taking four inputs, modifying one of them and returning a value based on some arbitrary calculation:
 
@@ -368,7 +368,7 @@ ResultType foo(InputType x, InputType y, InputType z, InputType w)
 }
 ```
 
-Given the above definition the following is a functionally equivalent version using ExprTk:
+Given the above definition the following is a functionally equivalent version using MathExpr:
 
 ```cpp
 const std::string foo_str =

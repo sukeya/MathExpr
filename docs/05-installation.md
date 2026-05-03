@@ -1,4 +1,4 @@
-# Section 05: Installation
+# Installation
 
 [Back to index](index.md)
 

@@ -1,10 +1,10 @@
-# Section 29: Files
+# Files
 
 [Back to index](index.md)
 
 [Previous](28-build-options.md) | [Index](index.md) | [Next](30-language-structure.md)
 
-The source distribution of ExprTk is comprised of the following set of files:
+The source distribution of MathExpr is comprised of the following set of files:
 
 1. `Makefile`
 1. `readme.txt`
@@ -40,7 +40,7 @@ Details for each of the above examples can be found here:
 
 [https://www.partow.net/programming/exprtk/index.html#examples](https://www.partow.net/programming/exprtk/index.html#examples)
 
-Various extended and advanced examples using ExprTk are available via the following:
+Various extended and advanced examples using MathExpr are available via the following:
 
 1. `math_expr_american_option_binomial_model.cpp`
 1. `math_expr_archimedes_pi.cpp`

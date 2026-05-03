@@ -1,10 +1,10 @@
-# Section 22: Runtime Library Packages
+# Runtime Library Packages
 
 [Back to index](index.md)
 
 [Previous](21-compilation-errors.md) | [Index](index.md) | [Next](23-helpers-and-utils.md)
 
-ExprTk includes a range of extensions, that provide functionalities beyond simple numerical calculations. Currently the available packages are:
+MathExpr includes a range of extensions, that provide functionalities beyond simple numerical calculations. Currently the available packages are:
 
 ```text
   +---+--------------------+-----------------------------------+

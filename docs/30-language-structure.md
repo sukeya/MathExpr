@@ -1,10 +1,10 @@
-# Section 30: Language Structure
+# Language Structure
 
 [Back to index](index.md)
 
 [Previous](29-files.md) | [Index](index.md)
 
-The following are the various language structures available within ExprTk and their structural representations.
+The following are the various language structures available within MathExpr and their structural representations.
 
 1. If Statement
 1. Else Statement

@@ -1,4 +1,4 @@
-# Section 08: Built-In Operations & Functions
+# Built-In Operations & Functions
 
 [Back to index](index.md)
 

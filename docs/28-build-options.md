@@ -1,10 +1,10 @@
-# Section 28: Build Options
+# Build Options
 
 [Back to index](index.md)
 
 [Previous](27-simple-exprtk-example.md) | [Index](index.md) | [Next](29-files.md)
 
-When building ExprTk there are a number of defines that will enable or disable certain features and capabilities. The defines can either be part of a compiler command line switch or scoped around the include to the ExprTk header, or enabled via the same-named CMake cache variable. The defines are as follows:
+When building MathExpr there are a number of defines that will enable or disable certain features and capabilities. The defines can either be part of a compiler command line switch or scoped around the include to the MathExpr header, or enabled via the same-named CMake cache variable. The defines are as follows:
 
 1. `MATH_EXPR_ENABLE_DEBUGGING`
 1. `MATH_EXPR_DISABLE_CARDINAL_POW_OPTIMISATION`

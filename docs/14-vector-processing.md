@@ -1,10 +1,10 @@
-# Section 14: Vector Processing
+# Vector Processing
 
 [Back to index](index.md)
 
 [Previous](13-variable-vector-and-string-definition.md) | [Index](index.md) | [Next](15-user-defined-functions.md)
 
-ExprTk provides support for various forms of vector oriented arithmetic, inequalities and processing. The various supported pairs are as follows:
+MathExpr provides support for various forms of vector oriented arithmetic, inequalities and processing. The various supported pairs are as follows:
 
 1. vector and vector (eg: v0 + v1)
 1. vector and scalar (eg: v + 33)

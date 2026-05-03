@@ -1,25 +1,25 @@
-# Section 26: Exprtk Notes
+# Exprtk Notes
 
 [Back to index](index.md)
 
 [Previous](25-benchmarking.md) | [Index](index.md) | [Next](27-simple-exprtk-example.md)
 
-The following is a list of facts and suggestions one may want to take into account when using ExprTk:
+The following is a list of facts and suggestions one may want to take into account when using MathExpr:
 
 ## Precision  and performance  of expression  evaluations are  the
 
-dominant principles of the ExprTk library.
+dominant principles of the MathExpr library.
 
-## ExprTk  uses a  rudimentary imperative  programming model  with
+## MathExpr  uses a  rudimentary imperative  programming model  with
 
-syntax based on languages such as Pascal and C. Furthermore ExprTk is an LL(2) type grammar and is processed using a recursive descent parsing algorithm.
+syntax based on languages such as Pascal and C. Furthermore MathExpr is an LL(2) type grammar and is processed using a recursive descent parsing algorithm.
 
 1. Supported types are float, double, long double and MPFR/GMP. Generally any user defined numerical type that supports all the
 
 ```text
 basic floating point arithmetic operations: -, +, *,/,^, % etc;
 unary and binary operations: sin,cos,min,max,equal etc and  any
-other ExprTk dependent operations can be used to specialise the
+other MathExpr dependent operations can be used to specialise the
 various components: expression, parser and symbol_table.
 ```
 
@@ -144,7 +144,7 @@ incorporates specific semantics when undergoing operations with the standard num
 
 ## The following is a list  of reserved words and symbols  used by
 
-ExprTk. Attempting to add a variable or custom function to a symbol table using any of the reserved words will result in a failure.
+MathExpr. Attempting to add a variable or custom function to a symbol table using any of the reserved words will result in a failure.
 
 abs, acos, acosh, and, asin, asinh, assert, atan, atan2, atanh, avg, break, case, ceil, clamp, continue, cosh, cos, cot, csc, default, deg2grad, deg2rad, else, equal, erfc, erf, exp, expm1, false, floor, for, frac, grad2deg, hypot, iclamp, if, ilike, in, inrange, in, like, log, log10, log1p, log2, logn, mand, max, min, mod, mor, mul, nand, ncdf, nor, not, not_equal, not, null, or, pow, rad2deg, repeat, return, root, roundn, round, sec, sgn, shl, shr, sinc, sinh, sin, sqrt, sum, swap, switch, tanh, tan, true, trunc, until, var,
 
@@ -152,7 +152,7 @@ abs, acos, acosh, and, asin, asinh, assert, atan, atan2, atanh, avg, break, case
 while, xnor, xor
 ```
 
-1. Every valid ExprTk statement is a "value returning" expression. Unlike some languages that limit the types of expressions that can be performed in certain situations, in ExprTk any valid expression can be used in any "value consuming" context. eg:
+1. Every valid MathExpr statement is a "value returning" expression. Unlike some languages that limit the types of expressions that can be performed in certain situations, in MathExpr any valid expression can be used in any "value consuming" context. eg:
 
 ```text
 var y := 3;
@@ -179,7 +179,7 @@ for (var x := switch
 };
 ```
 
-## It is recommended when prototyping expressions that the  ExprTk
+## It is recommended when prototyping expressions that the  MathExpr
 
 REPL be utilised, as it supports all the features available in the library, including complete error analysis, benchmarking and dependency dumps etc which allows for rapid coding/prototyping and debug cycles without the hassle of having to recompile test programs with expressions that have been hard-coded. It is also a good source of truth for how the library's various features can be applied.
 
@@ -191,11 +191,11 @@ of expression, symbol table and parser instance instantiation and destruction, a
 
 persisting to disk or otherwise transmitting elsewhere with the intent to 'resurrect' the expression instance later on is not possible due to the reasons described in the final note of Section 10. The recommendation is to instead simply persist the string form of the expression and compile the expression at run-time on the target.
 
-## The  correctness  and  robustness  of  the  ExprTk  library  is
+## The  correctness  and  robustness  of  the  MathExpr  library  is
 
 maintained by having a comprehensive suite of unit tests and functional tests all of which are run using sanitizers (ASAN, UBSAN, LSAN, MSAN, TSAN). Additionally, continuous fuzz-testing provided by Google OSS Fuzz, and static analysis via Synopsis Coverity.
 
-## The library  name ExprTk  is pronounced  "Ex-Pee-Ar-Tee-Kay" or
+## The library  name MathExpr  is pronounced  "Ex-Pee-Ar-Tee-Kay" or
 
 simply "Mathematical Expression Toolkit"
 
@@ -203,8 +203,8 @@ simply "Mathematical Expression Toolkit"
 
 [https://www.partow.net/programming/exprtk/index.html#support](https://www.partow.net/programming/exprtk/index.html#support)
 
-## Before jumping in and using ExprTk, do take the time to  peruse
+## Before jumping in and using MathExpr, do take the time to  peruse
 
-the documentation and all of the examples, both in the main and the extras distributions. Having an informed general view of what can and can't be done, and how something should be done with ExprTk, will likely result in a far more productive and enjoyable programming experience.
+the documentation and all of the examples, both in the main and the extras distributions. Having an informed general view of what can and can't be done, and how something should be done with MathExpr, will likely result in a far more productive and enjoyable programming experience.
 
 [Previous](25-benchmarking.md) | [Index](index.md) | [Next](27-simple-exprtk-example.md)

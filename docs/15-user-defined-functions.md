@@ -1,10 +1,10 @@
-# Section 15: User Defined Functions
+# User Defined Functions
 
 [Back to index](index.md)
 
 [Previous](14-vector-processing.md) | [Index](index.md) | [Next](16-expression-dependents.md)
 
-ExprTk provides a means whereby custom functions can be defined and utilised within expressions. The concept requires the user to provide a reference to the function coupled with an associated name that will be invoked within expressions. Functions may take numerous inputs but will always return a single value of the underlying numeric type.
+MathExpr provides a means whereby custom functions can be defined and utilised within expressions. The concept requires the user to provide a reference to the function coupled with an associated name that will be invoked within expressions. Functions may take numerous inputs but will always return a single value of the underlying numeric type.
 
 During expression compilation when required the reference to the function shall be obtained from the associated symbol_table and be embedded into the expression.
 
@@ -151,7 +151,7 @@ inline T operator()(parameter_list_t parameters)
 }
 ```
 
-Most often than not a custom generic function will require a specific sequence of parameters, rather than some arbitrary sequence of types. In those situations, ExprTk can perform compile-time type checking to validate that function invocations are carried out using the correct sequence of parameters. Furthermore performing the checks at compile -time rather than at run-time (aka every time the function is invoked) will result in expression evaluation performance gains.
+Most often than not a custom generic function will require a specific sequence of parameters, rather than some arbitrary sequence of types. In those situations, MathExpr can perform compile-time type checking to validate that function invocations are carried out using the correct sequence of parameters. Furthermore performing the checks at compile -time rather than at run-time (aka every time the function is invoked) will result in expression evaluation performance gains.
 
 Compile-time type checking of input parameters can be requested by passing a string to the constructor of the igeneric_function that represents the required sequence of parameter types. When no parameter sequence is provided, it is implied the function can accept a variable number of parameters comprised of any of the fundamental types.
 
@@ -374,7 +374,7 @@ The parameter sequence definitions are identical to the previously defined igene
 
 ## function_compositor
 
-The function compositor is a factory that allows one to define and construct a function using ExprTk syntax. The functions are limited to returning a single scalar value and consuming up to six parameters as input.
+The function compositor is a factory that allows one to define and construct a function using MathExpr syntax. The functions are limited to returning a single scalar value and consuming up to six parameters as input.
 
 All composited functions are registered with a symbol table, allowing them to call other functions and use variables that have been registered with the symbol table instance. Furthermore the functions can be recursive in nature due to the inherent function prototype forwarding that occurs during construction. The following example defines, by using two different methods, composited functions and implicitly registering the functions with the denoted symbol table.
 
@@ -548,7 +548,7 @@ struct foo final : public math_expr::ivararg_function<T>
 
 ## Free Functions
 
-The ExprTk symbol table supports the registration of free functions and lambdas (anonymous functors) for use in expressions. The basic requirements are similar to those found in ifunction derived user defined functions. This includes support for free functions using anywhere from zero up to fifteen input parameters of scalar type, with a return type that is also scalar. Furthermore such functions will by default be assumed to have side-effects and hence will not participate in constant folding optimisations.
+The MathExpr symbol table supports the registration of free functions and lambdas (anonymous functors) for use in expressions. The basic requirements are similar to those found in ifunction derived user defined functions. This includes support for free functions using anywhere from zero up to fifteen input parameters of scalar type, with a return type that is also scalar. Furthermore such functions will by default be assumed to have side-effects and hence will not participate in constant folding optimisations.
 
 In the following example, a one input parameter free function named 'compute1', a two input parameter template free function named 'compute2' and a three input parameter lambda named 'compute3' will be registered with the given symbol_table instance:
 

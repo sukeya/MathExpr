@@ -1,10 +1,10 @@
-# Section 13: Variable, Vector & String Definition
+# Variable, Vector & String Definition
 
 [Back to index](index.md)
 
 [Previous](12-expression-structures.md) | [Index](index.md) | [Next](14-vector-processing.md)
 
-ExprTk supports the definition of expression local variables, vectors and strings. The definitions must be unique as shadowing is not allowed and object lifetimes are based on scope. Definitions use the following general form:
+MathExpr supports the definition of expression local variables, vectors and strings. The definitions must be unique as shadowing is not allowed and object lifetimes are based on scope. Definitions use the following general form:
 
 ```text
 var <name> := <initialiser>;

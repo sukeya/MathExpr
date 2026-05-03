@@ -1,4 +1,4 @@
-# Section 18: Unknown Unknowns
+# Unknown Unknowns
 
 [Back to index](index.md)
 
@@ -12,7 +12,7 @@ This can become problematic, as in the default scenario it is assumed the symbol
 
 In the event there are symbols in the expression that can't be mapped to either a reserved word, or located in the associated symbol_table(s), an "Undefined symbol" error will be raised and the compilation process will fail.
 
-The numerous scenarios that can occur when compiling an expression with ExprTk generally fall into one of the following three categories:
+The numerous scenarios that can occur when compiling an expression with MathExpr generally fall into one of the following three categories:
 
 1. No external variables
 1. Predetermined set of external variables
@@ -28,7 +28,7 @@ These are expressions that contain no external variables but may contain local v
 
 ## Predetermined set of external variables
 
-These are expressions that are comprised of externally available variables and functions and will only compile successfully if the symbols that correspond to the variables and functions are already defined in their associated symbol_table(s). This is by far the most common scenario when using ExprTk.
+These are expressions that are comprised of externally available variables and functions and will only compile successfully if the symbols that correspond to the variables and functions are already defined in their associated symbol_table(s). This is by far the most common scenario when using MathExpr.
 
 As an example, one may have three external variables: x, y and z which have been registered with the associated symbol_table, and will then need to compile and evaluate expressions comprised of any subset of these three variables. The following are a few examples of such expressions:
 
@@ -40,7 +40,7 @@ In this scenario one can use the 'dependent_entity_collector' component as descr
 
 ## Unknown set of variables
 
-These are expressions that are comprised of symbols other than the standard ExprTk reserved words or what has been registered with their associated symbol_table, and will normally fail compilation due to the associated symbol_table not having a reference to them. As such this scenario can be seen as a combination of scenario B, where one may have a symbol_table with registered variables, but would also like to handle the situation of variables that aren't present in said symbol_table.
+These are expressions that are comprised of symbols other than the standard MathExpr reserved words or what has been registered with their associated symbol_table, and will normally fail compilation due to the associated symbol_table not having a reference to them. As such this scenario can be seen as a combination of scenario B, where one may have a symbol_table with registered variables, but would also like to handle the situation of variables that aren't present in said symbol_table.
 
 When dealing with expressions of category (c), one must perform all of the following:
 

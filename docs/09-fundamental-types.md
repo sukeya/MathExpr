@@ -1,10 +1,10 @@
-# Section 09: Fundamental Types
+# Fundamental Types
 
 [Back to index](index.md)
 
 [Previous](08-built-in-operations-and-functions.md) | [Index](index.md) | [Next](10-components.md)
 
-ExprTk supports three fundamental types which can be used freely in expressions. The types are as follows:
+MathExpr supports three fundamental types which can be used freely in expressions. The types are as follows:
 
 1. `Scalar`
 1. `Vector`
@@ -12,7 +12,7 @@ ExprTk supports three fundamental types which can be used freely in expressions.
 
 ## Scalar Type
 
-The scalar type is a singular numeric value. The underlying type is that used to specialise the ExprTk components (float, double, long double, MPFR et al).
+The scalar type is a singular numeric value. The underlying type is that used to specialise the MathExpr components (float, double, long double, MPFR et al).
 
 ## Vector Type
 

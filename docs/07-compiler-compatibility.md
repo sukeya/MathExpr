@@ -1,10 +1,10 @@
-# Section 07: Compiler Compatibility
+# Compiler Compatibility
 
 [Back to index](index.md)
 
 [Previous](06-compilation.md) | [Index](index.md) | [Next](08-built-in-operations-and-functions.md)
 
-ExprTk has been built error and warning free using the following set of C++ compilers:
+MathExpr has been built error and warning free using the following set of C++ compilers:
 
 1. GNU Compiler Collection (3.5+)
 1. Clang/LLVM (1.1+)

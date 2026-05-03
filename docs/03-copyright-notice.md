@@ -1,4 +1,4 @@
-# Section 03: Copyright Notice
+# Copyright Notice
 
 [Back to index](index.md)
 
