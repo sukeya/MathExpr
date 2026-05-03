@@ -1,0 +1,160 @@
+# Variable seed values for feature coverage.
+equal((x := 11.12345678910737373),(11.12345678910737373))
+equal((y := 22.12345678910737373),(22.12345678910737373))
+equal((z := 33.12345678910737373),(33.12345678910737373))
+equal((w := 44.12345678910737373),(44.12345678910737373))
+
+# Arithmetic/function composition and power associativity.
+equal((00000000000000000016.1234567891073737300000000000000000000532),(3+(2+abs(x))))
+if(abs(x^2^3-x^8     ) < 0.0000001,1,0)
+abs(x^2^3-x^8     ) < 0.0000001 ? 1 : 0
+equal((pi^2^3),(pi^8))
+equal((pi^(-2^3)),1/(pi^8))
+equal((-pi^2.2^3.3),(-pi^13.48946876053338489126547661))
+
+# Boolean aliases and truthiness.
+equal((1 nand 1),not(mand(1,1)))
+equal((1 nor 0),not(mor(1,0)))
+equal(((1 nand 0) == not(1 and 0)),1.0)
+equal(((1.0 nor 1.0) == not(1.0 | 1.0)),1.0)
+
+# Scalar numeric helpers.
+equal(abs(-1.0),1.0)
+equal(min(min(1,2),min(3,4)),1.0)
+equal(max(1.1,2.2,3.3,4.4,5.5,6.6),6.6)
+equal(avg(1,2,3,4),2.5)
+equal(sum(1.1,2.2,3.3,4.4,5.5,6.6),23.1)
+equal(mul(1,2,3,4,5),120.0)
+equal(floor(-1.1),-2.0)
+equal(ceil(1.1),2.0)
+equal(round(1.5),2.0)
+equal(roundn(2.0/3.0,5.0),0.66667)
+
+# Distribution helpers.
+equal(ncdf(-inf),0)
+equal(ncdf(+0.000000),0.5000000000000000000000000000000000000000)
+equal(ncdf(+0.500000),0.6914624612740130916044485668184769858198)
+equal(ncdf(+inf),1)
+equal(1 - ncdf(+0.500000), ncdf(-0.500000))
+
+# Trigonometric and hyperbolic functions.
+equal(cos(0.0),1.0)
+equal(sin(deg2rad(30)),0.5)
+equal(cos(deg2rad(60)),0.5)
+equal(tan(pi / 6), sin(pi / 6) / cos(pi / 6))
+equal(sinc(pi / 6), sin(pi / 6) / (pi / 6))
+equal(sec(pi / 6), 1 / cos(pi / 6))
+equal(csc(pi / 6), 1 / sin(pi / 6))
+equal(cot(pi / 6), 1 / tan(pi / 6))
+equal(acos(sqrt(3) / 2), pi / 6)
+equal(asin(1 / 2), pi / 6)
+equal(atan(sin(pi / 6) / cos(pi / 6)), pi / 6)
+equal(sinh(pi),11.5487393572577483779773343153884)
+equal(asinh(11.5487393572577483779773343153884),pi)
+equal(cosh(pi),11.5919532755215206277517520525601)
+equal(acosh(11.5919532755215206277517520525601),pi)
+equal(tanh(pi),0.99627207622074994426469058001253)
+equal(atanh(0.99627207622074994426469058001253),pi)
+
+# Small-argument stability.
+equal(log1p(0.000000000001000) , 9.9999999999950000000000033333333333308333e-13)
+equal(expm1(0.000000000001000) , 1.0000000000005000000000001666666666667083e-12)
+
+# Trig identities and implicit multiplication.
+equal(true,~{var a := pi / 3; var b := pi / 8; equal(sin(a + b), sin(a) * cos(b) + cos(a) * sin(b))})
+equal(true,~{var a := pi / 3; equal(cos(2a), 2cos(a)^2 - 1)})
+
+# Angle/unit conversion and basic transcendental helpers.
+equal(rad2deg(pi / 6), 30)
+equal(deg2rad(30), pi / 6)
+equal(deg2grad(30), 30 * 10 / 9)
+equal(grad2deg(30 * 10 / 9), 30)
+equal(exp(1.0),2.71828182845904523536028747135266249775724)
+equal(log(2.71828182845904523536028747135266249775724),1.0)
+equal(log10(10.0),1.0)
+equal(log2(1024.0),10.0)
+equal(frac(12.34)+trunc(12.34),12.34)
+equal(hypot(3.0,4.0),5.0)
+
+# Conditionals and booleans.
+equal(if(1<2,3,4),3.0)
+equal(if((1.0+1.1) == (2.0+1.2),3.3,4.4),4.4)
+equal(true == (1<2),1.0)
+equal((true and false) == false,1.0)
+equal((true | false) == true,1.0)
+equal(clamp(-1,+1.5,+1.0),+1.0)
+equal(inrange(-2,1,+2) == ((-2 <= 1) and (1 <= +2)),1.0)
+equal(sgn(-3),-1.0)
+
+# Parser/bracketing smoke tests.
+equal({[(1.0+2.0)+[3.0+4.0]+({5.0+6.0})]}+({[7.0+8.0]+(9.0+0.0)}),45.0)
+equal(1/1+1/2+1/3+1/4+1/5+1/6+1/7+1/8+1/9,2.82896825396825396825)
+equal(1/1*1/2*1/3*1/4*1/5*1/6*1/7*1/8*1/9,0.00000275573192239859)
+
+# String operators.
+equal('aaa' + '123'=='aaa123',1.0)
+equal('1XYZ2' ilike '*xyz*',1.0)
+equal('a123b' like '*123*',1.0)
+equal(inrange('aaa','bbb','ccc'),1.0)
+equal(true, '\0x41\0x42\0x43\0x44\0x45\0x46\0x47\0x48\0x49\0x4A\0x4B\0x4C\0x4D\0x4E\0x4F\0x50\0x51\0x52\0x53\0x54\0x55\0x56\0x57\0x58\0x59\0x5A' == 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+# Polynomial helpers.
+equal(poly01(x,2.2,1.1),(2.2x^1+1.1))
+equal(poly06(x,7.7,6.6,5.5,4.4,3.3,2.2,1.1),(7.7x^6+6.6x^5+5.5x^4+4.4x^3+3.3x^2+2.2x^1+1.1))
+equal(poly12(x,4.4,3.3,2.2,1.1,9.9,8.8,7.7,6.6,5.5,4.4,3.3,2.2,1.1),(4.4x^12+3.3x^11+2.2x^10+1.1x^9+9.9x^8+8.8x^7+7.7x^6+6.6x^5+5.5x^4+4.4x^3+3.3x^2+2.2x^1+1.1))
+
+# Registered custom functions.
+equal($f00(x,y,z) , (x + y) / z)
+equal($f15(x,y,z) , x / (y + z))
+equal($f31(x,y,z) , x * y^2 + z)
+equal($f39(x,y,z) , x * log(y) + z)
+equal($f43(x,y,z) , x * sin(y) + z)
+equal($f47(x,y,z) , x ? y : z)
+equal($f65(x,y,z,w) , ((x + y) * z) - w)
+equal($f80(x,y,z,w) , x / (y + (z * w)))
+equal($f92(x,y,z,w) , (x and y) ? z : w)
+equal($f99(x,y,z,w) , x * sin(y) + z * cos(w))
+
+# Vector arithmetic and dot/aggregate coverage.
+equal(~{var vv0[4] := {1,2,3,4}; var vv1[4] := {1,2,3,4}; dot(2 * vv0,vv1 - 1) + dot(2 * vv0,vv1 - 1) == 2sum(2vv0 * (vv1 - 1))},true)
+equal(~{var v0[4] := {1,2,3,4}; var v1[4] := {1,2,3,4}; sum(2v0 + 3v1) + sum(4 / v0 - 5 / v1); true} , true)
+equal(~{var v[5] := {0, 1, 2, 3, 4}; (v + 1)[1] == 2},true)
+equal(~{var v[5] := {0,1,2,3,4}; var successes := 0; for (var i := 0; i < v[]; i += 1) { successes += (v + 1)[i] == i + 1; }; successes == v[]},true)
+equal(~{var v[3] := [1]; all_true (v[0],v[1],v[2])},true)
+equal(~{var v[3] := [0]; any_false(v[0],v[1],v[2])},true)
+equal(~{ var xx[4] := {1,1,0,0}; count(xx) == sum(xx) },true)
+
+# Vector transforms.
+equal(true,~{ const var size := 5; var xx[size] := [1 : 1]; reverse(xx); var yy[size] := {5,4,3,2,1}; xx == yy})
+equal(true,~{ const var size := 5; var xx[size] := [1 : 1]; rotate_left(xx,2); var yy[size] := {3,4,5,1,2}; xx == yy})
+equal(true,~{ const var size := 5; var xx[size] := [1 : 1]; rotate_right(xx,2); var yy[size] := {4,5,1,2,3}; xx == yy})
+equal(true,~{ const var size := 5; var xx[size] := [1 : 1]; shftl(xx,2); var yy[size] := {3,4,5,0,0}; xx == yy})
+equal(true,~{ const var size := 5; var xx[size] := [1 : 1]; shftr(xx,2); var yy[size] := {0,0,1,2,3}; xx == yy})
+equal(true,~{ const var size := 5; var xx[size] := [0 : +1]; reverse(xx); sort(xx,'ascending'); var yy[size] := [0 : +1]; xx == yy})
+
+# Loop and branch execution.
+equal(true,~{var xx := 0; for (var i := 0; i < 10; i+=1) { for (var j := 0; j < 100; j+=1) { if (j > i) break; xx += 1; } }; xx == 55})
+equal(true,~{var xx := 0; var i := 0; while(i < 10) { var j := 0; while(j < 100) { if (j > i) break; xx += 1; j+=1 }; i+=1 }; xx == 55})
+equal(1111,~{var aa := 1; var bb := 2; var xx := 0; xx := if (aa < bb) { 1111 } else { 2222 }})
+
+# BLAS-style vector helpers.
+equal(true,~{var a := 2; var b := 3; var xx[4] := {1,2,3,4}; var yy[4] := {5,6,7,8}; var yy_[4] := yy; var zz[4] := {0,0,0,0}; axpby (a,xx,b,yy);    yy == (a * xx + b * yy_ )});
+equal(true,~{var a := 2; var b := 3; var xx[4] := {1,2,3,4}; var yy[4] := {5,6,7,8}; var yy_[4] := yy; var zz[4] := {0,0,0,0}; axpbyz(a,xx,b,yy,zz); zz == (a * xx + b * yy  )});
+equal(true,~{var a := 2; var b := 3; var xx[4] := {1,2,3,4}; var yy[4] := {5,6,7,8}; var yy_[4] := yy; var zz[4] := {0,0,0,0}; axpbz (a,xx,b,zz);    zz == (a * xx + b       )});
+equal(true,~{var a := 2; var b := 3; var xx[4] := {1,2,3,4}; var yy[4] := {5,6,7,8}; var yy_[4] := yy; var zz[4] := {0,0,0,0}; axpyz (a,xx,yy,zz);   zz == (a * xx + yy      )});
+
+# Assignment/range utilities.
+equal(~{var v0[8] := {0,1,2,3,4,5,6,7}; var v1[8] := {1,1,1,1,1,1,1,1}; assign(v0,1,0,7);   all_true(v0 == v1)},true)
+equal(~{var v0[8] := {0,1,2,3,4,5,6,7}; var v1[8] := {0,2,4,6,8,10,12,14};  v0 := 0; iota(v0,0,2); all_true(v0 == v1)},true)
+equal(~{var v[8] := {1,0,1,0,1,0,1,0}; sumk(v,0,v[] - 1,2) == 4},true)
+equal(~{var v[8] := {1,2,3,4,5,6,7,8}; var u[8] := [null]; var ww[8] := {0,0,2,2,2,2,2,2}; diff(v,u,2); u[0] := 0; u[1] := 0; all_true(u == ww)},true)
+
+# Root/isnan coverage.
+equal(root(+8.000, +3.000) , +2.0000000000000000000000000000000000000000)
+equal(root(-8.000, +3.000) , -2.0000000000000000000000000000000000000000)
+equal(root(+8.000, -3.000) , +0.5000000000000000000000000000000000000000)
+equal(true, isnan(root(-1.000  , +2.00100)))
+
+# Elementwise min/max helpers.
+equal(true, ~{ const var n := 10; var v[n] := [1:1]; var o[n] := [0]; var p[n] := { 0, 0, 0, 4, 5, 6, 7, 8, 0,  0}; max_elemwise(o, v, 3, 7, 0) == 1 and all_true((o == p)) })
+equal(true, ~{ const var n := 10; var q := n + 10; var v[n] := [1:1]; var o[n] := [n + 10]; var p[n] := { q, q, q, 4, 5, 6, 7, 8, q,  q }; min_elemwise(o, v, 3, 7, q) == 1 and all_true((o == p)) })

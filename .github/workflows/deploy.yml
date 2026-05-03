@@ -1,0 +1,35 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.CI_DEPLOY }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Set up Zensical
+        run: |
+          sudo apt install curl
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv sync
+      - name: Build
+        env:
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+        run: uv run zensical build
+      - name: Deploy
+        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+        env:
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+        run: uv run zensical gh-deploy

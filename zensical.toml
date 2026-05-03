@@ -1,0 +1,114 @@
+[project]
+site_name = "MathExpr"
+site_url = "https://sukeya.github.io/MathExpr/"
+repo_url = "https://github.com/sukeya/MathExpr"
+edit_uri = "blob/main/docs/"
+extra_javascript = ["https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"]
+
+[[project.nav]]
+Home = "index.md"
+
+[[project.nav]]
+Sections = [
+  "00-introduction.md",
+  "01-capabilities.md",
+  "02-example-expressions.md",
+  "03-copyright-notice.md",
+  "04-downloads-and-updates.md",
+  "05-installation.md",
+  "06-compilation.md",
+  "07-compiler-compatibility.md",
+  "08-built-in-operations-and-functions.md",
+  "09-fundamental-types.md",
+  "10-components.md",
+  "11-compilation-options.md",
+  "12-expression-structures.md",
+  "13-variable-vector-and-string-definition.md",
+  "14-vector-processing.md",
+  "15-user-defined-functions.md",
+  "16-expression-dependents.md",
+  "17-hierarchies-of-symbol-tables.md",
+  "18-unknown-unknowns.md",
+  "19-enabling-and-disabling-features.md",
+  "20-expression-return-values.md",
+  "21-compilation-errors.md",
+  "22-runtime-library-packages.md",
+  "23-helpers-and-utils.md",
+  "24-runtime-checks.md",
+  "25-benchmarking.md",
+  "26-exprtk-notes.md",
+  "27-simple-exprtk-example.md",
+  "28-build-options.md",
+  "29-files.md",
+  "30-language-structure.md",
+]
+
+[project.theme]
+variant = "classic"
+favicon = "img/favicon.png"
+features = [
+  "content.code.copy",
+  "content.action.edit",
+  "toc.integrate",
+  "navigation.top",
+  "navigation.indexes",
+]
+
+[project.theme.icon]
+repo = "fontawesome/brands/github"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "material/brightness-auto"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle.icon = "material/brightness-7"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle.icon = "material/brightness-4"
+toggle.name = "Switch to system preference"
+
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.footnotes]
+[project.markdown_extensions.md_in_html]
+[project.markdown_extensions.pymdownx.blocks.caption]
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
+
+[project.markdown_extensions.toc]
+permalink = true
+slugify = {callable = "pymdownx.slugs.slugify", kwds = {case = "lower"}}
+
+[project.plugins.git-revision-date-localized]
+enable_creation_date = true
+type = "iso_date"
+
+[project.plugins.git-committers]
+repository = "sukeya/MathExpr"
+branch = "main"
+token = {env = "MKDOCS_GIT_COMMITTERS_APIKEY"}
+
+[project.plugins.glightbox]
+skip_classes = []
+auto_themed = false
+auto_caption = false
+caption_position = "bottom"
+
+[project.plugins.search]
