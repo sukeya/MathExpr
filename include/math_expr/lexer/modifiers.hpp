@@ -123,29 +123,34 @@ class token_inserter : public helper_interface
         return changes;
     }
 
-#define TOKEN_INSERTER_EMPTY_BODY \
-    {                             \
-        return -1;                \
+    inline virtual int insert(const token&, token&)
+    {
+        return -1;
     }
 
-   inline virtual int insert(const token&, token&) TOKEN_INSERTER_EMPTY_BODY
+    inline virtual int insert(const token&, const token&, token&)
+    {
+        return -1;
+    }
 
-       inline virtual int insert(const token&, const token&, token&) TOKEN_INSERTER_EMPTY_BODY
+    inline virtual int insert(const token&, const token&, const token&, token&)
+    {
+        return -1;
+    }
 
-       inline virtual int insert(const token&, const token&, const token&,
-                                 token&) TOKEN_INSERTER_EMPTY_BODY
+    inline virtual int insert(const token&, const token&, const token&, const token&, token&)
+    {
+        return -1;
+    }
 
-       inline virtual int insert(const token&, const token&, const token&, const token&,
-                                 token&) TOKEN_INSERTER_EMPTY_BODY
+    inline virtual int insert(const token&, const token&, const token&, const token&, const token&,
+                              token&)
+    {
+        return -1;
+    }
 
-       inline virtual int insert(const token&, const token&, const token&, const token&,
-                                 const token&, token&) TOKEN_INSERTER_EMPTY_BODY
-
-#undef TOKEN_INSERTER_EMPTY_BODY
-
-       private :
-
-       const std::size_t stride_;
+   private:
+    const std::size_t stride_;
 };
 
 }  // namespace math_expr::lexer

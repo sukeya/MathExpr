@@ -58,7 +58,7 @@ struct set_zero_value_impl
     {                                                                   \
         static inline void process(T* base_ptr, const std::size_t size) \
         {                                                               \
-            std::memset(base_ptr, 0x00, size * sizeof(T));              \
+            std::memset(base_ptr, 0, size * sizeof(T));                 \
         }                                                               \
     }
 

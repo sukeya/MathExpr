@@ -98,6 +98,5 @@ limitations under the License.
 #include "math_expr/rtl/io/file/package.hpp"
 #include "math_expr/rtl/vecops/package.hpp"
 #include "math_expr/information/metadata.hpp"
-#include "math_expr/core/cleanup.hpp"
 
 #endif

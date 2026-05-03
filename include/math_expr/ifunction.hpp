@@ -47,170 +47,144 @@ class ifunction : public function_traits
 
     virtual ~ifunction() {}
 
-#define EMPTY_METHOD_BODY(N)                                                                     \
-    {                                                                                            \
-        MATH_EXPR_DEBUG(("ifunction::operator() - Operator(" #N ") has not been overridden\n")); \
-        return std::numeric_limits<T>::quiet_NaN();                                              \
+    inline virtual T operator()()
+    {
+        return ifunction_unimplemented<0>();
     }
 
-    inline virtual T operator()() EMPTY_METHOD_BODY(0)
+    inline virtual T operator()(const T&)
+    {
+        return ifunction_unimplemented<1>();
+    }
 
-        inline virtual T operator()(const T&) EMPTY_METHOD_BODY(1)
+    inline virtual T operator()(const T&, const T&)
+    {
+        return ifunction_unimplemented<2>();
+    }
 
-            inline virtual T operator()(const T&, const T&) EMPTY_METHOD_BODY(2)
+    inline virtual T operator()(const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<3>();
+    }
 
-                inline virtual T operator()(const T&, const T&, const T&) EMPTY_METHOD_BODY(3)
+    inline virtual T operator()(const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<4>();
+    }
 
-                    inline virtual T operator()(const T&, const T&, const T&,
-                                                const T&) EMPTY_METHOD_BODY(4)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<5>();
+    }
 
-                        inline virtual T operator()(const T&, const T&, const T&, const T&,
-                                                    const T&) EMPTY_METHOD_BODY(5)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<6>();
+    }
 
-                            inline virtual T operator()(const T&, const T&, const T&, const T&,
-                                                        const T&, const T&) EMPTY_METHOD_BODY(6)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&)
+    {
+        return ifunction_unimplemented<7>();
+    }
 
-                                inline virtual T operator()(const T&, const T&, const T&, const T&,
-                                                            const T&, const T&,
-                                                            const T&) EMPTY_METHOD_BODY(7)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&)
+    {
+        return ifunction_unimplemented<8>();
+    }
 
-                                    inline virtual T operator()(const T&, const T&, const T&,
-                                                                const T&, const T&, const T&,
-                                                                const T&,
-                                                                const T&) EMPTY_METHOD_BODY(8)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<9>();
+    }
 
-                                        inline virtual T operator()(const T&, const T&, const T&,
-                                                                    const T&, const T&, const T&,
-                                                                    const T&, const T&,
-                                                                    const T&) EMPTY_METHOD_BODY(9)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<10>();
+    }
 
-                                            inline virtual T operator()(
-                                                const T&, const T&, const T&, const T&, const T&,
-                                                const T&, const T&, const T&, const T&,
-                                                const T&) EMPTY_METHOD_BODY(10)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<11>();
+    }
 
-                                                inline virtual T operator()(
-                                                    const T&, const T&, const T&, const T&,
-                                                    const T&, const T&, const T&, const T&,
-                                                    const T&, const T&,
-                                                    const T&) EMPTY_METHOD_BODY(11)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<12>();
+    }
 
-                                                    inline virtual T operator()(
-                                                        const T&, const T&, const T&, const T&,
-                                                        const T&, const T&, const T&, const T&,
-                                                        const T&, const T&, const T&,
-                                                        const T&) EMPTY_METHOD_BODY(12)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&)
+    {
+        return ifunction_unimplemented<13>();
+    }
 
-                                                        inline virtual T operator()(
-                                                            const T&, const T&, const T&, const T&,
-                                                            const T&, const T&, const T&, const T&,
-                                                            const T&, const T&, const T&, const T&,
-                                                            const T&) EMPTY_METHOD_BODY(13)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&)
+    {
+        return ifunction_unimplemented<14>();
+    }
 
-                                                            inline virtual T operator()(
-                                                                const T&, const T&, const T&,
-                                                                const T&, const T&, const T&,
-                                                                const T&, const T&, const T&,
-                                                                const T&, const T&, const T&,
-                                                                const T&,
-                                                                const T&) EMPTY_METHOD_BODY(14)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<15>();
+    }
 
-                                                                inline virtual T operator()(
-                                                                    const T&, const T&, const T&,
-                                                                    const T&, const T&, const T&,
-                                                                    const T&, const T&, const T&,
-                                                                    const T&, const T&, const T&,
-                                                                    const T&, const T&,
-                                                                    const T&) EMPTY_METHOD_BODY(15)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<16>();
+    }
 
-                                                                    inline virtual T operator()(
-                                                                        const T&, const T&,
-                                                                        const T&, const T&,
-                                                                        const T&, const T&,
-                                                                        const T&, const T&,
-                                                                        const T&, const T&,
-                                                                        const T&, const T&,
-                                                                        const T&, const T&,
-                                                                        const T&,
-                                                                        const T&) EMPTY_METHOD_BODY(16)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<17>();
+    }
 
-                                                                        inline virtual T operator()(
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&, const T&,
-                                                                            const T&) EMPTY_METHOD_BODY(17)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&)
+    {
+        return ifunction_unimplemented<18>();
+    }
 
-                                                                            inline virtual T
-                                                                            operator()(
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&, const T&,
-                                                                                const T&,
-                                                                                const T&) EMPTY_METHOD_BODY(18)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&)
+    {
+        return ifunction_unimplemented<19>();
+    }
 
-                                                                                inline virtual T
-                                                                                operator()(const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&,
-                                                                                           const T&)
-                                                                                    EMPTY_METHOD_BODY(
-                                                                                        19)
+    inline virtual T operator()(const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&, const T&, const T&, const T&, const T&,
+                                const T&, const T&)
+    {
+        return ifunction_unimplemented<20>();
+    }
 
-                                                                                        inline virtual T
-                                                                                        operator()(
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&,
-                                                                                            const T&)
-                                                                                            EMPTY_METHOD_BODY(
-                                                                                                20)
+    std::size_t param_count;
 
-#undef EMPTY_METHOD_BODY
-
-                                                                                                std::
-                                                                                                    size_t
-        param_count;
+   private:
+    template <int N>
+    inline T ifunction_unimplemented() noexcept
+    {
+        core::debug_print("ifunction::operator() - Operator(%d) has not been overridden\n", N);
+        return std::numeric_limits<T>::quiet_NaN();
+    }
 };
 
 }  // namespace math_expr

@@ -33,15 +33,27 @@ limitations under the License.
 #ifndef MATH_EXPR_CORE_MACROS_HPP
 #define MATH_EXPR_CORE_MACROS_HPP
 
-#define MATH_EXPR_DEBUG(params)                                           \
-    do                                                                    \
-    {                                                                     \
-        if constexpr (::math_expr::core::build_options::kEnableDebugging) \
-        {                                                                 \
-            std::printf params;                                           \
-        }                                                                 \
-    } while (false)
+#include <cstdio>
+#include <source_location>
+#include <string>
+#include "math_expr/core/config.hpp"
 
-#define MATH_EXPR_ERROR_LOCATION std::string(__FILE__) + ":" + core::to_str(__LINE__)
+namespace math_expr::core
+{
+template <typename... Args>
+inline void debug_print([[maybe_unused]] const char* fmt, [[maybe_unused]] Args&&... args) noexcept
+{
+    if constexpr (build_options::kEnableDebugging)
+    {
+        std::printf(fmt, std::forward<Args>(args)...);
+    }
+}
+
+[[nodiscard]] inline std::string error_location(
+    std::source_location loc = std::source_location::current()) noexcept
+{
+    return std::string(loc.file_name()) + ":" + std::to_string(loc.line());
+}
+}  // namespace math_expr::core
 
 #endif
