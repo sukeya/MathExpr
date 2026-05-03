@@ -17,7 +17,7 @@ jobs:
           cd ./build/debug/gcc && ninja
       - name: Run tests
         run: |
-          ./build/debug/gcc/test/math_expr_test
+          cd ./build/debug/gcc && ctest
 
   clang:
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
           cd ./build/debug/clang && ninja
       - name: Run tests
         run: |
-          ./build/debug/clang/test/math_expr_test
+          cd ./build/debug/clang && ctest
 
   clang_memory:
     # libstdc++ and libc++ have uninitialized variables,
@@ -52,4 +52,4 @@ jobs:
           cd ./build/debug/clang/memory && ninja
       - name: Run tests
         run: |
-          ./build/debug/clang/memory/test/math_expr_test
+          cd ./build/debug/clang/memory && ctest
