@@ -4,14 +4,20 @@ on:
   push:
     branches:
       - main
-  pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
+      - uses: actions/configure-pages@v5
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
@@ -27,9 +33,9 @@ jobs:
       - name: Build
         env:
           MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run zensical build
-      - name: Deploy
-        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
-        env:
-          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run zensical gh-deploy
+        run: uv run zensical build --clean
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deployment
