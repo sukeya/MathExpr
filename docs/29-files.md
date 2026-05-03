@@ -4,112 +4,89 @@
 
 [Previous](28-build-options.md) | [Index](index.md) | [Next](30-language-structure.md)
 
-The source distribution of MathExpr is comprised of the following set of files:
+The source distribution of MathExpr is comprised of the following set of files and directories:
 
-1. `Makefile`
-1. `readme.txt`
-1. `math_expr.hpp`
-1. `math_expr_test.cpp`
-1. `math_expr_benchmark.cpp`
-1. `math_expr_simple_example_01.cpp`
-1. `math_expr_simple_example_02.cpp`
-1. `math_expr_simple_example_03.cpp`
-1. `math_expr_simple_example_04.cpp`
-1. `math_expr_simple_example_05.cpp`
-1. `math_expr_simple_example_06.cpp`
-1. `math_expr_simple_example_07.cpp`
-1. `math_expr_simple_example_08.cpp`
-1. `math_expr_simple_example_09.cpp`
-1. `math_expr_simple_example_10.cpp`
-1. `math_expr_simple_example_11.cpp`
-1. `math_expr_simple_example_12.cpp`
-1. `math_expr_simple_example_13.cpp`
-1. `math_expr_simple_example_14.cpp`
-1. `math_expr_simple_example_15.cpp`
-1. `math_expr_simple_example_16.cpp`
-1. `math_expr_simple_example_17.cpp`
-1. `math_expr_simple_example_18.cpp`
-1. `math_expr_simple_example_19.cpp`
-1. `math_expr_simple_example_20.cpp`
-1. `math_expr_simple_example_21.cpp`
-1. `math_expr_simple_example_22.cpp`
-1. `math_expr_simple_example_23.cpp`
-1. `math_expr_simple_example_24.cpp`
+## Build system
 
-Details for each of the above examples can be found here:
+1. `CMakeLists.txt`
+1. `CMakePresets.json`
+1. `config.cmake.in`
 
-[https://www.partow.net/programming/exprtk/index.html#examples](https://www.partow.net/programming/exprtk/index.html#examples)
+## License
 
-Various extended and advanced examples using MathExpr are available via the following:
+1. `license.txt`
 
-1. `math_expr_american_option_binomial_model.cpp`
-1. `math_expr_archimedes_pi.cpp`
-1. `math_expr_arithmetic_evaluator.cpp`
-1. `math_expr_binomial_coefficient.cpp`
-1. `math_expr_bsm_benchmark.cpp`
-1. `math_expr_calc.cpp`
-1. `math_expr_chladni_contour.cpp`
-1. `math_expr_collatz.cpp`
-1. `math_expr_compilation_timeout.cpp`
-1. `math_expr_degree_trigonometry_example.cpp`
-1. `math_expr_exprgen.cpp`
-1. `math_expr_extract_dependents.cpp`
-1. `math_expr_e_10kdigits.cpp`
-1. `math_expr_factorize_fermat.cpp`
-1. `math_expr_factorize_pollard.cpp`
-1. `math_expr_fizzbuzz.cpp`
-1. `math_expr_funcall_benchmark.cpp`
-1. `math_expr_game_of_life.cpp`
-1. `math_expr_gcd.cpp`
-1. `math_expr_gnuplot.cpp`
-1. `math_expr_gnuplot_multi.cpp`
-1. `math_expr_groups_examples.cpp`
-1. `math_expr_immutable_symbol_table_example.cpp`
-1. `math_expr_import_packages.cpp`
-1. `math_expr_instruction_primer.cpp`
-1. `math_expr_julia_set_fractal.cpp`
-1. `math_expr_jump_diffusion_process.cpp`
-1. `math_expr_loop_timeout_rtc.cpp`
-1. `math_expr_magic_square.cpp`
-1. `math_expr_mandelbrot.cpp`
-1. `math_expr_max_subarray_sum.cpp`
-1. `math_expr_maze_generator.cpp`
-1. `math_expr_miller_rabin_primality_test.cpp`
-1. `math_expr_montecarlo_e.cpp`
-1. `math_expr_montecarlo_option_pricing_model.cpp`
-1. `math_expr_montecarlo_pi.cpp`
-1. `math_expr_naive_primes.cpp`
-1. `math_expr_normal_random_marsaglia_method.cpp`
-1. `math_expr_nqueens_problem.cpp`
-1. `math_expr_nthroot_bisection.cpp`
-1. `math_expr_ornstein_uhlenbeck_process.cpp`
-1. `math_expr_pascals_triangle.cpp`
-1. `math_expr_pi_10kdigits.cpp`
-1. `math_expr_prime_sieve.cpp`
-1. `math_expr_prime_sieve_vectorized.cpp`
-1. `math_expr_pyramid.cpp`
-1. `math_expr_pythagorean_triples.cpp`
-1. `math_expr_radial_contour.cpp`
-1. `math_expr_recursive_fibonacci.cpp`
-1. `math_expr_repl.cpp`
-1. `math_expr_riddle.cpp`
-1. `math_expr_rtc_overhead.cpp`
-1. `math_expr_sudoku_solver.cpp`
-1. `math_expr_sumofprimes.cpp`
-1. `math_expr_symtab_functions.cpp`
-1. `math_expr_testgen.cpp`
-1. `math_expr_tower_of_hanoi.cpp`
-1. `math_expr_truthtable_gen.cpp`
-1. `math_expr_vectorized_binomial_model.cpp`
-1. `math_expr_vectornorm.cpp`
-1. `math_expr_vector_benchmark.cpp`
-1. `math_expr_vector_benchmark_multithreaded.cpp`
-1. `math_expr_vector_resize_example.cpp`
-1. `math_expr_vector_resize_inline_example.cpp`
-1. `math_expr_wiener_process_pi.cpp`
+## Headers
 
-Details for each of the above examples can be found here:
+1. `include/math_expr.hpp` — top-level include
 
-[https://partow.net/programming/exprtk/index.html#variousexamples](https://partow.net/programming/exprtk/index.html#variousexamples)
+The `include/math_expr/` directory contains the individual component headers:
+
+1. `include/math_expr/assert_check.hpp`
+1. `include/math_expr/collect_types.hpp`
+1. `include/math_expr/compilation_check.hpp`
+1. `include/math_expr/compilation_options.hpp`
+1. `include/math_expr/expression.hpp`
+1. `include/math_expr/expression_helper.hpp`
+1. `include/math_expr/function_compositor.hpp`
+1. `include/math_expr/function_traits.hpp`
+1. `include/math_expr/fwd.hpp`
+1. `include/math_expr/ifunction.hpp`
+1. `include/math_expr/igeneric_function.hpp`
+1. `include/math_expr/ivararg_function.hpp`
+1. `include/math_expr/loop_runtime_check.hpp`
+1. `include/math_expr/loop_types.hpp`
+1. `include/math_expr/parser.hpp`
+1. `include/math_expr/parser_dependent_entity_collector.hpp`
+1. `include/math_expr/parser_error.hpp`
+1. `include/math_expr/parser_settings.hpp`
+1. `include/math_expr/parser_symbol_types.hpp`
+1. `include/math_expr/parser_unknown_symbol_resolver.hpp`
+1. `include/math_expr/polynomial.hpp`
+1. `include/math_expr/results_context.hpp`
+1. `include/math_expr/stringvar_base.hpp`
+1. `include/math_expr/symbol_table.hpp`
+1. `include/math_expr/timer.hpp`
+1. `include/math_expr/type_defs.hpp`
+1. `include/math_expr/type_store.hpp`
+1. `include/math_expr/vector_access_runtime_check.hpp`
+1. `include/math_expr/vector_view.hpp`
+
+## Tests
+
+1. `test/math_expr_test.cpp`
+
+## Benchmarks
+
+1. `benchmark/math_expr_bench.cpp`
+
+## Examples
+
+The `examples/` directory contains 24 example programs, one per documentation section:
+
+1. `examples/01_introduction.cpp`
+1. `examples/02_capabilities.cpp`
+1. `examples/03_example_expressions.cpp`
+1. `examples/04_copyright_notice.cpp`
+1. `examples/05_downloads_and_updates.cpp`
+1. `examples/06_installation.cpp`
+1. `examples/07_compilation.cpp`
+1. `examples/08_compiler_compatibility.cpp`
+1. `examples/09_built-in_operations_and_funcs.cpp`
+1. `examples/10_fundamental_types.cpp`
+1. `examples/11_components.cpp`
+1. `examples/12_compilation_options.cpp`
+1. `examples/13_expression_structures.cpp`
+1. `examples/14_variable_vector_and_string_def.cpp`
+1. `examples/15_vector_processing.cpp`
+1. `examples/16_user_defined_functions.cpp`
+1. `examples/17_expression_dependents.cpp`
+1. `examples/18_hierarchies_of_symbol_tables.cpp`
+1. `examples/19_unknown_unknowns.cpp`
+1. `examples/20_enabling_and_disabling_features.cpp`
+1. `examples/21_expression_return_values.cpp`
+1. `examples/22_compilation_errors.cpp`
+1. `examples/23_runtime_library_packages.cpp`
+1. `examples/24_helpers_and_utils.cpp`
 
 [Previous](28-build-options.md) | [Index](index.md) | [Next](30-language-structure.md)

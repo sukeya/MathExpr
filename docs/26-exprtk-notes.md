@@ -195,13 +195,13 @@ persisting to disk or otherwise transmitting elsewhere with the intent to 'resur
 
 maintained by having a comprehensive suite of unit tests and functional tests all of which are run using sanitizers (ASAN, UBSAN, LSAN, MSAN, TSAN). Additionally, continuous fuzz-testing provided by Google OSS Fuzz, and static analysis via Synopsis Coverity.
 
-## The library  name MathExpr  is pronounced  "Ex-Pee-Ar-Tee-Kay" or
+## The library name MathExpr is a modern fork of ExprTk,
 
-simply "Mathematical Expression Toolkit"
+which stands for "Mathematical Expression Toolkit".
 
-## For general support, inquires or bug/issue reporting:
+## For general support, inquiries or bug/issue reporting:
 
-[https://www.partow.net/programming/exprtk/index.html#support](https://www.partow.net/programming/exprtk/index.html#support)
+[https://github.com/sukeya/MathExpr/issues](https://github.com/sukeya/MathExpr/issues)
 
 ## Before jumping in and using MathExpr, do take the time to  peruse
 
