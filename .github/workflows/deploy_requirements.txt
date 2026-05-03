@@ -1,6 +1,5 @@
-mkdocs
+zensical
 mkdocs-glightbox
-mkdocs-material
 markdown
 pymdown-extensions
 mkdocs-git-revision-date-localized-plugin
