@@ -52,7 +52,7 @@ struct vector_access_runtime_check
 
     virtual bool handle_runtime_violation(violation_context& /*context*/)
     {
-        throw std::runtime_error("ExprTk runtime vector access violation.");
+        throw std::runtime_error("MathExpr runtime vector access violation.");
 #ifdef __NVCOMPILER
         return false;
 #endif

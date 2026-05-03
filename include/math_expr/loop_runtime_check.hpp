@@ -68,7 +68,7 @@ struct loop_runtime_check
 
     virtual void handle_runtime_violation(const violation_context&)
     {
-        throw std::runtime_error("ExprTk Loop runtime violation.");
+        throw std::runtime_error("MathExpr Loop runtime violation.");
     }
 
     virtual ~loop_runtime_check() {}
