@@ -141,17 +141,17 @@ class vec_data_store
     {
         if constexpr (::math_expr::core::build_options::kEnableDebugging)
         {
-            MATH_EXPR_DEBUG(("size: %d\taddress:%p\tdestruct:%c\n", size(), data(),
-                             (control_block_->destruct ? 'T' : 'F')));
+            core::debug_print("size: %d\taddress:%p\tdestruct:%c\n", size(), data(),
+                              (control_block_->destruct ? 'T' : 'F'));
 
             for (std::size_t i = 0; i < size(); ++i)
             {
                 if (5 == i)
-                    MATH_EXPR_DEBUG(("\n"));
+                    core::debug_print("\n");
 
-                MATH_EXPR_DEBUG(("%15.10f ", data()[i]));
+                core::debug_print("%15.10f ", data()[i]);
             }
-            MATH_EXPR_DEBUG(("\n"));
+            core::debug_print("\n");
         }
     }
 

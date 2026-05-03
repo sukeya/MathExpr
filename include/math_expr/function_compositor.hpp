@@ -184,57 +184,51 @@ class function_compositor
 
         virtual ~base_func() {}
 
-#define MATH_EXPR_ASSIGN(Index) (*v[Index]) = v##Index;
-
         inline void update(const T& v0)
         {
-            MATH_EXPR_ASSIGN(0);
+            (*v[0]) = v0;
         }
 
         inline void update(const T& v0, const T& v1)
         {
-            MATH_EXPR_ASSIGN(0);
-            MATH_EXPR_ASSIGN(1);
+            (*v[0]) = v0;
+            (*v[1]) = v1;
         }
 
         inline void update(const T& v0, const T& v1, const T& v2)
         {
-            MATH_EXPR_ASSIGN(0);
-            MATH_EXPR_ASSIGN(1);
-            MATH_EXPR_ASSIGN(2);
+            (*v[0]) = v0;
+            (*v[1]) = v1;
+            (*v[2]) = v2;
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3)
         {
-            MATH_EXPR_ASSIGN(0);
-            MATH_EXPR_ASSIGN(1);
-            MATH_EXPR_ASSIGN(2);
-            MATH_EXPR_ASSIGN(3);
+            (*v[0]) = v0;
+            (*v[1]) = v1;
+            (*v[2]) = v2;
+            (*v[3]) = v3;
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4)
         {
-            MATH_EXPR_ASSIGN(0);
-            MATH_EXPR_ASSIGN(1);
-            MATH_EXPR_ASSIGN(2);
-            MATH_EXPR_ASSIGN(3);
-            MATH_EXPR_ASSIGN(4);
+            (*v[0]) = v0;
+            (*v[1]) = v1;
+            (*v[2]) = v2;
+            (*v[3]) = v3;
+            (*v[4]) = v4;
         }
 
         inline void update(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
                            const T& v5)
         {
-            MATH_EXPR_ASSIGN(0);
-            MATH_EXPR_ASSIGN(1);
-            MATH_EXPR_ASSIGN(2);
-            MATH_EXPR_ASSIGN(3);
-            MATH_EXPR_ASSIGN(4);
-            MATH_EXPR_ASSIGN(5);
+            (*v[0]) = v0;
+            (*v[1]) = v1;
+            (*v[2]) = v2;
+            (*v[3]) = v3;
+            (*v[4]) = v4;
+            (*v[5]) = v5;
         }
-
-#ifdef MATH_EXPR_ASSIGN
-#undef MATH_EXPR_ASSIGN
-#endif
 
         inline function_t& setup(expression_t& expr)
         {
@@ -251,10 +245,10 @@ class function_compositor
 
             for (std::size_t i = 0; i < ldl.size(); ++i)
             {
-                MATH_EXPR_DEBUG(("base_func::setup() - element[%02d] type: %s size: %d\n",
-                                 static_cast<int>(i),
-                                 expression_t::control_block::to_str(ldl[i].type).c_str(),
-                                 static_cast<int>(ldl[i].size)));
+                core::debug_print("base_func::setup() - element[%02d] type: %s size: %d\n",
+                                  static_cast<int>(i),
+                                  expression_t::control_block::to_str(ldl[i].type).c_str(),
+                                  static_cast<int>(ldl[i].size));
 
                 switch (ldl[i].type)
                 {
@@ -630,8 +624,8 @@ class function_compositor
         {
             if (!override)
             {
-                MATH_EXPR_DEBUG(
-                    ("Compositor error(add): function '%s' already defined\n", name.c_str()));
+                core::debug_print("Compositor error(add): function '%s' already defined\n",
+                                  name.c_str());
 
                 return false;
             }
@@ -649,8 +643,8 @@ class function_compositor
         }
         else
         {
-            MATH_EXPR_DEBUG(
-                ("Compositor error(add): Failed to compile function '%s'\n", name.c_str()));
+            core::debug_print("Compositor error(add): Failed to compile function '%s'\n",
+                              name.c_str());
 
             return false;
         }
@@ -816,10 +810,9 @@ class function_compositor
 
         if (!valid(name, input_var_list.size()))
         {
-            parser_error::type error =
-                parser_error::make_error(parser_error::error_mode::e_parser, lexer::token(),
-                                         "ERR283 - Function '" + name + "' is an invalid overload",
-                                         MATH_EXPR_ERROR_LOCATION);
+            parser_error::type error = parser_error::make_error(
+                parser_error::error_mode::e_parser, lexer::token(),
+                "ERR283 - Function '" + name + "' is an invalid overload", core::error_location());
 
             error_list_.push_back(error);
             return false;
@@ -849,8 +842,8 @@ class function_compositor
 
         if (!parser_.compile(mod_expression, compiled_expression))
         {
-            MATH_EXPR_DEBUG(("Compositor Error: %s\n", parser_.error().c_str()));
-            MATH_EXPR_DEBUG(("Compositor modified expression: \n%s\n", mod_expression.c_str()));
+            core::debug_print("Compositor Error: %s\n", parser_.error().c_str());
+            core::debug_print("Compositor modified expression: \n%s\n", mod_expression.c_str());
 
             remove(name, input_var_list.size());
 
@@ -881,9 +874,9 @@ class function_compositor
 
                 if (params.empty() || ('T' != params[0]))
                 {
-                    MATH_EXPR_DEBUG(
-                        ("Compositor Error: Return statement in function '%s' is invalid\n",
-                         name.c_str()));
+                    core::debug_print(
+                        "Compositor Error: Return statement in function '%s' is invalid\n",
+                        name.c_str());
 
                     remove(name, input_var_list.size());
 
@@ -900,8 +893,8 @@ class function_compositor
             return true;
         else
         {
-            MATH_EXPR_DEBUG(
-                ("Compositor Error: Failed to add function '%s' to symbol table\n", name.c_str()));
+            core::debug_print("Compositor Error: Failed to add function '%s' to symbol table\n",
+                              name.c_str());
             return false;
         }
     }

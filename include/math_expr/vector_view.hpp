@@ -99,29 +99,29 @@ class vector_view
     void set_ref(data_ptr_t* data_ref)
     {
         data_ref_.push_back(data_ref);
-        MATH_EXPR_DEBUG(("vector_view::set_ref() - data_ref: %p data_ref_.size(): %d\n",
-                         static_cast<const void*>(data_ref), static_cast<int>(data_ref_.size())));
+        core::debug_print("vector_view::set_ref() - data_ref: %p data_ref_.size(): %d\n",
+                          static_cast<const void*>(data_ref), static_cast<int>(data_ref_.size()));
     }
 
     void set_size_ref(std::size_t* size_ref)
     {
         size_ref_.push_back(size_ref);
-        MATH_EXPR_DEBUG(("vector_view::set_size_ref() - size_ref: %p size_ref_.size(): %d\n",
-                         static_cast<const void*>(size_ref), static_cast<int>(size_ref_.size())));
+        core::debug_print("vector_view::set_size_ref() - size_ref: %p size_ref_.size(): %d\n",
+                          static_cast<const void*>(size_ref), static_cast<int>(size_ref_.size()));
     }
 
     void remove_ref(data_ptr_t* data_ref)
     {
         data_ref_.erase(std::remove(data_ref_.begin(), data_ref_.end(), data_ref), data_ref_.end());
-        MATH_EXPR_DEBUG(("vector_view::remove_ref() - data_ref: %p data_ref_.size(): %d\n",
-                         static_cast<const void*>(data_ref), static_cast<int>(data_ref_.size())));
+        core::debug_print("vector_view::remove_ref() - data_ref: %p data_ref_.size(): %d\n",
+                          static_cast<const void*>(data_ref), static_cast<int>(data_ref_.size()));
     }
 
     void remove_size_ref(std::size_t* size_ref)
     {
         size_ref_.erase(std::remove(size_ref_.begin(), size_ref_.end(), size_ref), size_ref_.end());
-        MATH_EXPR_DEBUG(("vector_view::remove_size_ref() - size_ref: %p size_ref_.size(): %d\n",
-                         static_cast<const void*>(size_ref), static_cast<int>(size_ref_.size())));
+        core::debug_print("vector_view::remove_size_ref() - size_ref: %p size_ref_.size(): %d\n",
+                          static_cast<const void*>(size_ref), static_cast<int>(size_ref_.size()));
     }
 
     bool set_size(const std::size_t new_size)
@@ -129,8 +129,8 @@ class vector_view
         if ((new_size > 0) && (new_size <= base_size_))
         {
             size_ = new_size;
-            MATH_EXPR_DEBUG(("vector_view::set_size() - data_: %p size: %lu\n",
-                             static_cast<const void*>(data_), size_));
+            core::debug_print("vector_view::set_size() - data_: %p size: %lu\n",
+                              static_cast<const void*>(data_), size_);
 
             if (!size_ref_.empty())
             {
@@ -143,8 +143,8 @@ class vector_view
             return true;
         }
 
-        MATH_EXPR_DEBUG(("vector_view::set_size() - error invalid new_size: %lu  base_size: %lu\n",
-                         new_size, base_size_));
+        core::debug_print("vector_view::set_size() - error invalid new_size: %lu  base_size: %lu\n",
+                          new_size, base_size_);
         return false;
     }
 

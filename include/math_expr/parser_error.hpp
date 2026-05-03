@@ -76,7 +76,7 @@ inline type make_error(const error_mode mode, const std::string& diagnostic = ""
     t.token.type = lexer::token::e_error;
     t.diagnostic = diagnostic;
     t.src_location = src_location;
-    MATH_EXPR_DEBUG(("%s\n", diagnostic.c_str()));
+    core::debug_print("%s\n", diagnostic.c_str());
     return t;
 }
 
@@ -88,7 +88,7 @@ inline type make_error(const error_mode mode, const lexer::token& tk,
     t.token = tk;
     t.diagnostic = diagnostic;
     t.src_location = src_location;
-    MATH_EXPR_DEBUG(("%s\n", diagnostic.c_str()));
+    core::debug_print("%s\n", diagnostic.c_str());
     return t;
 }
 

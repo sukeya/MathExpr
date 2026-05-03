@@ -548,9 +548,9 @@ class symbol_table
         {
             static inline bool test(const variable_node_t* p, const TRawType* ptr)
             {
-                MATH_EXPR_DEBUG(("ptr_match::test() - %p <--> %p\n",
-                                 static_cast<const void*>(&(p->ref())),
-                                 static_cast<const void*>(ptr)));
+                core::debug_print("ptr_match::test() - %p <--> %p\n",
+                                  static_cast<const void*>(&(p->ref())),
+                                  static_cast<const void*>(ptr));
                 return (&(p->ref()) == ptr);
             }
         };

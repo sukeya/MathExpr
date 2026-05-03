@@ -1753,7 +1753,11 @@ struct param_to_str<0>
     }
 };
 
-#define MATH_EXPR_CRTYPE(Type) param_to_str<is_variable_param_v<Type> ? 1 : 0>::result()
+template <typename T>
+inline std::string crtype_str()
+{
+    return param_to_str < is_variable_param_v<T> ? 1 : 0 > ::result();
+}
 
 template <typename T>
 struct T0oT1oT2process
@@ -1773,9 +1777,8 @@ struct T0oT1oT2process
         template <typename T0, typename T1, typename T2>
         static inline std::string id()
         {
-            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + "o" +
-                                              MATH_EXPR_CRTYPE(T1) + ")o(" + MATH_EXPR_CRTYPE(T2) +
-                                              ")";
+            static const std::string result =
+                "(" + crtype_str<T0>() + "o" + crtype_str<T1>() + ")o(" + crtype_str<T2>() + ")";
             return result;
         }
     };
@@ -1792,9 +1795,8 @@ struct T0oT1oT2process
         template <typename T0, typename T1, typename T2>
         static inline std::string id()
         {
-            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + ")o(" +
-                                              MATH_EXPR_CRTYPE(T1) + "o" + MATH_EXPR_CRTYPE(T2) +
-                                              ")";
+            static const std::string result =
+                "(" + crtype_str<T0>() + ")o(" + crtype_str<T1>() + "o" + crtype_str<T2>() + ")";
             return result;
         }
     };
@@ -1818,9 +1820,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result =
-                "(" + MATH_EXPR_CRTYPE(T0) + "o" + MATH_EXPR_CRTYPE(T1) + ")o" + "(" +
-                MATH_EXPR_CRTYPE(T2) + "o" + MATH_EXPR_CRTYPE(T3) + ")";
+            static const std::string result = "(" + crtype_str<T0>() + "o" + crtype_str<T1>() +
+                                              ")o" + "(" + crtype_str<T2>() + "o" +
+                                              crtype_str<T3>() + ")";
             return result;
         }
     };
@@ -1836,9 +1838,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + ")o((" +
-                                              MATH_EXPR_CRTYPE(T1) + ")o(" + MATH_EXPR_CRTYPE(T2) +
-                                              "o" + MATH_EXPR_CRTYPE(T3) + "))";
+            static const std::string result = "(" + crtype_str<T0>() + ")o((" + crtype_str<T1>() +
+                                              ")o(" + crtype_str<T2>() + "o" + crtype_str<T3>() +
+                                              "))";
             return result;
         }
     };
@@ -1855,9 +1857,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "(" + MATH_EXPR_CRTYPE(T0) + ")o((" +
-                                              MATH_EXPR_CRTYPE(T1) + "o" + MATH_EXPR_CRTYPE(T2) +
-                                              ")o(" + MATH_EXPR_CRTYPE(T3) + "))";
+            static const std::string result = "(" + crtype_str<T0>() + ")o((" + crtype_str<T1>() +
+                                              "o" + crtype_str<T2>() + ")o(" + crtype_str<T3>() +
+                                              "))";
             return result;
         }
     };
@@ -1874,9 +1876,9 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "((" + MATH_EXPR_CRTYPE(T0) + "o" +
-                                              MATH_EXPR_CRTYPE(T1) + ")o(" + MATH_EXPR_CRTYPE(T2) +
-                                              "))o(" + MATH_EXPR_CRTYPE(T3) + ")";
+            static const std::string result = "((" + crtype_str<T0>() + "o" + crtype_str<T1>() +
+                                              ")o(" + crtype_str<T2>() + "))o(" + crtype_str<T3>() +
+                                              ")";
             return result;
         }
     };
@@ -1893,15 +1895,13 @@ struct T0oT1oT20T3process
         template <typename T0, typename T1, typename T2, typename T3>
         static inline std::string id()
         {
-            static const std::string result = "((" + MATH_EXPR_CRTYPE(T0) + ")o(" +
-                                              MATH_EXPR_CRTYPE(T1) + "o" + MATH_EXPR_CRTYPE(T2) +
-                                              "))o(" + MATH_EXPR_CRTYPE(T3) + ")";
+            static const std::string result = "((" + crtype_str<T0>() + ")o(" + crtype_str<T1>() +
+                                              "o" + crtype_str<T2>() + "))o(" + crtype_str<T3>() +
+                                              ")";
             return result;
         }
     };
 };
-
-#undef MATH_EXPR_CRTYPE
 
 template <typename T, typename T0, typename T1>
 struct nodetype_T0oT1
@@ -4006,10 +4006,10 @@ class node_allocator
     template <typename T>
     void inline free(expression_node<T>*& e) const
     {
-        MATH_EXPR_DEBUG(
-            ("node_allocator::free() - deleting expression_node "
-             "type: %03d addr: %p\n",
-             static_cast<int>(e->type()), static_cast<const void*>(e)));
+        core::debug_print(
+            "node_allocator::free() - deleting expression_node "
+            "type: %03d addr: %p\n",
+            static_cast<int>(e->type()), static_cast<const void*>(e));
         delete e;
         e = 0;
     }

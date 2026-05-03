@@ -48,12 +48,12 @@ struct package
 
     bool register_package(math_expr::symbol_table<T>& symtab)
     {
-#define MATH_EXPR_REGISTER_FUNCTION(FunctionName, FunctionType)                                 \
-    if (!symtab.add_function(FunctionName, FunctionType))                                       \
-    {                                                                                           \
-        MATH_EXPR_DEBUG(("math_expr::rtl::io::register_package - Failed to add function: %s\n", \
-                         FunctionName));                                                        \
-        return false;                                                                           \
+#define MATH_EXPR_REGISTER_FUNCTION(FunctionName, FunctionType)                                  \
+    if (!symtab.add_function(FunctionName, FunctionType))                                        \
+    {                                                                                            \
+        core::debug_print("math_expr::rtl::io::register_package - Failed to add function: %s\n", \
+                          FunctionName);                                                         \
+        return false;                                                                            \
     }
 
         MATH_EXPR_REGISTER_FUNCTION("print", p)
