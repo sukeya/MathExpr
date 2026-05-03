@@ -21,14 +21,15 @@ jobs:
           python-version: '3.13'
       - name: Set up Zensical
         run: |
-          python -m pip install --upgrade pip
-          pip install -r .github/workflows/deploy_requirements.txt
+          sudo apt install curl
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv sync
       - name: Build
         env:
           MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-        run: zensical build
+        run: uv run zensical build
       - name: Deploy
         if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
         env:
           MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-        run: zensical gh-deploy
+        run: uv run zensical gh-deploy
