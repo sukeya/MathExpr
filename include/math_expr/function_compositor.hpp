@@ -287,14 +287,14 @@ class function_compositor
                 {
                     if (local_var.type == ctrlblk_t::data_type::e_string)
                     {
-                        local_str_vars.push_back(local_var.get<std::string>());
+                        local_str_vars.push_back(local_var.template get<std::string>());
                     }
                     else if ((local_var.type == ctrlblk_t::data_type::e_data) ||
                              (local_var.type == ctrlblk_t::data_type::e_vecdata))
                     {
                         T* ptr = (local_var.type == ctrlblk_t::data_type::e_data)
-                                     ? local_var.get<T>()
-                                     : local_var.get<T[]>();
+                                     ? local_var.template get<T>()
+                                     : local_var.template get<T[]>();
                         local_vars.push_back(std::make_pair(ptr, local_var.size));
 
                         local_var_stack_size += local_var.size;
@@ -302,7 +302,7 @@ class function_compositor
                 }
                 else
                 {
-                    v[input_param_count++] = local_var.get<T>();
+                    v[input_param_count++] = local_var.template get<T>();
                 }
             }
 
