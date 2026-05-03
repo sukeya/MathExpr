@@ -2734,13 +2734,13 @@ class generic_function_node : public expression_node<T>
             vecview_t& vv = vv_list_[i];
             if (vv)
             {
-                if (typestore_list_[i].vec_data)
+                if (auto* pp = std::get_if<T*>(&typestore_list_[i].data); pp && *pp)
                 {
-                    vv->remove_ref(&typestore_list_[i].vec_data);
+                    vv->remove_ref(pp);
                 }
 
                 vv->remove_size_ref(&typestore_list_[i].size);
-                typestore_list_[i].vec_data = 0;
+                typestore_list_[i].data = static_cast<T*>(nullptr);
             }
         }
     }
@@ -2789,7 +2789,7 @@ class generic_function_node : public expression_node<T>
 
                     if (!amalgamated_vecop(arg_list_[i]))
                     {
-                        vv_list_[i]->set_ref(&ts.vec_data);
+                        vv_list_[i]->set_ref(std::get_if<T*>(&ts.data));
                     }
                 }
             }
@@ -2802,10 +2802,10 @@ class generic_function_node : public expression_node<T>
                     return false;
 
                 ts.size = sbn->size();
-                ts.data = reinterpret_cast<void*>(const_cast<core::char_ptr>(sbn->base()));
+                ts.data = const_cast<char*>(sbn->base());
                 ts.type = type_store_t::store_type::e_string;
 
-                range_list_[i].data = ts.data;
+                range_list_[i].data = std::get<char*>(ts.data);
                 range_list_[i].size = ts.size;
                 range_list_[i].type_size = sizeof(char);
                 range_list_[i].str_node = sbn;
@@ -2820,7 +2820,7 @@ class generic_function_node : public expression_node<T>
                 if (rp.const_range() && is_const_string_range_node(arg_list_[i]))
                 {
                     ts.size = rp.const_size();
-                    ts.data = static_cast<core::char_ptr>(ts.data) + rp.n0_c.second;
+                    ts.data = std::get<char*>(ts.data) + rp.n0_c.second;
                     range_list_[i].range = nullptr;
                 }
                 else
@@ -2844,7 +2844,7 @@ class generic_function_node : public expression_node<T>
             else
             {
                 ts.size = 1;
-                ts.data = reinterpret_cast<void*>(&expr_as_vec1_store_[i]);
+                ts.data = &expr_as_vec1_store_[i];
                 ts.type = type_store_t::store_type::e_scalar;
             }
 
@@ -2921,11 +2921,11 @@ class generic_function_node : public expression_node<T>
                 ts.size = rp.cache_size();
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                 if (ts.type == type_store_t::store_type::e_string)
-                    ts.data = const_cast<core::char_ptr>(rdt.str_node->base()) + rp.cache.first;
+                    ts.data = const_cast<char*>(rdt.str_node->base()) + rp.cache.first;
                 else
 #endif
-                    ts.data =
-                        static_cast<core::char_ptr>(rdt.data) + (rp.cache.first * rdt.type_size);
+                    ts.data = reinterpret_cast<char*>(std::get<T*>(rdt.data)) +
+                              (rp.cache.first * rdt.type_size);
             }
         }
 

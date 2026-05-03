@@ -39,15 +39,16 @@ limitations under the License.
 
 namespace math_expr::core
 {
-inline void dump_ptr(const std::string& s, const void* ptr, const std::size_t size = 0)
+template <typename Ptr>
+inline void dump_ptr(const std::string& s, const Ptr* ptr, const std::size_t size = 0)
 {
     if constexpr (::math_expr::core::build_options::kEnableDebugging)
     {
         if (size)
-            MATH_EXPR_DEBUG(
-                ("%s - addr: %p size: %d\n", s.c_str(), ptr, static_cast<unsigned int>(size)));
+            MATH_EXPR_DEBUG(("%s - addr: %p size: %d\n", s.c_str(), static_cast<const void*>(ptr),
+                             static_cast<unsigned int>(size)));
         else
-            MATH_EXPR_DEBUG(("%s - addr: %p\n", s.c_str(), ptr));
+            MATH_EXPR_DEBUG(("%s - addr: %p\n", s.c_str(), static_cast<const void*>(ptr)));
     }
 }
 

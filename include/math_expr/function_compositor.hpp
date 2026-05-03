@@ -281,27 +281,28 @@ class function_compositor
                 const std::size_t index = index_list[i].first;
                 const ldl_value_type& local_var = ldl[index];
 
-                assert(local_var.pointer());
+                assert(local_var.has_data());
 
                 if (i < (index_list.size() - v.size()))
                 {
                     if (local_var.type == ctrlblk_t::data_type::e_string)
                     {
-                        local_str_vars.push_back(
-                            reinterpret_cast<std::string*>(local_var.pointer()));
+                        local_str_vars.push_back(local_var.get<std::string>());
                     }
                     else if ((local_var.type == ctrlblk_t::data_type::e_data) ||
                              (local_var.type == ctrlblk_t::data_type::e_vecdata))
                     {
-                        local_vars.push_back(std::make_pair(
-                            reinterpret_cast<T*>(local_var.pointer()), local_var.size));
+                        T* ptr = (local_var.type == ctrlblk_t::data_type::e_data)
+                                     ? local_var.get<T>()
+                                     : local_var.get<T[]>();
+                        local_vars.push_back(std::make_pair(ptr, local_var.size));
 
                         local_var_stack_size += local_var.size;
                     }
                 }
                 else
                 {
-                    v[input_param_count++] = reinterpret_cast<T*>(local_var.pointer());
+                    v[input_param_count++] = local_var.get<T>();
                 }
             }
 
@@ -710,7 +711,7 @@ class function_compositor
         parser_.register_loop_runtime_check(lrtchk);
     }
 
-    inline void register_vector_access_runtime_check(vector_access_runtime_check& vartchk)
+    inline void register_vector_access_runtime_check(vector_access_runtime_check<T>& vartchk)
     {
         parser_.register_vector_access_runtime_check(vartchk);
     }

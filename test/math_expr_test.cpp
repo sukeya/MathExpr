@@ -6474,8 +6474,11 @@ struct overload_func final : math_expr::igeneric_function<T>
     };
 };
 
-struct vector_access_rtc_counter : public math_expr::vector_access_runtime_check
+template <typename T>
+struct vector_access_rtc_counter : public math_expr::vector_access_runtime_check<T>
 {
+    using violation_context = typename math_expr::vector_access_runtime_check<T>::violation_context;
+
     bool handle_runtime_violation(violation_context&) override
     {
         rtc_count++;
@@ -8474,7 +8477,7 @@ bool run_test18()
                 symbol_table.add_vector("vv", vv);
                 symbol_table.add_vector("ww", ww);
 
-                vector_access_rtc_counter vartc;
+                vector_access_rtc_counter<T> vartc;
 
                 expression.register_symbol_table(symbol_table);
 
@@ -8522,7 +8525,7 @@ bool run_test18()
                 symbol_table.add_vector("vv", vv);
                 symbol_table.add_vector("ww", ww);
 
-                vector_access_rtc_counter vartc;
+                vector_access_rtc_counter<T> vartc;
 
                 expression.register_symbol_table(symbol_table);
 

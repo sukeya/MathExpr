@@ -4009,7 +4009,7 @@ class node_allocator
         MATH_EXPR_DEBUG(
             ("node_allocator::free() - deleting expression_node "
              "type: %03d addr: %p\n",
-             static_cast<int>(e->type()), reinterpret_cast<void*>(e)));
+             static_cast<int>(e->type()), static_cast<const void*>(e)));
         delete e;
         e = 0;
     }

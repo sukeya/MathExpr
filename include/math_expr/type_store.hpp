@@ -34,6 +34,7 @@ limitations under the License.
 #define MATH_EXPR_TYPE_STORE_HPP
 
 #include "math_expr/core/std_includes.hpp"
+#include <variant>
 #include "math_expr/fwd.hpp"
 #include "math_expr/details/fwd.hpp"
 #include "math_expr/core/numeric.hpp"
@@ -51,13 +52,9 @@ struct type_store
         e_string
     };
 
-    type_store() : data(0), size(0), type(store_type::e_unknown), ivec(0) {}
+    type_store() : data(static_cast<T*>(nullptr)), size(0), type(store_type::e_unknown), ivec(0) {}
 
-    union
-    {
-        void* data;
-        T* vec_data;
-    };
+    std::variant<T*, char*> data;
 
     using ivec_t = details::vector_interface<T>*;
 
@@ -142,12 +139,11 @@ struct type_store
         using type_store_t = type_store<T>;
         using value_t = ViewType;
 
-        explicit type_view(type_store_t& ts) : ts_(ts), data_(reinterpret_cast<value_t*>(ts_.data))
-        {
-        }
+        explicit type_view(type_store_t& ts) : ts_(ts), data_(std::get<value_t*>(ts_.data)) {}
 
         explicit type_view(const type_store_t& ts)
-            : ts_(const_cast<type_store_t&>(ts)), data_(reinterpret_cast<value_t*>(ts_.data))
+            : ts_(const_cast<type_store_t&>(ts)),
+              data_(std::get<value_t*>(const_cast<type_store_t&>(ts).data))
         {
         }
 
@@ -197,10 +193,10 @@ struct type_store
         using type_store_t = type_store<T>;
         using value_t = T;
 
-        explicit scalar_view(type_store_t& ts) : v_(*reinterpret_cast<value_t*>(ts.data)) {}
+        explicit scalar_view(type_store_t& ts) : v_(*std::get<T*>(ts.data)) {}
 
         explicit scalar_view(const type_store_t& ts)
-            : v_(*reinterpret_cast<value_t*>(const_cast<type_store_t&>(ts).data))
+            : v_(*std::get<T*>(const_cast<type_store_t&>(ts).data))
         {
         }
 

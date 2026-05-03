@@ -251,12 +251,11 @@ class parser : public lexer::parser_helper
               ip_index(0),
               type(element_type::e_none),
               active(false),
-              data(0),
-              var_node(0),
-              vec_node(0)
+              var_node(nullptr),
+              vec_node(nullptr)
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
               ,
-              str_node(0)
+              str_node(nullptr)
 #endif
         {
         }
@@ -289,11 +288,15 @@ class parser : public lexer::parser_helper
             active = false;
             ref_count = 0;
             ip_index = 0;
-            data = 0;
-            var_node = 0;
-            vec_node = 0;
+            scalar_data.reset();
+            vector_data.reset();
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            str_node = 0;
+            str_data.reset();
+#endif
+            var_node = nullptr;
+            vec_node = nullptr;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+            str_node = nullptr;
 #endif
         }
 
@@ -305,7 +308,11 @@ class parser : public lexer::parser_helper
         std::size_t ip_index;
         element_type type;
         bool active;
-        void* data;
+        std::unique_ptr<T> scalar_data;
+        std::unique_ptr<T[]> vector_data;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        std::unique_ptr<std::string> str_data;
+#endif
         expression_node_ptr var_node;
         vector_holder_ptr vec_node;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -386,7 +393,7 @@ class parser : public lexer::parser_helper
             return null_element_;
         }
 
-        inline bool add_element(const scope_element& se)
+        inline bool add_element(scope_element&& se)
         {
             for (std::size_t i = 0; i < element_.size(); ++i)
             {
@@ -416,7 +423,7 @@ class parser : public lexer::parser_helper
                     break;
             }
 
-            element_.push_back(se);
+            element_.push_back(std::move(se));
             std::sort(element_.begin(), element_.end());
 
             return true;
@@ -448,17 +455,14 @@ class parser : public lexer::parser_helper
             switch (se.type)
             {
                 case scope_element::element_type::e_literal:
-                    delete reinterpret_cast<T*>(se.data);
                     delete se.var_node;
                     break;
 
                 case scope_element::element_type::e_variable:
-                    delete reinterpret_cast<T*>(se.data);
                     delete se.var_node;
                     break;
 
                 case scope_element::element_type::e_vector:
-                    delete[] reinterpret_cast<T*>(se.data);
                     delete se.vec_node;
                     break;
 
@@ -468,7 +472,6 @@ class parser : public lexer::parser_helper
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                 case scope_element::element_type::e_string:
-                    delete reinterpret_cast<std::string*>(se.data);
                     delete se.str_node;
                     break;
 #endif
@@ -885,8 +888,7 @@ class parser : public lexer::parser_helper
                 if (!symtab_list_[i].valid())
                     continue;
                 else
-                    result = local_data(i).variable_store.get_from_varptr(
-                        reinterpret_cast<const void*>(&var_ref));
+                    result = local_data(i).variable_store.get_from_varptr(&var_ref);
 
                 if (result)
                     break;
@@ -1341,7 +1343,7 @@ class parser : public lexer::parser_helper
           operator_joiner_2_(2),
           operator_joiner_3_(3),
           loop_runtime_check_(0),
-          vector_access_runtime_check_(0),
+          vector_access_runtime_check_(nullptr),
           compilation_check_ptr_(0),
           assert_check_(0)
     {
@@ -1780,7 +1782,7 @@ class parser : public lexer::parser_helper
         loop_runtime_check_ = &lrtchk;
     }
 
-    inline void register_vector_access_runtime_check(vector_access_runtime_check& vartchk)
+    inline void register_vector_access_runtime_check(vector_access_runtime_check<T>& vartchk)
     {
         vector_access_runtime_check_ = &vartchk;
     }
@@ -1802,7 +1804,7 @@ class parser : public lexer::parser_helper
 
     inline void clear_vector_access_runtime_check()
     {
-        vector_access_runtime_check_ = vector_access_runtime_check_ptr(0);
+        vector_access_runtime_check_ = nullptr;
     }
 
     inline void clear_compilation_timeout_check()
@@ -2569,7 +2571,7 @@ class parser : public lexer::parser_helper
                 for (std::size_t i = 0; i < deq_.size(); ++i)
                 {
                     MATH_EXPR_DEBUG(("~scoped_deq_delete() - deleting node: %p\n",
-                                     reinterpret_cast<void*>(deq_[i])));
+                                     static_cast<const void*>(deq_[i])));
                     free_node(parser_.node_allocator_, deq_[i]);
                 }
 
@@ -2612,7 +2614,7 @@ class parser : public lexer::parser_helper
                 for (std::size_t i = 0; i < vec_.size(); ++i)
                 {
                     MATH_EXPR_DEBUG(("~scoped_vec_delete() - deleting node: %p\n",
-                                     reinterpret_cast<void*>(vec_[i])));
+                                     static_cast<const void*>(vec_[i])));
                     free_node(parser_.node_allocator_, vec_[i]);
                 }
 
@@ -3808,11 +3810,10 @@ class parser : public lexer::parser_helper
                         nse.ref_count = 1;
                         nse.type = scope_element::element_type::e_variable;
                         nse.depth = state_.scope_depth;
-                        nse.data = new T(T(0));
-                        nse.var_node = node_allocator_.allocate<variable_node_t>(
-                            *reinterpret_cast<T*>(nse.data));
+                        nse.scalar_data = std::make_unique<T>(T(0));
+                        nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
 
-                        if (!sem_.add_element(nse))
+                        if (!sem_.add_element(std::move(nse)))
                         {
                             set_error(make_error(parser_error::error_mode::e_syntax,
                                                  current_token(),
@@ -5996,13 +5997,13 @@ class parser : public lexer::parser_helper
             nse.type = scope_element::element_type::e_vector;
             nse.depth = state_.scope_depth;
             nse.size = vec_size;
-            nse.data = new T[vec_size];
-            nse.vec_node = new
-                typename scope_element::vector_holder_t(reinterpret_cast<T*>(nse.data), nse.size);
+            nse.vector_data = std::make_unique<T[]>(vec_size);
+            nse.vec_node =
+                new typename scope_element::vector_holder_t(nse.vector_data.get(), nse.size);
 
-            core::numeric::set_zero_value(reinterpret_cast<T*>(nse.data), vec_size);
+            core::numeric::set_zero_value(nse.vector_data.get(), vec_size);
 
-            if (!sem_.add_element(nse))
+            if (!sem_.add_element(std::move(nse)))
             {
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -6348,10 +6349,10 @@ class parser : public lexer::parser_helper
             nse.ref_count = 1;
             nse.type = scope_element::element_type::e_string;
             nse.depth = state_.scope_depth;
-            nse.data = new std::string;
-            nse.str_node = new stringvar_node_t(*reinterpret_cast<std::string*>(nse.data));
+            nse.str_data = std::make_unique<std::string>();
+            nse.str_node = new stringvar_node_t(*nse.str_data);
 
-            if (!sem_.add_element(nse))
+            if (!sem_.add_element(std::move(nse)))
             {
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
@@ -6554,11 +6555,10 @@ class parser : public lexer::parser_helper
             nse.ref_count = 1;
             nse.type = scope_element::element_type::e_variable;
             nse.depth = state_.scope_depth;
-            nse.data = new T(T(0));
-            nse.var_node =
-                node_allocator_.allocate<variable_node_t>(*reinterpret_cast<T*>(nse.data));
+            nse.scalar_data = std::make_unique<T>(T(0));
+            nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
 
-            if (!sem_.add_element(nse))
+            if (!sem_.add_element(std::move(nse)))
             {
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
@@ -6748,10 +6748,9 @@ class parser : public lexer::parser_helper
             nse.ref_count = 1;
             nse.type = scope_element::element_type::e_literal;
             nse.depth = state_.scope_depth;
-            nse.data = 0;
             nse.var_node = node_allocator_.allocate<literal_node_t>(init_value);
 
-            if (!sem_.add_element(nse))
+            if (!sem_.add_element(std::move(nse)))
             {
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
@@ -6850,11 +6849,10 @@ class parser : public lexer::parser_helper
             nse.type = scope_element::element_type::e_variable;
             nse.depth = state_.scope_depth;
             nse.ip_index = sem_.next_ip_index();
-            nse.data = new T(T(0));
-            nse.var_node =
-                node_allocator_.allocate<variable_node_t>(*reinterpret_cast<T*>(nse.data));
+            nse.scalar_data = std::make_unique<T>(T(0));
+            nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
 
-            if (!sem_.add_element(nse))
+            if (!sem_.add_element(std::move(nse)))
             {
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
@@ -7458,25 +7456,26 @@ class parser : public lexer::parser_helper
         return true;
     }
 
-    using interval_t = typename interval_container_t<const void*>::interval_t;
-    using immutable_memory_map_t = interval_container_t<const void*>;
+    using interval_t = typename interval_container_t<std::uintptr_t>::interval_t;
+    using immutable_memory_map_t = interval_container_t<std::uintptr_t>;
     using immutable_symtok_map_t = std::map<interval_t, token_t>;
 
     inline interval_t make_memory_range(const T& t)
     {
-        const T* begin = reinterpret_cast<const T*>(&t);
-        const T* end = begin + 1;
-        return interval_t(begin, end);
+        const auto addr = reinterpret_cast<std::uintptr_t>(&t);
+        return interval_t(addr, addr + sizeof(T));
     }
 
     inline interval_t make_memory_range(const T* begin, const std::size_t size)
     {
-        return interval_t(begin, begin + size);
+        const auto addr = reinterpret_cast<std::uintptr_t>(begin);
+        return interval_t(addr, addr + size * sizeof(T));
     }
 
     inline interval_t make_memory_range(core::char_cptr begin, const std::size_t size)
     {
-        return interval_t(begin, begin + size);
+        const auto addr = reinterpret_cast<std::uintptr_t>(begin);
+        return interval_t(addr, addr + size);
     }
 
     void lodge_immutable_symbol(const lexer::token& token, const interval_t interval)
@@ -9304,7 +9303,7 @@ class parser : public lexer::parser_helper
             return loop_runtime_check_ptr(0);
         }
 
-        inline vector_access_runtime_check_ptr get_vector_access_runtime_check() const
+        inline vector_access_runtime_check<T>* get_vector_access_runtime_check() const
         {
             return parser_->vector_access_runtime_check_;
         }
@@ -10799,7 +10798,7 @@ class parser : public lexer::parser_helper
 
                 if (vector_base->rebaseable())
                 {
-                    vector_access_runtime_check_ptr rtc = get_vector_access_runtime_check();
+                    vector_access_runtime_check<T>* rtc = get_vector_access_runtime_check();
 
                     result = (rtc) ? node_allocator_->allocate<rebasevector_celem_rtc_node_t>(
                                          vec_node, vec_index, vector_base, rtc)
@@ -10824,7 +10823,7 @@ class parser : public lexer::parser_helper
                 }
                 else if (details::is_ivector_node(vec_node) && !details::is_vector_node(vec_node))
                 {
-                    vector_access_runtime_check_ptr rtc = get_vector_access_runtime_check();
+                    vector_access_runtime_check<T>* rtc = get_vector_access_runtime_check();
 
                     result = (rtc) ? node_allocator_->allocate<vector_celem_rtc_node_t>(
                                          vec_node, vec_index, vector_base, rtc)
@@ -10864,11 +10863,10 @@ class parser : public lexer::parser_helper
                     nse.type = scope_element::element_type::e_vecelem;
                     nse.index = vec_index;
                     nse.depth = parser_->state_.scope_depth;
-                    nse.data = 0;
                     nse.var_node =
                         node_allocator_->allocate<variable_node_t>((*(*vector_base)[vec_index]));
 
-                    if (!parser_->sem_.add_element(nse))
+                    if (!parser_->sem_.add_element(std::move(nse)))
                     {
                         parser_->set_synthesis_error(
                             "Failed to add new local vector element to SEM [1]");
@@ -10895,7 +10893,7 @@ class parser : public lexer::parser_helper
             }
             else
             {
-                vector_access_runtime_check_ptr rtc = get_vector_access_runtime_check();
+                vector_access_runtime_check<T>* rtc = get_vector_access_runtime_check();
 
                 if (vector_base->rebaseable())
                 {
@@ -11013,75 +11011,76 @@ class parser : public lexer::parser_helper
             }
         }
 
-        const void* base_ptr(expression_node_ptr node)
+        std::uintptr_t base_ptr(expression_node_ptr node)
         {
             if (node)
             {
                 switch (node->type())
                 {
                     case details::expression_node<T>::node_type::e_variable:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<variable_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_vecelem:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<vector_elem_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_veccelem:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<vector_celem_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_vecelemrtc:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<vector_elem_rtc_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_veccelemrtc:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<vector_celem_rtc_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_rbvecelem:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<rebasevector_elem_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_rbvecelemrtc:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<rebasevector_elem_rtc_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_rbveccelem:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<rebasevector_celem_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_rbveccelemrtc:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             &static_cast<rebasevector_celem_rtc_node_t*>(node)->ref());
 
                     case details::expression_node<T>::node_type::e_vector:
-                        return reinterpret_cast<const void*>(
+                        return reinterpret_cast<std::uintptr_t>(
                             static_cast<vector_node_t*>(node)->vec_holder().data());
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                     case details::expression_node<T>::node_type::e_stringvar:
-                        return reinterpret_cast<const void*>(
-                            (static_cast<stringvar_node_t*>(node)->base()));
+                        return reinterpret_cast<std::uintptr_t>(
+                            static_cast<stringvar_node_t*>(node)->base());
 
                     case details::expression_node<T>::node_type::e_stringvarrng:
-                        return reinterpret_cast<const void*>(
-                            (static_cast<string_range_node_t*>(node)->base()));
+                        return reinterpret_cast<std::uintptr_t>(
+                            static_cast<string_range_node_t*>(node)->base());
 #endif
                     default:
-                        return nullptr;
+                        return 0;
                 }
             }
 
-            return nullptr;
+            return 0;
         }
 
         bool assign_immutable_symbol(expression_node_ptr node)
         {
             interval_t interval;
-            const void* baseptr_addr = base_ptr(node);
+            const std::uintptr_t baseptr_addr = base_ptr(node);
 
-            MATH_EXPR_DEBUG(("assign_immutable_symbol - base ptr addr: %p\n", baseptr_addr));
+            MATH_EXPR_DEBUG(("assign_immutable_symbol - base ptr addr: 0x%zx\n",
+                             static_cast<std::size_t>(baseptr_addr)));
 
             if (parser_->immutable_memory_map_.in_interval(baseptr_addr, interval))
             {
@@ -19055,9 +19054,9 @@ class parser : public lexer::parser_helper
                     e.register_local_var(se.var_node);
                 }
 
-                if (se.data)
+                if (se.scalar_data)
                 {
-                    e.register_local_data(se.data, 1, 0);
+                    e.register_local_data(std::move(se.scalar_data), 1);
                 }
             }
             else if (scope_element::element_type::e_vector == se.type)
@@ -19067,9 +19066,9 @@ class parser : public lexer::parser_helper
                     e.register_local_var(se.vec_node);
                 }
 
-                if (se.data)
+                if (se.vector_data)
                 {
-                    e.register_local_data(se.data, se.size, 1);
+                    e.register_local_data(std::move(se.vector_data), se.size);
                 }
             }
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -19080,19 +19079,18 @@ class parser : public lexer::parser_helper
                     e.register_local_var(se.str_node);
                 }
 
-                if (se.data)
+                if (se.str_data)
                 {
-                    e.register_local_data(se.data, se.size, 2);
+                    e.register_local_data(std::move(se.str_data), se.size);
                 }
             }
 #endif
 
-            se.var_node = 0;
-            se.vec_node = 0;
+            se.var_node = nullptr;
+            se.vec_node = nullptr;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            se.str_node = 0;
+            se.str_node = nullptr;
 #endif
-            se.data = 0;
             se.ref_count = 0;
             se.active = false;
         }
@@ -19452,7 +19450,7 @@ class parser : public lexer::parser_helper
     lexer::helper::sequence_validator_3tokens sequence_validator_3tkns_;
 
     loop_runtime_check_ptr loop_runtime_check_;
-    vector_access_runtime_check_ptr vector_access_runtime_check_;
+    vector_access_runtime_check<T>* vector_access_runtime_check_;
     compilation_check_ptr compilation_check_ptr_;
     assert_check_ptr assert_check_;
     std::set<std::string> assert_ids_;

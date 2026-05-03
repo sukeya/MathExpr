@@ -567,7 +567,7 @@ class node_collection_destructor
         {
             node_ptr_t& node = *node_delete_list[i];
             MATH_EXPR_DEBUG(
-                ("ncd::delete_nodes() - deleting: %p\n", reinterpret_cast<void*>(node)));
+                ("ncd::delete_nodes() - deleting: %p\n", static_cast<const void*>(node)));
             delete node;
             node = nullptr;
         }

@@ -114,18 +114,18 @@ class expression
             {
             }
 
-            void* pointer() const noexcept
+            bool has_data() const noexcept
             {
-                return std::visit(
-                    [](const auto& p) -> void*
-                    {
-                        using P = std::decay_t<decltype(p)>;
-                        if constexpr (std::is_same_v<P, std::monostate>)
-                            return nullptr;
-                        else
-                            return static_cast<void*>(p.get());
-                    },
-                    owned_);
+                return !std::holds_alternative<std::monostate>(owned_);
+            }
+
+            template <typename U>
+            std::conditional_t<std::is_array_v<U>, std::remove_extent_t<U>*, U*> get()
+                const noexcept
+            {
+                if (const auto* p = std::get_if<std::unique_ptr<U>>(&owned_))
+                    return p->get();
+                return nullptr;
             }
 
             data_type type{data_type::e_unknown};
@@ -320,30 +320,22 @@ class expression
         }
     }
 
-    inline void register_local_data(void* data, const std::size_t& size = 0,
-                                    const std::size_t data_mode = 0)
+    inline void register_local_data(std::unique_ptr<T> data, const std::size_t size = 0)
     {
         if (data && control_block_)
-        {
-            switch (data_mode)
-            {
-                case 0:
-                    control_block_->local_data_list.emplace_back(
-                        std::unique_ptr<T>(static_cast<T*>(data)), size);
-                    break;
-                case 1:
-                    control_block_->local_data_list.emplace_back(
-                        std::unique_ptr<T[]>(static_cast<T*>(data)), size);
-                    break;
-                case 2:
-                    control_block_->local_data_list.emplace_back(
-                        std::unique_ptr<std::string>(static_cast<std::string*>(data)), size);
-                    break;
-                default:
-                    assert(false && "register_local_data: unknown data_mode");
-                    break;
-            }
-        }
+            control_block_->local_data_list.emplace_back(std::move(data), size);
+    }
+
+    inline void register_local_data(std::unique_ptr<T[]> data, const std::size_t size = 0)
+    {
+        if (data && control_block_)
+            control_block_->local_data_list.emplace_back(std::move(data), size);
+    }
+
+    inline void register_local_data(std::unique_ptr<std::string> data, const std::size_t size = 0)
+    {
+        if (data && control_block_)
+            control_block_->local_data_list.emplace_back(std::move(data), size);
     }
 
     inline const typename control_block::local_data_list_t& local_data_list()

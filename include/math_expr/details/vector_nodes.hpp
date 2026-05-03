@@ -33,6 +33,7 @@ limitations under the License.
 #ifndef MATH_EXPR_DETAILS_VECTOR_NODES_HPP
 #define MATH_EXPR_DETAILS_VECTOR_NODES_HPP
 
+#include <variant>
 #include "math_expr/assert_check.hpp"
 #include "math_expr/core/numeric.hpp"
 #include "math_expr/core/vec_data_store.hpp"
@@ -96,10 +97,13 @@ struct range_data_type
     using range_t = range_pack<T>;
     using strbase_ptr_t = string_base_node<T>*;
 
-    range_data_type() : range(0), data(0), size(0), type_size(0), str_node(0) {}
+    range_data_type()
+        : range(nullptr), data(static_cast<T*>(nullptr)), size(0), type_size(0), str_node(nullptr)
+    {
+    }
 
     range_t* range;
-    void* data;
+    std::variant<T*, char*> data;
     std::size_t size;
     std::size_t type_size;
     strbase_ptr_t str_node;
@@ -409,7 +413,7 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
     using branch_t = std::pair<expression_ptr, bool>;
 
     vector_elem_rtc_node(expression_ptr vec_node, expression_ptr index,
-                         vector_holder_ptr vec_holder, vector_access_runtime_check_ptr vec_rt_chk)
+                         vector_holder_ptr vec_holder, vector_access_runtime_check<T>* vec_rt_chk)
         : vector_holder_(vec_holder),
           vector_base_((*vec_holder)[0]),
           vec_rt_chk_(vec_rt_chk),
@@ -475,22 +479,20 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
 
         assert(vec_rt_chk_);
 
-        vector_access_runtime_check::violation_context context;
-        context.base_ptr = reinterpret_cast<void*>(vector_base_);
-        context.end_ptr = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
-        context.access_ptr = reinterpret_cast<void*>(vector_base_ + index);
+        typename vector_access_runtime_check<T>::violation_context context;
+        context.base_ptr = vector_base_;
+        context.end_ptr = vector_base_ + vector_holder_->size();
+        context.access_ptr = vector_base_ + index;
         context.type_size = sizeof(T);
 
-        return vec_rt_chk_->handle_runtime_violation(context)
-                   ? reinterpret_cast<T*>(context.access_ptr)
-                   : vector_base_;
+        return vec_rt_chk_->handle_runtime_violation(context) ? context.access_ptr : vector_base_;
     }
 
     vector_holder_ptr vector_holder_;
     T* vector_base_;
     branch_t vector_node_;
     branch_t index_;
-    vector_access_runtime_check_ptr vec_rt_chk_;
+    vector_access_runtime_check<T>* vec_rt_chk_;
     const std::size_t max_vector_index_;
 };
 
@@ -504,7 +506,7 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
     using branch_t = std::pair<expression_ptr, bool>;
 
     vector_celem_rtc_node(expression_ptr vec_node, const std::size_t index,
-                          vector_holder_ptr vec_holder, vector_access_runtime_check_ptr vec_rt_chk)
+                          vector_holder_ptr vec_holder, vector_access_runtime_check<T>* vec_rt_chk)
         : index_(index),
           max_vector_index_(vec_holder->size() - 1),
           vector_holder_(vec_holder),
@@ -567,15 +569,13 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
 
         assert(vec_rt_chk_);
 
-        vector_access_runtime_check::violation_context context;
-        context.base_ptr = reinterpret_cast<void*>(vector_base_);
-        context.end_ptr = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
-        context.access_ptr = reinterpret_cast<void*>(vector_base_ + index_);
+        typename vector_access_runtime_check<T>::violation_context context;
+        context.base_ptr = vector_base_;
+        context.end_ptr = vector_base_ + vector_holder_->size();
+        context.access_ptr = vector_base_ + index_;
         context.type_size = sizeof(T);
 
-        return vec_rt_chk_->handle_runtime_violation(context)
-                   ? reinterpret_cast<T*>(context.access_ptr)
-                   : vector_base_;
+        return vec_rt_chk_->handle_runtime_violation(context) ? context.access_ptr : vector_base_;
     }
 
     const std::size_t index_;
@@ -583,7 +583,7 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
     vector_holder_ptr vector_holder_;
     T* vector_base_;
     branch_t vector_node_;
-    vector_access_runtime_check_ptr vec_rt_chk_;
+    vector_access_runtime_check<T>* vec_rt_chk_;
 };
 
 template <typename T>
@@ -734,7 +734,7 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
 
     rebasevector_elem_rtc_node(expression_ptr vec_node, expression_ptr index,
                                vector_holder_ptr vec_holder,
-                               vector_access_runtime_check_ptr vec_rt_chk)
+                               vector_access_runtime_check<T>* vec_rt_chk)
         : vector_holder_(vec_holder), vec_rt_chk_(vec_rt_chk)
     {
         construct_branch_pair(vector_node_, vec_node);
@@ -797,21 +797,20 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
 
         assert(vec_rt_chk_);
 
-        vector_access_runtime_check::violation_context context;
-        context.base_ptr = reinterpret_cast<void*>(vector_holder_->data());
-        context.end_ptr = reinterpret_cast<void*>(vector_holder_->data() + vector_holder_->size());
-        context.access_ptr = reinterpret_cast<void*>(vector_holder_->data() + index);
+        typename vector_access_runtime_check<T>::violation_context context;
+        context.base_ptr = vector_holder_->data();
+        context.end_ptr = vector_holder_->data() + vector_holder_->size();
+        context.access_ptr = vector_holder_->data() + index;
         context.type_size = sizeof(T);
 
-        return vec_rt_chk_->handle_runtime_violation(context)
-                   ? reinterpret_cast<T*>(context.access_ptr)
-                   : vector_holder_->data();
+        return vec_rt_chk_->handle_runtime_violation(context) ? context.access_ptr
+                                                              : vector_holder_->data();
     }
 
     vector_holder_ptr vector_holder_;
     branch_t vector_node_;
     branch_t index_;
-    vector_access_runtime_check_ptr vec_rt_chk_;
+    vector_access_runtime_check<T>* vec_rt_chk_;
 };
 
 template <typename T>
@@ -825,7 +824,7 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
 
     rebasevector_celem_rtc_node(expression_ptr vec_node, const std::size_t index,
                                 vector_holder_ptr vec_holder,
-                                vector_access_runtime_check_ptr vec_rt_chk)
+                                vector_access_runtime_check<T>* vec_rt_chk)
         : index_(index),
           vector_holder_(vec_holder),
           vector_base_((*vec_holder)[0]),
@@ -887,22 +886,20 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
 
         assert(vec_rt_chk_);
 
-        vector_access_runtime_check::violation_context context;
-        context.base_ptr = reinterpret_cast<void*>(vector_base_);
-        context.end_ptr = reinterpret_cast<void*>(vector_base_ + vector_holder_->size());
-        context.access_ptr = reinterpret_cast<void*>(vector_base_ + index_);
+        typename vector_access_runtime_check<T>::violation_context context;
+        context.base_ptr = vector_base_;
+        context.end_ptr = vector_base_ + vector_holder_->size();
+        context.access_ptr = vector_base_ + index_;
         context.type_size = sizeof(T);
 
-        return vec_rt_chk_->handle_runtime_violation(context)
-                   ? reinterpret_cast<T*>(context.access_ptr)
-                   : vector_base_;
+        return vec_rt_chk_->handle_runtime_violation(context) ? context.access_ptr : vector_base_;
     }
 
     const std::size_t index_;
     vector_holder_ptr vector_holder_;
     T* vector_base_;
     branch_t vector_node_;
-    vector_access_runtime_check_ptr vec_rt_chk_;
+    vector_access_runtime_check<T>* vec_rt_chk_;
 };
 
 template <typename T>

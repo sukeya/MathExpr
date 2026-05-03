@@ -537,7 +537,7 @@ class symbol_table
         template <typename TType, typename TRawType, typename PtrType>
         struct ptr_match
         {
-            static inline bool test(const PtrType, const void*)
+            static inline bool test(const PtrType, const TRawType*)
             {
                 return false;
             }
@@ -546,15 +546,16 @@ class symbol_table
         template <typename TType, typename TRawType>
         struct ptr_match<TType, TRawType, variable_node_t*>
         {
-            static inline bool test(const variable_node_t* p, const void* ptr)
+            static inline bool test(const variable_node_t* p, const TRawType* ptr)
             {
                 MATH_EXPR_DEBUG(("ptr_match::test() - %p <--> %p\n",
-                                 reinterpret_cast<const void*>(&(p->ref())), ptr));
+                                 static_cast<const void*>(&(p->ref())),
+                                 static_cast<const void*>(ptr)));
                 return (&(p->ref()) == ptr);
             }
         };
 
-        inline type_ptr get_from_varptr(const void* ptr) const
+        inline type_ptr get_from_varptr(const RawType* ptr) const
         {
             tm_const_itr_t itr = map.begin();
 
@@ -901,8 +902,7 @@ class symbol_table
         if (!valid())
             return nullptr;
         else
-            return local_data().variable_store.get_from_varptr(
-                reinterpret_cast<const void*>(&var_ref));
+            return local_data().variable_store.get_from_varptr(&var_ref);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES

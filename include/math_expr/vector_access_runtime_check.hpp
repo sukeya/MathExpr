@@ -37,13 +37,14 @@ limitations under the License.
 
 namespace math_expr
 {
+template <typename T>
 struct vector_access_runtime_check
 {
     struct violation_context
     {
-        void* base_ptr;
-        void* end_ptr;
-        void* access_ptr;
+        T* base_ptr;
+        T* end_ptr;
+        T* access_ptr;
         std::size_t type_size;
     };
 
@@ -57,8 +58,6 @@ struct vector_access_runtime_check
 #endif
     }
 };
-
-using vector_access_runtime_check_ptr = vector_access_runtime_check*;
 
 }  // namespace math_expr
 
