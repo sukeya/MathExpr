@@ -19337,7 +19337,7 @@ class parser : public lexer::parser_helper
         REGISTER_SF4EXT(34);
         REGISTER_SF4EXT(35);
         REGISTER_SF4EXT(36);
-        REGISTER_SF4EXT(36);
+        REGISTER_SF4EXT(37);
         REGISTER_SF4EXT(38);
         REGISTER_SF4EXT(39);
         REGISTER_SF4EXT(40);
