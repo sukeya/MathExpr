@@ -373,15 +373,22 @@ struct base_operation_t
 
 struct loop_unroll
 {
-    static constexpr unsigned int global_loop_batch_size =
+    static constexpr unsigned int loop_batch_size =
         ::math_expr::core::build_options::kDisableSuperscalarUnroll ? 4u : 16u;
 
-    explicit loop_unroll(const std::size_t& vsize,
-                         const unsigned int loop_batch_size = global_loop_batch_size)
-        : batch_size(loop_batch_size),
-          remainder(vsize % batch_size),
-          upper_bound(static_cast<int>(vsize - remainder))
+    explicit loop_unroll(const std::size_t& vsize)
+        : remainder(vsize % loop_batch_size), upper_bound(static_cast<int>(vsize - remainder))
     {
+    }
+
+    template <class F>
+    void foreach_batch(F&& f)
+    {
+#pragma unroll
+        for (unsigned int i = 0; i < loop_batch_size; ++i)
+        {
+            f(i);
+        }
     }
 
     template <class F>
@@ -464,7 +471,6 @@ struct loop_unroll
         }
     }
 
-    unsigned int batch_size;
     int remainder;
     int upper_bound;
 };

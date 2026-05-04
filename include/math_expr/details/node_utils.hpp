@@ -1221,7 +1221,7 @@ struct vec_add_op
 
         core::operators::loop_unroll lud(vec_size);
 
-        if (vec_size <= static_cast<std::size_t>(lud.batch_size))
+        if (vec_size <= static_cast<std::size_t>(lud.loop_batch_size))
         {
             T result = T(0);
             int i = 0;
@@ -1238,32 +1238,10 @@ struct vec_add_op
 
         while (vec < upper_bound)
         {
-#define MATH_EXPR_LOOP(N) r[N] += vec[N];
+            lud.foreach_batch([&r, &vec](unsigned int i) { r[i] += vec[i]; });
 
-            MATH_EXPR_LOOP(0);
-            MATH_EXPR_LOOP(1);
-            MATH_EXPR_LOOP(2);
-            MATH_EXPR_LOOP(3);
-            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-            {
-                MATH_EXPR_LOOP(4);
-                MATH_EXPR_LOOP(5);
-                MATH_EXPR_LOOP(6);
-                MATH_EXPR_LOOP(7);
-                MATH_EXPR_LOOP(8);
-                MATH_EXPR_LOOP(9);
-                MATH_EXPR_LOOP(10);
-                MATH_EXPR_LOOP(11);
-                MATH_EXPR_LOOP(12);
-                MATH_EXPR_LOOP(13);
-                MATH_EXPR_LOOP(14);
-                MATH_EXPR_LOOP(15);
-            }
-
-            vec += lud.batch_size;
+            vec += lud.loop_batch_size;
         }
-
-#undef MATH_EXPR_LOOP
 
         int i = 0;
 
@@ -1293,7 +1271,7 @@ struct vec_mul_op
 
         core::operators::loop_unroll lud(vec_size);
 
-        if (vec_size <= static_cast<std::size_t>(lud.batch_size))
+        if (vec_size <= static_cast<std::size_t>(lud.loop_batch_size))
         {
             T result = T(1);
             int i = 0;
@@ -1308,35 +1286,12 @@ struct vec_mul_op
 
         const T* upper_bound = vec + lud.upper_bound;
 
-#define MATH_EXPR_LOOP(N) r[N] *= vec[N];
-
         while (vec < upper_bound)
         {
-            MATH_EXPR_LOOP(0);
-            MATH_EXPR_LOOP(1);
-            MATH_EXPR_LOOP(2);
-            MATH_EXPR_LOOP(3);
-            if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
-            {
-                MATH_EXPR_LOOP(4);
-                MATH_EXPR_LOOP(5);
-                MATH_EXPR_LOOP(6);
-                MATH_EXPR_LOOP(7);
-                MATH_EXPR_LOOP(8);
-                MATH_EXPR_LOOP(9);
-                MATH_EXPR_LOOP(10);
-                MATH_EXPR_LOOP(11);
-                MATH_EXPR_LOOP(12);
-                MATH_EXPR_LOOP(13);
-                MATH_EXPR_LOOP(14);
-                MATH_EXPR_LOOP(15);
-            }
+            lud.foreach_batch([&r, &vec](unsigned int i) { r[i] *= vec[i]; });
 
-            vec += lud.batch_size;
+            vec += lud.loop_batch_size;
         }
-
-#undef MATH_EXPR_LOOP
 
         int i = 0;
 

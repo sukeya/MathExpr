@@ -120,36 +120,13 @@ class swap_genstrings_node final : public binary_node<T>
             core::operators::loop_unroll lud(max_size);
             core::char_cptr upper_bound = s0 + lud.upper_bound;
 
-#define MATH_EXPR_LOOP(N) std::swap(s0[N], s1[N]);
-
             while (s0 < upper_bound)
             {
-                MATH_EXPR_LOOP(0);
-                MATH_EXPR_LOOP(1);
-                MATH_EXPR_LOOP(2);
-                MATH_EXPR_LOOP(3);
-                if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                    ;
-                {
-                    MATH_EXPR_LOOP(4);
-                    MATH_EXPR_LOOP(5);
-                    MATH_EXPR_LOOP(6);
-                    MATH_EXPR_LOOP(7);
-                    MATH_EXPR_LOOP(8);
-                    MATH_EXPR_LOOP(9);
-                    MATH_EXPR_LOOP(10);
-                    MATH_EXPR_LOOP(11);
-                    MATH_EXPR_LOOP(12);
-                    MATH_EXPR_LOOP(13);
-                    MATH_EXPR_LOOP(14);
-                    MATH_EXPR_LOOP(15);
-                }
+                lud.foreach_batch([&s0, &s1](unsigned int i) { std::swap(s0[i], s1[i]); });
 
-                s0 += lud.batch_size;
-                s1 += lud.batch_size;
+                s0 += lud.loop_batch_size;
+                s1 += lud.loop_batch_size;
             }
-
-#undef MATH_EXPR_LOOP
 
             int i = 0;
 
