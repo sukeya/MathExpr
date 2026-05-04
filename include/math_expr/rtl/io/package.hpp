@@ -56,8 +56,8 @@ struct package
         return false;                                                                            \
     }
 
-        MATH_EXPR_REGISTER_FUNCTION("print", p)
-        MATH_EXPR_REGISTER_FUNCTION("println", pl)
+        MATH_EXPR_REGISTER_FUNCTION("print", p);
+        MATH_EXPR_REGISTER_FUNCTION("println", pl);
 #undef MATH_EXPR_REGISTER_FUNCTION
 
         return true;

@@ -1245,7 +1245,6 @@ struct vec_add_op
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1918,15 +1917,15 @@ struct nodetype_T0oT1
             expression_node<T>::node_type::v_;                           \
     };
 
-SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, e_vov)
-SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, e_voc)
-SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, e_cov)
-SYNTHESIS_NODE_TYPE_DEFINE(T0&, T1&, e_none)
-SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, e_none)
-SYNTHESIS_NODE_TYPE_DEFINE(T0&, const T1, e_none)
-SYNTHESIS_NODE_TYPE_DEFINE(const T0, T1&, e_none)
-SYNTHESIS_NODE_TYPE_DEFINE(const T0&, T1&, e_none)
-SYNTHESIS_NODE_TYPE_DEFINE(T0&, const T1&, e_none)
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, e_vov);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1, e_voc);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1&, e_cov);
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, T1&, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, const T1, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, const T1, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0, T1&, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(const T0&, T1&, e_none);
+SYNTHESIS_NODE_TYPE_DEFINE(T0&, const T1&, e_none);
 #undef SYNTHESIS_NODE_TYPE_DEFINE
 
 template <typename T, typename T0, typename T1, typename T2>
@@ -1942,7 +1941,7 @@ struct nodetype_T0oT1oT2
     {                                                                    \
         static constexpr typename expression_node<T>::node_type result = \
             expression_node<T>::node_type::v_;                           \
-    };
+    }
 
 SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2&, e_vovov);
 SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2, e_vovoc);
@@ -1968,7 +1967,7 @@ struct nodetype_T0oT1oT2oT3
     {                                                                         \
         static constexpr typename expression_node<T>::node_type result =      \
             expression_node<T>::node_type::v_;                                \
-    };
+    }
 
 SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2&, const T3&, e_vovovov);
 SYNTHESIS_NODE_TYPE_DEFINE(const T0&, const T1&, const T2&, const T3, e_vovovoc);

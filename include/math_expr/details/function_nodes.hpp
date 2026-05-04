@@ -531,7 +531,6 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -678,7 +677,6 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1094,7 +1092,6 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1237,7 +1234,6 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1487,7 +1483,6 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1643,7 +1638,6 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1795,7 +1789,6 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
@@ -1946,7 +1939,6 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);

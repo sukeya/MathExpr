@@ -2993,7 +2993,10 @@ class parser : public lexer::parser_helper
         return expression_generator_(operation.type, pl##N);      \
     }
 
-                        BASE_OPR_CASE(1) BASE_OPR_CASE(2) BASE_OPR_CASE(3) BASE_OPR_CASE(4)
+                        BASE_OPR_CASE(1);
+                        BASE_OPR_CASE(2);
+                        BASE_OPR_CASE(3);
+                        BASE_OPR_CASE(4);
 #undef BASE_OPR_CASE
                     }
                 }
