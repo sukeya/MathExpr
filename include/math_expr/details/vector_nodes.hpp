@@ -81,6 +81,15 @@ class variable_node final : public expression_node<T>, public ivariable<T>
         return expression_node<T>::node_type::e_variable;
     }
 
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
+    }
+    variable_node<T>* as_variable_node() override
+    {
+        return this;
+    }
+
    private:
     T* value_;
 };
@@ -180,6 +189,11 @@ class vector_node final : public expression_node<T>, public vector_interface<T>
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_vector;
+    }
+
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -298,6 +312,11 @@ class vector_elem_node final : public expression_node<T>, public ivariable<T>
         return expression_node<T>::node_type::e_vecelem;
     }
 
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vector_holder_ && index_.first && vector_node_.first && index_.first->valid() &&
@@ -368,6 +387,11 @@ class vector_celem_node final : public expression_node<T>, public ivariable<T>
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_veccelem;
+    }
+
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -442,6 +466,11 @@ class vector_elem_rtc_node final : public expression_node<T>, public ivariable<T
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_vecelemrtc;
+    }
+
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -537,6 +566,11 @@ class vector_celem_rtc_node final : public expression_node<T>, public ivariable<
         return expression_node<T>::node_type::e_veccelemrtc;
     }
 
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vector_holder_ && vector_node_.first && vector_node_.first->valid();
@@ -625,6 +659,11 @@ class rebasevector_elem_node final : public expression_node<T>, public ivariable
         return expression_node<T>::node_type::e_rbvecelem;
     }
 
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vector_holder_ && index_.first && vector_node_.first && index_.first->valid() &&
@@ -697,6 +736,11 @@ class rebasevector_celem_node final : public expression_node<T>, public ivariabl
         return expression_node<T>::node_type::e_rbveccelem;
     }
 
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vector_holder_ && vector_node_.first && vector_node_.first->valid();
@@ -760,6 +804,11 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_rbvecelemrtc;
+    }
+
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -852,6 +901,11 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_rbveccelemrtc;
+    }
+
+    ivariable<T>* as_ivariable() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -1449,8 +1503,8 @@ class swap_generic_node final : public binary_node<T>
 
     swap_generic_node(expression_ptr var0, expression_ptr var1)
         : binary_node<T>(core::operators::operator_type::swap, var0, var1),
-          var0_(dynamic_cast<ivariable_ptr>(var0)),
-          var1_(dynamic_cast<ivariable_ptr>(var1))
+          var0_(var0->as_ivariable()),
+          var1_(var1->as_ivariable())
     {
     }
 
@@ -1490,7 +1544,7 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
+            if (0 != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 vds() = vi->vds();
@@ -1499,9 +1553,9 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
 
         if (is_ivector_node(branch(1)))
         {
-            vector_interface<T>* vi = nullptr;
+            vector_interface<T>* vi = branch(1)->as_vector_iface();
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
+            if (vi != nullptr)
             {
                 vec1_node_ptr_ = vi->vec();
             }
@@ -1547,6 +1601,11 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_vecvecswap;
+    }
+
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -1602,7 +1661,7 @@ class assert_node final : public expression_node<T>
         if (assert_message_node_.first &&
             details::is_generally_string_node(assert_message_node_.first))
         {
-            assert_message_str_base_ = dynamic_cast<str_base_ptr>(assert_message_node_.first);
+            assert_message_str_base_ = assert_message_node_.first->as_string_base();
         }
 #endif
 

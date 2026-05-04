@@ -200,7 +200,8 @@ class expression_node : public node_collector_interface<expression_node<T>>,
         e_break,
         e_continue,
         e_swap,
-        e_assert
+        e_assert,
+        e_vararg_multi
     };
 
     using value_type = T;
@@ -230,6 +231,68 @@ class expression_node : public node_collector_interface<expression_node<T>>,
     {
         return true;
     }
+
+    virtual string_base_node<T>* as_string_base()
+    {
+        return nullptr;
+    }
+    virtual range_interface<T>* as_range_iface()
+    {
+        return nullptr;
+    }
+    virtual vector_interface<T>* as_vector_iface()
+    {
+        return nullptr;
+    }
+    virtual ivariable<T>* as_ivariable()
+    {
+        return nullptr;
+    }
+    virtual variable_node<T>* as_variable_node()
+    {
+        return nullptr;
+    }
+    virtual uv_base_node<T>* as_uv_base_node()
+    {
+        return nullptr;
+    }
+    virtual vov_base_node<T>* as_vov_base()
+    {
+        return nullptr;
+    }
+    virtual cov_base_node<T>* as_cov_base()
+    {
+        return nullptr;
+    }
+    virtual voc_base_node<T>* as_voc_base()
+    {
+        return nullptr;
+    }
+    virtual vob_base_node<T>* as_vob_base()
+    {
+        return nullptr;
+    }
+    virtual bov_base_node<T>* as_bov_base()
+    {
+        return nullptr;
+    }
+    virtual cob_base_node<T>* as_cob_base()
+    {
+        return nullptr;
+    }
+    virtual boc_base_node<T>* as_boc_base()
+    {
+        return nullptr;
+    }
+    virtual T0oT1oT2_base_node<T>* as_T0oT1oT2_base()
+    {
+        return nullptr;
+    }
+    virtual T0oT1oT2oT3_base_node<T>* as_T0oT1oT2oT3_base()
+    {
+        return nullptr;
+    }
+    virtual void release_branch() {}
 };  // class expression_node
 
 template <typename T>
@@ -458,7 +521,8 @@ inline bool is_function(const expression_node<T>* node)
 template <typename T>
 inline bool is_vararg_node(const expression_node<T>* node)
 {
-    return node && (details::expression_node<T>::node_type::e_vararg == node->type());
+    return node && (details::expression_node<T>::node_type::e_vararg == node->type() ||
+                    details::expression_node<T>::node_type::e_vararg_multi == node->type());
 }
 
 template <typename T>

@@ -56,7 +56,21 @@ class helper_interface
 class token_scanner : public helper_interface
 {
    public:
+    enum class scanner_kind
+    {
+        bracket,
+        numeric,
+        sequence,
+        sequence_3tokens,
+        other
+    };
+
     virtual ~token_scanner() override {}
+
+    virtual scanner_kind kind() const
+    {
+        return scanner_kind::other;
+    }
 
     explicit token_scanner(const std::size_t& stride) : stride_(stride)
     {

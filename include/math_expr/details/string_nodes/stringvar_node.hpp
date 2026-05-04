@@ -110,6 +110,15 @@ class stringvar_node final : public expression_node<T>,
         return expression_node<T>::node_type::e_stringvar;
     }
 
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
+    }
+
     void rebase(std::string& s)
     {
         value_ = &s;

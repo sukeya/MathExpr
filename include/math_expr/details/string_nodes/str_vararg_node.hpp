@@ -62,12 +62,12 @@ class str_vararg_node final : public expression_node<T>,
         else if (!is_generally_string_node(final_node_.first))
             return;
 
-        str_base_ptr_ = dynamic_cast<str_base_ptr>(final_node_.first);
+        str_base_ptr_ = final_node_.first->as_string_base();
 
         if (0 == str_base_ptr_)
             return;
 
-        str_range_ptr_ = dynamic_cast<irange_ptr>(final_node_.first);
+        str_range_ptr_ = final_node_.first->as_range_iface();
 
         if (0 == str_range_ptr_)
             return;
@@ -138,6 +138,15 @@ class str_vararg_node final : public expression_node<T>,
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_stringvararg;
+    }
+
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override

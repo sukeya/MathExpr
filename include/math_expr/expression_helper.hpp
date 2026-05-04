@@ -155,7 +155,10 @@ class expression_helper
 
         using mo_vararg_t = details::vararg_node<T, math_expr::details::vararg_multi_op<T>>;
 
-        mo_vararg_t* vnode = dynamic_cast<mo_vararg_t*>(expr.control_block_->expr);
+        mo_vararg_t* vnode = (expr.control_block_->expr->type() ==
+                              details::expression_node<T>::node_type::e_vararg_multi)
+                                 ? static_cast<mo_vararg_t*>(expr.control_block_->expr)
+                                 : nullptr;
 
         if ((0 == vnode) || type_seq.empty() || (vnode->size() < type_seq.size()))
         {

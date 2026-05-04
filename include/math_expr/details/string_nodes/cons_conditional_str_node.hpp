@@ -68,12 +68,12 @@ class cons_conditional_str_node final : public binary_node<T>,
 
         if (is_generally_string_node(branch(0)))
         {
-            str0_base_ptr_ = dynamic_cast<str_base_ptr>(branch(0));
+            str0_base_ptr_ = branch(0)->as_string_base();
 
             if (0 == str0_base_ptr_)
                 return;
 
-            str0_range_ptr_ = dynamic_cast<irange_ptr>(branch(0));
+            str0_range_ptr_ = branch(0)->as_range_iface();
 
             if (0 == str0_range_ptr_)
                 return;
@@ -138,6 +138,15 @@ class cons_conditional_str_node final : public binary_node<T>,
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_strccondition;
+    }
+
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override

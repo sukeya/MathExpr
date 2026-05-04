@@ -69,8 +69,8 @@ class assignment_string_range_node final : public binary_node<T>,
         if (is_string_range_node(branch(0)))
         {
             str0_rng_node_ptr_ = static_cast<str_rng_node_ptr>(branch(0));
-            str0_base_ptr_ = dynamic_cast<str_base_ptr>(branch(0));
-            irange_ptr range = dynamic_cast<irange_ptr>(branch(0));
+            str0_base_ptr_ = branch(0)->as_string_base();
+            irange_ptr range = branch(0)->as_range_iface();
 
             if (0 == range)
                 return;
@@ -80,12 +80,12 @@ class assignment_string_range_node final : public binary_node<T>,
 
         if (is_generally_string_node(branch(1)))
         {
-            str1_base_ptr_ = dynamic_cast<str_base_ptr>(branch(1));
+            str1_base_ptr_ = branch(1)->as_string_base();
 
             if (0 == str1_base_ptr_)
                 return;
 
-            irange_ptr range = dynamic_cast<irange_ptr>(branch(1));
+            irange_ptr range = branch(1)->as_range_iface();
 
             if (0 == range)
                 return;
@@ -153,6 +153,15 @@ class assignment_string_range_node final : public binary_node<T>,
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_strass;
+    }
+
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override

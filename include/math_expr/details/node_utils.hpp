@@ -1096,6 +1096,7 @@ struct vararg_mor_op final : public opr_base<T>
 template <typename T>
 struct vararg_multi_op final : public opr_base<T>
 {
+    static constexpr bool is_multi = true;
     using Type = typename opr_base<T>::Type;
 
     template <typename Type, typename Allocator, template <typename, typename> class Sequence>
@@ -1383,6 +1384,11 @@ class vov_base_node : public expression_node<T>
     virtual const T& v0() const = 0;
 
     virtual const T& v1() const = 0;
+
+    vov_base_node<T>* as_vov_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1399,6 +1405,11 @@ class cov_base_node : public expression_node<T>
     virtual const T c() const = 0;
 
     virtual const T& v() const = 0;
+
+    cov_base_node<T>* as_cov_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1415,6 +1426,11 @@ class voc_base_node : public expression_node<T>
     virtual const T c() const = 0;
 
     virtual const T& v() const = 0;
+
+    voc_base_node<T>* as_voc_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1424,6 +1440,11 @@ class vob_base_node : public expression_node<T>
     virtual ~vob_base_node() {}
 
     virtual const T& v() const = 0;
+
+    vob_base_node<T>* as_vob_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1433,6 +1454,11 @@ class bov_base_node : public expression_node<T>
     virtual ~bov_base_node() {}
 
     virtual const T& v() const = 0;
+
+    bov_base_node<T>* as_bov_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1451,6 +1477,11 @@ class cob_base_node : public expression_node<T>
     virtual void set_c(const T) = 0;
 
     virtual expression_node<T>* move_branch(const std::size_t& index) = 0;
+
+    cob_base_node<T>* as_cob_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1469,6 +1500,11 @@ class boc_base_node : public expression_node<T>
     virtual void set_c(const T) = 0;
 
     virtual expression_node<T>* move_branch(const std::size_t& index) = 0;
+
+    boc_base_node<T>* as_boc_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1483,6 +1519,11 @@ class uv_base_node : public expression_node<T>
     }
 
     virtual const T& v() const = 0;
+
+    uv_base_node<T>* as_uv_base_node() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1516,6 +1557,11 @@ class T0oT1oT2_base_node : public expression_node<T>
     virtual ~T0oT1oT2_base_node() {}
 
     virtual std::string type_id() const = 0;
+
+    T0oT1oT2_base_node<T>* as_T0oT1oT2_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T>
@@ -1525,6 +1571,11 @@ class T0oT1oT2oT3_base_node : public expression_node<T>
     virtual ~T0oT1oT2oT3_base_node() {}
 
     virtual std::string type_id() const = 0;
+
+    T0oT1oT2oT3_base_node<T>* as_T0oT1oT2oT3_base() override
+    {
+        return this;
+    }
 };
 
 template <typename T, typename Operation>
@@ -1665,6 +1716,11 @@ class unary_branch_node final : public expression_node<T>
     inline void release()
     {
         branch_.second = false;
+    }
+
+    void release_branch() override
+    {
+        release();
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
@@ -3171,12 +3227,12 @@ class str_sogens_node final : public binary_node<T>
     {
         if (is_generally_string_node(branch(0)))
         {
-            str0_base_ptr_ = dynamic_cast<str_base_ptr>(branch(0));
+            str0_base_ptr_ = branch(0)->as_string_base();
 
             if (0 == str0_base_ptr_)
                 return;
 
-            irange_ptr range = dynamic_cast<irange_ptr>(branch(0));
+            irange_ptr range = branch(0)->as_range_iface();
 
             if (0 == range)
                 return;
@@ -3186,12 +3242,12 @@ class str_sogens_node final : public binary_node<T>
 
         if (is_generally_string_node(branch(1)))
         {
-            str1_base_ptr_ = dynamic_cast<str_base_ptr>(branch(1));
+            str1_base_ptr_ = branch(1)->as_string_base();
 
             if (0 == str1_base_ptr_)
                 return;
 
-            irange_ptr range = dynamic_cast<irange_ptr>(branch(1));
+            irange_ptr range = branch(1)->as_range_iface();
 
             if (0 == range)
                 return;
@@ -3448,49 +3504,49 @@ class bipowinv_node final : public expression_node<T>
 template <typename T>
 inline bool is_vov_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const vov_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_vov_base());
 }
 
 template <typename T>
 inline bool is_cov_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const cov_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_cov_base());
 }
 
 template <typename T>
 inline bool is_voc_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const voc_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_voc_base());
 }
 
 template <typename T>
 inline bool is_cob_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const cob_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_cob_base());
 }
 
 template <typename T>
 inline bool is_boc_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const boc_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_boc_base());
 }
 
 template <typename T>
 inline bool is_t0ot1ot2_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const T0oT1oT2_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_T0oT1oT2_base());
 }
 
 template <typename T>
 inline bool is_t0ot1ot2ot3_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const T0oT1oT2oT3_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_T0oT1oT2oT3_base());
 }
 
 template <typename T>
 inline bool is_uv_node(const expression_node<T>* node)
 {
-    return (0 != dynamic_cast<const uv_base_node<T>*>(node));
+    return node && (nullptr != const_cast<expression_node<T>*>(node)->as_uv_base_node());
 }
 
 template <typename T>
