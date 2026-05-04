@@ -1245,7 +1245,6 @@ struct vec_add_op
             MATH_EXPR_LOOP(2);
             MATH_EXPR_LOOP(3);
             if constexpr (!::math_expr::core::build_options::kDisableSuperscalarUnroll)
-                ;
             {
                 MATH_EXPR_LOOP(4);
                 MATH_EXPR_LOOP(5);
