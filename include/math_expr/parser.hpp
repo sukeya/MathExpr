@@ -1337,15 +1337,15 @@ class parser : public lexer::parser_helper
     explicit parser(const settings_t& settings = settings_t())
         : settings_(settings),
           resolve_unknown_symbol_(false),
-          results_context_(0),
+          results_context_(nullptr),
           unknown_symbol_resolver_(nullptr),
           sem_(),
           operator_joiner_2_(2),
           operator_joiner_3_(3),
-          loop_runtime_check_(0),
+          loop_runtime_check_(nullptr),
           vector_access_runtime_check_(nullptr),
-          compilation_check_ptr_(0),
-          assert_check_(0)
+          compilation_check_ptr_(nullptr),
+          assert_check_(nullptr)
     {
         sem_.set_parser(*this);
         init_precompilation();
@@ -1497,9 +1497,9 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr e = parse_corpus();
 
-        if ((0 != e) && (token_t::e_eof == current_token().type))
+        if ((nullptr != e) && (token_t::e_eof == current_token().type))
         {
-            bool* retinvk_ptr = 0;
+            bool* retinvk_ptr = nullptr;
 
             if (state_.return_stmt_present)
             {
@@ -1525,7 +1525,7 @@ class parser : public lexer::parser_helper
                                      core::error_location()));
             }
 
-            if ((0 != e) && branch_deletable(e))
+            if ((nullptr != e) && branch_deletable(e))
             {
                 destroy_node(e);
             }
@@ -1799,7 +1799,7 @@ class parser : public lexer::parser_helper
 
     inline void clear_loop_runtime_check()
     {
-        loop_runtime_check_ = loop_runtime_check_ptr(0);
+        loop_runtime_check_ = nullptr;
     }
 
     inline void clear_vector_access_runtime_check()
@@ -1809,12 +1809,12 @@ class parser : public lexer::parser_helper
 
     inline void clear_compilation_timeout_check()
     {
-        compilation_check_ptr_ = compilation_check_ptr(0);
+        compilation_check_ptr_ = nullptr;
     }
 
     inline void clear_assert_check()
     {
-        assert_check_ = assert_check_ptr(0);
+        assert_check_ = nullptr;
     }
 
    private:
@@ -1913,7 +1913,7 @@ class parser : public lexer::parser_helper
 
             expression_node_ptr arg = parse_expression();
 
-            if (0 == arg)
+            if (nullptr == arg)
             {
                 if (error_list_.empty())
                 {
@@ -1973,7 +1973,7 @@ class parser : public lexer::parser_helper
 
         const expression_node_ptr result = simplify(arg_list, side_effect_list);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
 
         return result;
     }
@@ -2075,7 +2075,7 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr expression = parse_branch(precedence);
 
-        if (0 == expression)
+        if (nullptr == expression)
         {
             return error_node();
         }
@@ -2339,7 +2339,7 @@ class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            if (0 != (right_branch = parse_expression(current_state.right)))
+            if (nullptr != (right_branch = parse_expression(current_state.right)))
             {
                 if (details::is_return_node(expression) || details::is_return_node(right_branch))
                 {
@@ -2362,7 +2362,7 @@ class parser : public lexer::parser_helper
                 pop_current_state();
             }
 
-            if (0 == new_expression)
+            if (nullptr == new_expression)
             {
                 if (error_list_.empty())
                 {
@@ -2393,7 +2393,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if ((0 != expression) && (expression->node_depth() > settings_.max_node_depth_))
+        if ((nullptr != expression) && (expression->node_depth() > settings_.max_node_depth_))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR018 - Expression depth of " +
@@ -2459,8 +2459,8 @@ class parser : public lexer::parser_helper
                 const T& v = n->v();
                 expression_node_ptr return_node = error_node();
 
-                if ((0 != (return_node = symtab_store_.get_variable(v))) ||
-                    (0 != (return_node = sem_.get_variable(v))))
+                if ((nullptr != (return_node = symtab_store_.get_variable(v))) ||
+                    (nullptr != (return_node = sem_.get_variable(v))))
                 {
                     free_node(node_allocator_, node);
                     node = return_node;
@@ -2818,7 +2818,7 @@ class parser : public lexer::parser_helper
             {
                 branch[i] = parse_expression();
 
-                if (0 == branch[i])
+                if (nullptr == branch[i])
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR025 - Failed to parse argument " + core::to_str(i) +
@@ -2854,7 +2854,7 @@ class parser : public lexer::parser_helper
             else
                 result = expression_generator_.function(function, branch);
 
-            sd.delete_ptr = (0 == result);
+            sd.delete_ptr = (nullptr == result);
 
             return result;
         }
@@ -2923,7 +2923,7 @@ class parser : public lexer::parser_helper
         {
             param_list[param_index] = parse_expression();
 
-            if (0 == param_list[param_index])
+            if (nullptr == param_list[param_index])
                 return 0;
             else if (token_is(token_t::e_rbracket))
             {
@@ -3041,7 +3041,7 @@ class parser : public lexer::parser_helper
 
             result = false;
         }
-        else if (0 == (consequent = parse_expression()))
+        else if (nullptr == (consequent = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR036 - Failed to parse consequent for if-statement",
@@ -3058,7 +3058,7 @@ class parser : public lexer::parser_helper
 
             result = false;
         }
-        else if (0 == (alternative = parse_expression()))
+        else if (nullptr == (alternative = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR038 - Failed to parse alternative for if-statement",
@@ -3154,7 +3154,7 @@ class parser : public lexer::parser_helper
 
         if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
-            if (0 == (consequent = parse_multi_sequence("if-statement-01")))
+            if (nullptr == (consequent = parse_multi_sequence("if-statement-01")))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR043 - Failed to parse body of consequent for if-statement",
@@ -3187,7 +3187,7 @@ class parser : public lexer::parser_helper
                 next_token();
             }
 
-            if (0 != (consequent = parse_expression()))
+            if (nullptr != (consequent = parse_expression()))
             {
                 if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
                 {
@@ -3224,7 +3224,7 @@ class parser : public lexer::parser_helper
 
                 if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
                 {
-                    if (0 == (alternative = parse_multi_sequence("else-statement-01")))
+                    if (nullptr == (alternative = parse_multi_sequence("else-statement-01")))
                     {
                         set_error(make_error(
                             parser_error::error_mode::e_syntax, current_token(),
@@ -3236,7 +3236,7 @@ class parser : public lexer::parser_helper
                 }
                 else if (core::imatch(current_token().value, "if"))
                 {
-                    if (0 == (alternative = parse_conditional_statement()))
+                    if (nullptr == (alternative = parse_conditional_statement()))
                     {
                         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR048 - Failed to parse body of if-else statement",
@@ -3245,7 +3245,7 @@ class parser : public lexer::parser_helper
                         result = false;
                     }
                 }
-                else if (0 != (alternative = parse_expression()))
+                else if (nullptr != (alternative = parse_expression()))
                 {
                     if (!token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
                         !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
@@ -3344,7 +3344,7 @@ class parser : public lexer::parser_helper
 
             return error_node();
         }
-        else if (0 == (condition = parse_expression()))
+        else if (nullptr == (condition = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR054 - Failed to parse condition for if-statement",
@@ -3394,7 +3394,7 @@ class parser : public lexer::parser_helper
 
         bool result = true;
 
-        if (0 == condition)
+        if (nullptr == condition)
         {
             set_error(
                 make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -3411,7 +3411,7 @@ class parser : public lexer::parser_helper
 
             result = false;
         }
-        else if (0 == (consequent = parse_expression()))
+        else if (nullptr == (consequent = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR058 - Failed to parse consequent for ternary if-statement",
@@ -3428,7 +3428,7 @@ class parser : public lexer::parser_helper
 
             result = false;
         }
-        else if (0 == (alternative = parse_expression()))
+        else if (nullptr == (alternative = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR060 - Failed to parse alternative for ternary if-statement",
@@ -3532,7 +3532,7 @@ class parser : public lexer::parser_helper
 
             return error_node();
         }
-        else if (0 == (condition = parse_expression()))
+        else if (nullptr == (condition = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR065 - Failed to parse condition for while-loop",
@@ -3555,14 +3555,14 @@ class parser : public lexer::parser_helper
         {
             scoped_inc_dec sid(state_.parsing_loop_stmt_count);
 
-            if (0 == (branch = parse_multi_sequence("while-loop", true)))
+            if (nullptr == (branch = parse_multi_sequence("while-loop", true)))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR067 - Failed to parse body of while-loop"));
                 result = false;
             }
-            else if (0 == (result_node = expression_generator_.while_loop(condition, branch,
-                                                                          brkcnt_list_.front())))
+            else if (nullptr == (result_node = expression_generator_.while_loop(
+                                     condition, branch, brkcnt_list_.front())))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR068 - Failed to synthesize while-loop",
@@ -3632,7 +3632,7 @@ class parser : public lexer::parser_helper
 
                 expression_node_ptr arg = parse_expression();
 
-                if (0 == arg)
+                if (nullptr == arg)
                     return error_node();
                 else
                 {
@@ -3668,7 +3668,7 @@ class parser : public lexer::parser_helper
 
             branch = simplify(arg_list, side_effect_list);
 
-            svd.delete_ptr = (0 == branch);
+            svd.delete_ptr = (nullptr == branch);
 
             if (svd.delete_ptr)
             {
@@ -3690,7 +3690,7 @@ class parser : public lexer::parser_helper
             free_node(node_allocator_, branch);
             return error_node();
         }
-        else if (0 == (condition = parse_expression()))
+        else if (nullptr == (condition = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR073 - Failed to parse condition for repeat until loop",
@@ -3714,7 +3714,7 @@ class parser : public lexer::parser_helper
         expression_node_ptr result_node =
             expression_generator_.repeat_until_loop(condition, branch, brkcnt_list_.front());
 
-        if (0 == result_node)
+        if (nullptr == result_node)
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR075 - Failed to synthesize repeat until loop",
@@ -3748,7 +3748,7 @@ class parser : public lexer::parser_helper
         expression_node_ptr incrementor = error_node();
         expression_node_ptr loop_body = error_node();
 
-        scope_element* se = 0;
+        scope_element* se = nullptr;
         bool result = true;
 
         next_token();
@@ -3846,7 +3846,7 @@ class parser : public lexer::parser_helper
                 }
             }
 
-            if (0 == (initialiser = parse_expression()))
+            if (nullptr == (initialiser = parse_expression()))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR082 - Failed to parse initialiser of for-loop",
@@ -3866,7 +3866,7 @@ class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_eof))
         {
-            if (0 == (condition = parse_expression()))
+            if (nullptr == (condition = parse_expression()))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR084 - Failed to parse condition of for-loop",
@@ -3886,7 +3886,7 @@ class parser : public lexer::parser_helper
 
         if (!token_is(token_t::e_rbracket))
         {
-            if (0 == (incrementor = parse_expression()))
+            if (nullptr == (incrementor = parse_expression()))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR086 - Failed to parse incrementor of for-loop",
@@ -3910,7 +3910,7 @@ class parser : public lexer::parser_helper
 
             scoped_inc_dec sid(state_.parsing_loop_stmt_count);
 
-            if (0 == (loop_body = parse_multi_sequence("for-loop", true)))
+            if (nullptr == (loop_body = parse_multi_sequence("for-loop", true)))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR088 - Failed to parse body of for-loop",
@@ -3989,7 +3989,7 @@ class parser : public lexer::parser_helper
 
                 expression_node_ptr condition = parse_expression();
 
-                if (0 == condition)
+                if (nullptr == condition)
                     return error_node();
                 else if (!token_is(token_t::e_colon))
                 {
@@ -4007,7 +4007,7 @@ class parser : public lexer::parser_helper
                         ? parse_multi_sequence("switch-consequent")
                         : parse_expression();
 
-                if (0 == consequent)
+                if (nullptr == consequent)
                 {
                     free_node(node_allocator_, condition);
 
@@ -4040,7 +4040,7 @@ class parser : public lexer::parser_helper
             }
             else if (core::imatch("default", current_token().value))
             {
-                if (0 != default_statement)
+                if (nullptr != default_statement)
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR094 - Multiple default cases for switch statement",
@@ -4065,7 +4065,7 @@ class parser : public lexer::parser_helper
                         ? parse_multi_sequence("switch-default")
                         : parse_expression();
 
-                if (0 == default_statement)
+                if (nullptr == default_statement)
                     return error_node();
                 else if (!token_is(token_t::e_eof))
                 {
@@ -4089,7 +4089,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        const bool default_statement_present = (0 != default_statement);
+        const bool default_statement_present = (nullptr != default_statement);
 
         if (default_statement_present)
         {
@@ -4102,10 +4102,10 @@ class parser : public lexer::parser_helper
         }
 
         expression_node_ptr result =
-            expression_generator_.switch_statement(arg_list, (0 != default_statement));
+            expression_generator_.switch_statement(arg_list, (nullptr != default_statement));
 
-        svd.delete_ptr = (0 == result);
-        defstmt_delete.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
+        defstmt_delete.delete_ptr = (nullptr == result);
 
         return result;
     }
@@ -4150,7 +4150,7 @@ class parser : public lexer::parser_helper
 
             expression_node_ptr condition = parse_expression();
 
-            if (0 == condition)
+            if (nullptr == condition)
                 return error_node();
 
             if (!token_is(token_t::e_colon))
@@ -4167,7 +4167,7 @@ class parser : public lexer::parser_helper
                     ? parse_multi_sequence("multi-switch-consequent")
                     : parse_expression();
 
-            if (0 == consequent)
+            if (nullptr == consequent)
                 return error_node();
 
             if (!token_is(token_t::e_eof))
@@ -4208,7 +4208,7 @@ class parser : public lexer::parser_helper
 
         const expression_node_ptr result = expression_generator_.multi_switch_statement(arg_list);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
 
         return result;
     }
@@ -4281,7 +4281,7 @@ class parser : public lexer::parser_helper
         {
             expression_node_ptr arg = parse_expression();
 
-            if (0 == arg)
+            if (nullptr == arg)
                 return error_node();
             else
                 arg_list.push_back(arg);
@@ -4301,7 +4301,7 @@ class parser : public lexer::parser_helper
         const expression_node_ptr result =
             expression_generator_.vararg_function(opt_type, arg_list);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
         return result;
     }
 
@@ -4334,7 +4334,7 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr result = expression_generator_(expression, rp);
 
-        if (0 == result)
+        if (nullptr == result)
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR109 - Failed to generate string range node",
@@ -4373,7 +4373,7 @@ class parser : public lexer::parser_helper
 
         std::size_t i = 0;
 
-        while ((0 != expression) && (i++ < max_rangesize_parses) && error_list_.empty() &&
+        while ((nullptr != expression) && (i++ < max_rangesize_parses) && error_list_.empty() &&
                is_generally_string_node(expression) &&
                token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
         {
@@ -4385,7 +4385,7 @@ class parser : public lexer::parser_helper
 
     inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
     {
-        if ((0 != expression) && error_list_.empty() && is_ivector_node(expression))
+        if ((nullptr != expression) && error_list_.empty() && is_ivector_node(expression))
         {
             if (settings_.commutative_check_enabled() &&
                 token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold) &&
@@ -4551,7 +4551,7 @@ class parser : public lexer::parser_helper
 
             expression_node_ptr arg = parse_expression();
 
-            if (0 == arg)
+            if (nullptr == arg)
                 return error_node();
             else
             {
@@ -4581,7 +4581,7 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr result = simplify(arg_list, side_effect_list, source.empty());
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
         return result;
     }
 
@@ -4617,7 +4617,7 @@ class parser : public lexer::parser_helper
         {
             expression_node_ptr r0 = parse_expression();
 
-            if (0 == r0)
+            if (nullptr == r0)
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR114 - Failed parse begin section of range",
@@ -4675,7 +4675,7 @@ class parser : public lexer::parser_helper
         {
             expression_node_ptr r1 = parse_expression();
 
-            if (0 == r1)
+            if (nullptr == r1)
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR117 - Failed parse end section of range",
@@ -4784,7 +4784,7 @@ class parser : public lexer::parser_helper
             using str_ctxt_t = typename symtab_store::string_context;
             str_ctxt_t str_ctx = symtab_store_.get_string_context(symbol);
 
-            if ((0 == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
+            if ((nullptr == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR121 - Unknown string symbol", core::error_location()));
@@ -4792,8 +4792,8 @@ class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            assert(str_ctx.str_var != 0);
-            assert(str_ctx.symbol_table != 0);
+            assert(str_ctx.str_var != nullptr);
+            assert(str_ctx.symbol_table != nullptr);
 
             result = str_ctx.str_var;
 
@@ -4940,7 +4940,7 @@ class parser : public lexer::parser_helper
     {
         expression_node_ptr index_expr = error_node();
 
-        if (0 == (index_expr = parse_expression()))
+        if (nullptr == (index_expr = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR123 - Failed to parse index for vector: '" + vector_name + "'",
@@ -4976,7 +4976,7 @@ class parser : public lexer::parser_helper
             using vec_ctxt_t = typename symtab_store::vector_context;
             vec_ctxt_t vec_ctx = symtab_store_.get_vector_context(vector_name);
 
-            if (0 == vec_ctx.vector_holder)
+            if (nullptr == vec_ctx.vector_holder)
             {
                 set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                      "ERR125 - Symbol '" + vector_name + " not a vector",
@@ -4985,8 +4985,8 @@ class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            assert(0 != vec_ctx.vector_holder);
-            assert(0 != vec_ctx.symbol_table);
+            assert(nullptr != vec_ctx.vector_holder);
+            assert(nullptr != vec_ctx.symbol_table);
 
             vec = vec_ctx.vector_holder;
 
@@ -5002,7 +5002,7 @@ class parser : public lexer::parser_helper
             vec = se.vec_node;
         }
 
-        assert(0 != vec);
+        assert(nullptr != vec);
 
         next_token();
 
@@ -5088,7 +5088,7 @@ class parser : public lexer::parser_helper
                 {
                     expression_node_ptr arg = parse_expression();
 
-                    if (0 == arg)
+                    if (nullptr == arg)
                         return error_node();
                     else
                         arg_list.push_back(arg);
@@ -5143,7 +5143,7 @@ class parser : public lexer::parser_helper
         expression_node_ptr result =
             expression_generator_.vararg_function_call(vararg_function, arg_list);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
 
         return result;
     }
@@ -5446,7 +5446,7 @@ class parser : public lexer::parser_helper
                 {
                     expression_node_ptr arg = parse_expression();
 
-                    if (0 == arg)
+                    if (nullptr == arg)
                         return error_node();
 
                     if (is_ivector_node(arg))
@@ -5501,7 +5501,7 @@ class parser : public lexer::parser_helper
                 ? expression_generator_.generic_function_call(function, arg_list)
                 : expression_generator_.generic_function_call(function, arg_list, param_seq_index);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
 
         return result;
     }
@@ -5532,7 +5532,7 @@ class parser : public lexer::parser_helper
                 {
                     expression_node_ptr arg = parse_expression();
 
-                    if (0 == arg)
+                    if (nullptr == arg)
                         return false;
 
                     if (is_ivector_node(arg))
@@ -5607,7 +5607,7 @@ class parser : public lexer::parser_helper
                 ? expression_generator_.string_function_call(function, arg_list)
                 : expression_generator_.string_function_call(function, arg_list, param_seq_index);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
 
         return result;
     }
@@ -5675,7 +5675,7 @@ class parser : public lexer::parser_helper
                 core::error_location()));
         }
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
         return result;
     }
 #endif
@@ -5710,7 +5710,7 @@ class parser : public lexer::parser_helper
             {
                 branch[i] = p.parse_expression();
 
-                if (0 == branch[i])
+                if (nullptr == branch[i])
                 {
                     return p.error_node();
                 }
@@ -5741,7 +5741,7 @@ class parser : public lexer::parser_helper
             else
                 result = p.expression_generator_.special_function(opt_type, branch);
 
-            sd.delete_ptr = (0 == result);
+            sd.delete_ptr = (nullptr == result);
 
             return result;
         }
@@ -5827,7 +5827,7 @@ class parser : public lexer::parser_helper
 
             if (token_is(token_t::e_lsqrbracket))
             {
-                if (0 == (return_expr = parse_expression()))
+                if (nullptr == (return_expr = parse_expression()))
                 {
                     set_error(make_error(
                         parser_error::error_mode::e_syntax, current_token(),
@@ -5899,7 +5899,7 @@ class parser : public lexer::parser_helper
 
             return error_node();
         }
-        else if (0 == (size_expression_node = parse_expression()))
+        else if (nullptr == (size_expression_node = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR158 - Failed to determine size of vector '" + vec_name + "'",
@@ -5996,7 +5996,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if (0 == vec_holder)
+        if (nullptr == vec_holder)
         {
             scope_element nse;
             nse.name = vec_name;
@@ -6068,7 +6068,7 @@ class parser : public lexer::parser_helper
             {
                 expression_node_ptr initialiser_component = parse_expression();
 
-                if (0 == initialiser_component)
+                if (nullptr == initialiser_component)
                 {
                     set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                          "ERR166 - Failed to parse first component of vector "
@@ -6085,7 +6085,7 @@ class parser : public lexer::parser_helper
                 {
                     initialiser_component = parse_expression();
 
-                    if (0 == initialiser_component)
+                    if (nullptr == initialiser_component)
                     {
                         set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                              "ERR167 - Failed to parse second component of vector "
@@ -6131,7 +6131,7 @@ class parser : public lexer::parser_helper
 
                     if (scope_element::element_type::e_vector == lcl_se.type)
                     {
-                        if (0 != (initialiser = parse_expression()))
+                        if (nullptr != (initialiser = parse_expression()))
                             vec_initilizer_list.push_back(initialiser);
                         else
                             return error_node();
@@ -6141,7 +6141,7 @@ class parser : public lexer::parser_helper
                     {
                         lodge_symbol(current_token().value, symbol_type::e_st_vector);
 
-                        if (0 != (initialiser = parse_expression()))
+                        if (nullptr != (initialiser = parse_expression()))
                             vec_initilizer_list.push_back(initialiser);
                         else
                             return error_node();
@@ -6153,7 +6153,7 @@ class parser : public lexer::parser_helper
 
                 if (!null_initialisation)
                 {
-                    if (0 == initialiser)
+                    if (nullptr == initialiser)
                     {
                         set_error(
                             make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -6172,7 +6172,7 @@ class parser : public lexer::parser_helper
                 {
                     expression_node_ptr initialiser = parse_expression();
 
-                    if (0 == initialiser)
+                    if (nullptr == initialiser)
                     {
                         set_error(
                             make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -6349,7 +6349,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if (0 == str_node)
+        if (nullptr == str_node)
         {
             scope_element nse;
             nse.name = str_name;
@@ -6473,7 +6473,7 @@ class parser : public lexer::parser_helper
         }
         else if (token_is(token_t::e_assign))
         {
-            if (0 == (initialisation_expression = parse_expression()))
+            if (nullptr == (initialisation_expression = parse_expression()))
             {
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -6502,7 +6502,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if ((0 != initialisation_expression) &&
+        if ((nullptr != initialisation_expression) &&
             details::is_generally_string_node(initialisation_expression))
         {
             return parse_define_string_statement(var_name, initialisation_expression);
@@ -6534,7 +6534,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if (0 == var_node)
+        if (nullptr == var_node)
         {
             const std::size_t predicted_total_lclsymb_size =
                 sizeof(T) + sem_.total_local_symb_size_bytes();
@@ -6677,7 +6677,7 @@ class parser : public lexer::parser_helper
 
             return error_node();
         }
-        else if (0 == (initialisation_expression = parse_expression()))
+        else if (nullptr == (initialisation_expression = parse_expression()))
         {
             set_error(make_error(
                 parser_error::error_mode::e_syntax, current_token(),
@@ -6730,7 +6730,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if (0 == var_node)
+        if (nullptr == var_node)
         {
             const std::size_t predicted_total_lclsymb_size =
                 sizeof(T) + sem_.total_local_symb_size_bytes();
@@ -6830,7 +6830,7 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if (0 == var_node)
+        if (nullptr == var_node)
         {
             const std::size_t predicted_total_lclsymb_size =
                 sizeof(T) + sem_.total_local_symb_size_bytes();
@@ -6925,7 +6925,7 @@ class parser : public lexer::parser_helper
         }
         else if (peek_token_is(token_t::e_lsqrbracket))
         {
-            if (0 == (variable0 = parse_vector()))
+            if (nullptr == (variable0 = parse_vector()))
             {
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -6955,7 +6955,7 @@ class parser : public lexer::parser_helper
 
             lodge_symbol(var0_name, symbol_type::e_st_variable);
 
-            if (0 == variable0)
+            if (nullptr == variable0)
             {
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
@@ -7000,7 +7000,7 @@ class parser : public lexer::parser_helper
         }
         else if (peek_token_is(token_t::e_lsqrbracket))
         {
-            if (0 == (variable1 = parse_vector()))
+            if (nullptr == (variable1 = parse_vector()))
             {
                 set_error(
                     make_error(parser_error::error_mode::e_syntax, current_token(),
@@ -7035,7 +7035,7 @@ class parser : public lexer::parser_helper
 
             lodge_symbol(var1_name, symbol_type::e_st_variable);
 
-            if (0 == variable1)
+            if (nullptr == variable1)
             {
                 set_error(make_error(
                     parser_error::error_mode::e_syntax, current_token(),
@@ -7079,8 +7079,8 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr result = error_node();
 
-        if ((0 != (v0 = static_cast<variable_node_ptr>(variable0->as_variable_node()))) &&
-            (0 != (v1 = static_cast<variable_node_ptr>(variable1->as_variable_node()))))
+        if ((nullptr != (v0 = static_cast<variable_node_ptr>(variable0->as_variable_node()))) &&
+            (nullptr != (v1 = static_cast<variable_node_ptr>(variable1->as_variable_node()))))
         {
             result = node_allocator_.allocate<details::swap_node<T>>(v0, v1);
 
@@ -7141,7 +7141,7 @@ class parser : public lexer::parser_helper
             {
                 expression_node_ptr arg = parse_expression();
 
-                if (0 == arg)
+                if (nullptr == arg)
                     return error_node();
 
                 arg_list.push_back(arg);
@@ -7186,7 +7186,7 @@ class parser : public lexer::parser_helper
 
         for (std::size_t i = 0; i < arg_list.size(); ++i)
         {
-            if (0 == arg_list[i])
+            if (nullptr == arg_list[i])
                 return error_node();
             else if (is_ivector_node(arg_list[i]))
                 ret_param_type_list += 'V';
@@ -7200,7 +7200,7 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr result = expression_generator_.return_call(arg_list);
 
-        svd.delete_ptr = (0 == result);
+        svd.delete_ptr = (nullptr == result);
 
         state_.return_stmt_present = true;
 
@@ -7252,7 +7252,7 @@ class parser : public lexer::parser_helper
         const token_t start_token = current_token();
 
         // Parse the assert condition
-        if (0 == (assert_condition = parse_expression()))
+        if (nullptr == (assert_condition = parse_expression()))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR221 - Failed to parse condition for assert statement",
@@ -7275,7 +7275,7 @@ class parser : public lexer::parser_helper
                 return error_node();
             }
             // Parse the assert message
-            else if ((0 == (assert_message = parse_expression())) ||
+            else if ((nullptr == (assert_message = parse_expression())) ||
                      !details::is_generally_string_node(assert_message))
             {
                 set_error(make_error(
@@ -7300,7 +7300,7 @@ class parser : public lexer::parser_helper
                     return error_node();
                 }
                 // Parse assert ID
-                else if ((0 == (assert_id = parse_expression())) ||
+                else if ((nullptr == (assert_id = parse_expression())) ||
                          !details::is_const_string_node(assert_id))
                 {
                     set_error(make_error(
@@ -7327,7 +7327,7 @@ class parser : public lexer::parser_helper
         context.condition = lexer().substr(start_token.position, end_token.position);
         context.offet = start_token.position;
 
-        if (0 == assert_check_)
+        if (nullptr == assert_check_)
         {
             core::debug_print(
                 "parse_assert_statement() - assert functionality is disabled. assert "
@@ -7373,7 +7373,7 @@ class parser : public lexer::parser_helper
         core::debug_print("parse_assert_statement() - assert offset:    [%d]\n",
                           static_cast<int>(context.offet));
 
-        if (0 == result_node)
+        if (nullptr == result_node)
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR228 - Failed to synthesize assert", core::error_location()));
@@ -7968,7 +7968,7 @@ class parser : public lexer::parser_helper
             {
                 expression_node_ptr literal_exp = expression_generator_(numeric_value);
 
-                if (0 == literal_exp)
+                if (nullptr == literal_exp)
                 {
                     set_error(make_error(
                         parser_error::error_mode::e_numeric, current_token(),
@@ -8005,7 +8005,7 @@ class parser : public lexer::parser_helper
         {
             next_token();
 
-            if (0 == (branch = parse_expression()))
+            if (nullptr == (branch = parse_expression()))
             {
                 return error_node();
             }
@@ -8036,7 +8036,7 @@ class parser : public lexer::parser_helper
         {
             next_token();
 
-            if (0 == (branch = parse_expression()))
+            if (nullptr == (branch = parse_expression()))
                 return error_node();
             else if (!token_is(token_t::e_rsqrbracket))
             {
@@ -8060,7 +8060,7 @@ class parser : public lexer::parser_helper
         {
             next_token();
 
-            if (0 == (branch = parse_expression()))
+            if (nullptr == (branch = parse_expression()))
                 return error_node();
             else if (!token_is(token_t::e_rcrlbracket))
             {
@@ -8091,7 +8091,7 @@ class parser : public lexer::parser_helper
                 expression_node_ptr result =
                     expression_generator_(core::operators::operator_type::neg, branch);
 
-                if (0 == result)
+                if (nullptr == result)
                 {
                     details::free_node(node_allocator_, branch);
 
@@ -8433,7 +8433,7 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr operator()(const core::operators::operator_type& operation,
                                               expression_node_ptr (&branch)[1])
         {
-            if (0 == branch[0])
+            if (nullptr == branch[0])
             {
                 return error_node();
             }
@@ -8902,7 +8902,7 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr operator()(const core::operators::operator_type& operation,
                                               expression_node_ptr (&branch)[2])
         {
-            if ((0 == branch[0]) || (0 == branch[1]))
+            if ((nullptr == branch[0]) || (nullptr == branch[1]))
             {
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_syntax, parser_->current_state().token,
@@ -9004,7 +9004,7 @@ class parser : public lexer::parser_helper
             {
                 result = synthesize_cocob_expression::process((*this), operation, branch);
             }
-            else if (coboc_optimisable(operation, branch) && (0 == result))
+            else if (coboc_optimisable(operation, branch) && (nullptr == result))
             {
                 result = synthesize_coboc_expression::process((*this), operation, branch);
             }
@@ -9049,7 +9049,7 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr operator()(const core::operators::operator_type& operation,
                                               expression_node_ptr (&branch)[3])
         {
-            if ((0 == branch[0]) || (0 == branch[1]) || (0 == branch[2]))
+            if ((nullptr == branch[0]) || (nullptr == branch[1]) || (nullptr == branch[2]))
             {
                 details::free_all_nodes(*node_allocator_, branch);
 
@@ -9097,7 +9097,7 @@ class parser : public lexer::parser_helper
         {
             expression_node_ptr result = error_node();
 
-            if ((0 != b0) && (0 != b1))
+            if ((nullptr != b0) && (nullptr != b1))
             {
                 expression_node_ptr branch[2] = {b0, b1};
                 result = expression_generator<Type>::operator()(operation, branch);
@@ -9112,15 +9112,15 @@ class parser : public lexer::parser_helper
                                                expression_node_ptr consequent,
                                                expression_node_ptr alternative) const
         {
-            if ((0 == condition) || (0 == consequent))
+            if ((nullptr == condition) || (nullptr == consequent))
             {
                 details::free_node(*node_allocator_, condition);
                 details::free_node(*node_allocator_, consequent);
                 details::free_node(*node_allocator_, alternative);
 
                 const std::string invalid_branches =
-                    ((0 == condition) ? std::string("condition ") : "") +
-                    ((0 == consequent) ? std::string("consequent") : "");
+                    ((nullptr == condition) ? std::string("condition ") : "") +
+                    ((nullptr == consequent) ? std::string("consequent") : "");
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, parser_->current_state().token,
@@ -9156,7 +9156,7 @@ class parser : public lexer::parser_helper
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown!";
 
-            if ((0 != consequent) && (0 != alternative))
+            if ((nullptr != consequent) && (nullptr != alternative))
             {
                 result = node_allocator_->allocate<conditional_node_t>(condition, consequent,
                                                                        alternative);
@@ -9186,15 +9186,15 @@ class parser : public lexer::parser_helper
                                                       expression_node_ptr consequent,
                                                       expression_node_ptr alternative) const
         {
-            if ((0 == condition) || (0 == consequent))
+            if ((nullptr == condition) || (nullptr == consequent))
             {
                 details::free_node(*node_allocator_, condition);
                 details::free_node(*node_allocator_, consequent);
                 details::free_node(*node_allocator_, alternative);
 
                 const std::string invalid_branches =
-                    ((0 == condition) ? std::string("condition ") : "") +
-                    ((0 == consequent) ? std::string("consequent") : "");
+                    ((nullptr == condition) ? std::string("condition ") : "") +
+                    ((nullptr == consequent) ? std::string("consequent") : "");
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, parser_->current_state().token,
@@ -9226,7 +9226,7 @@ class parser : public lexer::parser_helper
                         return node_allocator_->allocate_c<details::string_literal_node<Type>>("");
                 }
             }
-            else if ((0 != consequent) && (0 != alternative))
+            else if ((nullptr != consequent) && (nullptr != alternative))
             {
                 expression_node_ptr result = node_allocator_->allocate<conditional_string_node_t>(
                     condition, consequent, alternative);
@@ -9258,15 +9258,15 @@ class parser : public lexer::parser_helper
                                                       expression_node_ptr consequent,
                                                       expression_node_ptr alternative) const
         {
-            if ((0 == condition) || (0 == consequent))
+            if ((nullptr == condition) || (nullptr == consequent))
             {
                 details::free_node(*node_allocator_, condition);
                 details::free_node(*node_allocator_, consequent);
                 details::free_node(*node_allocator_, alternative);
 
                 const std::string invalid_branches =
-                    ((0 == condition) ? std::string("condition ") : "") +
-                    ((0 == consequent) ? std::string("consequent") : "");
+                    ((nullptr == condition) ? std::string("condition ") : "") +
+                    ((nullptr == consequent) ? std::string("consequent") : "");
 
                 parser_->set_error(parser_error::make_error(
                     parser_error::error_mode::e_parser, parser_->current_state().token,
@@ -9298,7 +9298,7 @@ class parser : public lexer::parser_helper
                         return node_allocator_->allocate<details::null_node<T>>();
                 }
             }
-            else if ((0 != consequent) && (0 != alternative))
+            else if ((nullptr != consequent) && (nullptr != alternative))
             {
                 return node_allocator_->allocate<conditional_vector_node_t>(condition, consequent,
                                                                             alternative);
@@ -9315,7 +9315,7 @@ class parser : public lexer::parser_helper
                 return parser_->loop_runtime_check_;
             }
 
-            return loop_runtime_check_ptr(0);
+            return nullptr;
         }
 
         inline vector_access_runtime_check<T>* get_vector_access_runtime_check() const
@@ -9464,7 +9464,7 @@ class parser : public lexer::parser_helper
 
                 return result;
             }
-            else if (details::is_null_node(condition) || (0 == condition))
+            else if (details::is_null_node(condition) || (nullptr == condition))
             {
                 details::free_node(*node_allocator_, initialiser);
                 details::free_node(*node_allocator_, condition);
@@ -9510,14 +9510,14 @@ class parser : public lexer::parser_helper
                 expression_node_ptr condition = arg_list[(2 * i)];
                 expression_node_ptr consequent = arg_list[(2 * i) + 1];
 
-                if ((0 == result) && details::is_true(condition))
+                if ((nullptr == result) && details::is_true(condition))
                 {
                     result = consequent;
                     break;
                 }
             }
 
-            if (0 == result)
+            if (nullptr == result)
             {
                 result = arg_list.back();
             }
@@ -9552,7 +9552,7 @@ class parser : public lexer::parser_helper
                 }
             }
 
-            if (0 == result)
+            if (nullptr == result)
             {
                 const T zero = T(0);
                 result = node_allocator_->allocate<literal_node_t>(zero);
@@ -10489,7 +10489,7 @@ class parser : public lexer::parser_helper
             using function_N_node_t = typename details::function_N_node<T, ifunction_t, N>;
             expression_node_ptr result = synthesize_expression<function_N_node_t, N>(f, b);
 
-            if (0 == result)
+            if (nullptr == result)
                 return error_node();
             else
             {
@@ -10949,7 +10949,7 @@ class parser : public lexer::parser_helper
         {
             for (std::size_t i = 0; i < N; ++i)
             {
-                if (0 == b[i])
+                if (nullptr == b[i])
                     return false;
                 else if (!details::is_constant_node(b[i]))
                     return false;
@@ -10964,7 +10964,7 @@ class parser : public lexer::parser_helper
         {
             for (std::size_t i = 0; i < b.size(); ++i)
             {
-                if (0 == b[i])
+                if (nullptr == b[i])
                     return false;
                 else if (!details::is_constant_node(b[i]))
                     return false;
@@ -11704,8 +11704,10 @@ class parser : public lexer::parser_helper
                 variable_node_ptr v0 = variable_node_ptr(0);
                 variable_node_ptr v1 = variable_node_ptr(0);
 
-                if ((0 != (v0 = static_cast<variable_node_ptr>(branch[0]->as_variable_node()))) &&
-                    (0 != (v1 = static_cast<variable_node_ptr>(branch[1]->as_variable_node()))))
+                if ((nullptr !=
+                     (v0 = static_cast<variable_node_ptr>(branch[0]->as_variable_node()))) &&
+                    (nullptr !=
+                     (v1 = static_cast<variable_node_ptr>(branch[1]->as_variable_node()))))
                 {
                     result = node_allocator_->allocate<details::swap_node<T>>(v0, v1);
                     node_name = "swap_node";
@@ -11782,7 +11784,7 @@ class parser : public lexer::parser_helper
                     result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
             }
 
-            if (details::is_constant_node(branch[1]) && (0 == result))
+            if (details::is_constant_node(branch[1]) && (nullptr == result))
             {
                 if ((core::operators::operator_type::scand == operation) &&
                     details::is_false(branch[1]))
@@ -18120,7 +18122,7 @@ class parser : public lexer::parser_helper
                 }
             }
 
-            if (0 == result)
+            if (nullptr == result)
             {
                 result = node_allocator_->allocate_rrrrr<typename details::uvouv_node<Type>>(
                     v0, v1, u0, u1, f);
@@ -18600,7 +18602,7 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr synthesize_string_expression(
             const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
-            if ((0 == branch[0]) || (0 == branch[1]))
+            if ((nullptr == branch[0]) || (nullptr == branch[1]))
             {
                 details::free_all_nodes(*node_allocator_, branch);
 
@@ -18707,7 +18709,7 @@ class parser : public lexer::parser_helper
         {
             if (core::operators::operator_type::inrange != opr)
                 return error_node();
-            else if ((0 == branch[0]) || (0 == branch[1]) || (0 == branch[2]))
+            else if ((nullptr == branch[0]) || (nullptr == branch[1]) || (nullptr == branch[2]))
             {
                 details::free_all_nodes(*node_allocator_, branch);
 
@@ -18998,7 +19000,7 @@ class parser : public lexer::parser_helper
             expression_node_ptr expression_point = node_allocator_->allocate<NodeType>(f);
             function_N_node_t* func_node_ptr = static_cast<function_N_node_t*>(expression_point);
 
-            if (0 == func_node_ptr)
+            if (nullptr == func_node_ptr)
             {
                 free_all_nodes(*node_allocator_, branch);
 
@@ -19382,7 +19384,7 @@ class parser : public lexer::parser_helper
 
     inline results_context_t& results_ctx()
     {
-        if (0 == results_context_)
+        if (nullptr == results_context_)
         {
             results_context_ = new results_context_t();
         }

@@ -57,8 +57,8 @@ class swap_string_node final : public binary_node<T>,
     swap_string_node(expression_ptr branch0, expression_ptr branch1)
         : binary_node<T>(core::operators::operator_type::swap, branch0, branch1),
           initialised_(false),
-          str0_node_ptr_(0),
-          str1_node_ptr_(0)
+          str0_node_ptr_(nullptr),
+          str1_node_ptr_(nullptr)
     {
         if (is_string_node(branch(0)))
         {

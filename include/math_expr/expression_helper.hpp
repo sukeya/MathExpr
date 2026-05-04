@@ -113,7 +113,7 @@ class expression_helper
 
     static inline bool is_type(const expression<T>& expr, const node_types node_type)
     {
-        if (0 == expr.control_block_)
+        if (nullptr == expr.control_block_)
         {
             return false;
         }
@@ -148,7 +148,7 @@ class expression_helper
     static inline bool match_type_sequence(const expression<T>& expr,
                                            const std::vector<node_types>& type_seq)
     {
-        if ((0 == expr.control_block_) || !is_vararg(expr))
+        if ((nullptr == expr.control_block_) || !is_vararg(expr))
         {
             return false;
         }
@@ -160,7 +160,7 @@ class expression_helper
                                  ? static_cast<mo_vararg_t*>(expr.control_block_->expr)
                                  : nullptr;
 
-        if ((0 == vnode) || type_seq.empty() || (vnode->size() < type_seq.size()))
+        if ((nullptr == vnode) || type_seq.empty() || (vnode->size() < type_seq.size()))
         {
             return false;
         }

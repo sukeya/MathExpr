@@ -53,7 +53,7 @@ class generic_string_range_node final : public expression_node<T>,
     using branch_t = std::pair<expression_ptr, bool>;
 
     generic_string_range_node(expression_ptr str_branch, const range_t& brange)
-        : initialised_(false), str_base_ptr_(0), str_range_ptr_(0), base_range_(brange)
+        : initialised_(false), str_base_ptr_(nullptr), str_range_ptr_(nullptr), base_range_(brange)
     {
         range_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
         range_.n1_c = std::make_pair<bool, std::size_t>(true, 0);
@@ -66,12 +66,12 @@ class generic_string_range_node final : public expression_node<T>,
         {
             str_base_ptr_ = branch_.first->as_string_base();
 
-            if (0 == str_base_ptr_)
+            if (nullptr == str_base_ptr_)
                 return;
 
             str_range_ptr_ = branch_.first->as_range_iface();
 
-            if (0 == str_range_ptr_)
+            if (nullptr == str_range_ptr_)
                 return;
         }
 

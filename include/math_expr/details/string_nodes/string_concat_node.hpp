@@ -56,10 +56,10 @@ class string_concat_node final : public binary_node<T>,
                        expression_ptr branch1)
         : binary_node<T>(opr, branch0, branch1),
           initialised_(false),
-          str0_base_ptr_(0),
-          str1_base_ptr_(0),
-          str0_range_ptr_(0),
-          str1_range_ptr_(0)
+          str0_base_ptr_(nullptr),
+          str1_base_ptr_(nullptr),
+          str0_range_ptr_(nullptr),
+          str1_range_ptr_(nullptr)
     {
         range_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
         range_.n1_c = std::make_pair<bool, std::size_t>(true, 0);
@@ -71,12 +71,12 @@ class string_concat_node final : public binary_node<T>,
         {
             str0_base_ptr_ = branch(0)->as_string_base();
 
-            if (0 == str0_base_ptr_)
+            if (nullptr == str0_base_ptr_)
                 return;
 
             str0_range_ptr_ = branch(0)->as_range_iface();
 
-            if (0 == str0_range_ptr_)
+            if (nullptr == str0_range_ptr_)
                 return;
         }
 
@@ -84,12 +84,12 @@ class string_concat_node final : public binary_node<T>,
         {
             str1_base_ptr_ = branch(1)->as_string_base();
 
-            if (0 == str1_base_ptr_)
+            if (nullptr == str1_base_ptr_)
                 return;
 
             str1_range_ptr_ = branch(1)->as_range_iface();
 
-            if (0 == str1_range_ptr_)
+            if (nullptr == str1_range_ptr_)
                 return;
         }
 
