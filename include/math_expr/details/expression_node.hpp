@@ -627,13 +627,11 @@ class node_collection_destructor
 
         collect_nodes(root, node_delete_list);
 
-        for (std::size_t i = 0; i < node_delete_list.size(); ++i)
+        for (node_ptr_t* node_pp : node_delete_list)
         {
-            node_ptr_t& node = *node_delete_list[i];
             core::debug_print("ncd::delete_nodes() - deleting: %p\n",
-                              static_cast<const void*>(node));
-            delete node;
-            node = nullptr;
+                              static_cast<const void*>(*node_pp));
+            std::unique_ptr<Node>(std::exchange(*node_pp, nullptr));
         }
     }
 
