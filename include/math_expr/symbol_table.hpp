@@ -74,214 +74,20 @@ class symbol_table
     using ff15_functor = T (*)(T, T, T, T, T, T, T, T, T, T, T, T, T, T, T);
 
    protected:
-    struct freefunc00 final : public math_expr::ifunction<T>
+    template <typename... Args>
+    struct freefunc final : public math_expr::ifunction<T>
     {
         using math_expr::ifunction<T>::operator();
+        using functor_t = T (*)(Args...);
 
-        explicit freefunc00(ff00_functor ff) : math_expr::ifunction<T>(0), f(ff) {}
-        inline T operator()() override
+        explicit freefunc(functor_t ff) : math_expr::ifunction<T>(sizeof...(Args)), f(ff) {}
+
+        inline T operator()(const Args&... args) override
         {
-            return f();
+            return f(args...);
         }
-        ff00_functor f;
-    };
 
-    struct freefunc01 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc01(ff01_functor ff) : math_expr::ifunction<T>(1), f(ff) {}
-        inline T operator()(const T& v0) override
-        {
-            return f(v0);
-        }
-        ff01_functor f;
-    };
-
-    struct freefunc02 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc02(ff02_functor ff) : math_expr::ifunction<T>(2), f(ff) {}
-        inline T operator()(const T& v0, const T& v1) override
-        {
-            return f(v0, v1);
-        }
-        ff02_functor f;
-    };
-
-    struct freefunc03 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc03(ff03_functor ff) : math_expr::ifunction<T>(3), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2) override
-        {
-            return f(v0, v1, v2);
-        }
-        ff03_functor f;
-    };
-
-    struct freefunc04 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc04(ff04_functor ff) : math_expr::ifunction<T>(4), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3) override
-        {
-            return f(v0, v1, v2, v3);
-        }
-        ff04_functor f;
-    };
-
-    struct freefunc05 : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc05(ff05_functor ff) : math_expr::ifunction<T>(5), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3,
-                            const T& v4) override
-        {
-            return f(v0, v1, v2, v3, v4);
-        }
-        ff05_functor f;
-    };
-
-    struct freefunc06 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc06(ff06_functor ff) : math_expr::ifunction<T>(6), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                            const T& v5) override
-        {
-            return f(v0, v1, v2, v3, v4, v5);
-        }
-        ff06_functor f;
-    };
-
-    struct freefunc07 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc07(ff07_functor ff) : math_expr::ifunction<T>(7), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                            const T& v5, const T& v6) override
-        {
-            return f(v0, v1, v2, v3, v4, v5, v6);
-        }
-        ff07_functor f;
-    };
-
-    struct freefunc08 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc08(ff08_functor ff) : math_expr::ifunction<T>(8), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                            const T& v5, const T& v6, const T& v7) override
-        {
-            return f(v0, v1, v2, v3, v4, v5, v6, v7);
-        }
-        ff08_functor f;
-    };
-
-    struct freefunc09 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc09(ff09_functor ff) : math_expr::ifunction<T>(9), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                            const T& v5, const T& v6, const T& v7, const T& v8) override
-        {
-            return f(v0, v1, v2, v3, v4, v5, v6, v7, v8);
-        }
-        ff09_functor f;
-    };
-
-    struct freefunc10 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc10(ff10_functor ff) : math_expr::ifunction<T>(10), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                            const T& v5, const T& v6, const T& v7, const T& v8,
-                            const T& v9) override
-        {
-            return f(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
-        }
-        ff10_functor f;
-    };
-
-    struct freefunc11 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc11(ff11_functor ff) : math_expr::ifunction<T>(11), f(ff) {}
-        inline T operator()(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4,
-                            const T& v5, const T& v6, const T& v7, const T& v8, const T& v9,
-                            const T& v10) override
-        {
-            return f(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);
-        }
-        ff11_functor f;
-    };
-
-    struct freefunc12 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc12(ff12_functor ff) : math_expr::ifunction<T>(12), f(ff) {}
-        inline T operator()(const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
-                            const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                            const T& v10, const T& v11) override
-        {
-            return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11);
-        }
-        ff12_functor f;
-    };
-
-    struct freefunc13 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc13(ff13_functor ff) : math_expr::ifunction<T>(13), f(ff) {}
-        inline T operator()(const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
-                            const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                            const T& v10, const T& v11, const T& v12) override
-        {
-            return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11, v12);
-        }
-        ff13_functor f;
-    };
-
-    struct freefunc14 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc14(ff14_functor ff) : math_expr::ifunction<T>(14), f(ff) {}
-        inline T operator()(const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
-                            const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                            const T& v10, const T& v11, const T& v12, const T& v13) override
-        {
-            return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11, v12, v13);
-        }
-        ff14_functor f;
-    };
-
-    struct freefunc15 final : public math_expr::ifunction<T>
-    {
-        using math_expr::ifunction<T>::operator();
-
-        explicit freefunc15(ff15_functor ff) : math_expr::ifunction<T>(15), f(ff) {}
-        inline T operator()(const T& v00, const T& v01, const T& v02, const T& v03, const T& v04,
-                            const T& v05, const T& v06, const T& v07, const T& v08, const T& v09,
-                            const T& v10, const T& v11, const T& v12, const T& v13,
-                            const T& v14) override
-        {
-            return f(v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10, v11, v12, v13, v14);
-        }
-        ff15_functor f;
+        functor_t f;
     };
 
     template <typename Type, typename RawType>
@@ -1180,25 +986,16 @@ class symbol_table
         return false;
     }
 
-#define MATH_EXPR_DEFINE_FREEFUNCTION(NN)                                                     \
-    inline bool add_function(const std::string& function_name, ff##NN##_functor function)     \
-    {                                                                                         \
-        if (!valid())                                                                         \
-        {                                                                                     \
-            return false;                                                                     \
-        }                                                                                     \
-        if (!valid_symbol(function_name))                                                     \
-        {                                                                                     \
-            return false;                                                                     \
-        }                                                                                     \
-        if (symbol_exists(function_name))                                                     \
-        {                                                                                     \
-            return false;                                                                     \
-        }                                                                                     \
-                                                                                              \
-        local_data().free_function_list_.push_back(std::make_unique<freefunc##NN>(function)); \
-                                                                                              \
-        return add_function(function_name, (*local_data().free_function_list_.back()));       \
+    template <typename... Args>
+    inline bool add_function(const std::string& function_name, T (*function)(Args...))
+    {
+        return add_function_impl_(function_name, function);
+    }
+
+#define MATH_EXPR_DEFINE_FREEFUNCTION(NN)                              \
+    inline bool add_function(const std::string& n, ff##NN##_functor f) \
+    {                                                                  \
+        return add_function_impl_(n, f);                               \
     }
 
     MATH_EXPR_DEFINE_FREEFUNCTION(00);
@@ -1217,7 +1014,6 @@ class symbol_table
     MATH_EXPR_DEFINE_FREEFUNCTION(13);
     MATH_EXPR_DEFINE_FREEFUNCTION(14);
     MATH_EXPR_DEFINE_FREEFUNCTION(15);
-
 #undef MATH_EXPR_DEFINE_FREEFUNCTION
 
     inline bool add_reserved_function(const std::string& function_name, function_t& function)
@@ -1281,45 +1077,35 @@ class symbol_table
         return false;
     }
 
-#define MATH_EXPR_DEFINE_RESERVED_FUNCTION(NN)                                                     \
-    inline bool add_reserved_function(const std::string& function_name, ff##NN##_functor function) \
-    {                                                                                              \
-        if (!valid())                                                                              \
-        {                                                                                          \
-            return false;                                                                          \
-        }                                                                                          \
-        if (!valid_symbol(function_name, false))                                                   \
-        {                                                                                          \
-            return false;                                                                          \
-        }                                                                                          \
-        if (symbol_exists(function_name, false))                                                   \
-        {                                                                                          \
-            return false;                                                                          \
-        }                                                                                          \
-                                                                                                   \
-        local_data().free_function_list_.push_back(std::make_unique<freefunc##NN>(function));      \
-                                                                                                   \
-        return add_reserved_function(function_name, (*local_data().free_function_list_.back()));   \
+    template <typename... Args>
+    inline bool add_reserved_function(const std::string& function_name, T (*function)(Args...))
+    {
+        return add_reserved_function_impl_(function_name, function);
     }
 
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(00);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(01);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(02);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(03);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(04);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(05);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(06);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(07);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(08);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(09);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(10);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(11);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(12);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(13);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(14);
-    MATH_EXPR_DEFINE_RESERVED_FUNCTION(15);
+#define MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(NN)                              \
+    inline bool add_reserved_function(const std::string& n, ff##NN##_functor f) \
+    {                                                                           \
+        return add_reserved_function_impl_(n, f);                               \
+    }
 
-#undef MATH_EXPR_DEFINE_RESERVED_FUNCTION
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(00);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(01);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(02);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(03);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(04);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(05);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(06);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(07);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(08);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(09);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(10);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(11);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(12);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(13);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(14);
+    MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(15);
+#undef MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION
 
     template <std::size_t N>
     inline bool add_vector(const std::string& vector_name, T (&v)[N])
@@ -1752,6 +1538,33 @@ class symbol_table
     }
 
    private:
+    template <typename... Args>
+    inline bool add_function_impl_(const std::string& function_name, T (*function)(Args...))
+    {
+        if (!valid())
+            return false;
+        if (!valid_symbol(function_name))
+            return false;
+        if (symbol_exists(function_name))
+            return false;
+        local_data().free_function_list_.push_back(std::make_unique<freefunc<Args...>>(function));
+        return add_function(function_name, (*local_data().free_function_list_.back()));
+    }
+
+    template <typename... Args>
+    inline bool add_reserved_function_impl_(const std::string& function_name,
+                                            T (*function)(Args...))
+    {
+        if (!valid())
+            return false;
+        if (!valid_symbol(function_name, false))
+            return false;
+        if (symbol_exists(function_name, false))
+            return false;
+        local_data().free_function_list_.push_back(std::make_unique<freefunc<Args...>>(function));
+        return add_reserved_function(function_name, (*local_data().free_function_list_.back()));
+    }
+
     inline bool valid_symbol(const std::string& symbol, const bool check_reserved_symb = true) const
     {
         if (symbol.empty())

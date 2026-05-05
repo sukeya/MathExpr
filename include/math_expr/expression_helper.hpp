@@ -58,62 +58,64 @@ class expression_helper
 
     static inline bool is_literal(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_literal_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_literal_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_variable(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_variable_node(expr.control_block_->expr);
+        return expr.get_control_block() &&
+               details::is_variable_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_string(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_generally_string_node(expr.control_block_->expr);
+        return expr.get_control_block() &&
+               details::is_generally_string_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_unary(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_unary_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_unary_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_binary(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_binary_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_binary_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_function(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_function(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_function(expr.get_control_block()->expr);
     }
 
     static inline bool is_vararg(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_vararg_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_vararg_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_null(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_null_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_null_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_assert(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_assert_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_assert_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_sf3ext(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_sf3ext_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_sf3ext_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_sf4ext(const expression<T>& expr)
     {
-        return expr.control_block_ && details::is_sf4ext_node(expr.control_block_->expr);
+        return expr.get_control_block() && details::is_sf4ext_node(expr.get_control_block()->expr);
     }
 
     static inline bool is_type(const expression<T>& expr, const node_types node_type)
     {
-        if (nullptr == expr.control_block_)
+        if (nullptr == expr.get_control_block())
         {
             return false;
         }
@@ -148,16 +150,16 @@ class expression_helper
     static inline bool match_type_sequence(const expression<T>& expr,
                                            const std::vector<node_types>& type_seq)
     {
-        if ((nullptr == expr.control_block_) || !is_vararg(expr))
+        if ((nullptr == expr.get_control_block()) || !is_vararg(expr))
         {
             return false;
         }
 
         using mo_vararg_t = details::vararg_node<T, math_expr::details::vararg_multi_op<T>>;
 
-        mo_vararg_t* vnode = (expr.control_block_->expr->type() ==
+        mo_vararg_t* vnode = (expr.get_control_block()->expr->type() ==
                               details::expression_node<T>::node_type::e_vararg_multi)
-                                 ? static_cast<mo_vararg_t*>(expr.control_block_->expr)
+                                 ? static_cast<mo_vararg_t*>(expr.get_control_block()->expr)
                                  : nullptr;
 
         if ((nullptr == vnode) || type_seq.empty() || (vnode->size() < type_seq.size()))
@@ -245,7 +247,7 @@ class expression_helper
 template <typename T>
 inline bool is_valid(const expression<T>& expr)
 {
-    return expr.control_block_ && !expression_helper<T>::is_null(expr);
+    return expr.get_control_block() && !expression_helper<T>::is_null(expr);
 }
 
 }  // namespace math_expr

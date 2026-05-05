@@ -48,6 +48,7 @@ class expression
     using vector_holder_ptr = details::vector_holder<T>*;
     using symtab_list_t = std::vector<symbol_table<T>>;
 
+   public:
     struct control_block
     {
         enum class data_type
@@ -166,6 +167,20 @@ class expression
 
         friend class function_compositor<T>;
     };
+
+    inline const std::shared_ptr<control_block>& get_control_block() const
+    {
+        return control_block_;
+    }
+
+    inline const typename control_block::local_data_list_t& local_data_list() const
+    {
+        if (control_block_)
+            return control_block_->local_data_list;
+
+        static typename control_block::local_data_list_t null_local_data_list;
+        return null_local_data_list;
+    }
 
    public:
     expression()
@@ -338,19 +353,6 @@ class expression
             control_block_->local_data_list.emplace_back(std::move(data), size);
     }
 
-    inline const typename control_block::local_data_list_t& local_data_list()
-    {
-        if (control_block_)
-        {
-            return control_block_->local_data_list;
-        }
-        else
-        {
-            static typename control_block::local_data_list_t null_local_data_list;
-            return null_local_data_list;
-        }
-    }
-
     inline void register_return_results(results_context_t* rc)
     {
         if (control_block_ && rc)
@@ -371,8 +373,6 @@ class expression
     symtab_list_t symbol_table_list_;
 
     friend class parser<T>;
-    friend class expression_helper<T>;
-    friend class function_compositor<T>;
     template <typename TT>
     friend bool is_valid(const expression<TT>& expr);
 };  // class expression
