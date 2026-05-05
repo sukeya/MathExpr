@@ -7340,12 +7340,16 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         if (assert_message && details::is_const_string_node(assert_message))
         {
-            context.message = assert_message->as_string_base()->str();
+            auto* sbn_msg = assert_message->as_string_base();
+            assert(sbn_msg);
+            context.message = sbn_msg->str();
         }
 
         if (assert_id && details::is_const_string_node(assert_id))
         {
-            context.id = assert_id->as_string_base()->str();
+            auto* sbn_id = assert_id->as_string_base();
+            assert(sbn_id);
+            context.id = sbn_id->str();
 
             if (assert_ids_.end() != assert_ids_.find(context.id))
             {
@@ -8600,16 +8604,17 @@ class parser : public lexer::parser_helper
             else if (details::is_const_string_range_node(branch))
                 return cstrrng_str;
             else if (details::is_t0ot1ot2_node(branch))
-                return "(" +
-                       static_cast<details::T0oT1oT2_base_node<T>*>(branch->as_T0oT1oT2_base())
-                           ->type_id() +
-                       ")";
+            {
+                auto* b3 = branch->as_T0oT1oT2_base();
+                assert(b3);
+                return "(" + static_cast<details::T0oT1oT2_base_node<T>*>(b3)->type_id() + ")";
+            }
             else if (details::is_t0ot1ot2ot3_node(branch))
-                return "(" +
-                       static_cast<details::T0oT1oT2oT3_base_node<T>*>(
-                           branch->as_T0oT1oT2oT3_base())
-                           ->type_id() +
-                       ")";
+            {
+                auto* b4 = branch->as_T0oT1oT2oT3_base();
+                assert(b4);
+                return "(" + static_cast<details::T0oT1oT2oT3_base_node<T>*>(b4)->type_id() + ")";
+            }
             else
                 return "ERROR";
         }
