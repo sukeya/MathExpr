@@ -408,7 +408,7 @@ class function_compositor
             {
                 lvarref_t& vr = dest_v[i];
 
-                assert(vr.first != 0);
+                assert(vr.first != nullptr);
                 assert(vr.second > 0);
 
                 if (1 == vr.second)

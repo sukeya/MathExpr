@@ -926,7 +926,7 @@ class symbol_table
 
         stringvar_ptr stringvar = local_data().stringvar_store.get(string_name);
 
-        if (0 == stringvar)
+        if (nullptr == stringvar)
         {
             return null_stringvar_base;
         }
@@ -999,7 +999,7 @@ class symbol_table
 
     inline T& variable_ref(const std::string& symbol_name)
     {
-        static T null_var = T(0);
+        thread_local T null_var = T(0);
         if (!valid())
             return null_var;
         else if (!valid_symbol(symbol_name))
@@ -1011,7 +1011,7 @@ class symbol_table
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline std::string& stringvar_ref(const std::string& symbol_name)
     {
-        static std::string null_stringvar;
+        thread_local std::string null_stringvar;
         if (!valid())
             return null_stringvar;
         else if (!valid_symbol(symbol_name))

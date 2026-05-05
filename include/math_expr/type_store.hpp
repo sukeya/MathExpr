@@ -142,8 +142,7 @@ struct type_store
         explicit type_view(type_store_t& ts) : ts_(ts), data_(std::get<value_t*>(ts_.data)) {}
 
         explicit type_view(const type_store_t& ts)
-            : ts_(const_cast<type_store_t&>(ts)),
-              data_(std::get<value_t*>(const_cast<type_store_t&>(ts).data))
+            : ts_(const_cast<type_store_t&>(ts)), data_(std::get<value_t*>(ts.data))
         {
         }
 
@@ -195,10 +194,7 @@ struct type_store
 
         explicit scalar_view(type_store_t& ts) : v_(*std::get<T*>(ts.data)) {}
 
-        explicit scalar_view(const type_store_t& ts)
-            : v_(*std::get<T*>(const_cast<type_store_t&>(ts).data))
-        {
-        }
+        explicit scalar_view(const type_store_t& ts) : v_(*std::get<T*>(ts.data)) {}
 
         inline value_t& operator()()
         {

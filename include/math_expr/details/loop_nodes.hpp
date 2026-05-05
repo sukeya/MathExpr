@@ -151,7 +151,7 @@ struct loop_runtime_checker
 
     bool valid() const
     {
-        return 0 != loop_runtime_check_;
+        return nullptr != loop_runtime_check_;
     }
 
     mutable std::uint64_t iteration_count_;

@@ -54,7 +54,7 @@ class stringvar_base
 
     bool valid() const
     {
-        return !name_.empty() && (0 != string_varnode_);
+        return !name_.empty() && (nullptr != string_varnode_);
     }
 
     std::string name() const
