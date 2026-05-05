@@ -90,7 +90,7 @@ class symbol_table
         functor_t f;
     };
 
-    template <typename Type, typename RawType>
+    template <typename Type, typename RawType, bool Owned = true>
     struct type_store
     {
         using expression_ptr = details::expression_node<T>*;
@@ -105,7 +105,8 @@ class symbol_table
 
         using type_t = Type;
         using type_ptr = type_t*;
-        using type_pair_t = std::pair<bool, type_ptr>;
+        using stored_ptr_t = std::conditional_t<Owned, std::unique_ptr<type_t>, type_ptr>;
+        using type_pair_t = std::pair<bool, stored_ptr_t>;
         using type_map_t = std::map<std::string, type_pair_t, core::ilesscompare>;
         using tm_itr_t = typename type_map_t::iterator;
         using tm_const_itr_t = typename type_map_t::const_iterator;
@@ -117,27 +118,13 @@ class symbol_table
 
         type_store() : size(0) {}
 
-        struct deleter
+        static inline type_ptr get_raw(const stored_ptr_t& ptr) noexcept
         {
-#define MATH_EXPR_DEFINE_PROCESS(Type)                    \
-    static inline void process(std::pair<bool, Type*>& n) \
-    {                                                     \
-        delete n.second;                                  \
-    }
-
-            MATH_EXPR_DEFINE_PROCESS(variable_node_t);
-            MATH_EXPR_DEFINE_PROCESS(vector_t);
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            MATH_EXPR_DEFINE_PROCESS(stringvar_node_t);
-#endif
-
-#undef MATH_EXPR_DEFINE_PROCESS
-
-            template <typename DeleteType>
-            static inline void process(std::pair<bool, DeleteType*>&)
-            {
-            }
-        };
+            if constexpr (Owned)
+                return ptr.get();
+            else
+                return ptr;
+        }
 
         inline bool symbol_exists(const std::string& symbol_name) const
         {
@@ -159,7 +146,7 @@ class symbol_table
 
             while (map.end() != itr)
             {
-                if (itr->second.second == ptr)
+                if (get_raw(itr->second.second) == ptr)
                 {
                     return itr->first;
                 }
@@ -212,44 +199,48 @@ class symbol_table
 
         struct tie_array
         {
-            static inline std::pair<bool, vector_t*> make(std::pair<T*, std::size_t> v,
-                                                          const bool is_const = false)
+            static inline type_pair_t make(std::pair<T*, std::size_t> v,
+                                           const bool is_const = false)
+                requires(Owned)
             {
-                return std::make_pair(is_const, new vector_t(v.first, v.second));
+                return std::make_pair(is_const, std::make_unique<vector_t>(v.first, v.second));
             }
         };
 
         struct tie_stdvec
         {
             template <typename Allocator>
-            static inline std::pair<bool, vector_t*> make(std::vector<T, Allocator>& v,
-                                                          const bool is_const = false)
+            static inline type_pair_t make(std::vector<T, Allocator>& v,
+                                           const bool is_const = false)
+                requires(Owned)
             {
-                return std::make_pair(is_const, new vector_t(v));
+                return std::make_pair(is_const, std::make_unique<vector_t>(v));
             }
         };
 
         struct tie_vecview
         {
-            static inline std::pair<bool, vector_t*> make(math_expr::vector_view<T>& v,
-                                                          const bool is_const = false)
+            static inline type_pair_t make(math_expr::vector_view<T>& v,
+                                           const bool is_const = false)
+                requires(Owned)
             {
-                return std::make_pair(is_const, new vector_t(v));
+                return std::make_pair(is_const, std::make_unique<vector_t>(v));
             }
         };
 
         struct tie_stddeq
         {
             template <typename Allocator>
-            static inline std::pair<bool, vector_t*> make(std::deque<T, Allocator>& v,
-                                                          const bool is_const = false)
+            static inline type_pair_t make(std::deque<T, Allocator>& v, const bool is_const = false)
+                requires(Owned)
             {
-                return std::make_pair(is_const, new vector_t(v));
+                return std::make_pair(is_const, std::make_unique<vector_t>(v));
             }
         };
 
         template <std::size_t v_size>
         inline bool add(const std::string& symbol_name, T (&v)[v_size], const bool is_const = false)
+            requires(Owned)
         {
             return add_impl<tie_array, std::pair<T*, std::size_t>>(
                 symbol_name, std::make_pair(v, v_size), is_const);
@@ -257,6 +248,7 @@ class symbol_table
 
         inline bool add(const std::string& symbol_name, T* v, const std::size_t v_size,
                         const bool is_const = false)
+            requires(Owned)
         {
             return add_impl<tie_array, std::pair<T*, std::size_t>>(
                 symbol_name, std::make_pair(v, v_size), is_const);
@@ -265,12 +257,14 @@ class symbol_table
         template <typename Allocator>
         inline bool add(const std::string& symbol_name, std::vector<T, Allocator>& v,
                         const bool is_const = false)
+            requires(Owned)
         {
             return add_impl<tie_stdvec, std::vector<T, Allocator>&>(symbol_name, v, is_const);
         }
 
         inline bool add(const std::string& symbol_name, math_expr::vector_view<T>& v,
                         const bool is_const = false)
+            requires(Owned)
         {
             return add_impl<tie_vecview, math_expr::vector_view<T>&>(symbol_name, v, is_const);
         }
@@ -278,6 +272,7 @@ class symbol_table
         template <typename Allocator>
         inline bool add(const std::string& symbol_name, std::deque<T, Allocator>& v,
                         const bool is_const = false)
+            requires(Owned)
         {
             return add_impl<tie_stddeq, std::deque<T, Allocator>&>(symbol_name, v, is_const);
         }
@@ -286,34 +281,34 @@ class symbol_table
         {
             struct tie
             {
-                static inline std::pair<bool, variable_node_t*> make(T& t,
-                                                                     const bool is_constant = false)
+                static inline auto make(T& t, const bool is_constant = false)
+                    requires(Owned)
                 {
-                    return std::make_pair(is_constant, new variable_node_t(t));
+                    return std::make_pair(is_constant, std::make_unique<variable_node_t>(t));
                 }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                static inline std::pair<bool, stringvar_node_t*> make(
-                    std::string& t, const bool is_constant = false)
+                static inline auto make(std::string& t, const bool is_constant = false)
+                    requires(Owned)
                 {
-                    return std::make_pair(is_constant, new stringvar_node_t(t));
+                    return std::make_pair(is_constant, std::make_unique<stringvar_node_t>(t));
                 }
 #endif
 
-                static inline std::pair<bool, function_t*> make(function_t& t,
-                                                                const bool is_constant = false)
+                static inline auto make(function_t& t, const bool is_constant = false)
+                    requires(!Owned)
                 {
                     return std::make_pair(is_constant, &t);
                 }
 
-                static inline std::pair<bool, vararg_function_t*> make(
-                    vararg_function_t& t, const bool is_constant = false)
+                static inline auto make(vararg_function_t& t, const bool is_constant = false)
+                    requires(!Owned)
                 {
                     return std::make_pair(is_constant, &t);
                 }
 
-                static inline std::pair<bool, generic_function_t*> make(
-                    generic_function_t& t, const bool is_constant = false)
+                static inline auto make(generic_function_t& t, const bool is_constant = false)
+                    requires(!Owned)
                 {
                     return std::make_pair(is_constant, &t);
                 }
@@ -335,9 +330,9 @@ class symbol_table
             const tm_const_itr_t itr = map.find(symbol_name);
 
             if (map.end() == itr)
-                return reinterpret_cast<type_ptr>(0);
+                return nullptr;
             else
-                return itr->second.second;
+                return get_raw(itr->second.second);
         }
 
         template <typename TType, typename TRawType, typename PtrType>
@@ -367,7 +362,7 @@ class symbol_table
 
             while (map.end() != itr)
             {
-                type_ptr ret_ptr = itr->second.second;
+                type_ptr ret_ptr = get_raw(itr->second.second);
 
                 if (ptr_match<Type, RawType, type_ptr>::test(ret_ptr, ptr))
                 {
@@ -377,7 +372,7 @@ class symbol_table
                 ++itr;
             }
 
-            return type_ptr(0);
+            return nullptr;
         }
 
         inline bool remove(const std::string& symbol_name, const bool delete_node = true)
@@ -386,9 +381,10 @@ class symbol_table
 
             if (map.end() != itr)
             {
-                if (delete_node)
+                if constexpr (Owned)
                 {
-                    deleter::process((*itr).second);
+                    if (!delete_node)
+                        itr->second.second.release();
                 }
 
                 map.erase(itr);
@@ -436,15 +432,15 @@ class symbol_table
         {
             if (!map.empty())
             {
-                if (delete_node)
+                if constexpr (Owned)
                 {
-                    tm_itr_t itr = map.begin();
-                    tm_itr_t end = map.end();
-
-                    while (end != itr)
+                    if (!delete_node)
                     {
-                        deleter::process((*itr).second);
-                        ++itr;
+                        for (auto& [name, type_pair] : map)
+                        {
+                            static_cast<void>(name);
+                            type_pair.second.release();
+                        }
                     }
                 }
 
@@ -512,8 +508,22 @@ class symbol_table
     using function_ptr = function_t*;
     using vararg_function_ptr = vararg_function_t*;
     using generic_function_ptr = generic_function_t*;
+    using variable_store_t = type_store<variable_t, T>;
+    using function_store_t = type_store<function_t, function_t, false>;
 
     static constexpr std::size_t lut_size = 256;
+
+    static_assert(requires(variable_store_t& store, const std::string& name, T& value) {
+        store.add(name, value);
+    });
+    static_assert(requires(function_store_t& store, const std::string& name, function_t& function) {
+        store.add(name, function);
+    });
+    static_assert(!requires(function_store_t& store, const std::string& name, T& value) {
+        store.add(name, value);
+    });
+    static_assert(!requires(function_store_t& store, const std::string& name,
+                            std::vector<T>& values) { store.add(name, values); });
 
     // Symbol Table Holder
     struct control_block
@@ -521,11 +531,11 @@ class symbol_table
         struct st_data
         {
             type_store<variable_t, T> variable_store;
-            type_store<function_t, function_t> function_store;
-            type_store<vararg_function_t, vararg_function_t> vararg_function_store;
-            type_store<generic_function_t, generic_function_t> generic_function_store;
-            type_store<generic_function_t, generic_function_t> string_function_store;
-            type_store<generic_function_t, generic_function_t> overload_function_store;
+            type_store<function_t, function_t, false> function_store;
+            type_store<vararg_function_t, vararg_function_t, false> vararg_function_store;
+            type_store<generic_function_t, generic_function_t, false> generic_function_store;
+            type_store<generic_function_t, generic_function_t, false> string_function_store;
+            type_store<generic_function_t, generic_function_t, false> overload_function_store;
             type_store<vector_holder_t, vector_holder_t> vector_store;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             type_store<stringvar_t, std::string> stringvar_store;
@@ -542,22 +552,6 @@ class symbol_table
                 {
                     reserved_symbol_table_.insert(std::string(core::reserved_symbols[i]));
                 }
-            }
-
-            ~st_data()
-            {
-                variable_store.clear(true);
-                function_store.clear();
-                vararg_function_store.clear();
-                generic_function_store.clear();
-                string_function_store.clear();
-                overload_function_store.clear();
-                vector_store.clear();
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                stringvar_store.clear();
-#endif
-                local_symbol_list_.clear();
-                local_stringvar_list_.clear();
             }
 
             inline bool is_reserved_symbol(const std::string& symbol) const

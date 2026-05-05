@@ -147,6 +147,11 @@ void expect_near(const T& actual, const T& expected, const T& epsilon = default_
 
 }  // namespace test_support
 
+inline numeric_type increment_symbol_table_probe(const numeric_type value)
+{
+    return value + numeric_type(1);
+}
+
 static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<double>);
 static_assert(math_expr::core::numeric::details::is_supported_real_type_v<double>);
 static_assert(math_expr::core::numeric::details::is_supported_numeric_type_v<std::int16_t>);
@@ -13894,6 +13899,42 @@ TEST_CASE("Symbol tables and runtime registries remain consistent", "[symbol-tab
     {
         REQUIRE(run_test18<numeric_type>());
     }
+}
+
+TEST_CASE("Symbol table ownership boundaries remain stable", "[symbol-table][ownership]")
+{
+    numeric_type scalar = numeric_type(3.5);
+    std::vector<numeric_type> values = {numeric_type(1.0), numeric_type(2.0), numeric_type(3.0)};
+    math_expr::vector_view<numeric_type> view(values.data(), values.size());
+
+    math_expr::symbol_table<numeric_type> symbol_table;
+
+    REQUIRE(symbol_table.add_variable("x", scalar));
+    REQUIRE(symbol_table.add_vector("values", values));
+    REQUIRE(symbol_table.add_vector("view", view));
+    REQUIRE(symbol_table.add_function("inc", increment_symbol_table_probe));
+
+    auto* variable = symbol_table.get_variable("x");
+    REQUIRE(variable != nullptr);
+    CHECK(&variable->ref() == &scalar);
+    CHECK(symbol_table.get_variable(scalar) == variable);
+
+    auto* stored_values = symbol_table.get_vector("values");
+    REQUIRE(stored_values != nullptr);
+    CHECK(stored_values->size() == values.size());
+    CHECK(stored_values->data() == values.data());
+
+    auto* stored_view = symbol_table.get_vector("view");
+    REQUIRE(stored_view != nullptr);
+    CHECK(stored_view->size() == view.size());
+    CHECK(stored_view->data() == view.data());
+
+    auto* function = symbol_table.get_function("inc");
+    REQUIRE(function != nullptr);
+    CHECK((*function)(numeric_type(4.0)) == numeric_type(5.0));
+
+    CHECK(symbol_table.remove_variable("x"));
+    CHECK(symbol_table.get_variable("x") == nullptr);
 }
 
 TEST_CASE("Function registration regressions remain stable", "[function][regression]")
