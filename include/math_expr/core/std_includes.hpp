@@ -34,6 +34,7 @@ limitations under the License.
 #define MATH_EXPR_CORE_STD_INCLUDES_HPP
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <cctype>
 #include <cstdint>

@@ -234,6 +234,7 @@ class vectorize_node final : public expression_node<T>
         if (is_ivector_node(v_.first))
         {
             ivec_ptr_ = v_.first->as_vector_iface();
+            assert(ivec_ptr_);
         }
     }
 

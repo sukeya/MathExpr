@@ -180,10 +180,10 @@ class ifunction : public function_traits
 
    private:
     template <int N>
-    inline T ifunction_unimplemented() noexcept
+    [[noreturn]] inline T ifunction_unimplemented()
     {
-        core::debug_print("ifunction::operator() - Operator(%d) has not been overridden\n", N);
-        return std::numeric_limits<T>::quiet_NaN();
+        throw std::runtime_error("ifunction::operator() - operator with " + std::to_string(N) +
+                                 " parameter(s) has not been overridden");
     }
 };
 

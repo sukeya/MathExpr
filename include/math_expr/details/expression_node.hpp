@@ -768,7 +768,7 @@ struct node_depth_base
             {
                 if (branch[i].first)
                 {
-                    depth = std::max(depth, branch[i].first->node_depth());
+                    depth = std::max(depth.load(), branch[i].first->node_depth());
                 }
             }
 
@@ -848,7 +848,7 @@ struct node_depth_base
             {
                 if (branch_list[i])
                 {
-                    depth = std::max(depth, compute_node_depth(branch_list[i]));
+                    depth = std::max(depth.load(), compute_node_depth(branch_list[i]));
                 }
             }
 
@@ -867,7 +867,7 @@ struct node_depth_base
             {
                 if (branch_list[i].first)
                 {
-                    depth = std::max(depth, compute_node_depth(branch_list[i].first));
+                    depth = std::max(depth.load(), compute_node_depth(branch_list[i].first));
                 }
             }
 
@@ -877,8 +877,8 @@ struct node_depth_base
         return depth;
     }
 
-    mutable bool depth_set;
-    mutable std::size_t depth;
+    mutable std::atomic<bool> depth_set;
+    mutable std::atomic<std::size_t> depth;
 
     template <typename NodeSequence>
     void collect(node_ptr_t const& node, const bool deletable, NodeSequence& delete_node_list) const
