@@ -60,12 +60,12 @@ class swap_genstrings_node final : public binary_node<T>
     {
         if (is_generally_string_node(branch(0)))
         {
-            str0_base_ptr_ = dynamic_cast<str_base_ptr>(branch(0));
+            str0_base_ptr_ = branch(0)->as_string_base();
 
             if (0 == str0_base_ptr_)
                 return;
 
-            irange_ptr range = dynamic_cast<irange_ptr>(branch(0));
+            irange_ptr range = branch(0)->as_range_iface();
 
             if (0 == range)
                 return;
@@ -75,12 +75,12 @@ class swap_genstrings_node final : public binary_node<T>
 
         if (is_generally_string_node(branch(1)))
         {
-            str1_base_ptr_ = dynamic_cast<str_base_ptr>(branch(1));
+            str1_base_ptr_ = branch(1)->as_string_base();
 
             if (0 == str1_base_ptr_)
                 return;
 
-            irange_ptr range = dynamic_cast<irange_ptr>(branch(1));
+            irange_ptr range = branch(1)->as_range_iface();
 
             if (0 == range)
                 return;

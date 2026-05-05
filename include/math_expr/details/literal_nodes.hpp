@@ -235,6 +235,15 @@ class string_literal_node final : public expression_node<T>,
         return expression_node<T>::node_type::e_stringconst;
     }
 
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
+    }
+
     inline expression_node<T>* branch(const std::size_t&) const override
     {
         return nullptr;

@@ -299,6 +299,11 @@ class bracket_checker final : public lexer::token_scanner
 
     bracket_checker() : token_scanner(1), state_(true) {}
 
+    scanner_kind kind() const override
+    {
+        return scanner_kind::bracket;
+    }
+
     bool result() override
     {
         if (!stack_.empty())
@@ -378,6 +383,11 @@ class numeric_checker final : public lexer::token_scanner
     using lexer::token_scanner::operator();
 
     numeric_checker() : token_scanner(1), current_index_(0) {}
+
+    scanner_kind kind() const override
+    {
+        return scanner_kind::numeric;
+    }
 
     bool result() override
     {
@@ -502,6 +512,11 @@ class sequence_validator final : public lexer::token_scanner
 
    public:
     using lexer::token_scanner::operator();
+
+    scanner_kind kind() const override
+    {
+        return scanner_kind::sequence;
+    }
 
     sequence_validator() : lexer::token_scanner(2)
     {
@@ -694,6 +709,11 @@ class sequence_validator_3tokens final : public lexer::token_scanner
 
    public:
     using lexer::token_scanner::operator();
+
+    scanner_kind kind() const override
+    {
+        return scanner_kind::sequence_3tokens;
+    }
 
     sequence_validator_3tokens() : lexer::token_scanner(3)
     {

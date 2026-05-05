@@ -1611,24 +1611,23 @@ class parser : public lexer::parser_helper
             {
                 if (helper_assembly_.error_token_scanner)
                 {
-                    lexer::helper::bracket_checker* bracket_checker_ptr = 0;
-                    lexer::helper::numeric_checker<T>* numeric_checker_ptr = 0;
-                    lexer::helper::sequence_validator* sequence_validator_ptr = 0;
-                    lexer::helper::sequence_validator_3tokens* sequence_validator3_ptr = 0;
+                    using scanner_kind = lexer::token_scanner::scanner_kind;
+                    const scanner_kind sk = helper_assembly_.error_token_scanner->kind();
 
-                    if (0 != (bracket_checker_ptr = dynamic_cast<lexer::helper::bracket_checker*>(
-                                  helper_assembly_.error_token_scanner)))
+                    if (sk == scanner_kind::bracket)
                     {
+                        auto* bracket_checker_ptr = static_cast<lexer::helper::bracket_checker*>(
+                            helper_assembly_.error_token_scanner);
                         set_error(make_error(parser_error::error_mode::e_token,
                                              bracket_checker_ptr->error_token(),
                                              "ERR005 - Mismatched brackets: '" +
                                                  bracket_checker_ptr->error_token().value + "'",
                                              core::error_location()));
                     }
-                    else if (0 != (numeric_checker_ptr =
-                                       dynamic_cast<lexer::helper::numeric_checker<T>*>(
-                                           helper_assembly_.error_token_scanner)))
+                    else if (sk == scanner_kind::numeric)
                     {
+                        auto* numeric_checker_ptr = static_cast<lexer::helper::numeric_checker<T>*>(
+                            helper_assembly_.error_token_scanner);
                         for (std::size_t i = 0; i < numeric_checker_ptr->error_count(); ++i)
                         {
                             lexer::token error_token = lexer()[numeric_checker_ptr->error_index(i)];
@@ -1644,10 +1643,11 @@ class parser : public lexer::parser_helper
                             numeric_checker_ptr->clear_errors();
                         }
                     }
-                    else if (0 != (sequence_validator_ptr =
-                                       dynamic_cast<lexer::helper::sequence_validator*>(
-                                           helper_assembly_.error_token_scanner)))
+                    else if (sk == scanner_kind::sequence)
                     {
+                        auto* sequence_validator_ptr =
+                            static_cast<lexer::helper::sequence_validator*>(
+                                helper_assembly_.error_token_scanner);
                         for (std::size_t i = 0; i < sequence_validator_ptr->error_count(); ++i)
                         {
                             std::pair<lexer::token, lexer::token> error_token =
@@ -1665,10 +1665,11 @@ class parser : public lexer::parser_helper
                             sequence_validator_ptr->clear_errors();
                         }
                     }
-                    else if (0 != (sequence_validator3_ptr =
-                                       dynamic_cast<lexer::helper::sequence_validator_3tokens*>(
-                                           helper_assembly_.error_token_scanner)))
+                    else if (sk == scanner_kind::sequence_3tokens)
                     {
+                        auto* sequence_validator3_ptr =
+                            static_cast<lexer::helper::sequence_validator_3tokens*>(
+                                helper_assembly_.error_token_scanner);
                         for (std::size_t i = 0; i < sequence_validator3_ptr->error_count(); ++i)
                         {
                             std::pair<lexer::token, lexer::token> error_token =
@@ -2429,7 +2430,10 @@ class parser : public lexer::parser_helper
     {
         {
             using ubn_t = details::unary_branch_node<T, details::neg_op<T>>;
-            ubn_t* n = dynamic_cast<ubn_t*>(node);
+            ubn_t* n = (node->type() == details::expression_node<T>::node_type::e_neg &&
+                        !node->as_uv_base_node())
+                           ? static_cast<ubn_t*>(node)
+                           : nullptr;
 
             if (n)
             {
@@ -2445,7 +2449,10 @@ class parser : public lexer::parser_helper
         {
             using uvn_t = details::unary_variable_node<T, details::neg_op<T>>;
 
-            uvn_t* n = dynamic_cast<uvn_t*>(node);
+            uvn_t* n = (node->type() == details::expression_node<T>::node_type::e_neg &&
+                        node->as_uv_base_node())
+                           ? static_cast<uvn_t*>(node)
+                           : nullptr;
 
             if (n)
             {
@@ -4400,8 +4407,7 @@ class parser : public lexer::parser_helper
             else
                 return;
 
-            details::vector_interface<T>* vi =
-                dynamic_cast<details::vector_interface<T>*>(expression);
+            details::vector_interface<T>* vi = expression->as_vector_iface();
 
             if (vi)
             {
@@ -7073,8 +7079,8 @@ class parser : public lexer::parser_helper
 
         expression_node_ptr result = error_node();
 
-        if ((0 != (v0 = dynamic_cast<variable_node_ptr>(variable0))) &&
-            (0 != (v1 = dynamic_cast<variable_node_ptr>(variable1))))
+        if ((0 != (v0 = static_cast<variable_node_ptr>(variable0->as_variable_node()))) &&
+            (0 != (v1 = static_cast<variable_node_ptr>(variable1->as_variable_node()))))
         {
             result = node_allocator_.allocate<details::swap_node<T>>(v0, v1);
 
@@ -7334,12 +7340,12 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         if (assert_message && details::is_const_string_node(assert_message))
         {
-            context.message = dynamic_cast<details::string_base_node<T>*>(assert_message)->str();
+            context.message = assert_message->as_string_base()->str();
         }
 
         if (assert_id && details::is_const_string_node(assert_id))
         {
-            context.id = dynamic_cast<details::string_base_node<T>*>(assert_id)->str();
+            context.id = assert_id->as_string_base()->str();
 
             if (assert_ids_.end() != assert_ids_.find(context.id))
             {
@@ -8594,9 +8600,15 @@ class parser : public lexer::parser_helper
             else if (details::is_const_string_range_node(branch))
                 return cstrrng_str;
             else if (details::is_t0ot1ot2_node(branch))
-                return "(" + dynamic_cast<details::T0oT1oT2_base_node<T>*>(branch)->type_id() + ")";
+                return "(" +
+                       static_cast<details::T0oT1oT2_base_node<T>*>(branch->as_T0oT1oT2_base())
+                           ->type_id() +
+                       ")";
             else if (details::is_t0ot1ot2ot3_node(branch))
-                return "(" + dynamic_cast<details::T0oT1oT2oT3_base_node<T>*>(branch)->type_id() +
+                return "(" +
+                       static_cast<details::T0oT1oT2oT3_base_node<T>*>(
+                           branch->as_T0oT1oT2oT3_base())
+                           ->type_id() +
                        ")";
             else
                 return "ERROR";
@@ -11692,8 +11704,8 @@ class parser : public lexer::parser_helper
                 variable_node_ptr v0 = variable_node_ptr(0);
                 variable_node_ptr v1 = variable_node_ptr(0);
 
-                if ((0 != (v0 = dynamic_cast<variable_node_ptr>(branch[0]))) &&
-                    (0 != (v1 = dynamic_cast<variable_node_ptr>(branch[1]))))
+                if ((0 != (v0 = static_cast<variable_node_ptr>(branch[0]->as_variable_node()))) &&
+                    (0 != (v1 = static_cast<variable_node_ptr>(branch[1]->as_variable_node()))))
                 {
                     result = node_allocator_->allocate<details::swap_node<T>>(v0, v1);
                     node_name = "swap_node";
@@ -13435,7 +13447,7 @@ class parser : public lexer::parser_helper
                                                   expression_node_ptr& node,
                                                   expression_node_ptr& result)
             {
-                SF3TypeNode* n = dynamic_cast<SF3TypeNode*>(node);
+                SF3TypeNode* n = static_cast<SF3TypeNode*>(node);
 
                 if (n)
                 {
@@ -13457,7 +13469,7 @@ class parser : public lexer::parser_helper
                                                  expression_node_ptr& node,
                                                  expression_node_ptr& result)
             {
-                SF3TypeNode* n = dynamic_cast<SF3TypeNode*>(node);
+                SF3TypeNode* n = static_cast<SF3TypeNode*>(node);
 
                 if (n)
                 {
@@ -18984,7 +18996,7 @@ class parser : public lexer::parser_helper
             // Attempt simple constant folding optimisation.
 
             expression_node_ptr expression_point = node_allocator_->allocate<NodeType>(f);
-            function_N_node_t* func_node_ptr = dynamic_cast<function_N_node_t*>(expression_point);
+            function_N_node_t* func_node_ptr = static_cast<function_N_node_t*>(expression_point);
 
             if (0 == func_node_ptr)
             {

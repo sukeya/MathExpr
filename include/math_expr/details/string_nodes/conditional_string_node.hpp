@@ -71,12 +71,12 @@ class conditional_string_node final : public trinary_node<T>,
 
         if (is_generally_string_node(trinary_node<T>::branch_[0].first))
         {
-            str0_base_ptr_ = dynamic_cast<str_base_ptr>(trinary_node<T>::branch_[0].first);
+            str0_base_ptr_ = trinary_node<T>::branch_[0].first->as_string_base();
 
             if (0 == str0_base_ptr_)
                 return;
 
-            str0_range_ptr_ = dynamic_cast<irange_ptr>(trinary_node<T>::branch_[0].first);
+            str0_range_ptr_ = trinary_node<T>::branch_[0].first->as_range_iface();
 
             if (0 == str0_range_ptr_)
                 return;
@@ -84,12 +84,12 @@ class conditional_string_node final : public trinary_node<T>,
 
         if (is_generally_string_node(trinary_node<T>::branch_[1].first))
         {
-            str1_base_ptr_ = dynamic_cast<str_base_ptr>(trinary_node<T>::branch_[1].first);
+            str1_base_ptr_ = trinary_node<T>::branch_[1].first->as_string_base();
 
             if (0 == str1_base_ptr_)
                 return;
 
-            str1_range_ptr_ = dynamic_cast<irange_ptr>(trinary_node<T>::branch_[1].first);
+            str1_range_ptr_ = trinary_node<T>::branch_[1].first->as_range_iface();
 
             if (0 == str1_range_ptr_)
                 return;
@@ -173,6 +173,15 @@ class conditional_string_node final : public trinary_node<T>,
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_strcondition;
+    }
+
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override

@@ -46,6 +46,32 @@ class vector_holder;
 template <typename T>
 class vector_interface;
 template <typename T>
+class string_base_node;
+template <typename T>
+class range_interface;
+template <typename T>
+class ivariable;
+template <typename T>
+class uv_base_node;
+template <typename T>
+class vov_base_node;
+template <typename T>
+class cov_base_node;
+template <typename T>
+class voc_base_node;
+template <typename T>
+class vob_base_node;
+template <typename T>
+class bov_base_node;
+template <typename T>
+class cob_base_node;
+template <typename T>
+class boc_base_node;
+template <typename T>
+class T0oT1oT2_base_node;
+template <typename T>
+class T0oT1oT2oT3_base_node;
+template <typename T>
 class null_node;
 template <typename T>
 class literal_node;

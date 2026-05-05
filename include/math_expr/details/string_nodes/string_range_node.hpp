@@ -109,6 +109,15 @@ class string_range_node final : public expression_node<T>,
         return expression_node<T>::node_type::e_stringvarrng;
     }
 
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
+    }
+
    private:
     std::string* value_;
     range_t rp_;

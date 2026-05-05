@@ -135,6 +135,8 @@ class vararg_node final : public expression_node<T>
 
     inline typename expression_node<T>::node_type type() const override
     {
+        if constexpr (requires { requires VarArgFunction::is_multi; })
+            return expression_node<T>::node_type::e_vararg_multi;
         return expression_node<T>::node_type::e_vararg;
     }
 
@@ -231,7 +233,7 @@ class vectorize_node final : public expression_node<T>
 
         if (is_ivector_node(v_.first))
         {
-            ivec_ptr_ = dynamic_cast<vector_interface<T>*>(v_.first);
+            ivec_ptr_ = v_.first->as_vector_iface();
         }
     }
 
@@ -549,6 +551,11 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
         return expression_node<T>::node_type::e_vecvalass;
     }
 
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vec_node_ptr_ && (vds().size() <= vec_node_ptr_->vec_holder().base_size()) &&
@@ -613,7 +620,7 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
+            if (0 != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
 
@@ -672,6 +679,11 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_vecvecass;
+    }
+
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -1066,6 +1078,11 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
         return expression_node<T>::node_type::e_vecopvalass;
     }
 
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vec_node_ptr_ && (size() <= base_size()) && binary_node<T>::valid();
@@ -1133,7 +1150,7 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
+            if (0 != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
                 vec1_node_ptr_->vds() = vi->vds();
@@ -1193,6 +1210,11 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_vecopvecass;
+    }
+
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -1322,7 +1344,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
+            if (0 != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 v0_is_ivec = true;
@@ -1337,7 +1359,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
+            if (0 != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
                 v1_is_ivec = true;
@@ -1424,6 +1446,11 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         return expression_node<T>::node_type::e_vecvecarith;
     }
 
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return initialised_;
@@ -1485,7 +1512,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
+            if (0 != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 v0_is_ivec = true;
@@ -1557,6 +1584,11 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
         return expression_node<T>::node_type::e_vecvalarith;
     }
 
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vec0_node_ptr_ && (size() <= base_size()) && binary_node<T>::valid();
@@ -1615,7 +1647,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(1))))
+            if (0 != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
                 v1_is_ivec = true;
@@ -1687,6 +1719,11 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
         return expression_node<T>::node_type::e_vecvalarith;
     }
 
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vec1_node_ptr_ && (size() <= base_size()) && (vds_.size() <= base_size()) &&
@@ -1745,7 +1782,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = dynamic_cast<vector_interface<T>*>(branch(0))))
+            if (0 != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 vec0_is_ivec = true;
@@ -1815,6 +1852,11 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
         return expression_node<T>::node_type::e_vecunaryop;
     }
 
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
+    }
+
     inline bool valid() const override
     {
         return vec0_node_ptr_ && unary_node<T>::valid();
@@ -1875,7 +1917,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
 
         if (details::is_ivector_node(consequent_.first))
         {
-            vec_interface_ptr ivec_ptr = dynamic_cast<vec_interface_ptr>(consequent_.first);
+            vec_interface_ptr ivec_ptr = consequent_.first->as_vector_iface();
 
             if (0 != ivec_ptr)
             {
@@ -1885,7 +1927,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
 
         if (details::is_ivector_node(alternative_.first))
         {
-            vec_interface_ptr ivec_ptr = dynamic_cast<vec_interface_ptr>(alternative_.first);
+            vec_interface_ptr ivec_ptr = alternative_.first->as_vector_iface();
 
             if (0 != ivec_ptr)
             {
@@ -1965,6 +2007,11 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_vecondition;
+    }
+
+    vector_interface<T>* as_vector_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override
@@ -2594,7 +2641,8 @@ class generic_function_node : public expression_node<T>
             {
                 vector_interface<T>* vi = nullptr;
 
-                if (0 == (vi = dynamic_cast<vector_interface<T>*>(arg_list_[i])))
+                vi = arg_list_[i]->as_vector_iface();
+                if (vi == nullptr)
                     return false;
 
                 ts.size = vi->size();
@@ -2619,7 +2667,8 @@ class generic_function_node : public expression_node<T>
             {
                 string_base_node<T>* sbn = nullptr;
 
-                if (0 == (sbn = dynamic_cast<string_base_node<T>*>(arg_list_[i])))
+                sbn = arg_list_[i]->as_string_base();
+                if (sbn == nullptr)
                     return false;
 
                 ts.size = sbn->size();
@@ -2633,7 +2682,8 @@ class generic_function_node : public expression_node<T>
 
                 range_interface_t* ri = nullptr;
 
-                if (0 == (ri = dynamic_cast<range_interface_t*>(arg_list_[i])))
+                ri = arg_list_[i]->as_range_iface();
+                if (ri == nullptr)
                     return false;
 
                 const range_t& rp = ri->range_ref();
@@ -2653,9 +2703,10 @@ class generic_function_node : public expression_node<T>
 #endif
             else if (is_variable_node(arg_list_[i]))
             {
-                variable_node_ptr_t var = variable_node_ptr_t(0);
+                variable_node_ptr_t var =
+                    static_cast<variable_node_ptr_t>(arg_list_[i]->as_variable_node());
 
-                if (0 == (var = dynamic_cast<variable_node_ptr_t>(arg_list_[i])))
+                if (var == nullptr)
                     return false;
 
                 ts.size = 1;
@@ -2812,6 +2863,15 @@ class string_function_node : public generic_function_node<T, StringFunction>,
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_strfunction;
+    }
+
+    string_base_node<T>* as_string_base() override
+    {
+        return this;
+    }
+    range_interface<T>* as_range_iface() override
+    {
+        return this;
     }
 
     inline bool valid() const override

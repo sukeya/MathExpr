@@ -51,7 +51,7 @@ class string_size_node final : public expression_node<T>
 
         if (is_generally_string_node(branch_.first))
         {
-            str_base_ptr_ = dynamic_cast<str_base_ptr>(branch_.first);
+            str_base_ptr_ = branch_.first->as_string_base();
         }
 
         assert(valid());
