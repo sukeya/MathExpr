@@ -1536,15 +1536,15 @@ class swap_vecvec_node final : public binary_node<T>, public vector_interface<T>
 
     swap_vecvec_node(expression_ptr branch0, expression_ptr branch1)
         : binary_node<T>(core::operators::operator_type::swap, branch0, branch1),
-          vec0_node_ptr_(0),
-          vec1_node_ptr_(0),
+          vec0_node_ptr_(nullptr),
+          vec1_node_ptr_(nullptr),
           initialised_(false)
     {
         if (is_ivector_node(branch(0)))
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(0)->as_vector_iface()))
+            if (nullptr != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 vds() = vi->vds();
@@ -1652,7 +1652,7 @@ class assert_node final : public expression_node<T>
 
     assert_node(expression_ptr assert_condition_node, expression_ptr assert_message_node,
                 assert_check_ptr assert_check, const assert_context_t& context)
-        : assert_message_str_base_(0), assert_check_(assert_check), context_(context)
+        : assert_message_str_base_(nullptr), assert_check_(assert_check), context_(context)
     {
         construct_branch_pair(assert_condition_node_, assert_condition_node);
         construct_branch_pair(assert_message_node_, assert_message_node);
@@ -1697,7 +1697,7 @@ class assert_node final : public expression_node<T>
     {
         return (assert_check_ && assert_condition_node_.first &&
                 assert_condition_node_.first->valid()) &&
-               ((0 == assert_message_node_.first) ||
+               ((nullptr == assert_message_node_.first) ||
                 (assert_message_node_.first && assert_message_str_base_ &&
                  assert_message_node_.first->valid() &&
                  details::is_generally_string_node(assert_message_node_.first)));

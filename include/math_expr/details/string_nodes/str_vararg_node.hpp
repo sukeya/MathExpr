@@ -53,23 +53,23 @@ class str_vararg_node final : public expression_node<T>,
 
     template <typename Allocator, template <typename, typename> class Sequence>
     explicit str_vararg_node(const Sequence<expression_ptr, Allocator>& arg_list)
-        : initialised_(false), str_base_ptr_(0), str_range_ptr_(0)
+        : initialised_(false), str_base_ptr_(nullptr), str_range_ptr_(nullptr)
     {
         construct_branch_pair(final_node_, const_cast<expression_ptr>(arg_list.back()));
 
-        if (0 == final_node_.first)
+        if (nullptr == final_node_.first)
             return;
         else if (!is_generally_string_node(final_node_.first))
             return;
 
         str_base_ptr_ = final_node_.first->as_string_base();
 
-        if (0 == str_base_ptr_)
+        if (nullptr == str_base_ptr_)
             return;
 
         str_range_ptr_ = final_node_.first->as_range_iface();
 
-        if (0 == str_range_ptr_)
+        if (nullptr == str_range_ptr_)
             return;
 
         if (arg_list.size() > 1)

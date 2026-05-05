@@ -45,7 +45,7 @@ class string_size_node final : public expression_node<T>
     using str_base_ptr = string_base_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
-    explicit string_size_node(expression_ptr branch) : str_base_ptr_(0)
+    explicit string_size_node(expression_ptr branch) : str_base_ptr_(nullptr)
     {
         construct_branch_pair(branch_, branch);
 

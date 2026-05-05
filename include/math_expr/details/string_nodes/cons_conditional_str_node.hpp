@@ -55,8 +55,8 @@ class cons_conditional_str_node final : public binary_node<T>,
     cons_conditional_str_node(expression_ptr condition, expression_ptr consequent)
         : binary_node<T>(core::operators::operator_type::default_op, consequent, condition),
           initialised_(false),
-          str0_base_ptr_(0),
-          str0_range_ptr_(0),
+          str0_base_ptr_(nullptr),
+          str0_range_ptr_(nullptr),
           condition_(condition),
           consequent_(consequent)
     {
@@ -70,12 +70,12 @@ class cons_conditional_str_node final : public binary_node<T>,
         {
             str0_base_ptr_ = branch(0)->as_string_base();
 
-            if (0 == str0_base_ptr_)
+            if (nullptr == str0_base_ptr_)
                 return;
 
             str0_range_ptr_ = branch(0)->as_range_iface();
 
-            if (0 == str0_range_ptr_)
+            if (nullptr == str0_range_ptr_)
                 return;
         }
 

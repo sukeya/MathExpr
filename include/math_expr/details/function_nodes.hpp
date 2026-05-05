@@ -227,7 +227,7 @@ class vectorize_node final : public expression_node<T>
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
 
-    explicit vectorize_node(const expression_ptr v) : ivec_ptr_(0)
+    explicit vectorize_node(const expression_ptr v) : ivec_ptr_(nullptr)
     {
         construct_branch_pair(v_, v);
 
@@ -277,7 +277,7 @@ class assignment_node final : public binary_node<T>
 
     assignment_node(const core::operators::operator_type& opr, expression_ptr branch0,
                     expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), var_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), var_node_ptr_(nullptr)
     {
         if (is_variable_node(branch(0)))
         {
@@ -311,7 +311,7 @@ class assignment_vec_elem_node final : public binary_node<T>
 
     assignment_vec_elem_node(const core::operators::operator_type& opr, expression_ptr branch0,
                              expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_elem_node(branch(0)))
         {
@@ -347,7 +347,7 @@ class assignment_vec_elem_rtc_node final : public binary_node<T>
 
     assignment_vec_elem_rtc_node(const core::operators::operator_type& opr, expression_ptr branch0,
                                  expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_elem_rtc_node(branch(0)))
         {
@@ -383,7 +383,7 @@ class assignment_rebasevec_elem_node final : public binary_node<T>
 
     assignment_rebasevec_elem_node(const core::operators::operator_type& opr,
                                    expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_elem_node(branch(0)))
         {
@@ -419,7 +419,7 @@ class assignment_rebasevec_elem_rtc_node final : public binary_node<T>
 
     assignment_rebasevec_elem_rtc_node(const core::operators::operator_type& opr,
                                        expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_elem_rtc_node(branch(0)))
         {
@@ -455,7 +455,7 @@ class assignment_rebasevec_celem_node final : public binary_node<T>
 
     assignment_rebasevec_celem_node(const core::operators::operator_type& opr,
                                     expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_celem_node(branch(0)))
         {
@@ -504,7 +504,7 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
 
     assignment_vec_node(const core::operators::operator_type& opr, expression_ptr branch0,
                         expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_node(branch(0)))
         {
@@ -600,8 +600,8 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
     assignment_vecvec_node(const core::operators::operator_type& opr, expression_ptr branch0,
                            expression_ptr branch1)
         : binary_node<T>(opr, branch0, branch1),
-          vec0_node_ptr_(0),
-          vec1_node_ptr_(0),
+          vec0_node_ptr_(nullptr),
+          vec1_node_ptr_(nullptr),
           initialised_(false),
           src_is_ivec_(false)
     {
@@ -620,7 +620,7 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(1)->as_vector_iface()))
+            if (nullptr != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
 
@@ -729,7 +729,7 @@ class assignment_op_node final : public binary_node<T>
 
     assignment_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
                        expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), var_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), var_node_ptr_(nullptr)
     {
         if (is_variable_node(branch(0)))
         {
@@ -765,7 +765,7 @@ class assignment_vec_elem_op_node final : public binary_node<T>
 
     assignment_vec_elem_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
                                 expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_elem_node(branch(0)))
         {
@@ -801,7 +801,7 @@ class assignment_vec_elem_op_rtc_node final : public binary_node<T>
 
     assignment_vec_elem_op_rtc_node(const core::operators::operator_type& opr,
                                     expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_elem_rtc_node(branch(0)))
         {
@@ -837,7 +837,7 @@ class assignment_vec_celem_op_rtc_node final : public binary_node<T>
 
     assignment_vec_celem_op_rtc_node(const core::operators::operator_type& opr,
                                      expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_celem_rtc_node(branch(0)))
         {
@@ -873,7 +873,7 @@ class assignment_rebasevec_elem_op_node final : public binary_node<T>
 
     assignment_rebasevec_elem_op_node(const core::operators::operator_type& opr,
                                       expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_elem_node(branch(0)))
         {
@@ -909,7 +909,7 @@ class assignment_rebasevec_celem_op_node final : public binary_node<T>
 
     assignment_rebasevec_celem_op_node(const core::operators::operator_type& opr,
                                        expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_celem_node(branch(0)))
         {
@@ -945,7 +945,7 @@ class assignment_rebasevec_elem_op_rtc_node final : public binary_node<T>
 
     assignment_rebasevec_elem_op_rtc_node(const core::operators::operator_type& opr,
                                           expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_elem_rtc_node(branch(0)))
         {
@@ -981,7 +981,7 @@ class assignment_rebasevec_celem_op_rtc_node final : public binary_node<T>
 
     assignment_rebasevec_celem_op_rtc_node(const core::operators::operator_type& opr,
                                            expression_ptr branch0, expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), rbvec_node_ptr_(nullptr)
     {
         if (is_rebasevector_celem_rtc_node(branch(0)))
         {
@@ -1031,7 +1031,7 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
 
     assignment_vec_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
                            expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec_node_ptr_(nullptr)
     {
         if (is_vector_node(branch(0)))
         {
@@ -1131,8 +1131,8 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
     assignment_vecvec_op_node(const core::operators::operator_type& opr, expression_ptr branch0,
                               expression_ptr branch1)
         : binary_node<T>(opr, branch0, branch1),
-          vec0_node_ptr_(0),
-          vec1_node_ptr_(0),
+          vec0_node_ptr_(nullptr),
+          vec1_node_ptr_(nullptr),
           initialised_(false)
     {
         if (is_vector_node(branch(0)))
@@ -1150,7 +1150,7 @@ class assignment_vecvec_op_node final : public binary_node<T>, public vector_int
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(1)->as_vector_iface()))
+            if (nullptr != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
                 vec1_node_ptr_->vds() = vi->vds();
@@ -1262,7 +1262,7 @@ struct memory_context_t
     using vector_holder_t = vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
 
-    memory_context_t() : temp_(0), temp_vec_node_(0) {}
+    memory_context_t() : temp_(nullptr), temp_vec_node_(nullptr) {}
 
     void clear()
     {
@@ -1329,8 +1329,8 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
     vec_binop_vecvec_node(const core::operators::operator_type& opr, expression_ptr branch0,
                           expression_ptr branch1)
         : binary_node<T>(opr, branch0, branch1),
-          vec0_node_ptr_(0),
-          vec1_node_ptr_(0),
+          vec0_node_ptr_(nullptr),
+          vec1_node_ptr_(nullptr),
           initialised_(false)
     {
         bool v0_is_ivec = false;
@@ -1344,7 +1344,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(0)->as_vector_iface()))
+            if (nullptr != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 v0_is_ivec = true;
@@ -1359,7 +1359,7 @@ class vec_binop_vecvec_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(1)->as_vector_iface()))
+            if (nullptr != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
                 v1_is_ivec = true;
@@ -1500,7 +1500,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
 
     vec_binop_vecval_node(const core::operators::operator_type& opr, expression_ptr branch0,
                           expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec0_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec0_node_ptr_(nullptr)
     {
         bool v0_is_ivec = false;
 
@@ -1512,7 +1512,7 @@ class vec_binop_vecval_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(0)->as_vector_iface()))
+            if (nullptr != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 v0_is_ivec = true;
@@ -1635,7 +1635,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
 
     vec_binop_valvec_node(const core::operators::operator_type& opr, expression_ptr branch0,
                           expression_ptr branch1)
-        : binary_node<T>(opr, branch0, branch1), vec1_node_ptr_(0)
+        : binary_node<T>(opr, branch0, branch1), vec1_node_ptr_(nullptr)
     {
         bool v1_is_ivec = false;
 
@@ -1647,7 +1647,7 @@ class vec_binop_valvec_node final : public binary_node<T>, public vector_interfa
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(1)->as_vector_iface()))
+            if (nullptr != (vi = branch(1)->as_vector_iface()))
             {
                 vec1_node_ptr_ = vi->vec();
                 v1_is_ivec = true;
@@ -1770,7 +1770,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
     using expression_node<T>::branch;
 
     unary_vector_node(const core::operators::operator_type& opr, expression_ptr branch0)
-        : unary_node<T>(opr, branch0), vec0_node_ptr_(0)
+        : unary_node<T>(opr, branch0), vec0_node_ptr_(nullptr)
     {
         bool vec0_is_ivec = false;
 
@@ -1782,7 +1782,7 @@ class unary_vector_node final : public unary_node<T>, public vector_interface<T>
         {
             vector_interface<T>* vi = nullptr;
 
-            if (0 != (vi = branch(0)->as_vector_iface()))
+            if (nullptr != (vi = branch(0)->as_vector_iface()))
             {
                 vec0_node_ptr_ = vi->vec();
                 vec0_is_ivec = true;
@@ -1903,11 +1903,11 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
 
     conditional_vector_node(expression_ptr condition, expression_ptr consequent,
                             expression_ptr alternative)
-        : consequent_node_ptr_(0),
-          alternative_node_ptr_(0),
-          temp_vec_node_(0),
-          temp_(0),
-          temp_view_(0),
+        : consequent_node_ptr_(nullptr),
+          alternative_node_ptr_(nullptr),
+          temp_vec_node_(nullptr),
+          temp_(nullptr),
+          temp_view_(nullptr),
           result_vec_size_(0),
           initialised_(false)
     {
@@ -1919,7 +1919,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
         {
             vec_interface_ptr ivec_ptr = consequent_.first->as_vector_iface();
 
-            if (0 != ivec_ptr)
+            if (nullptr != ivec_ptr)
             {
                 consequent_node_ptr_ = ivec_ptr->vec();
             }
@@ -1929,7 +1929,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
         {
             vec_interface_ptr ivec_ptr = alternative_.first->as_vector_iface();
 
-            if (0 != ivec_ptr)
+            if (nullptr != ivec_ptr)
             {
                 alternative_node_ptr_ = ivec_ptr->vec();
             }
@@ -1947,8 +1947,8 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
                 temp_ = new vector_holder_t(*temp_view_);
                 temp_vec_node_ = new vector_node<T>(vds_, temp_);
                 result_vec_size_ = vec_size;
-                initialised_ = (0 != temp_view_) && (0 != temp_) && (0 != temp_vec_node_) &&
-                               (0 != vds_.data());
+                initialised_ = (nullptr != temp_view_) && (nullptr != temp_) &&
+                               (nullptr != temp_vec_node_) && (nullptr != vds_.data());
             }
         }
 
@@ -1965,7 +1965,7 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
     inline T value() const override
     {
         T result = T(0);
-        T* source_vector = 0;
+        T* source_vector = nullptr;
         T* result_vector = vds().data();
 
         if (is_true(condition_))
@@ -2635,7 +2635,7 @@ class generic_function_node : public expression_node<T>
         {
             type_store_t& ts = typestore_list_[i];
 
-            if (0 == arg_list_[i])
+            if (nullptr == arg_list_[i])
                 return false;
             else if (is_ivector_node(arg_list_[i]))
             {

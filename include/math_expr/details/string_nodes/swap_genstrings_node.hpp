@@ -52,22 +52,22 @@ class swap_genstrings_node final : public binary_node<T>
 
     swap_genstrings_node(expression_ptr branch0, expression_ptr branch1)
         : binary_node<T>(core::operators::operator_type::default_op, branch0, branch1),
-          str0_base_ptr_(0),
-          str1_base_ptr_(0),
-          str0_range_ptr_(0),
-          str1_range_ptr_(0),
+          str0_base_ptr_(nullptr),
+          str1_base_ptr_(nullptr),
+          str0_range_ptr_(nullptr),
+          str1_range_ptr_(nullptr),
           initialised_(false)
     {
         if (is_generally_string_node(branch(0)))
         {
             str0_base_ptr_ = branch(0)->as_string_base();
 
-            if (0 == str0_base_ptr_)
+            if (nullptr == str0_base_ptr_)
                 return;
 
             irange_ptr range = branch(0)->as_range_iface();
 
-            if (0 == range)
+            if (nullptr == range)
                 return;
 
             str0_range_ptr_ = &(range->range_ref());
@@ -77,12 +77,12 @@ class swap_genstrings_node final : public binary_node<T>
         {
             str1_base_ptr_ = branch(1)->as_string_base();
 
-            if (0 == str1_base_ptr_)
+            if (nullptr == str1_base_ptr_)
                 return;
 
             irange_ptr range = branch(1)->as_range_iface();
 
-            if (0 == range)
+            if (nullptr == range)
                 return;
 
             str1_range_ptr_ = &(range->range_ref());

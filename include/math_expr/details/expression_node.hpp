@@ -555,7 +555,7 @@ inline bool is_assert_node(const expression_node<T>* node)
 template <typename T>
 inline bool branch_deletable(const expression_node<T>* node)
 {
-    return (0 != node) && !is_variable_node(node) && !is_string_node(node);
+    return (nullptr != node) && !is_variable_node(node) && !is_string_node(node);
 }
 
 template <std::size_t N, typename T>
@@ -563,7 +563,7 @@ inline bool all_nodes_valid(expression_node<T>* const (&b)[N])
 {
     for (std::size_t i = 0; i < N; ++i)
     {
-        if (0 == b[i])
+        if (nullptr == b[i])
             return false;
     }
 
@@ -575,7 +575,7 @@ inline bool all_nodes_valid(const Sequence<expression_node<T>*, Allocator>& b)
 {
     for (std::size_t i = 0; i < b.size(); ++i)
     {
-        if (0 == b[i])
+        if (nullptr == b[i])
             return false;
     }
 
@@ -587,7 +587,7 @@ inline bool all_nodes_variables(expression_node<T>* const (&b)[N])
 {
     for (std::size_t i = 0; i < N; ++i)
     {
-        if (0 == b[i])
+        if (nullptr == b[i])
             return false;
         else if (!is_variable_node(b[i]))
             return false;
@@ -601,7 +601,7 @@ inline bool all_nodes_variables(const Sequence<expression_node<T>*, Allocator>& 
 {
     for (std::size_t i = 0; i < b.size(); ++i)
     {
-        if (0 == b[i])
+        if (nullptr == b[i])
             return false;
         else if (!is_variable_node(b[i]))
             return false;
@@ -657,7 +657,7 @@ class node_collection_destructor
                 {
                     node_pp_t& node = child_node_delete_list[i];
 
-                    if (0 == (*node))
+                    if (nullptr == (*node))
                     {
                         core::debug_print("ncd::collect_nodes() - null node encountered.\n");
                     }
@@ -703,7 +703,7 @@ inline void free_all_nodes(NodeAllocator& node_allocator,
 template <typename NodeAllocator, typename T>
 inline void free_node(NodeAllocator&, expression_node<T>*& node)
 {
-    if ((0 == node) || is_variable_node(node) || is_string_node(node))
+    if ((nullptr == node) || is_variable_node(node) || is_string_node(node))
     {
         return;
     }
@@ -714,7 +714,7 @@ inline void free_node(NodeAllocator&, expression_node<T>*& node)
 template <typename T>
 inline void destroy_node(expression_node<T>*& node)
 {
-    if (0 != node)
+    if (nullptr != node)
     {
         node_collection_destructor<expression_node<T>>::delete_nodes(node);
     }
@@ -883,7 +883,7 @@ struct node_depth_base
     template <typename NodeSequence>
     void collect(node_ptr_t const& node, const bool deletable, NodeSequence& delete_node_list) const
     {
-        if ((0 != node) && deletable)
+        if ((nullptr != node) && deletable)
         {
             delete_node_list.push_back(const_cast<node_ptr_t*>(&node));
         }
