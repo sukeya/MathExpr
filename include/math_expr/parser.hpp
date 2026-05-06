@@ -2765,7 +2765,12 @@ class parser : public lexer::parser_helper
 
         inline variable_node_ptr as_variable_node(expression_node_ptr node) const
         {
-            return static_cast<variable_node_ptr>(node->as_variable_node());
+            return details::node_variant_adapter<T>::variable(node);
+        }
+
+        inline T& variable_ref(expression_node_ptr node) const
+        {
+            return as_variable_node(node)->ref();
         }
 
         inline expression_node_ptr make_swap_node(variable_node_ptr v0, variable_node_ptr v1)
@@ -4469,6 +4474,13 @@ class parser : public lexer::parser_helper
             return literal->value();
         }
 
+        inline Type& variable_ref(expression_node_ptr node)
+        {
+            auto* variable = node_variant_adapter_t::variable(node);
+            assert(nullptr != variable);
+            return variable->ref();
+        }
+
         inline const Type& variable_ref(expression_node_ptr node) const
         {
             auto* variable = node_variant_adapter_t::variable(node);
@@ -5881,7 +5893,7 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr synthesize_uv_expression(
             const core::operators::operator_type& operation, expression_node_ptr (&branch)[1])
         {
-            T& v = static_cast<details::variable_node<T>*>(branch[0])->ref();
+            T& v = variable_ref(branch[0]);
 
             switch (operation)
             {
@@ -6009,11 +6021,9 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr varnode_optimise_sf3(
             const core::operators::operator_type& operation, expression_node_ptr (&branch)[3])
         {
-            using variable_ptr = details::variable_node<Type>*;
-
-            const Type& v0 = static_cast<variable_ptr>(branch[0])->ref();
-            const Type& v1 = static_cast<variable_ptr>(branch[1])->ref();
-            const Type& v2 = static_cast<variable_ptr>(branch[2])->ref();
+            const Type& v0 = variable_ref(branch[0]);
+            const Type& v1 = variable_ref(branch[1]);
+            const Type& v2 = variable_ref(branch[2]);
 
             switch (operation)
             {
@@ -6232,12 +6242,10 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr varnode_optimise_sf4(
             const core::operators::operator_type& operation, expression_node_ptr (&branch)[4])
         {
-            using variable_ptr = details::variable_node<Type>*;
-
-            const Type& v0 = static_cast<variable_ptr>(branch[0])->ref();
-            const Type& v1 = static_cast<variable_ptr>(branch[1])->ref();
-            const Type& v2 = static_cast<variable_ptr>(branch[2])->ref();
-            const Type& v3 = static_cast<variable_ptr>(branch[3])->ref();
+            const Type& v0 = variable_ref(branch[0]);
+            const Type& v1 = variable_ref(branch[1]);
+            const Type& v2 = variable_ref(branch[2]);
+            const Type& v3 = variable_ref(branch[3]);
 
             switch (operation)
             {
@@ -7742,15 +7750,12 @@ class parser : public lexer::parser_helper
 
             if (v0_is_ivar && v1_is_ivar)
             {
-                using variable_node_ptr = details::variable_node<T>*;
+                using variable_node_ptr = typename node_variant_adapter_t::variable_node_t*;
+                variable_node_ptr v0 = nullptr;
+                variable_node_ptr v1 = nullptr;
 
-                variable_node_ptr v0 = variable_node_ptr(0);
-                variable_node_ptr v1 = variable_node_ptr(0);
-
-                if ((nullptr !=
-                     (v0 = static_cast<variable_node_ptr>(branch[0]->as_variable_node()))) &&
-                    (nullptr !=
-                     (v1 = static_cast<variable_node_ptr>(branch[1]->as_variable_node()))))
+                if ((nullptr != (v0 = node_variant_adapter_t::variable(branch[0]))) &&
+                    (nullptr != (v1 = node_variant_adapter_t::variable(branch[1]))))
                 {
                     result = node_allocator_->allocate<details::swap_node<T>>(v0, v1);
                     node_name = "swap_node";
