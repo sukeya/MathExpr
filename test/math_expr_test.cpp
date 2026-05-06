@@ -14368,9 +14368,15 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
     SECTION("typed string views and synthesis paths remain stable")
     {
         numeric_type scalar = numeric_type(5);
+        numeric_type y = numeric_type(2);
+        numeric_type z = numeric_type(3);
+        numeric_type w = numeric_type(4);
         std::string symbol_text = "bbb";
         math_expr::symbol_table<numeric_type> symbol_table;
         REQUIRE(symbol_table.add_variable("x", scalar));
+        REQUIRE(symbol_table.add_variable("y", y));
+        REQUIRE(symbol_table.add_variable("z", z));
+        REQUIRE(symbol_table.add_variable("w", w));
         REQUIRE(symbol_table.add_stringvar("s", symbol_text));
 
         math_expr::expression<numeric_type> variable_expression;
@@ -14448,6 +14454,20 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(neg_branch_expression.get_control_block()->expr);
         REQUIRE(adapter_t::branch(neg_branch_expression.get_control_block()->expr) != nullptr);
         CHECK(neg_branch_expression.value() == numeric_type(-6));
+
+        math_expr::expression<numeric_type> nested_variable_expression;
+        nested_variable_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> nested_variable_parser;
+        test_support::require_compiles("x + (y + (z + w))", nested_variable_parser,
+                                       nested_variable_expression);
+        CHECK(nested_variable_expression.value() == numeric_type(14));
+
+        math_expr::expression<numeric_type> nested_literal_expression;
+        nested_literal_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> nested_literal_parser;
+        test_support::require_compiles("2 + (x + (3 + y))", nested_literal_parser,
+                                       nested_literal_expression);
+        CHECK(nested_literal_expression.value() == numeric_type(12));
     }
 }
 

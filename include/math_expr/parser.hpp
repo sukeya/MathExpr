@@ -9925,7 +9925,7 @@ class parser : public lexer::parser_helper
                     static_cast<details::cov_base_node<Type>*>(branch[0]);
                 const Type c = cov->c();
                 const Type& v0 = cov->v();
-                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v1 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = cov->operation();
                 const core::operators::operator_type o1 = operation;
 
@@ -12084,7 +12084,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vovov->t0();
                 const Type& v2 = vovov->t1();
                 const Type& v3 = vovov->t2();
@@ -12142,7 +12142,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vovoc->t0();
                 const Type& v2 = vovoc->t1();
                 const Type c = vovoc->t2();
@@ -12200,7 +12200,7 @@ class parser : public lexer::parser_helper
                 using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vocov->t0();
                 const Type c = vocov->t1();
                 const Type& v2 = vocov->t2();
@@ -12258,7 +12258,7 @@ class parser : public lexer::parser_helper
                 using lcl_covov_t = typename synthesize_covov_expression1::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type c = covov->t0();
                 const Type& v1 = covov->t1();
                 const Type& v2 = covov->t2();
@@ -12316,7 +12316,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovov_t = typename synthesize_vovov_expression1::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
-                const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vovov->t0();
                 const Type& v1 = vovov->t1();
                 const Type& v2 = vovov->t2();
@@ -12375,7 +12375,7 @@ class parser : public lexer::parser_helper
                 using lcl_vocov_t = typename synthesize_vocov_expression1::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
-                const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c0 = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vocov->t0();
                 const Type c1 = vocov->t1();
                 const Type& v1 = vocov->t2();
@@ -12434,7 +12434,7 @@ class parser : public lexer::parser_helper
                 using lcl_covoc_t = typename synthesize_covoc_expression1::node_type;
 
                 const lcl_covoc_t* covoc = static_cast<const lcl_covoc_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type c0 = covoc->t0();
                 const Type& v1 = covoc->t1();
                 const Type c1 = covoc->t2();
@@ -12491,7 +12491,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovoc_t = typename synthesize_vovoc_expression1::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
-                const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c0 = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vovoc->t0();
                 const Type& v1 = vovoc->t1();
                 const Type c1 = vovoc->t2();
@@ -12550,7 +12550,7 @@ class parser : public lexer::parser_helper
                 using lcl_cocov_t = typename synthesize_cocov_expression1::node_type;
 
                 const lcl_cocov_t* cocov = static_cast<const lcl_cocov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type c0 = cocov->t0();
                 const Type c1 = cocov->t1();
                 const Type& v1 = cocov->t2();
@@ -12608,7 +12608,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vovov->t0();
                 const Type& v2 = vovov->t1();
                 const Type& v3 = vovov->t2();
@@ -12666,7 +12666,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vovoc->t0();
                 const Type& v2 = vovoc->t1();
                 const Type c = vovoc->t2();
@@ -12724,7 +12724,7 @@ class parser : public lexer::parser_helper
                 using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vocov->t0();
                 const Type c = vocov->t1();
                 const Type& v2 = vocov->t2();
@@ -12782,7 +12782,7 @@ class parser : public lexer::parser_helper
                 using lcl_covov_t = typename synthesize_covov_expression0::node_type;
 
                 const lcl_covov_t* covov = static_cast<const lcl_covov_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type c = covov->t0();
                 const Type& v1 = covov->t1();
                 const Type& v2 = covov->t2();
@@ -12840,7 +12840,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovov_t = typename synthesize_vovov_expression0::node_type;
 
                 const lcl_vovov_t* vovov = static_cast<const lcl_vovov_t*>(branch[1]);
-                const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vovov->t0();
                 const Type& v1 = vovov->t1();
                 const Type& v2 = vovov->t2();
@@ -12899,7 +12899,7 @@ class parser : public lexer::parser_helper
                 using lcl_vocov_t = typename synthesize_vocov_expression0::node_type;
 
                 const lcl_vocov_t* vocov = static_cast<const lcl_vocov_t*>(branch[1]);
-                const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c0 = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vocov->t0();
                 const Type c1 = vocov->t1();
                 const Type& v1 = vocov->t2();
@@ -12958,7 +12958,7 @@ class parser : public lexer::parser_helper
                 using lcl_covoc_t = typename synthesize_covoc_expression0::node_type;
 
                 const lcl_covoc_t* covoc = static_cast<const lcl_covoc_t*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type c0 = covoc->t0();
                 const Type& v1 = covoc->t1();
                 const Type c1 = covoc->t2();
@@ -13016,7 +13016,7 @@ class parser : public lexer::parser_helper
                 using lcl_vovoc_t = typename synthesize_vovoc_expression0::node_type;
 
                 const lcl_vovoc_t* vovoc = static_cast<const lcl_vovoc_t*>(branch[1]);
-                const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c0 = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vovoc->t0();
                 const Type& v1 = vovoc->t1();
                 const Type c1 = vovoc->t2();
@@ -13099,7 +13099,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vovov->t0();
                 const Type& v1 = vovov->t1();
                 const Type& v2 = vovov->t2();
-                const Type& v3 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v3 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13157,7 +13157,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vovov->t0();
                 const Type& v1 = vovov->t1();
                 const Type& v2 = vovov->t2();
-                const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13216,7 +13216,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vovoc->t0();
                 const Type& v1 = vovoc->t1();
                 const Type c = vovoc->t2();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vovoc->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13274,7 +13274,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vocov->t0();
                 const Type c = vocov->t1();
                 const Type& v1 = vocov->t2();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13332,7 +13332,7 @@ class parser : public lexer::parser_helper
                 const Type c = covov->t0();
                 const Type& v0 = covov->t1();
                 const Type& v1 = covov->t2();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13390,7 +13390,7 @@ class parser : public lexer::parser_helper
                 const Type c0 = covoc->t0();
                 const Type& v0 = covoc->t1();
                 const Type c1 = covoc->t2();
-                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v1 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(covoc->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13448,7 +13448,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vocov->t0();
                 const Type c0 = vocov->t1();
                 const Type& v1 = vocov->t2();
-                const Type c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c1 = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13507,7 +13507,7 @@ class parser : public lexer::parser_helper
                 const Type c0 = covov->t0();
                 const Type& v0 = covov->t1();
                 const Type& v1 = covov->t2();
-                const Type c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c1 = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13566,7 +13566,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vococ->t0();
                 const Type c0 = vococ->t1();
                 const Type c1 = vococ->t2();
-                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v1 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vococ->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vococ->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13624,7 +13624,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vovov->t0();
                 const Type& v1 = vovov->t1();
                 const Type& v2 = vovov->t2();
-                const Type& v3 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v3 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13682,7 +13682,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vovov->t0();
                 const Type& v1 = vovov->t1();
                 const Type& v2 = vovov->t2();
-                const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vovov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13741,7 +13741,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vovoc->t0();
                 const Type& v1 = vovoc->t1();
                 const Type c = vovoc->t2();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vovoc->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vovoc->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13799,7 +13799,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vocov->t0();
                 const Type c = vocov->t1();
                 const Type& v1 = vocov->t2();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13856,7 +13856,7 @@ class parser : public lexer::parser_helper
                 const Type c = covov->t0();
                 const Type& v0 = covov->t1();
                 const Type& v1 = covov->t2();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13914,7 +13914,7 @@ class parser : public lexer::parser_helper
                 const Type c0 = covoc->t0();
                 const Type& v0 = covoc->t1();
                 const Type c1 = covoc->t2();
-                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v1 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(covoc->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(covoc->f1());
                 const core::operators::operator_type o2 = operation;
@@ -13972,7 +13972,7 @@ class parser : public lexer::parser_helper
                 const Type& v0 = vocov->t0();
                 const Type c0 = vocov->t1();
                 const Type& v1 = vocov->t2();
-                const Type c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c1 = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(vocov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(vocov->f1());
                 const core::operators::operator_type o2 = operation;
@@ -14031,7 +14031,7 @@ class parser : public lexer::parser_helper
                 const Type c0 = covov->t0();
                 const Type& v0 = covov->t1();
                 const Type& v1 = covov->t2();
-                const Type c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c1 = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = expr_gen.get_operator(covov->f0());
                 const core::operators::operator_type o1 = expr_gen.get_operator(covov->f1());
                 const core::operators::operator_type o2 = operation;
