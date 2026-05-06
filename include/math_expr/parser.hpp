@@ -74,6 +74,7 @@ limitations under the License.
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
 #include "math_expr/parser/special_case_parser.hpp"
+#include "math_expr/parser/statement_parser.hpp"
 #include "math_expr/parser/symbol_parser.hpp"
 #include "math_expr/parser/symbol_resolution_parser.hpp"
 #include "math_expr/parser/string_range_parser.hpp"
@@ -2671,6 +2672,147 @@ class parser : public lexer::parser_helper
         symtab_store_t& symtab_store;
     };
 
+    struct statement_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using variable_node_ptr = details::variable_node<T>*;
+        using scope_element_t = math_expr::scope_element<T>;
+
+        explicit statement_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              retparam_list(parser.dec_.retparam_list_),
+              assert_check(parser.assert_check_),
+              assert_ids(parser.assert_ids_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_vector()
+        {
+            return parser_.parse_vector();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline bool is_variable(const std::string& symbol) const
+        {
+            return symtab_store.is_variable(symbol);
+        }
+
+        inline expression_node_ptr get_variable(const std::string& symbol) const
+        {
+            return symtab_store.get_variable(symbol);
+        }
+
+        inline const scope_element_t& get_element(const std::string& symbol) const
+        {
+            return sem.get_element(symbol);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline variable_node_ptr as_variable_node(expression_node_ptr node) const
+        {
+            return static_cast<variable_node_ptr>(node->as_variable_node());
+        }
+
+        inline expression_node_ptr make_swap_node(variable_node_ptr v0, variable_node_ptr v1)
+        {
+            return node_allocator.template allocate<details::swap_node<T>>(v0, v1);
+        }
+
+        inline expression_node_ptr make_swap_generic_node(expression_node_ptr variable0,
+                                                          expression_node_ptr variable1)
+        {
+            return node_allocator.template allocate<details::swap_generic_node<T>>(variable0,
+                                                                                   variable1);
+        }
+
+        inline expression_node_ptr return_call(std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.return_call(arg_list);
+        }
+
+        inline expression_node_ptr assert_call(
+            expression_node_ptr& assert_condition, expression_node_ptr& assert_message,
+            const math_expr::assert_check::assert_context& assert_context)
+        {
+            return parser_.expression_generator_.assert_call(assert_condition, assert_message,
+                                                             assert_context);
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+        inline std::string lexer_substr(const std::size_t begin, const std::size_t end) const
+        {
+            return parser_.lexer().substr(begin, end);
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        std::vector<std::string>& retparam_list;
+        assert_check_ptr assert_check;
+        std::set<std::string>& assert_ids;
+        details::node_allocator& node_allocator;
+    };
+
     struct special_case_context
     {
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
@@ -4482,323 +4624,15 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_swap_statement()
     {
-        if (!core::imatch(current_token().value, "swap"))
-        {
-            return error_node();
-        }
-        else
-            next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR205 - Expected '(' at start of swap statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr variable0 = error_node();
-        expression_node_ptr variable1 = error_node();
-
-        bool variable0_generated = false;
-        bool variable1_generated = false;
-
-        const std::string var0_name = current_token().value;
-
-        if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR206 - Expected a symbol for variable or vector element definition",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            if (nullptr == (variable0 = parse_vector()))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR207 - First parameter to swap is an invalid vector element: '" +
-                                   var0_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            variable0_generated = true;
-        }
-        else
-        {
-            if (symtab_store_.is_variable(var0_name))
-            {
-                variable0 = symtab_store_.get_variable(var0_name);
-            }
-
-            const scope_element& se = sem_.get_element(var0_name);
-
-            if ((se.active) && (se.name == var0_name) &&
-                (scope_element::element_type::e_variable == se.type))
-            {
-                variable0 = se.var_node;
-            }
-
-            lodge_symbol(var0_name, symbol_type::e_st_variable);
-
-            if (nullptr == variable0)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR208 - First parameter to swap is an invalid variable: '" + var0_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else
-                next_token();
-        }
-
-        if (!token_is(token_t::e_comma))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR209 - Expected ',' between parameters to swap",
-                                 core::error_location()));
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            return error_node();
-        }
-
-        const std::string var1_name = current_token().value;
-
-        if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR210 - Expected a symbol for variable or vector element definition",
-                           core::error_location()));
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            return error_node();
-        }
-        else if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            if (nullptr == (variable1 = parse_vector()))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR211 - Second parameter to swap is an invalid vector element: '" +
-                                   var1_name + "'",
-                               core::error_location()));
-
-                if (variable0_generated)
-                {
-                    free_node(node_allocator_, variable0);
-                }
-
-                return error_node();
-            }
-
-            variable1_generated = true;
-        }
-        else
-        {
-            if (symtab_store_.is_variable(var1_name))
-            {
-                variable1 = symtab_store_.get_variable(var1_name);
-            }
-
-            const scope_element& se = sem_.get_element(var1_name);
-
-            if ((se.active) && (se.name == var1_name) &&
-                (scope_element::element_type::e_variable == se.type))
-            {
-                variable1 = se.var_node;
-            }
-
-            lodge_symbol(var1_name, symbol_type::e_st_variable);
-
-            if (nullptr == variable1)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR212 - Second parameter to swap is an invalid variable: '" + var1_name + "'",
-                    core::error_location()));
-
-                if (variable0_generated)
-                {
-                    free_node(node_allocator_, variable0);
-                }
-
-                return error_node();
-            }
-            else
-                next_token();
-        }
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR213 - Expected ')' at end of swap statement",
-                                 core::error_location()));
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            if (variable1_generated)
-            {
-                free_node(node_allocator_, variable1);
-            }
-
-            return error_node();
-        }
-
-        using variable_node_ptr = details::variable_node<T>*;
-
-        variable_node_ptr v0 = variable_node_ptr(0);
-        variable_node_ptr v1 = variable_node_ptr(0);
-
-        expression_node_ptr result = error_node();
-
-        if ((nullptr != (v0 = static_cast<variable_node_ptr>(variable0->as_variable_node()))) &&
-            (nullptr != (v1 = static_cast<variable_node_ptr>(variable1->as_variable_node()))))
-        {
-            result = node_allocator_.allocate<details::swap_node<T>>(v0, v1);
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            if (variable1_generated)
-            {
-                free_node(node_allocator_, variable1);
-            }
-        }
-        else
-            result = node_allocator_.allocate<details::swap_generic_node<T>>(variable0, variable1);
-
-        state_.activate_side_effect("parse_swap_statement()");
-
-        return result;
+        statement_context context(*this);
+        return parser_statement<T>::parse_swap_statement(context);
     }
 
 #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
     inline expression_node_ptr parse_return_statement()
     {
-        if (state_.parsing_return_stmt)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR214 - Return call within a return call is not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_bool_negator sbn(state_.parsing_return_stmt);
-
-        std::vector<expression_node_ptr> arg_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        if (!core::imatch(current_token().value, "return"))
-        {
-            return error_node();
-        }
-        else
-            next_token();
-
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR215 - Expected '[' at start of return statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rsqrbracket))
-        {
-            for (;;)
-            {
-                expression_node_ptr arg = parse_expression();
-
-                if (nullptr == arg)
-                    return error_node();
-
-                arg_list.push_back(arg);
-
-                if (token_is(token_t::e_rsqrbracket))
-                    break;
-                else if (!token_is(token_t::e_comma))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR216 - Expected ',' between values during call to return",
-                                   core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-        else if (settings_.zero_return_disabled())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR217 - Zero parameter return statement not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const lexer::token prev_token = current_token();
-
-        if (token_is(token_t::e_rsqrbracket))
-        {
-            if (!arg_list.empty())
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
-                                     "ERR218 - Invalid ']' found during return call",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        std::string ret_param_type_list;
-
-        for (std::size_t i = 0; i < arg_list.size(); ++i)
-        {
-            if (nullptr == arg_list[i])
-                return error_node();
-            else if (is_ivector_node(arg_list[i]))
-                ret_param_type_list += 'V';
-            else if (is_generally_string_node(arg_list[i]))
-                ret_param_type_list += 'S';
-            else
-                ret_param_type_list += 'T';
-        }
-
-        dec_.retparam_list_.push_back(ret_param_type_list);
-
-        expression_node_ptr result = expression_generator_.return_call(arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-
-        state_.return_stmt_present = true;
-
-        state_.activate_side_effect("parse_return_statement()");
-
-        return result;
+        statement_context context(*this);
+        return parser_statement<T>::parse_return_statement(context);
     }
 #else
     inline expression_node_ptr parse_return_statement()
@@ -4809,176 +4643,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_assert_statement()
     {
-        assert(core::imatch(current_token().value, "assert"));
-
-        if (state_.parsing_assert_stmt)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR219 - Assert statement within an assert statement is not allowed",
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_bool_negator sbn(state_.parsing_assert_stmt);
-
-        next_token();
-
-        std::vector<expression_node_ptr> assert_arg_list(3, error_node());
-        scoped_vec_delete<expression_node_t> svd((*this), assert_arg_list);
-
-        expression_node_ptr& assert_condition = assert_arg_list[0];
-        expression_node_ptr& assert_message = assert_arg_list[1];
-        expression_node_ptr& assert_id = assert_arg_list[2];
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR220 - Expected '(' at start of assert statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const token_t start_token = current_token();
-
-        // Parse the assert condition
-        if (nullptr == (assert_condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR221 - Failed to parse condition for assert statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const token_t end_token = current_token();
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            if (!token_is(token_t::e_comma))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR222 - Expected ',' between condition and message for assert statement",
-                    core::error_location()));
-
-                return error_node();
-            }
-            // Parse the assert message
-            else if ((nullptr == (assert_message = parse_expression())) ||
-                     !details::is_generally_string_node(assert_message))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR223 - " +
-                        (assert_message
-                             ? std::string("Expected string for assert message")
-                             : std::string("Failed to parse message for assert statement")),
-                    core::error_location()));
-
-                return error_node();
-            }
-            else if (!token_is(token_t::e_rbracket))
-            {
-                if (!token_is(token_t::e_comma))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR224 - Expected ',' between message and ID for assert statement",
-                        core::error_location()));
-
-                    return error_node();
-                }
-                // Parse assert ID
-                else if ((nullptr == (assert_id = parse_expression())) ||
-                         !details::is_const_string_node(assert_id))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR225 - " + (assert_id
-                                           ? std::string("Expected literal string for assert ID")
-                                           : std::string("Failed to parse string for assert ID")),
-                        core::error_location()));
-
-                    return error_node();
-                }
-                else if (!token_is(token_t::e_rbracket))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR226 - Expected ')' at start of assert statement",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        math_expr::assert_check::assert_context context;
-        context.condition = lexer().substr(start_token.position, end_token.position);
-        context.offet = start_token.position;
-
-        if (nullptr == assert_check_)
-        {
-            core::debug_print(
-                "parse_assert_statement() - assert functionality is disabled. assert "
-                "condition: %s\n",
-                context.condition.c_str());
-
-            return new details::null_node<T>();
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (assert_message && details::is_const_string_node(assert_message))
-        {
-            auto* sbn_msg = assert_message->as_string_base();
-            assert(sbn_msg);
-            context.message = sbn_msg->str();
-        }
-
-        if (assert_id && details::is_const_string_node(assert_id))
-        {
-            auto* sbn_id = assert_id->as_string_base();
-            assert(sbn_id);
-            context.id = sbn_id->str();
-
-            if (assert_ids_.end() != assert_ids_.find(context.id))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR227 - Duplicate assert ID: " + context.id,
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            assert_ids_.insert(context.id);
-            free_node(node_allocator_, assert_id);
-        }
-#endif
-
-        expression_node_ptr result_node =
-            expression_generator_.assert_call(assert_condition, assert_message, context);
-
-        core::debug_print("parse_assert_statement() - assert condition: [%s]\n",
-                          context.condition.c_str());
-        core::debug_print("parse_assert_statement() - assert message:   [%s]\n",
-                          context.message.c_str());
-        core::debug_print("parse_assert_statement() - assert id:        [%s]\n",
-                          context.id.c_str());
-        core::debug_print("parse_assert_statement() - assert offset:    [%d]\n",
-                          static_cast<int>(context.offet));
-
-        if (nullptr == result_node)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR228 - Failed to synthesize assert", core::error_location()));
-
-            return error_node();
-        }
-
-        svd.delete_ptr = false;
-        return result_node;
+        statement_context context(*this);
+        return parser_statement<T>::parse_assert_statement(context);
     }
 
     inline bool post_variable_process(const std::string& symbol)
