@@ -13899,6 +13899,25 @@ TEST_CASE("Switch parser delegation remains stable", "[parser][switch]")
     }
 }
 
+TEST_CASE("Vararg parser delegation remains stable", "[parser][vararg]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 3> programs = {{
+        {"sum(1,2,3,4)", numeric_type(10)},
+        {"avg(2,4,6,8)", numeric_type(5)},
+        {"~{1; 2; 7;}", numeric_type(7)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
