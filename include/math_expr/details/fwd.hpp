@@ -68,6 +68,10 @@ class cob_base_node;
 template <typename T>
 class boc_base_node;
 template <typename T>
+class scalar_pow_base_node;
+template <typename T>
+class branch_pow_base_node;
+template <typename T>
 class T0oT1oT2_base_node;
 template <typename T>
 class T0oT1oT2oT3_base_node;

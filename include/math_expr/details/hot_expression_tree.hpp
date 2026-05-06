@@ -50,6 +50,24 @@ class hot_expression_tree
         const T* ref;
     };
 
+    struct scalar_pow_data
+    {
+        using powfun_t = typename node_variant_adapter_t::scalar_pow_base_node_t::powfun_t;
+
+        powfun_t pow_function;
+        bool reciprocal;
+        const T* ref;
+    };
+
+    struct branch_pow_data
+    {
+        using powfun_t = typename node_variant_adapter_t::branch_pow_base_node_t::powfun_t;
+
+        powfun_t pow_function;
+        bool reciprocal;
+        node_index_t child;
+    };
+
     struct unary_branch_data
     {
         core::operators::operator_type operation;
@@ -118,9 +136,10 @@ class hot_expression_tree
         binary_functor_t f;
     };
 
-    using node_data_t = std::variant<literal_data, variable_data, unary_data, binary_data,
-                                     trinary_data, uv_data, unary_branch_data, vov_data, cov_data,
-                                     voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data>;
+    using node_data_t =
+        std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
+                     scalar_pow_data, branch_pow_data, unary_branch_data, vov_data, cov_data,
+                     voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data>;
 
     struct node
     {
@@ -213,6 +232,18 @@ class hot_expression_tree
             T operator()(const uv_data& data) const
             {
                 return core::operators::process<T>(data.operation, *data.ref);
+            }
+
+            T operator()(const scalar_pow_data& data) const
+            {
+                const T base = data.pow_function(*data.ref);
+                return data.reciprocal ? (T(1) / base) : base;
+            }
+
+            T operator()(const branch_pow_data& data) const
+            {
+                const T base = data.pow_function(tree.evaluate(data.child));
+                return data.reciprocal ? (T(1) / base) : base;
             }
 
             T operator()(const unary_branch_data& data) const
@@ -337,6 +368,23 @@ class hot_expression_tree
                                                   typename node_variant_adapter_t::uv_hot_view>)
                 {
                     return emplace(uv_data{view.uv->operation(), &view.uv->v()});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::scalar_pow_hot_view>)
+                {
+                    return emplace(scalar_pow_data{view.pow->pow_function(), view.pow->reciprocal(),
+                                                   &view.pow->v()});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::branch_pow_hot_view>)
+                {
+                    const auto child = append_child(node_variant_adapter_t::branch(view.node));
+                    if (!child.has_value())
+                        return std::nullopt;
+                    return emplace(
+                        branch_pow_data{view.pow->pow_function(), view.pow->reciprocal(), *child});
                 }
                 else if constexpr (std::is_same_v<
                                        view_t,

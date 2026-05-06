@@ -1518,6 +1518,44 @@ class boc_base_node : public expression_node<T>
 };
 
 template <typename T>
+class scalar_pow_base_node : public expression_node<T>
+{
+   public:
+    using powfun_t = T (*)(T);
+
+    virtual ~scalar_pow_base_node() {}
+
+    virtual powfun_t pow_function() const = 0;
+
+    virtual bool reciprocal() const = 0;
+
+    virtual const T& v() const = 0;
+
+    scalar_pow_base_node<T>* as_scalar_pow_base() override
+    {
+        return this;
+    }
+};
+
+template <typename T>
+class branch_pow_base_node : public expression_node<T>
+{
+   public:
+    using powfun_t = T (*)(T);
+
+    virtual ~branch_pow_base_node() {}
+
+    virtual powfun_t pow_function() const = 0;
+
+    virtual bool reciprocal() const = 0;
+
+    branch_pow_base_node<T>* as_branch_pow_base() override
+    {
+        return this;
+    }
+};
+
+template <typename T>
 class uv_base_node : public expression_node<T>
 {
    public:
@@ -3423,11 +3461,12 @@ class sosos_node final : public sosos_base_node<T>
 #endif
 
 template <typename T, typename PowOp>
-class ipow_node final : public expression_node<T>
+class ipow_node final : public scalar_pow_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
     using operation_t = PowOp;
+    using powfun_t = typename scalar_pow_base_node<T>::powfun_t;
 
     explicit ipow_node(const T& v) : v_(v) {}
 
@@ -3441,6 +3480,21 @@ class ipow_node final : public expression_node<T>
         return expression_node<T>::node_type::e_ipow;
     }
 
+    inline powfun_t pow_function() const override
+    {
+        return &PowOp::result;
+    }
+
+    inline bool reciprocal() const override
+    {
+        return false;
+    }
+
+    inline const T& v() const override
+    {
+        return v_;
+    }
+
    private:
     ipow_node(const ipow_node<T, PowOp>&) = delete;
     ipow_node<T, PowOp>& operator=(const ipow_node<T, PowOp>&) = delete;
@@ -3449,12 +3503,13 @@ class ipow_node final : public expression_node<T>
 };
 
 template <typename T, typename PowOp>
-class bipow_node final : public expression_node<T>
+class bipow_node final : public branch_pow_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = PowOp;
+    using powfun_t = typename branch_pow_base_node<T>::powfun_t;
 
     explicit bipow_node(expression_ptr branch)
     {
@@ -3477,6 +3532,26 @@ class bipow_node final : public expression_node<T>
         return branch_.first && branch_.first->valid();
     }
 
+    inline powfun_t pow_function() const override
+    {
+        return &PowOp::result;
+    }
+
+    inline bool reciprocal() const override
+    {
+        return false;
+    }
+
+    inline expression_node<T>* branch(const std::size_t&) const override
+    {
+        return branch_.first;
+    }
+
+    void release_branch() override
+    {
+        branch_.second = false;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(branch_, node_delete_list);
@@ -3495,11 +3570,12 @@ class bipow_node final : public expression_node<T>
 };
 
 template <typename T, typename PowOp>
-class ipowinv_node final : public expression_node<T>
+class ipowinv_node final : public scalar_pow_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
     using operation_t = PowOp;
+    using powfun_t = typename scalar_pow_base_node<T>::powfun_t;
 
     explicit ipowinv_node(const T& v) : v_(v) {}
 
@@ -3513,6 +3589,21 @@ class ipowinv_node final : public expression_node<T>
         return expression_node<T>::node_type::e_ipowinv;
     }
 
+    inline powfun_t pow_function() const override
+    {
+        return &PowOp::result;
+    }
+
+    inline bool reciprocal() const override
+    {
+        return true;
+    }
+
+    inline const T& v() const override
+    {
+        return v_;
+    }
+
    private:
     ipowinv_node(const ipowinv_node<T, PowOp>&) = delete;
     ipowinv_node<T, PowOp>& operator=(const ipowinv_node<T, PowOp>&) = delete;
@@ -3521,12 +3612,13 @@ class ipowinv_node final : public expression_node<T>
 };
 
 template <typename T, typename PowOp>
-class bipowinv_node final : public expression_node<T>
+class bipowinv_node final : public branch_pow_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
     using operation_t = PowOp;
+    using powfun_t = typename branch_pow_base_node<T>::powfun_t;
 
     explicit bipowinv_node(expression_ptr branch)
     {
@@ -3547,6 +3639,26 @@ class bipowinv_node final : public expression_node<T>
     inline bool valid() const override
     {
         return branch_.first && branch_.first->valid();
+    }
+
+    inline powfun_t pow_function() const override
+    {
+        return &PowOp::result;
+    }
+
+    inline bool reciprocal() const override
+    {
+        return true;
+    }
+
+    inline expression_node<T>* branch(const std::size_t&) const override
+    {
+        return branch_.first;
+    }
+
+    void release_branch() override
+    {
+        branch_.second = false;
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override

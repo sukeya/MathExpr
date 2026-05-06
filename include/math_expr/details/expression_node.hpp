@@ -284,6 +284,14 @@ class expression_node : public node_collector_interface<expression_node<T>>,
     {
         return nullptr;
     }
+    virtual scalar_pow_base_node<T>* as_scalar_pow_base()
+    {
+        return nullptr;
+    }
+    virtual branch_pow_base_node<T>* as_branch_pow_base()
+    {
+        return nullptr;
+    }
     virtual T0oT1oT2_base_node<T>* as_T0oT1oT2_base()
     {
         return nullptr;

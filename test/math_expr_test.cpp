@@ -14595,6 +14595,23 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         test_support::require_compiles("s", cold_parser, cold_expression);
         REQUIRE(cold_expression.get_control_block());
         CHECK(cold_expression.get_control_block()->hot_tree == nullptr);
+
+        math_expr::expression<numeric_type> scalar_pow_expression;
+        scalar_pow_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> scalar_pow_parser;
+        test_support::require_compiles("x^5", scalar_pow_parser, scalar_pow_expression);
+        REQUIRE(scalar_pow_expression.get_control_block());
+        REQUIRE(scalar_pow_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(scalar_pow_expression.value() == numeric_type(16807));
+
+        math_expr::expression<numeric_type> branch_pow_expression;
+        branch_pow_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> branch_pow_parser;
+        branch_pow_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("(x + 1)^5", branch_pow_parser, branch_pow_expression);
+        REQUIRE(branch_pow_expression.get_control_block());
+        REQUIRE(branch_pow_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(branch_pow_expression.value() == numeric_type(32768));
     }
 }
 

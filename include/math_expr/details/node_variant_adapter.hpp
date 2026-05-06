@@ -58,6 +58,8 @@ class node_variant_adapter
     using uv_base_node_t = uv_base_node<T>;
     using cob_base_node_t = cob_base_node<T>;
     using boc_base_node_t = boc_base_node<T>;
+    using scalar_pow_base_node_t = scalar_pow_base_node<T>;
+    using branch_pow_base_node_t = branch_pow_base_node<T>;
     using t0ot1ot2_base_node_t = T0oT1oT2_base_node<T>;
     using t0ot1ot2ot3_base_node_t = T0oT1oT2oT3_base_node<T>;
     using uvouv_node_t = uvouv_node<T>;
@@ -156,6 +158,18 @@ class node_variant_adapter
         uv_base_node_t* uv;
     };
 
+    struct scalar_pow_hot_view
+    {
+        expression_ptr node;
+        scalar_pow_base_node_t* pow;
+    };
+
+    struct branch_pow_hot_view
+    {
+        expression_ptr node;
+        branch_pow_base_node_t* pow;
+    };
+
     struct unary_branch_hot_view
     {
         expression_ptr node;
@@ -222,9 +236,9 @@ class node_variant_adapter
 
     using hot_variant_type =
         std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
-                     trinary_hot_view, uv_hot_view, unary_branch_hot_view, vov_hot_view,
-                     cov_hot_view, voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view,
-                     boc_hot_view, uvouv_hot_view, fallback_view>;
+                     trinary_hot_view, uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view,
+                     unary_branch_hot_view, vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view,
+                     bov_hot_view, cob_hot_view, boc_hot_view, uvouv_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -390,6 +404,15 @@ class node_variant_adapter
         if (auto* uv = node->as_uv_base_node(); nullptr != uv)
         {
             return uv_hot_view{node, uv};
+        }
+        else if (auto* pow = node->as_scalar_pow_base(); nullptr != pow)
+        {
+            return scalar_pow_hot_view{node, pow};
+        }
+        else if (auto* pow = node->as_branch_pow_base();
+                 (nullptr != pow) && (nullptr != node->branch(0)))
+        {
+            return branch_pow_hot_view{node, pow};
         }
         else if (const auto operation = unary_branch_operation(node->type());
                  operation.has_value() && (nullptr != node->branch(0)))
@@ -662,6 +685,19 @@ class node_variant_adapter
             T operator()(const uv_hot_view& view) const
             {
                 return core::operators::process<T>(view.uv->operation(), view.uv->v());
+            }
+
+            T operator()(const scalar_pow_hot_view& view) const
+            {
+                const T base = view.pow->pow_function()(view.pow->v());
+                return view.pow->reciprocal() ? (T(1) / base) : base;
+            }
+
+            T operator()(const branch_pow_hot_view& view) const
+            {
+                const T base =
+                    view.pow->pow_function()(node_variant_adapter::value(view.pow->branch(0)));
+                return view.pow->reciprocal() ? (T(1) / base) : base;
             }
 
             T operator()(const unary_branch_hot_view& view) const
