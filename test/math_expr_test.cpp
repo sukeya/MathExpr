@@ -13881,6 +13881,24 @@ TEST_CASE("Control-flow parser delegation remains stable", "[parser][control-flo
     }
 }
 
+TEST_CASE("Switch parser delegation remains stable", "[parser][switch]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"switch { case 0 : 1; case 2 - 2 : 3; default : 9; }", numeric_type(9)},
+        {"[*] { case 1 > 2 : 4; case 3 > 2 : 8; }", numeric_type(8)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
