@@ -13954,6 +13954,24 @@ TEST_CASE("Range parser delegation remains stable", "[parser][range]")
     }
 }
 
+TEST_CASE("String range parser delegation remains stable", "[parser][string-range]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"'01234567890123456789'[3:3] == '3'[:]", numeric_type(1)},
+        {"'01234567890123456789'[0:9] == '0123456789'[:]", numeric_type(1)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());

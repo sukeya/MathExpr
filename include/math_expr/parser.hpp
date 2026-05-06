@@ -70,6 +70,7 @@ limitations under the License.
 #include "math_expr/parser/control_flow_parser.hpp"
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
+#include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
 
@@ -1957,6 +1958,69 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+    struct string_range_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using range_t = typename parser<T>::range_t;
+
+        explicit string_range_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
+        {
+            return parser_.parse_range(rp, skip_lsqr);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline expression_node_ptr make_string_size_node(expression_node_ptr expression)
+        {
+            return node_allocator.template allocate<details::string_nodes::string_size_node<T>>(
+                expression);
+        }
+
+        inline expression_node_ptr string_range(expression_node_ptr expression, range_t& rp)
+        {
+            return parser_.expression_generator_(expression, rp);
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline bool errors_empty() const
+        {
+            return parser_.error_list_.empty();
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+#endif
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -2377,56 +2441,8 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_string_range_statement(expression_node_ptr& expression)
     {
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR108 - Expected '[' as start of string range definition",
-                                 core::error_location()));
-
-            free_node(node_allocator_, expression);
-
-            return error_node();
-        }
-        else if (token_is(token_t::e_rsqrbracket))
-        {
-            return node_allocator_.allocate<details::string_nodes::string_size_node<T>>(expression);
-        }
-
-        range_t rp;
-
-        if (!parse_range(rp, true))
-        {
-            free_node(node_allocator_, expression);
-
-            return error_node();
-        }
-
-        expression_node_ptr result = expression_generator_(expression, rp);
-
-        if (nullptr == result)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR109 - Failed to generate string range node",
-                                 core::error_location()));
-
-            free_node(node_allocator_, expression);
-            rp.free();
-        }
-
-        rp.clear();
-
-        if (result && result->valid())
-        {
-            return result;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR110 - Failed to synthesize node: string_range_node",
-                             core::error_location()));
-
-        free_node(node_allocator_, result);
-        rp.free();
-        return error_node();
+        string_range_context context(*this);
+        return parser_string_range<T>::parse_string_range_statement(context, expression);
     }
 #else
     inline expression_node_ptr parse_string_range_statement(expression_node_ptr&)
@@ -2437,19 +2453,12 @@ class parser : public lexer::parser_helper
 
     inline bool parse_pending_string_rangesize(expression_node_ptr& expression)
     {
-        // Allow no more than 100 range calls, eg: s[][][]...[][]
-        const std::size_t max_rangesize_parses = 100;
-
-        std::size_t i = 0;
-
-        while ((nullptr != expression) && (i++ < max_rangesize_parses) && error_list_.empty() &&
-               is_generally_string_node(expression) &&
-               token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            expression = parse_string_range_statement(expression);
-        }
-
-        return (i > 1);
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        string_range_context context(*this);
+        return parser_string_range<T>::parse_pending_string_rangesize(context, expression);
+#else
+        return false;
+#endif
     }
 
     inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
