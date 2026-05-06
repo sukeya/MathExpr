@@ -47,6 +47,9 @@ class node_variant_adapter
     using string_base_node_t = string_base_node<T>;
     using string_literal_node_t = string_literal_node<T>;
     using stringvar_node_t = string_nodes::stringvar_node<T>;
+    using uv_base_node_t = uv_base_node<T>;
+    using t0ot1ot2_base_node_t = T0oT1oT2_base_node<T>;
+    using t0ot1ot2ot3_base_node_t = T0oT1oT2oT3_base_node<T>;
 
     struct null_view
     {
@@ -255,6 +258,26 @@ class node_variant_adapter
     static inline bool is_variable(expression_ptr node)
     {
         return nullptr != variable(node);
+    }
+
+    static inline expression_ptr branch(expression_ptr node, const std::size_t index = 0)
+    {
+        return node ? node->branch(index) : nullptr;
+    }
+
+    static inline uv_base_node_t* unary_variable_base(expression_ptr node)
+    {
+        return node ? node->as_uv_base_node() : nullptr;
+    }
+
+    static inline t0ot1ot2_base_node_t* t0ot1ot2_base(expression_ptr node)
+    {
+        return node ? node->as_T0oT1oT2_base() : nullptr;
+    }
+
+    static inline t0ot1ot2ot3_base_node_t* t0ot1ot2ot3_base(expression_ptr node)
+    {
+        return node ? node->as_T0oT1oT2oT3_base() : nullptr;
     }
 };
 }  // namespace math_expr::details

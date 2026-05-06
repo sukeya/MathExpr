@@ -1283,13 +1283,13 @@ class parser : public lexer::parser_helper
         {
             using ubn_t = details::unary_branch_node<T, details::neg_op<T>>;
             ubn_t* n = (node->type() == details::expression_node<T>::node_type::e_neg &&
-                        !node->as_uv_base_node())
+                        !details::node_variant_adapter<T>::unary_variable_base(node))
                            ? static_cast<ubn_t*>(node)
                            : nullptr;
 
             if (n)
             {
-                expression_node_ptr un_r = n->branch(0);
+                expression_node_ptr un_r = details::node_variant_adapter<T>::branch(n);
                 n->release();
                 free_node(node_allocator_, node);
                 node = un_r;
@@ -1302,7 +1302,7 @@ class parser : public lexer::parser_helper
             using uvn_t = details::unary_variable_node<T, details::neg_op<T>>;
 
             uvn_t* n = (node->type() == details::expression_node<T>::node_type::e_neg &&
-                        node->as_uv_base_node())
+                        details::node_variant_adapter<T>::unary_variable_base(node))
                            ? static_cast<uvn_t*>(node)
                            : nullptr;
 
@@ -4649,15 +4649,15 @@ class parser : public lexer::parser_helper
                 return cstrrng_str;
             else if (details::is_t0ot1ot2_node(branch))
             {
-                auto* b3 = branch->as_T0oT1oT2_base();
+                auto* b3 = node_variant_adapter_t::t0ot1ot2_base(branch);
                 assert(b3);
-                return "(" + static_cast<details::T0oT1oT2_base_node<T>*>(b3)->type_id() + ")";
+                return "(" + b3->type_id() + ")";
             }
             else if (details::is_t0ot1ot2ot3_node(branch))
             {
-                auto* b4 = branch->as_T0oT1oT2oT3_base();
+                auto* b4 = node_variant_adapter_t::t0ot1ot2ot3_base(branch);
                 assert(b4);
-                return "(" + static_cast<details::T0oT1oT2oT3_base_node<T>*>(b4)->type_id() + ")";
+                return "(" + b4->type_id() + ")";
             }
             else
                 return "ERROR";

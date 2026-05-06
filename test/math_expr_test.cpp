@@ -14404,6 +14404,26 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::parser<numeric_type> null_parser;
         test_support::require_compiles("null + 7", null_parser, null_expression);
         CHECK(null_expression.value() == numeric_type(7));
+
+        math_expr::expression<numeric_type> neg_variable_expression;
+        neg_variable_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> neg_variable_parser;
+        test_support::require_compiles("-x", neg_variable_parser, neg_variable_expression);
+        REQUIRE(neg_variable_expression.get_control_block());
+        REQUIRE(neg_variable_expression.get_control_block()->expr);
+        auto* unary_variable_base =
+            adapter_t::unary_variable_base(neg_variable_expression.get_control_block()->expr);
+        REQUIRE(unary_variable_base != nullptr);
+        CHECK(&unary_variable_base->v() == &scalar);
+
+        math_expr::expression<numeric_type> neg_branch_expression;
+        neg_branch_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> neg_branch_parser;
+        test_support::require_compiles("-(x + 1)", neg_branch_parser, neg_branch_expression);
+        REQUIRE(neg_branch_expression.get_control_block());
+        REQUIRE(neg_branch_expression.get_control_block()->expr);
+        REQUIRE(adapter_t::branch(neg_branch_expression.get_control_block()->expr) != nullptr);
+        CHECK(neg_branch_expression.value() == numeric_type(-6));
     }
 }
 
