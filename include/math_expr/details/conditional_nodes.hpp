@@ -72,6 +72,21 @@ class conditional_node final : public expression_node<T>
                consequent_.first->valid() && alternative_.first && alternative_.first->valid();
     }
 
+    inline expression_node<T>* branch(const std::size_t& index = 0) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return condition_.first;
+            case 1:
+                return consequent_.first;
+            case 2:
+                return alternative_.first;
+            default:
+                return nullptr;
+        }
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(condition_, node_delete_list);
@@ -122,6 +137,19 @@ class cons_conditional_node final : public expression_node<T>
     {
         return condition_.first && condition_.first->valid() && consequent_.first &&
                consequent_.first->valid();
+    }
+
+    inline expression_node<T>* branch(const std::size_t& index = 0) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return condition_.first;
+            case 1:
+                return consequent_.first;
+            default:
+                return nullptr;
+        }
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override

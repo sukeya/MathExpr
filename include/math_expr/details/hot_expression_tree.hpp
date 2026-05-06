@@ -44,6 +44,14 @@ class hot_expression_tree
         node_index_t arg2;
     };
 
+    struct conditional_data
+    {
+        node_index_t condition;
+        node_index_t consequent;
+        node_index_t alternative;
+        bool has_alternative;
+    };
+
     struct uv_data
     {
         core::operators::operator_type operation;
@@ -143,9 +151,9 @@ class hot_expression_tree
 
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
-                     scalar_pow_data, branch_pow_data, unary_branch_data, vov_data, cov_data,
-                     voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
-                     fallback_subtree_data>;
+                     conditional_data, scalar_pow_data, branch_pow_data, unary_branch_data,
+                     vov_data, cov_data, voc_data, vob_data, bov_data, cob_data, boc_data,
+                     uvouv_data, fallback_subtree_data>;
 
     struct node
     {
@@ -237,6 +245,17 @@ class hot_expression_tree
                 return hot_expression_tree::eval_trinary(data, tree.evaluate(data.arg0),
                                                          tree.evaluate(data.arg1),
                                                          tree.evaluate(data.arg2));
+            }
+
+            T operator()(const conditional_data& data) const
+            {
+                if (is_true(tree.evaluate(data.condition)))
+                {
+                    return tree.evaluate(data.consequent);
+                }
+
+                return data.has_alternative ? tree.evaluate(data.alternative)
+                                            : std::numeric_limits<T>::quiet_NaN();
             }
 
             T operator()(const uv_data& data) const
@@ -383,6 +402,33 @@ class hot_expression_tree
                     if (!arg0.has_value() || !arg1.has_value() || !arg2.has_value())
                         return std::nullopt;
                     return emplace(trinary_data{view.trinary->operation(), *arg0, *arg1, *arg2});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::conditional_hot_view>)
+                {
+                    const auto condition =
+                        append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto consequent =
+                        append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!condition.has_value() || !consequent.has_value())
+                    {
+                        return std::nullopt;
+                    }
+
+                    expression_ptr alternative_node = node_variant_adapter_t::branch(view.node, 2);
+                    if (alternative_node)
+                    {
+                        const auto alternative = append_child(alternative_node);
+                        if (!alternative.has_value())
+                        {
+                            return std::nullopt;
+                        }
+                        return emplace(
+                            conditional_data{*condition, *consequent, *alternative, true});
+                    }
+
+                    return emplace(conditional_data{*condition, *consequent, 0, false});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::uv_hot_view>)

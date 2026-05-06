@@ -14624,6 +14624,16 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
 
         y = numeric_type(5);
         CHECK(mixed_expression.value() == numeric_type(27));
+
+        math_expr::expression<numeric_type> conditional_expression;
+        conditional_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> conditional_parser;
+        conditional_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("y < 3 ? x + 1 : x + 2", conditional_parser,
+                                       conditional_expression);
+        REQUIRE(conditional_expression.get_control_block());
+        REQUIRE(conditional_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(conditional_expression.value() == numeric_type(9));
     }
 }
 

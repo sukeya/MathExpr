@@ -152,6 +152,11 @@ class node_variant_adapter
         trinary_node_t* trinary;
     };
 
+    struct conditional_hot_view
+    {
+        expression_ptr node;
+    };
+
     struct uv_hot_view
     {
         expression_ptr node;
@@ -236,9 +241,10 @@ class node_variant_adapter
 
     using hot_variant_type =
         std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
-                     trinary_hot_view, uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view,
-                     unary_branch_hot_view, vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view,
-                     bov_hot_view, cob_hot_view, boc_hot_view, uvouv_hot_view, fallback_view>;
+                     trinary_hot_view, conditional_hot_view, uv_hot_view, scalar_pow_hot_view,
+                     branch_pow_hot_view, unary_branch_hot_view, vov_hot_view, cov_hot_view,
+                     voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view,
+                     uvouv_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -483,6 +489,13 @@ class node_variant_adapter
                 }
                 return fallback_view{node};
 
+            case expression_node<T>::node_type::e_conditional:
+                if ((nullptr != node->branch(0)) && (nullptr != node->branch(1)))
+                {
+                    return conditional_hot_view{node};
+                }
+                return fallback_view{node};
+
             default:
                 return fallback_view{node};
         }
@@ -680,6 +693,20 @@ class node_variant_adapter
             T operator()(const trinary_hot_view& view) const
             {
                 return trinary_value(view.trinary);
+            }
+
+            T operator()(const conditional_hot_view& view) const
+            {
+                const T condition =
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                if (is_true(condition))
+                {
+                    return node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                }
+
+                expression_ptr alternative = node_variant_adapter::branch(view.node, 2);
+                return alternative ? node_variant_adapter::value(alternative)
+                                   : std::numeric_limits<T>::quiet_NaN();
             }
 
             T operator()(const uv_hot_view& view) const
