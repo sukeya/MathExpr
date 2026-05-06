@@ -131,6 +131,11 @@ class null_eq_node final : public expression_node<T>
         return branch_.first;
     }
 
+    inline bool equality() const
+    {
+        return equality_;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(branch_, node_delete_list);

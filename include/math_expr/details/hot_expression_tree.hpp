@@ -52,6 +52,18 @@ class hot_expression_tree
         bool has_alternative;
     };
 
+    struct scand_data
+    {
+        node_index_t lhs;
+        node_index_t rhs;
+    };
+
+    struct scor_data
+    {
+        node_index_t lhs;
+        node_index_t rhs;
+    };
+
     struct uv_data
     {
         core::operators::operator_type operation;
@@ -144,6 +156,12 @@ class hot_expression_tree
         binary_functor_t f;
     };
 
+    struct nulleq_data
+    {
+        node_index_t child;
+        bool equality;
+    };
+
     struct fallback_subtree_data
     {
         expression_ptr node;
@@ -151,9 +169,9 @@ class hot_expression_tree
 
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
-                     conditional_data, scalar_pow_data, branch_pow_data, unary_branch_data,
-                     vov_data, cov_data, voc_data, vob_data, bov_data, cob_data, boc_data,
-                     uvouv_data, fallback_subtree_data>;
+                     conditional_data, scand_data, scor_data, scalar_pow_data, branch_pow_data,
+                     unary_branch_data, vov_data, cov_data, voc_data, vob_data, bov_data, cob_data,
+                     boc_data, uvouv_data, nulleq_data, fallback_subtree_data>;
 
     struct node
     {
@@ -258,6 +276,28 @@ class hot_expression_tree
                                             : std::numeric_limits<T>::quiet_NaN();
             }
 
+            T operator()(const scand_data& data) const
+            {
+                if (!is_true(tree.evaluate(data.lhs)))
+                {
+                    return core::numeric::false_v<T>;
+                }
+
+                return is_true(tree.evaluate(data.rhs)) ? core::numeric::true_v<T>
+                                                        : core::numeric::false_v<T>;
+            }
+
+            T operator()(const scor_data& data) const
+            {
+                if (is_true(tree.evaluate(data.lhs)))
+                {
+                    return core::numeric::true_v<T>;
+                }
+
+                return is_true(tree.evaluate(data.rhs)) ? core::numeric::true_v<T>
+                                                        : core::numeric::false_v<T>;
+            }
+
             T operator()(const uv_data& data) const
             {
                 return core::operators::process<T>(data.operation, *data.ref);
@@ -322,6 +362,17 @@ class hot_expression_tree
             T operator()(const uvouv_data& data) const
             {
                 return data.f(data.u0(*data.v0), data.u1(*data.v1));
+            }
+
+            T operator()(const nulleq_data& data) const
+            {
+                const bool result = core::numeric::is_nan(tree.evaluate(data.child));
+                if (result)
+                {
+                    return data.equality ? core::numeric::true_v<T> : core::numeric::false_v<T>;
+                }
+
+                return data.equality ? core::numeric::false_v<T> : core::numeric::true_v<T>;
             }
 
             T operator()(const fallback_subtree_data& data) const
@@ -431,6 +482,28 @@ class hot_expression_tree
                     return emplace(conditional_data{*condition, *consequent, 0, false});
                 }
                 else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::scand_hot_view>)
+                {
+                    const auto lhs = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!lhs.has_value() || !rhs.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(scand_data{*lhs, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::scor_hot_view>)
+                {
+                    const auto lhs = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!lhs.has_value() || !rhs.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(scor_data{*lhs, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::uv_hot_view>)
                 {
                     return emplace(uv_data{view.uv->operation(), &view.uv->v()});
@@ -514,6 +587,16 @@ class hot_expression_tree
                 {
                     return emplace(uvouv_data{&view.uvouv->v0(), &view.uvouv->v1(),
                                               view.uvouv->u0(), view.uvouv->u1(), view.uvouv->f()});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::nulleq_hot_view>)
+                {
+                    const auto child = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    if (!child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(nulleq_data{*child, view.nulleq->equality()});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

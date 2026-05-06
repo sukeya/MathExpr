@@ -42,6 +42,9 @@ class node_variant_adapter
 {
    public:
     using expression_ptr = expression_node<T>*;
+    using null_eq_node_t = null_eq_node<T>;
+    using and_binary_ext_node_t = binary_ext_node<T, and_op<T>>;
+    using or_binary_ext_node_t = binary_ext_node<T, or_op<T>>;
     using literal_node_t = literal_node<T>;
     using variable_node_t = variable_node<T>;
     using string_base_node_t = string_base_node<T>;
@@ -157,6 +160,16 @@ class node_variant_adapter
         expression_ptr node;
     };
 
+    struct scand_hot_view
+    {
+        expression_ptr node;
+    };
+
+    struct scor_hot_view
+    {
+        expression_ptr node;
+    };
+
     struct uv_hot_view
     {
         expression_ptr node;
@@ -229,6 +242,12 @@ class node_variant_adapter
         uvouv_node_t* uvouv;
     };
 
+    struct nulleq_hot_view
+    {
+        expression_ptr node;
+        null_eq_node_t* nulleq;
+    };
+
     struct fallback_view
     {
         expression_ptr node;
@@ -244,7 +263,7 @@ class node_variant_adapter
                      trinary_hot_view, conditional_hot_view, uv_hot_view, scalar_pow_hot_view,
                      branch_pow_hot_view, unary_branch_hot_view, vov_hot_view, cov_hot_view,
                      voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view,
-                     uvouv_hot_view, fallback_view>;
+                     uvouv_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -428,6 +447,41 @@ class node_variant_adapter
         else if (node->type() == expression_node<T>::node_type::e_uvouv)
         {
             return uvouv_hot_view{node, static_cast<uvouv_node_t*>(node)};
+        }
+        else if ((node->type() == expression_node<T>::node_type::e_binary) &&
+                 ((core::operators::operator_type::logical_and ==
+                   static_cast<binary_node_t*>(node)->operation()) ||
+                  (core::operators::operator_type::scand ==
+                   static_cast<binary_node_t*>(node)->operation())) &&
+                 (nullptr != node->branch(0)) && (nullptr != node->branch(1)))
+        {
+            return scand_hot_view{node};
+        }
+        else if ((node->type() == expression_node<T>::node_type::e_binary) &&
+                 ((core::operators::operator_type::logical_or ==
+                   static_cast<binary_node_t*>(node)->operation()) ||
+                  (core::operators::operator_type::scor ==
+                   static_cast<binary_node_t*>(node)->operation())) &&
+                 (nullptr != node->branch(0)) && (nullptr != node->branch(1)))
+        {
+            return scor_hot_view{node};
+        }
+        else if ((node->type() == expression_node<T>::node_type::e_binary_ext) &&
+                 (nullptr != dynamic_cast<and_binary_ext_node_t*>(node)) &&
+                 (nullptr != node->branch(0)) && (nullptr != node->branch(1)))
+        {
+            return scand_hot_view{node};
+        }
+        else if ((node->type() == expression_node<T>::node_type::e_binary_ext) &&
+                 (nullptr != dynamic_cast<or_binary_ext_node_t*>(node)) &&
+                 (nullptr != node->branch(0)) && (nullptr != node->branch(1)))
+        {
+            return scor_hot_view{node};
+        }
+        else if ((node->type() == expression_node<T>::node_type::e_nulleq) &&
+                 (nullptr != node->branch(0)))
+        {
+            return nulleq_hot_view{node, static_cast<null_eq_node_t*>(node)};
         }
         else if (auto* vov = node->as_vov_base(); nullptr != vov)
         {
@@ -786,6 +840,49 @@ class node_variant_adapter
             {
                 return view.uvouv->f()(view.uvouv->u0()(view.uvouv->v0()),
                                        view.uvouv->u1()(view.uvouv->v1()));
+            }
+
+            T operator()(const scand_hot_view& view) const
+            {
+                if (!is_true(
+                        node_variant_adapter::value(node_variant_adapter::branch(view.node, 0))))
+                {
+                    return core::numeric::false_v<T>;
+                }
+
+                return is_true(
+                           node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)))
+                           ? core::numeric::true_v<T>
+                           : core::numeric::false_v<T>;
+            }
+
+            T operator()(const scor_hot_view& view) const
+            {
+                if (is_true(
+                        node_variant_adapter::value(node_variant_adapter::branch(view.node, 0))))
+                {
+                    return core::numeric::true_v<T>;
+                }
+
+                return is_true(
+                           node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)))
+                           ? core::numeric::true_v<T>
+                           : core::numeric::false_v<T>;
+            }
+
+            T operator()(const nulleq_hot_view& view) const
+            {
+                const T value =
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                const bool result = core::numeric::is_nan(value);
+                if (result)
+                {
+                    return view.nulleq->equality() ? core::numeric::true_v<T>
+                                                   : core::numeric::false_v<T>;
+                }
+
+                return view.nulleq->equality() ? core::numeric::false_v<T>
+                                               : core::numeric::true_v<T>;
             }
 
             T operator()(const fallback_view& view) const

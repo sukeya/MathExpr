@@ -14570,10 +14570,12 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
     {
         numeric_type x = numeric_type(5);
         numeric_type y = numeric_type(2);
+        numeric_type nan_value = numeric_type(4);
         std::string text = "abc";
         math_expr::symbol_table<numeric_type> symbol_table;
         REQUIRE(symbol_table.add_variable("x", x));
         REQUIRE(symbol_table.add_variable("y", y));
+        REQUIRE(symbol_table.add_variable("nanv", nan_value));
         REQUIRE(symbol_table.add_stringvar("s", text));
 
         math_expr::expression<numeric_type> hot_expression;
@@ -14634,6 +14636,47 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(conditional_expression.get_control_block());
         REQUIRE(conditional_expression.get_control_block()->hot_tree != nullptr);
         CHECK(conditional_expression.value() == numeric_type(9));
+
+        math_expr::expression<numeric_type> scand_expression;
+        scand_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> scand_parser;
+        scand_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("(abs(x) > 0) and (y < 3)", scand_parser, scand_expression);
+        REQUIRE(scand_expression.get_control_block());
+        REQUIRE(scand_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::scand_hot_view>(
+            adapter_t::classify_hot(scand_expression.get_control_block()->expr)));
+        CHECK(scand_expression.value() == numeric_type(0));
+
+        y = numeric_type(1);
+        CHECK(scand_expression.value() == numeric_type(1));
+
+        math_expr::expression<numeric_type> scor_expression;
+        scor_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> scor_parser;
+        scor_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("(x < 0) or (abs(y) < 3)", scor_parser, scor_expression);
+        REQUIRE(scor_expression.get_control_block());
+        REQUIRE(scor_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::scor_hot_view>(
+            adapter_t::classify_hot(scor_expression.get_control_block()->expr)));
+        CHECK(scor_expression.value() == numeric_type(1));
+
+        y = numeric_type(5);
+        CHECK(scor_expression.value() == numeric_type(0));
+
+        math_expr::expression<numeric_type> nulleq_expression;
+        nulleq_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> nulleq_parser;
+        test_support::require_compiles("null == nanv", nulleq_parser, nulleq_expression);
+        REQUIRE(nulleq_expression.get_control_block());
+        REQUIRE(nulleq_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::nulleq_hot_view>(
+            adapter_t::classify_hot(nulleq_expression.get_control_block()->expr)));
+        CHECK(nulleq_expression.value() == numeric_type(0));
+
+        nan_value = std::numeric_limits<numeric_type>::quiet_NaN();
+        CHECK(nulleq_expression.value() == numeric_type(1));
     }
 }
 
