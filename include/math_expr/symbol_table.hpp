@@ -618,6 +618,8 @@ class symbol_table
         symtab_mutability_type mutability_;
     };
 
+    using local_data_t = typename control_block::st_data;
+
    public:
     explicit symbol_table(
         const symtab_mutability_type mutability = symtab_mutability_type::e_mutable)
@@ -776,7 +778,7 @@ class symbol_table
     {
         if (!valid())
             return nullptr;
-        else if (!valid_symbol(function_name))
+        else if (!valid_function(function_name))
             return nullptr;
         else
             return local_data().function_registry.get_function(function_name);
@@ -786,7 +788,7 @@ class symbol_table
     {
         if (!valid())
             return nullptr;
-        else if (!valid_symbol(vararg_function_name))
+        else if (!valid_function(vararg_function_name))
             return nullptr;
         else
             return local_data().function_registry.get_vararg_function(vararg_function_name);
@@ -796,7 +798,7 @@ class symbol_table
     {
         if (!valid())
             return nullptr;
-        else if (!valid_symbol(function_name))
+        else if (!valid_function(function_name))
             return nullptr;
         else
             return local_data().function_registry.get_generic_function(function_name);
@@ -806,7 +808,7 @@ class symbol_table
     {
         if (!valid())
             return nullptr;
-        else if (!valid_symbol(function_name))
+        else if (!valid_function(function_name))
             return nullptr;
         else
             return local_data().function_registry.get_string_function(function_name);
@@ -816,7 +818,7 @@ class symbol_table
     {
         if (!valid())
             return nullptr;
-        else if (!valid_symbol(function_name))
+        else if (!valid_function(function_name))
             return nullptr;
         else
             return local_data().function_registry.get_overload_function(function_name);
@@ -1471,8 +1473,6 @@ class symbol_table
 
         return true;
     }
-
-    using local_data_t = typename control_block::st_data;
 
     inline local_data_t& local_data()
     {
