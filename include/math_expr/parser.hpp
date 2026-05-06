@@ -68,6 +68,7 @@ limitations under the License.
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/dynamic_function_parser.hpp"
 #include "math_expr/parser/function_call_parser.hpp"
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
@@ -2170,6 +2171,95 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    class type_checker;
+
+    struct dynamic_function_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using type_checker_t = type_checker;
+
+        explicit dynamic_function_context(parser<T>& parser)
+            : parser_(parser), state(parser.state_), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr vararg_function_call(ivararg_function<T>* function,
+                                                        std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.vararg_function_call(function, arg_list);
+        }
+
+        inline expression_node_ptr generic_function_call(igeneric_function<T>* function,
+                                                         std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.generic_function_call(function, arg_list);
+        }
+
+        inline expression_node_ptr generic_function_call(igeneric_function<T>* function,
+                                                         std::vector<expression_node_ptr>& arg_list,
+                                                         std::size_t param_seq_index)
+        {
+            return parser_.expression_generator_.generic_function_call(function, arg_list,
+                                                                       param_seq_index);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline expression_node_ptr string_function_call(igeneric_function<T>* function,
+                                                        std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.string_function_call(function, arg_list);
+        }
+
+        inline expression_node_ptr string_function_call(igeneric_function<T>* function,
+                                                        std::vector<expression_node_ptr>& arg_list,
+                                                        std::size_t param_seq_index)
+        {
+            return parser_.expression_generator_.string_function_call(function, arg_list,
+                                                                      param_seq_index);
+        }
+#endif
+
+        parser<T>& parser_;
+        parser_state& state;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -2694,90 +2784,9 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_vararg_function_call(ivararg_function<T>* vararg_function,
                                                           const std::string& vararg_function_name)
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        if (token_is(token_t::e_lbracket))
-        {
-            if (token_is(token_t::e_rbracket))
-            {
-                if (!vararg_function->allow_zero_parameters())
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR127 - Zero parameter call to vararg function: " +
-                                             vararg_function_name + " not allowed",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-            else
-            {
-                for (;;)
-                {
-                    expression_node_ptr arg = parse_expression();
-
-                    if (nullptr == arg)
-                        return error_node();
-                    else
-                        arg_list.push_back(arg);
-
-                    if (token_is(token_t::e_rbracket))
-                        break;
-                    else if (!token_is(token_t::e_comma))
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR128 - Expected ',' for call to vararg function: " +
-                                                 vararg_function_name,
-                                             core::error_location()));
-
-                        return error_node();
-                    }
-                }
-            }
-        }
-        else if (!vararg_function->allow_zero_parameters())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR129 - Zero parameter call to vararg function: " +
-                                     vararg_function_name + " not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (arg_list.size() < vararg_function->min_num_args())
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR130 - Invalid number of parameters to call to vararg function: " +
-                    vararg_function_name + ", require at least " +
-                    core::to_str(static_cast<int>(vararg_function->min_num_args())) + " parameters",
-                core::error_location()));
-
-            return error_node();
-        }
-        else if (arg_list.size() > vararg_function->max_num_args())
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR131 - Invalid number of parameters to call to vararg function: " +
-                    vararg_function_name + ", require no more than " +
-                    core::to_str(static_cast<int>(vararg_function->max_num_args())) + " parameters",
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result =
-            expression_generator_.vararg_function_call(vararg_function, arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_vararg_function_call(context, vararg_function,
+                                                                      vararg_function_name);
     }
 
     class type_checker
@@ -3036,106 +3045,9 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_generic_function_call(igeneric_function<T>* function,
                                                            const std::string& function_name)
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        std::string param_type_list;
-
-        type_checker tc((*this), function_name, function->parameter_sequence,
-                        type_checker::e_string);
-
-        if (tc.invalid())
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR136 - Type checker instantiation failure for generic function: " +
-                               function_name,
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        if (token_is(token_t::e_lbracket))
-        {
-            if (token_is(token_t::e_rbracket))
-            {
-                if (!function->allow_zero_parameters() && !tc.allow_zero_parameters())
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR137 - Zero parameter call to generic function: " +
-                                             function_name + " not allowed",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-            else
-            {
-                for (;;)
-                {
-                    expression_node_ptr arg = parse_expression();
-
-                    if (nullptr == arg)
-                        return error_node();
-
-                    if (is_ivector_node(arg))
-                        param_type_list += 'V';
-                    else if (is_generally_string_node(arg))
-                        param_type_list += 'S';
-                    else  // Everything else is assumed to be a scalar returning expression
-                        param_type_list += 'T';
-
-                    arg_list.push_back(arg);
-
-                    if (token_is(token_t::e_rbracket))
-                        break;
-                    else if (!token_is(token_t::e_comma))
-                    {
-                        set_error(make_error(
-                            parser_error::error_mode::e_syntax, current_token(),
-                            "ERR138 - Expected ',' for call to generic function: " + function_name,
-                            core::error_location()));
-
-                        return error_node();
-                    }
-                }
-            }
-        }
-        else if (!function->parameter_sequence.empty() && function->allow_zero_parameters() &&
-                 !tc.allow_zero_parameters())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR139 - Zero parameter call to generic function: " +
-                                     function_name + " not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        std::size_t param_seq_index = 0;
-
-        if (state_.type_check_enabled && !tc.verify(param_type_list, param_seq_index))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR140 - Invalid input parameter sequence for call to generic function: " +
-                    function_name,
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result =
-            (tc.paramseq_count() <= 1)
-                ? expression_generator_.generic_function_call(function, arg_list)
-                : expression_generator_.generic_function_call(function, arg_list, param_seq_index);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_generic_function_call(context, function,
+                                                                       function_name);
     }
 
     inline bool parse_igeneric_function_params(std::string& param_type_list,
@@ -3144,171 +3056,26 @@ class parser : public lexer::parser_helper
                                                igeneric_function<T>* function,
                                                const type_checker& tc)
     {
-        if (token_is(token_t::e_lbracket))
-        {
-            if (token_is(token_t::e_rbracket))
-            {
-                if (!function->allow_zero_parameters() && !tc.allow_zero_parameters())
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR141 - Zero parameter call to generic function: " +
-                                             function_name + " not allowed",
-                                         core::error_location()));
-
-                    return false;
-                }
-            }
-            else
-            {
-                for (;;)
-                {
-                    expression_node_ptr arg = parse_expression();
-
-                    if (nullptr == arg)
-                        return false;
-
-                    if (is_ivector_node(arg))
-                        param_type_list += 'V';
-                    else if (is_generally_string_node(arg))
-                        param_type_list += 'S';
-                    else  // Everything else is a scalar returning expression
-                        param_type_list += 'T';
-
-                    arg_list.push_back(arg);
-
-                    if (token_is(token_t::e_rbracket))
-                        break;
-                    else if (!token_is(token_t::e_comma))
-                    {
-                        set_error(make_error(
-                            parser_error::error_mode::e_syntax, current_token(),
-                            "ERR142 - Expected ',' for call to string function: " + function_name,
-                            core::error_location()));
-
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-        else
-            return false;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_igeneric_function_params(
+            context, param_type_list, arg_list, function_name, function, tc);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function,
                                                           const std::string& function_name)
     {
-        // Move pass the function name
-        next_token();
-
-        std::string param_type_list;
-
-        type_checker tc((*this), function_name, function->parameter_sequence,
-                        type_checker::e_string);
-
-        if ((!function->parameter_sequence.empty()) && (0 == tc.paramseq_count()))
-        {
-            return error_node();
-        }
-
-        std::vector<expression_node_ptr> arg_list;
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        if (!parse_igeneric_function_params(param_type_list, arg_list, function_name, function, tc))
-        {
-            return error_node();
-        }
-
-        std::size_t param_seq_index = 0;
-
-        if (!tc.verify(param_type_list, param_seq_index))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR143 - Invalid input parameter sequence for call to string function: " +
-                    function_name,
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result =
-            (tc.paramseq_count() <= 1)
-                ? expression_generator_.string_function_call(function, arg_list)
-                : expression_generator_.string_function_call(function, arg_list, param_seq_index);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_string_function_call(context, function,
+                                                                      function_name);
     }
 
     inline expression_node_ptr parse_overload_function_call(igeneric_function<T>* function,
                                                             const std::string& function_name)
     {
-        // Move pass the function name
-        next_token();
-
-        std::string param_type_list;
-
-        type_checker tc((*this), function_name, function->parameter_sequence,
-                        type_checker::e_overload);
-
-        if ((!function->parameter_sequence.empty()) && (0 == tc.paramseq_count()))
-        {
-            return error_node();
-        }
-
-        std::vector<expression_node_ptr> arg_list;
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        if (!parse_igeneric_function_params(param_type_list, arg_list, function_name, function, tc))
-        {
-            return error_node();
-        }
-
-        std::size_t param_seq_index = 0;
-
-        if (!tc.verify(param_type_list, param_seq_index))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR144 - Invalid input parameter sequence for call to overloaded function: " +
-                    function_name,
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result = error_node();
-
-        if (type_checker::e_numeric == tc.return_type(param_seq_index))
-        {
-            if (tc.paramseq_count() <= 1)
-                result = expression_generator_.generic_function_call(function, arg_list);
-            else
-                result = expression_generator_.generic_function_call(function, arg_list,
-                                                                     param_seq_index);
-        }
-        else if (type_checker::e_string == tc.return_type(param_seq_index))
-        {
-            if (tc.paramseq_count() <= 1)
-                result = expression_generator_.string_function_call(function, arg_list);
-            else
-                result =
-                    expression_generator_.string_function_call(function, arg_list, param_seq_index);
-        }
-        else
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR145 - Invalid return type for call to overloaded function: " + function_name,
-                core::error_location()));
-        }
-
-        svd.delete_ptr = (nullptr == result);
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_overload_function_call(context, function,
+                                                                        function_name);
     }
 #endif
 
