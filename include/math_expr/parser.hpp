@@ -68,6 +68,7 @@ limitations under the License.
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/function_call_parser.hpp"
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
 #include "math_expr/parser/string_range_parser.hpp"
@@ -2090,202 +2091,106 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct function_call_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using base_ops_map_t = typename parser<T>::base_ops_map_t;
+
+        explicit function_call_context(parser<T>& parser)
+            : parser_(parser),
+              state(parser.state_),
+              base_ops_map(parser.base_ops_map_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        template <std::size_t N>
+        inline expression_node_ptr function(ifunction<T>* function,
+                                            expression_node_ptr (&branch)[N])
+        {
+            return parser_.expression_generator_.function(function, branch);
+        }
+
+        inline expression_node_ptr function(ifunction<T>* function)
+        {
+            return parser_.expression_generator_.function(function);
+        }
+
+        template <std::size_t N>
+        inline expression_node_ptr base_operation(const core::operators::operator_type operation,
+                                                  expression_node_ptr (&branch)[N])
+        {
+            return parser_.expression_generator_(operation, branch);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        parser<T>& parser_;
+        parser_state& state;
+        base_ops_map_t& base_ops_map;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
-        expression_node_ptr func_node = nullptr;
-
-        switch (function->param_count)
-        {
-            case 0:
-                func_node = parse_function_call_0(function, function_name);
-                break;
-            case 1:
-                func_node = parse_function_call<1>(function, function_name);
-                break;
-            case 2:
-                func_node = parse_function_call<2>(function, function_name);
-                break;
-            case 3:
-                func_node = parse_function_call<3>(function, function_name);
-                break;
-            case 4:
-                func_node = parse_function_call<4>(function, function_name);
-                break;
-            case 5:
-                func_node = parse_function_call<5>(function, function_name);
-                break;
-            case 6:
-                func_node = parse_function_call<6>(function, function_name);
-                break;
-            case 7:
-                func_node = parse_function_call<7>(function, function_name);
-                break;
-            case 8:
-                func_node = parse_function_call<8>(function, function_name);
-                break;
-            case 9:
-                func_node = parse_function_call<9>(function, function_name);
-                break;
-            case 10:
-                func_node = parse_function_call<10>(function, function_name);
-                break;
-            case 11:
-                func_node = parse_function_call<11>(function, function_name);
-                break;
-            case 12:
-                func_node = parse_function_call<12>(function, function_name);
-                break;
-            case 13:
-                func_node = parse_function_call<13>(function, function_name);
-                break;
-            case 14:
-                func_node = parse_function_call<14>(function, function_name);
-                break;
-            case 15:
-                func_node = parse_function_call<15>(function, function_name);
-                break;
-            case 16:
-                func_node = parse_function_call<16>(function, function_name);
-                break;
-            case 17:
-                func_node = parse_function_call<17>(function, function_name);
-                break;
-            case 18:
-                func_node = parse_function_call<18>(function, function_name);
-                break;
-            case 19:
-                func_node = parse_function_call<19>(function, function_name);
-                break;
-            case 20:
-                func_node = parse_function_call<20>(function, function_name);
-                break;
-            default:
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR021 - Invalid number of parameters for function: '" + function_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        if (func_node)
-            return func_node;
-        else
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR022 - Failed to generate call to function: '" + function_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
+        function_call_context context(*this);
+        return parser_function_call<T>::parse_function_invocation(context, function, function_name);
     }
 
     template <std::size_t NumberofParameters>
     inline expression_node_ptr parse_function_call(ifunction<T>* function,
                                                    const std::string& function_name)
     {
-        if constexpr (0 == NumberofParameters)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR023 - Expecting ifunction '" + function_name +
-                                     "' to have non-zero parameter count",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else
-        {
-            expression_node_ptr branch[NumberofParameters];
-            expression_node_ptr result = error_node();
-
-            std::fill_n(branch, NumberofParameters, nullptr);
-
-            scoped_delete<expression_node_t, NumberofParameters> sd((*this), branch);
-
-            next_token();
-
-            if (!token_is(token_t::e_lbracket))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR024 - Expecting argument list for function: '" + function_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-
-            for (int i = 0; i < static_cast<int>(NumberofParameters); ++i)
-            {
-                branch[i] = parse_expression();
-
-                if (nullptr == branch[i])
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR025 - Failed to parse argument " + core::to_str(i) +
-                                             " for function: '" + function_name + "'",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-                else if (i < static_cast<int>(NumberofParameters - 1))
-                {
-                    if (!token_is(token_t::e_comma))
-                    {
-                        set_error(
-                            make_error(parser_error::error_mode::e_syntax, current_token(),
-                                       "ERR026 - Invalid number of arguments for function: '" +
-                                           function_name + "'",
-                                       core::error_location()));
-
-                        return error_node();
-                    }
-                }
-            }
-
-            if (!token_is(token_t::e_rbracket))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR027 - Invalid number of arguments for function: '" + function_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else
-                result = expression_generator_.function(function, branch);
-
-            sd.delete_ptr = (nullptr == result);
-
-            return result;
-        }
+        function_call_context context(*this);
+        return parser_function_call<T>::template parse_function_call<NumberofParameters>(
+            context, function, function_name);
     }
 
     inline expression_node_ptr parse_function_call_0(ifunction<T>* function,
                                                      const std::string& function_name)
     {
-        expression_node_ptr result = expression_generator_.function(function);
-
-        state_.side_effect_present = function->has_side_effects();
-
-        next_token();
-
-        if (token_is(token_t::e_lbracket) && !token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR028 - Expecting '()' to proceed call to function: '" + function_name + "'",
-                core::error_location()));
-
-            free_node(node_allocator_, result);
-
-            return error_node();
-        }
-        else
-            return result;
+        function_call_context context(*this);
+        return parser_function_call<T>::parse_function_call_0(context, function, function_name);
     }
 
     template <std::size_t MaxNumberofParameters>
@@ -2293,138 +2198,15 @@ class parser : public lexer::parser_helper
         expression_node_ptr (&param_list)[MaxNumberofParameters],
         const std::string& function_name = "")
     {
-        std::fill_n(param_list, MaxNumberofParameters, nullptr);
-
-        scoped_delete<expression_node_t, MaxNumberofParameters> sd((*this), param_list);
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR029 - Expected a '(' at start of function call to '" +
-                                     function_name + "', instead got: '" + current_token().value +
-                                     "'",
-                                 core::error_location()));
-
-            return 0;
-        }
-
-        if (token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR030 - Expected at least one input parameter for function call '" +
-                               function_name + "'",
-                           core::error_location()));
-
-            return 0;
-        }
-
-        std::size_t param_index = 0;
-
-        for (; param_index < MaxNumberofParameters; ++param_index)
-        {
-            param_list[param_index] = parse_expression();
-
-            if (nullptr == param_list[param_index])
-                return 0;
-            else if (token_is(token_t::e_rbracket))
-            {
-                sd.delete_ptr = false;
-                break;
-            }
-            else if (token_is(token_t::e_comma))
-                continue;
-            else
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR031 - Expected a ',' between function input parameters, instead got: '" +
-                        current_token().value + "'",
-                    core::error_location()));
-
-                return 0;
-            }
-        }
-
-        if (sd.delete_ptr)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR032 - Invalid number of input parameters passed to function '" +
-                               function_name + "'",
-                           core::error_location()));
-
-            return 0;
-        }
-
-        return (param_index + 1);
+        function_call_context context(*this);
+        return parser_function_call<T>::template parse_base_function_call<MaxNumberofParameters>(
+            context, param_list, function_name);
     }
 
     inline expression_node_ptr parse_base_operation()
     {
-        using map_range_t = std::pair<base_ops_map_t::iterator, base_ops_map_t::iterator>;
-
-        const std::string operation_name = current_token().value;
-        const token_t diagnostic_token = current_token();
-
-        map_range_t itr_range = base_ops_map_.equal_range(operation_name);
-
-        if (0 == std::distance(itr_range.first, itr_range.second))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
-                                 "ERR033 - No entry found for base operation: " + operation_name,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        static constexpr std::size_t MaxNumberofParameters = 4;
-        expression_node_ptr param_list[MaxNumberofParameters] = {0};
-
-        const std::size_t parameter_count = parse_base_function_call(param_list, operation_name);
-
-        if ((parameter_count > 0) && (parameter_count <= MaxNumberofParameters))
-        {
-            for (base_ops_map_t::iterator itr = itr_range.first; itr != itr_range.second; ++itr)
-            {
-                const core::operators::base_operation_t& operation = itr->second;
-
-                if (operation.num_params == parameter_count)
-                {
-                    switch (parameter_count)
-                    {
-#define BASE_OPR_CASE(N)                                          \
-    case N:                                                       \
-    {                                                             \
-        expression_node_ptr pl##N[N] = {0};                       \
-        std::copy(param_list, param_list + N, pl##N);             \
-        lodge_symbol(operation_name, symbol_type::e_st_function); \
-        return expression_generator_(operation.type, pl##N);      \
-    }
-
-                        BASE_OPR_CASE(1);
-                        BASE_OPR_CASE(2);
-                        BASE_OPR_CASE(3);
-                        BASE_OPR_CASE(4);
-#undef BASE_OPR_CASE
-                    }
-                }
-            }
-        }
-
-        for (std::size_t i = 0; i < MaxNumberofParameters; ++i)
-        {
-            free_node(node_allocator_, param_list[i]);
-        }
-
-        set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
-                             "ERR034 - Invalid number of input parameters for call to function: '" +
-                                 operation_name + "'",
-                             core::error_location()));
-
-        return error_node();
+        function_call_context context(*this);
+        return parser_function_call<T>::parse_base_operation(context);
     }
 
     inline expression_node_ptr parse_conditional_statement_01(expression_node_ptr condition)
