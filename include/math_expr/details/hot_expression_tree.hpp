@@ -136,10 +136,16 @@ class hot_expression_tree
         binary_functor_t f;
     };
 
+    struct fallback_subtree_data
+    {
+        expression_ptr node;
+    };
+
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
                      scalar_pow_data, branch_pow_data, unary_branch_data, vov_data, cov_data,
-                     voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data>;
+                     voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
+                     fallback_subtree_data>;
 
     struct node
     {
@@ -151,6 +157,10 @@ class hot_expression_tree
         auto tree = std::unique_ptr<hot_expression_tree>(new hot_expression_tree());
         const std::optional<node_index_t> root_index = tree->append(root);
         if (!root_index.has_value())
+        {
+            return nullptr;
+        }
+        else if (0 == tree->compact_node_count_)
         {
             return nullptr;
         }
@@ -294,6 +304,11 @@ class hot_expression_tree
             {
                 return data.f(data.u0(*data.v0), data.u1(*data.v1));
             }
+
+            T operator()(const fallback_subtree_data& data) const
+            {
+                return node_variant_adapter_t::value(data.node);
+            }
         };
 
         return std::visit(visitor{*this}, nodes_[index].data);
@@ -312,8 +327,13 @@ class hot_expression_tree
             return append(child);
         };
 
-        auto emplace = [this](node_data_t data) -> std::optional<node_index_t>
+        auto emplace = [this](node_data_t data,
+                              const bool counts_as_compact = true) -> std::optional<node_index_t>
         {
+            if (counts_as_compact)
+            {
+                ++compact_node_count_;
+            }
             nodes_.push_back(node{std::move(data)});
             return static_cast<node_index_t>(nodes_.size() - 1);
         };
@@ -449,6 +469,11 @@ class hot_expression_tree
                     return emplace(uvouv_data{&view.uvouv->v0(), &view.uvouv->v1(),
                                               view.uvouv->u0(), view.uvouv->u1(), view.uvouv->f()});
                 }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::fallback_view>)
+                {
+                    return emplace(fallback_subtree_data{view.node}, false);
+                }
                 else
                 {
                     return std::nullopt;
@@ -459,6 +484,7 @@ class hot_expression_tree
 
     std::vector<node> nodes_;
     node_index_t root_{0};
+    std::size_t compact_node_count_{0};
 };
 }  // namespace math_expr::details
 

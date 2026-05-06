@@ -14612,6 +14612,18 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(branch_pow_expression.get_control_block());
         REQUIRE(branch_pow_expression.get_control_block()->hot_tree != nullptr);
         CHECK(branch_pow_expression.value() == numeric_type(32768));
+
+        math_expr::expression<numeric_type> mixed_expression;
+        mixed_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> mixed_parser;
+        mixed_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("x + (y < 3 ? 10 : 20)", mixed_parser, mixed_expression);
+        REQUIRE(mixed_expression.get_control_block());
+        REQUIRE(mixed_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(mixed_expression.value() == numeric_type(17));
+
+        y = numeric_type(5);
+        CHECK(mixed_expression.value() == numeric_type(27));
     }
 }
 
