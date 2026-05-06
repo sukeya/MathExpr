@@ -68,6 +68,7 @@ limitations under the License.
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/switch_parser.hpp"
 
 namespace math_expr
 {
@@ -1703,6 +1704,80 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct switch_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit switch_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
+                                                        const bool wrap_sequence = false)
+        {
+            return parser_.parse_multi_sequence(source, wrap_sequence);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr switch_statement(std::vector<expression_node_ptr>& arg_list,
+                                                    const bool default_statement_present)
+        {
+            return parser_.expression_generator_.switch_statement(arg_list,
+                                                                  default_statement_present);
+        }
+
+        inline expression_node_ptr multi_switch_statement(
+            std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.multi_switch_statement(arg_list);
+        }
+
+        inline expression_node_ptr make_nan_literal()
+        {
+            return node_allocator.template allocate_c<literal_node_t>(
+                std::numeric_limits<T>::quiet_NaN());
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -2104,263 +2179,14 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_switch_statement()
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        if (!core::imatch(current_token().value, "switch"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR090 - Expected keyword 'switch'", core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        if (!token_is(token_t::e_lcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR091 - Expected '{' for call to switch statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr default_statement = error_node();
-
-        scoped_expression_delete defstmt_delete((*this), default_statement);
-
-        for (;;)
-        {
-            if (core::imatch("case", current_token().value))
-            {
-                next_token();
-
-                expression_node_ptr condition = parse_expression();
-
-                if (nullptr == condition)
-                    return error_node();
-                else if (!token_is(token_t::e_colon))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR092 - Expected ':' for case of switch statement",
-                                         core::error_location()));
-
-                    free_node(node_allocator_, condition);
-
-                    return error_node();
-                }
-
-                expression_node_ptr consequent =
-                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                        ? parse_multi_sequence("switch-consequent")
-                        : parse_expression();
-
-                if (nullptr == consequent)
-                {
-                    free_node(node_allocator_, condition);
-
-                    return error_node();
-                }
-                else if (!token_is(token_t::e_eof))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR093 - Expected ';' at end of case for switch statement",
-                                   core::error_location()));
-
-                    free_node(node_allocator_, condition);
-                    free_node(node_allocator_, consequent);
-
-                    return error_node();
-                }
-
-                // Can we optimise away the case statement?
-                if (is_constant_node(condition) && is_false(condition))
-                {
-                    free_node(node_allocator_, condition);
-                    free_node(node_allocator_, consequent);
-                }
-                else
-                {
-                    arg_list.push_back(condition);
-                    arg_list.push_back(consequent);
-                }
-            }
-            else if (core::imatch("default", current_token().value))
-            {
-                if (nullptr != default_statement)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR094 - Multiple default cases for switch statement",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                next_token();
-
-                if (!token_is(token_t::e_colon))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR095 - Expected ':' for default of switch statement",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                default_statement =
-                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                        ? parse_multi_sequence("switch-default")
-                        : parse_expression();
-
-                if (nullptr == default_statement)
-                    return error_node();
-                else if (!token_is(token_t::e_eof))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR096 - Expected ';' at end of default for switch statement",
-                                   core::error_location()));
-
-                    return error_node();
-                }
-            }
-            else if (token_is(token_t::e_rcrlbracket))
-                break;
-            else
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR097 - Expected '}' at end of switch statement",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        const bool default_statement_present = (nullptr != default_statement);
-
-        if (default_statement_present)
-        {
-            arg_list.push_back(default_statement);
-        }
-        else
-        {
-            arg_list.push_back(
-                node_allocator_.allocate_c<literal_node_t>(std::numeric_limits<T>::quiet_NaN()));
-        }
-
-        expression_node_ptr result =
-            expression_generator_.switch_statement(arg_list, (nullptr != default_statement));
-
-        svd.delete_ptr = (nullptr == result);
-        defstmt_delete.delete_ptr = (nullptr == result);
-
-        return result;
+        switch_context context(*this);
+        return parser_switch<T>::parse_switch_statement(context);
     }
 
     inline expression_node_ptr parse_multi_switch_statement()
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        if (!core::imatch(current_token().value, "[*]"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR098 - Expected token '[*]'", core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        if (!token_is(token_t::e_lcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR099 - Expected '{' for call to [*] statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        for (;;)
-        {
-            if (!core::imatch("case", current_token().value))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR100 - Expected a 'case' statement for multi-switch",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            next_token();
-
-            expression_node_ptr condition = parse_expression();
-
-            if (nullptr == condition)
-                return error_node();
-
-            if (!token_is(token_t::e_colon))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR101 - Expected ':' for case of [*] statement",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            expression_node_ptr consequent =
-                (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                    ? parse_multi_sequence("multi-switch-consequent")
-                    : parse_expression();
-
-            if (nullptr == consequent)
-                return error_node();
-
-            if (!token_is(token_t::e_eof))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR102 - Expected ';' at end of case for [*] statement",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            // Can we optimise away the case statement?
-            if (is_constant_node(condition) && is_false(condition))
-            {
-                free_node(node_allocator_, condition);
-                free_node(node_allocator_, consequent);
-            }
-            else
-            {
-                arg_list.push_back(condition);
-                arg_list.push_back(consequent);
-            }
-
-            if (token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                break;
-            }
-        }
-
-        if (!token_is(token_t::e_rcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR103 - Expected '}' at end of [*] statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const expression_node_ptr result = expression_generator_.multi_switch_statement(arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        switch_context context(*this);
+        return parser_switch<T>::parse_multi_switch_statement(context);
     }
 
     inline expression_node_ptr parse_vararg_function()
