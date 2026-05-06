@@ -14064,6 +14064,37 @@ TEST_CASE("Dynamic function parser delegation remains stable", "[parser][dynamic
     }
 }
 
+TEST_CASE("Special-case parser delegation remains stable", "[parser][special-case]")
+{
+    SECTION("null and loop-control statements stay stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 3> programs = {{
+            {"null == null", numeric_type(1)},
+            {"for (var i := 0; i < 5; i += 1) { if (i < 2) continue; else break[i]; }",
+             numeric_type(2)},
+            {"for (var i := 0; i < 10; i += 1) { if (i > 2) { break[i * 7]; } }", numeric_type(21)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("invalid special function tokens stay guarded")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compile_fails("$fA0(1,2,3)", parser, expression);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
