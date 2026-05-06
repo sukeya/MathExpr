@@ -36,12 +36,13 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/core/macros.hpp"
 #include "math_expr/core/string_utils.hpp"
+#include "math_expr/function_registry.hpp"
 #include "math_expr/ifunction.hpp"
 #include "math_expr/igeneric_function.hpp"
 #include "math_expr/ivararg_function.hpp"
 #include "math_expr/stringvar_base.hpp"
+#include "math_expr/variable_registry.hpp"
 #include "math_expr/vector_view.hpp"
-#include "math_expr/details/vector_nodes.hpp"
 
 namespace math_expr
 {
@@ -510,6 +511,19 @@ class symbol_table
     using generic_function_ptr = generic_function_t*;
     using variable_store_t = type_store<variable_t, T>;
     using function_store_t = type_store<function_t, function_t, false>;
+    using vararg_function_store_t = type_store<vararg_function_t, vararg_function_t, false>;
+    using generic_function_store_t = type_store<generic_function_t, generic_function_t, false>;
+    using vector_store_t = type_store<vector_holder_t, vector_holder_t>;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+    using stringvar_store_t = type_store<stringvar_t, std::string>;
+    using variable_registry_t =
+        math_expr::variable_registry<T, variable_store_t, vector_store_t, stringvar_store_t>;
+#else
+    using variable_registry_t = math_expr::variable_registry<T, variable_store_t, vector_store_t>;
+#endif
+    using function_registry_t =
+        math_expr::function_registry<T, function_store_t, vararg_function_store_t,
+                                     generic_function_store_t>;
 
     static constexpr std::size_t lut_size = 256;
 
@@ -530,18 +544,30 @@ class symbol_table
     {
         struct st_data
         {
-            type_store<variable_t, T> variable_store;
-            type_store<function_t, function_t, false> function_store;
-            type_store<vararg_function_t, vararg_function_t, false> vararg_function_store;
-            type_store<generic_function_t, generic_function_t, false> generic_function_store;
-            type_store<generic_function_t, generic_function_t, false> string_function_store;
-            type_store<generic_function_t, generic_function_t, false> overload_function_store;
-            type_store<vector_holder_t, vector_holder_t> vector_store;
+            variable_store_t variable_store;
+            function_store_t function_store;
+            vararg_function_store_t vararg_function_store;
+            generic_function_store_t generic_function_store;
+            generic_function_store_t string_function_store;
+            generic_function_store_t overload_function_store;
+            vector_store_t vector_store;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            type_store<stringvar_t, std::string> stringvar_store;
+            stringvar_store_t stringvar_store;
 #endif
+            std::list<T> local_symbol_list_;
+            std::list<std::string> local_stringvar_list_;
+            std::vector<std::unique_ptr<ifunction<T>>> free_function_list_;
+            variable_registry_t variable_registry;
+            function_registry_t function_registry;
+            std::set<std::string> reserved_symbol_table_;
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             st_data()
+                : variable_registry(variable_store, vector_store, stringvar_store,
+                                    local_symbol_list_, local_stringvar_list_),
+                  function_registry(function_store, vararg_function_store, generic_function_store,
+                                    string_function_store, overload_function_store,
+                                    free_function_list_)
             {
                 for (std::size_t i = 0; i < core::reserved_words_size; ++i)
                 {
@@ -553,16 +579,29 @@ class symbol_table
                     reserved_symbol_table_.insert(std::string(core::reserved_symbols[i]));
                 }
             }
+#else
+            st_data()
+                : variable_registry(variable_store, vector_store, local_symbol_list_),
+                  function_registry(function_store, vararg_function_store, generic_function_store,
+                                    string_function_store, overload_function_store,
+                                    free_function_list_)
+            {
+                for (std::size_t i = 0; i < core::reserved_words_size; ++i)
+                {
+                    reserved_symbol_table_.insert(std::string(core::reserved_words[i]));
+                }
+
+                for (std::size_t i = 0; i < core::reserved_symbols_size; ++i)
+                {
+                    reserved_symbol_table_.insert(std::string(core::reserved_symbols[i]));
+                }
+            }
+#endif
 
             inline bool is_reserved_symbol(const std::string& symbol) const
             {
                 return (reserved_symbol_table_.end() != reserved_symbol_table_.find(symbol));
             }
-
-            std::list<T> local_symbol_list_;
-            std::list<std::string> local_stringvar_list_;
-            std::set<std::string> reserved_symbol_table_;
-            std::vector<std::unique_ptr<ifunction<T>>> free_function_list_;
         };
 
         control_block()
@@ -617,29 +656,27 @@ class symbol_table
 
     inline void clear_variables(const bool delete_node = true)
     {
-        local_data().variable_store.clear(delete_node);
+        local_data().variable_registry.clear_variables(delete_node);
     }
 
     inline void clear_functions()
     {
-        local_data().function_store.clear();
+        local_data().function_registry.clear_functions();
     }
 
     inline void clear_strings()
     {
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        local_data().stringvar_store.clear();
-#endif
+        local_data().variable_registry.clear_strings();
     }
 
     inline void clear_vectors()
     {
-        local_data().vector_store.clear();
+        local_data().variable_registry.clear_vectors();
     }
 
     inline void clear_local_constants()
     {
-        local_data().local_symbol_list_.clear();
+        local_data().variable_registry.clear_local_constants();
     }
 
     inline void clear()
@@ -656,7 +693,7 @@ class symbol_table
     inline std::size_t variable_count() const
     {
         if (valid())
-            return local_data().variable_store.size;
+            return local_data().variable_registry.variable_count();
         else
             return 0;
     }
@@ -665,7 +702,7 @@ class symbol_table
     inline std::size_t stringvar_count() const
     {
         if (valid())
-            return local_data().stringvar_store.size;
+            return local_data().variable_registry.stringvar_count();
         else
             return 0;
     }
@@ -674,7 +711,7 @@ class symbol_table
     inline std::size_t function_count() const
     {
         if (valid())
-            return local_data().function_store.size;
+            return local_data().function_registry.function_count();
         else
             return 0;
     }
@@ -682,7 +719,7 @@ class symbol_table
     inline std::size_t vector_count() const
     {
         if (valid())
-            return local_data().vector_store.size;
+            return local_data().variable_registry.vector_count();
         else
             return 0;
     }
@@ -694,7 +731,7 @@ class symbol_table
         else if (!valid_symbol(variable_name))
             return nullptr;
         else
-            return local_data().variable_store.get(variable_name);
+            return local_data().variable_registry.get_variable(variable_name);
     }
 
     inline variable_ptr get_variable(const T& var_ref) const
@@ -702,7 +739,7 @@ class symbol_table
         if (!valid())
             return nullptr;
         else
-            return local_data().variable_store.get_from_varptr(&var_ref);
+            return local_data().variable_registry.get_variable(var_ref);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -713,7 +750,7 @@ class symbol_table
         else if (!valid_symbol(string_name))
             return nullptr;
         else
-            return local_data().stringvar_store.get(string_name);
+            return local_data().variable_registry.get_stringvar(string_name);
     }
 
     inline stringvar_base<T> get_stringvar_base(const std::string& string_name) const
@@ -724,7 +761,7 @@ class symbol_table
         else if (!valid_symbol(string_name))
             return null_stringvar_base;
 
-        stringvar_ptr stringvar = local_data().stringvar_store.get(string_name);
+        stringvar_ptr stringvar = local_data().variable_registry.get_stringvar(string_name);
 
         if (nullptr == stringvar)
         {
@@ -742,7 +779,7 @@ class symbol_table
         else if (!valid_symbol(function_name))
             return nullptr;
         else
-            return local_data().function_store.get(function_name);
+            return local_data().function_registry.get_function(function_name);
     }
 
     inline vararg_function_ptr get_vararg_function(const std::string& vararg_function_name) const
@@ -752,7 +789,7 @@ class symbol_table
         else if (!valid_symbol(vararg_function_name))
             return nullptr;
         else
-            return local_data().vararg_function_store.get(vararg_function_name);
+            return local_data().function_registry.get_vararg_function(vararg_function_name);
     }
 
     inline generic_function_ptr get_generic_function(const std::string& function_name) const
@@ -762,7 +799,7 @@ class symbol_table
         else if (!valid_symbol(function_name))
             return nullptr;
         else
-            return local_data().generic_function_store.get(function_name);
+            return local_data().function_registry.get_generic_function(function_name);
     }
 
     inline generic_function_ptr get_string_function(const std::string& function_name) const
@@ -772,7 +809,7 @@ class symbol_table
         else if (!valid_symbol(function_name))
             return nullptr;
         else
-            return local_data().string_function_store.get(function_name);
+            return local_data().function_registry.get_string_function(function_name);
     }
 
     inline generic_function_ptr get_overload_function(const std::string& function_name) const
@@ -782,7 +819,7 @@ class symbol_table
         else if (!valid_symbol(function_name))
             return nullptr;
         else
-            return local_data().overload_function_store.get(function_name);
+            return local_data().function_registry.get_overload_function(function_name);
     }
 
     using vector_holder_ptr = vector_holder_t*;
@@ -794,7 +831,7 @@ class symbol_table
         else if (!valid_symbol(vector_name))
             return nullptr;
         else
-            return local_data().vector_store.get(vector_name);
+            return local_data().variable_registry.get_vector(vector_name);
     }
 
     inline T& variable_ref(const std::string& symbol_name)
@@ -805,7 +842,7 @@ class symbol_table
         else if (!valid_symbol(symbol_name))
             return null_var;
         else
-            return local_data().variable_store.type_ref(symbol_name);
+            return local_data().variable_registry.variable_ref(symbol_name);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -817,7 +854,7 @@ class symbol_table
         else if (!valid_symbol(symbol_name))
             return null_stringvar;
         else
-            return local_data().stringvar_store.type_ref(symbol_name);
+            return local_data().variable_registry.stringvar_ref(symbol_name);
     }
 #endif
 
@@ -828,7 +865,7 @@ class symbol_table
         else if (!valid_symbol(symbol_name))
             return false;
         else
-            return local_data().variable_store.is_constant(symbol_name);
+            return local_data().variable_registry.is_constant_node(symbol_name);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -838,10 +875,8 @@ class symbol_table
             return false;
         else if (!valid_symbol(symbol_name))
             return false;
-        else if (!local_data().stringvar_store.symbol_exists(symbol_name))
-            return false;
         else
-            return local_data().stringvar_store.is_constant(symbol_name);
+            return local_data().variable_registry.is_constant_string(symbol_name);
     }
 #endif
 
@@ -854,10 +889,7 @@ class symbol_table
         else if (symbol_exists(variable_name))
             return false;
 
-        local_data().local_symbol_list_.push_back(value);
-        T& t = local_data().local_symbol_list_.back();
-
-        return add_variable(variable_name, t);
+        return local_data().variable_registry.create_variable(variable_name, value);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -871,10 +903,7 @@ class symbol_table
         else if (symbol_exists(stringvar_name))
             return false;
 
-        local_data().local_stringvar_list_.push_back(value);
-        std::string& s = local_data().local_stringvar_list_.back();
-
-        return add_stringvar(stringvar_name, s);
+        return local_data().variable_registry.create_stringvar(stringvar_name, value);
     }
 #endif
 
@@ -887,7 +916,7 @@ class symbol_table
         else if (symbol_exists(variable_name))
             return false;
         else
-            return local_data().variable_store.add(variable_name, t, is_constant);
+            return local_data().variable_registry.add_variable(variable_name, t, is_constant);
     }
 
     inline bool add_constant(const std::string& constant_name, const T& value)
@@ -899,10 +928,7 @@ class symbol_table
         else if (symbol_exists(constant_name))
             return false;
 
-        local_data().local_symbol_list_.push_back(value);
-        T& t = local_data().local_symbol_list_.back();
-
-        return add_variable(constant_name, t, true);
+        return local_data().variable_registry.add_constant(constant_name, value);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -916,7 +942,7 @@ class symbol_table
         else if (symbol_exists(stringvar_name))
             return false;
         else
-            return local_data().stringvar_store.add(stringvar_name, s, is_constant);
+            return local_data().variable_registry.add_stringvar(stringvar_name, s, is_constant);
     }
 #endif
 
@@ -929,7 +955,7 @@ class symbol_table
         else if (symbol_exists(function_name))
             return false;
         else
-            return local_data().function_store.add(function_name, function);
+            return local_data().function_registry.add_function(function_name, function);
     }
 
     inline bool add_function(const std::string& vararg_function_name,
@@ -942,7 +968,8 @@ class symbol_table
         else if (symbol_exists(vararg_function_name))
             return false;
         else
-            return local_data().vararg_function_store.add(vararg_function_name, vararg_function);
+            return local_data().function_registry.add_function(vararg_function_name,
+                                                               vararg_function);
     }
 
     inline bool add_function(const std::string& function_name, generic_function_t& function)
@@ -954,36 +981,19 @@ class symbol_table
         else if (symbol_exists(function_name))
             return false;
         else
-        {
-            switch (function.rtrn_type)
-            {
-                case generic_function_t::return_type::e_rtrn_scalar:
-                    return (std::string::npos ==
-                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                               ? local_data().generic_function_store.add(function_name, function)
-                               : false;
-
-                case generic_function_t::return_type::e_rtrn_string:
-                    return (std::string::npos ==
-                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                               ? local_data().string_function_store.add(function_name, function)
-                               : false;
-
-                case generic_function_t::return_type::e_rtrn_overload:
-                    return (std::string::npos ==
-                            function.parameter_sequence.find_first_not_of("STVZ*?|:"))
-                               ? local_data().overload_function_store.add(function_name, function)
-                               : false;
-            }
-        }
-
-        return false;
+            return local_data().function_registry.add_function(function_name, function);
     }
 
     template <typename... Args>
     inline bool add_function(const std::string& function_name, T (*function)(Args...))
     {
-        return add_function_impl_(function_name, function);
+        if (!valid())
+            return false;
+        if (!valid_symbol(function_name))
+            return false;
+        if (symbol_exists(function_name))
+            return false;
+        return local_data().function_registry.add_function(function_name, function);
     }
 
 #define MATH_EXPR_DEFINE_FREEFUNCTION(NN)                              \
@@ -1019,7 +1029,7 @@ class symbol_table
         else if (symbol_exists(function_name, false))
             return false;
         else
-            return local_data().function_store.add(function_name, function);
+            return local_data().function_registry.add_function(function_name, function);
     }
 
     inline bool add_reserved_function(const std::string& vararg_function_name,
@@ -1032,7 +1042,8 @@ class symbol_table
         else if (symbol_exists(vararg_function_name, false))
             return false;
         else
-            return local_data().vararg_function_store.add(vararg_function_name, vararg_function);
+            return local_data().function_registry.add_function(vararg_function_name,
+                                                               vararg_function);
     }
 
     inline bool add_reserved_function(const std::string& function_name,
@@ -1045,36 +1056,19 @@ class symbol_table
         else if (symbol_exists(function_name, false))
             return false;
         else
-        {
-            switch (function.rtrn_type)
-            {
-                case generic_function_t::return_type::e_rtrn_scalar:
-                    return (std::string::npos ==
-                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                               ? local_data().generic_function_store.add(function_name, function)
-                               : false;
-
-                case generic_function_t::return_type::e_rtrn_string:
-                    return (std::string::npos ==
-                            function.parameter_sequence.find_first_not_of("STVZ*?|"))
-                               ? local_data().string_function_store.add(function_name, function)
-                               : false;
-
-                case generic_function_t::return_type::e_rtrn_overload:
-                    return (std::string::npos ==
-                            function.parameter_sequence.find_first_not_of("STVZ*?|:"))
-                               ? local_data().overload_function_store.add(function_name, function)
-                               : false;
-            }
-        }
-
-        return false;
+            return local_data().function_registry.add_function(function_name, function);
     }
 
     template <typename... Args>
     inline bool add_reserved_function(const std::string& function_name, T (*function)(Args...))
     {
-        return add_reserved_function_impl_(function_name, function);
+        if (!valid())
+            return false;
+        if (!valid_symbol(function_name, false))
+            return false;
+        if (symbol_exists(function_name, false))
+            return false;
+        return local_data().function_registry.add_function(function_name, function);
     }
 
 #define MATH_EXPR_DEFINE_RESERVED_FREEFUNCTION(NN)                              \
@@ -1111,7 +1105,7 @@ class symbol_table
         else if (symbol_exists(vector_name))
             return false;
         else
-            return local_data().vector_store.add(vector_name, v);
+            return local_data().variable_registry.add_vector(vector_name, v);
     }
 
     inline bool add_vector(const std::string& vector_name, T* v, const std::size_t& v_size)
@@ -1125,7 +1119,7 @@ class symbol_table
         else if (0 == v_size)
             return false;
         else
-            return local_data().vector_store.add(vector_name, v, v_size);
+            return local_data().variable_registry.add_vector(vector_name, v, v_size);
     }
 
     template <typename Allocator>
@@ -1140,7 +1134,7 @@ class symbol_table
         else if (0 == v.size())
             return false;
         else
-            return local_data().vector_store.add(vector_name, v);
+            return local_data().variable_registry.add_vector(vector_name, v);
     }
 
     inline bool add_vector(const std::string& vector_name, math_expr::vector_view<T>& v)
@@ -1154,7 +1148,7 @@ class symbol_table
         else if (0 == v.size())
             return false;
         else
-            return local_data().vector_store.add(vector_name, v);
+            return local_data().variable_registry.add_vector(vector_name, v);
     }
 
     inline bool remove_variable(const std::string& variable_name, const bool delete_node = true)
@@ -1162,7 +1156,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().variable_store.remove(variable_name, delete_node);
+            return local_data().variable_registry.remove_variable(variable_name, delete_node);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -1171,7 +1165,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().stringvar_store.remove(string_name);
+            return local_data().variable_registry.remove_stringvar(string_name);
     }
 #endif
 
@@ -1180,7 +1174,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().function_store.remove(function_name);
+            return local_data().function_registry.remove_function(function_name);
     }
 
     inline bool remove_vararg_function(const std::string& vararg_function_name)
@@ -1188,7 +1182,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().vararg_function_store.remove(vararg_function_name);
+            return local_data().function_registry.remove_vararg_function(vararg_function_name);
     }
 
     inline bool remove_vector(const std::string& vector_name)
@@ -1196,7 +1190,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().vector_store.remove(vector_name);
+            return local_data().variable_registry.remove_vector(vector_name);
     }
 
     inline bool add_constants()
@@ -1235,7 +1229,7 @@ class symbol_table
         if (!valid())
             return 0;
         else
-            return local_data().variable_store.get_list(vlist);
+            return local_data().variable_registry.get_variable_list(vlist);
     }
 
     template <typename Allocator, template <typename, typename> class Sequence>
@@ -1244,7 +1238,7 @@ class symbol_table
         if (!valid())
             return 0;
         else
-            return local_data().variable_store.get_list(vlist);
+            return local_data().variable_registry.get_variable_list(vlist);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -1255,7 +1249,7 @@ class symbol_table
         if (!valid())
             return 0;
         else
-            return local_data().stringvar_store.get_list(svlist);
+            return local_data().variable_registry.get_stringvar_list(svlist);
     }
 
     template <typename Allocator, template <typename, typename> class Sequence>
@@ -1264,7 +1258,7 @@ class symbol_table
         if (!valid())
             return 0;
         else
-            return local_data().stringvar_store.get_list(svlist);
+            return local_data().variable_registry.get_stringvar_list(svlist);
     }
 #endif
 
@@ -1274,7 +1268,7 @@ class symbol_table
         if (!valid())
             return 0;
         else
-            return local_data().vector_store.get_list(vec_list);
+            return local_data().variable_registry.get_vector_list(vec_list);
     }
 
     template <typename Allocator, template <typename, typename> class Sequence>
@@ -1282,26 +1276,7 @@ class symbol_table
     {
         if (!valid())
             return 0;
-
-        std::vector<std::string> function_names;
-        std::size_t count = 0;
-
-        count += local_data().function_store.get_list(function_names);
-        count += local_data().vararg_function_store.get_list(function_names);
-        count += local_data().generic_function_store.get_list(function_names);
-        count += local_data().string_function_store.get_list(function_names);
-        count += local_data().overload_function_store.get_list(function_names);
-
-        std::set<std::string> function_set;
-
-        for (std::size_t i = 0; i < function_names.size(); ++i)
-        {
-            function_set.insert(function_names[i]);
-        }
-
-        std::copy(function_set.begin(), function_set.end(), std::back_inserter(function_list));
-
-        return count;
+        return local_data().function_registry.get_function_list(function_list);
     }
 
     inline std::vector<std::string> get_function_list() const
@@ -1321,15 +1296,9 @@ class symbol_table
         */
         if (!valid())
             return false;
-        else if (local_data().variable_store.symbol_exists(symbol_name))
+        else if (local_data().variable_registry.symbol_exists(symbol_name))
             return true;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        else if (local_data().stringvar_store.symbol_exists(symbol_name))
-            return true;
-#endif
-        else if (local_data().vector_store.symbol_exists(symbol_name))
-            return true;
-        else if (local_data().function_store.symbol_exists(symbol_name))
+        else if (local_data().function_registry.symbol_exists(symbol_name))
             return true;
         else if (check_reserved_symb && local_data().is_reserved_symbol(symbol_name))
             return true;
@@ -1342,7 +1311,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().variable_store.symbol_exists(variable_name);
+            return local_data().variable_registry.is_variable(variable_name);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
@@ -1351,7 +1320,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().stringvar_store.symbol_exists(stringvar_name);
+            return local_data().variable_registry.is_stringvar(stringvar_name);
     }
 
     inline bool is_conststr_stringvar(const std::string& symbol_name) const
@@ -1360,11 +1329,7 @@ class symbol_table
             return false;
         else if (!valid_symbol(symbol_name))
             return false;
-        else if (!local_data().stringvar_store.symbol_exists(symbol_name))
-            return false;
-
-        return (local_data().stringvar_store.symbol_exists(symbol_name) ||
-                local_data().stringvar_store.is_constant(symbol_name));
+        return local_data().variable_registry.is_conststr_stringvar(symbol_name);
     }
 #endif
 
@@ -1373,7 +1338,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().function_store.symbol_exists(function_name);
+            return local_data().function_registry.is_function(function_name);
     }
 
     inline bool is_vararg_function(const std::string& vararg_function_name) const
@@ -1381,7 +1346,7 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().vararg_function_store.symbol_exists(vararg_function_name);
+            return local_data().function_registry.is_vararg_function(vararg_function_name);
     }
 
     inline bool is_vector(const std::string& vector_name) const
@@ -1389,28 +1354,28 @@ class symbol_table
         if (!valid())
             return false;
         else
-            return local_data().vector_store.symbol_exists(vector_name);
+            return local_data().variable_registry.is_vector(vector_name);
     }
 
     inline std::string get_variable_name(const expression_ptr& ptr) const
     {
-        return local_data().variable_store.entity_name(ptr);
+        return local_data().variable_registry.get_variable_name(ptr);
     }
 
     inline std::string get_vector_name(const vector_holder_ptr& ptr) const
     {
-        return local_data().vector_store.entity_name(ptr);
+        return local_data().variable_registry.get_vector_name(ptr);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline std::string get_stringvar_name(const expression_ptr& ptr) const
     {
-        return local_data().stringvar_store.entity_name(ptr);
+        return local_data().variable_registry.get_stringvar_name(ptr);
     }
 
     inline std::string get_conststr_stringvar_name(const expression_ptr& ptr) const
     {
-        return local_data().stringvar_store.entity_name(ptr);
+        return local_data().variable_registry.get_conststr_stringvar_name(ptr);
     }
 #endif
 
@@ -1422,113 +1387,17 @@ class symbol_table
 
     inline void load_from(const symbol_table<T>& st)
     {
-        {
-            std::vector<std::string> name_list;
-
-            st.local_data().function_store.get_list(name_list);
-
-            if (!name_list.empty())
-            {
-                for (std::size_t i = 0; i < name_list.size(); ++i)
-                {
-                    math_expr::ifunction<T>& ifunc = *st.get_function(name_list[i]);
-                    add_function(name_list[i], ifunc);
-                }
-            }
-        }
-
-        {
-            std::vector<std::string> name_list;
-
-            st.local_data().vararg_function_store.get_list(name_list);
-
-            if (!name_list.empty())
-            {
-                for (std::size_t i = 0; i < name_list.size(); ++i)
-                {
-                    math_expr::ivararg_function<T>& ivafunc = *st.get_vararg_function(name_list[i]);
-                    add_function(name_list[i], ivafunc);
-                }
-            }
-        }
-
-        {
-            std::vector<std::string> name_list;
-
-            st.local_data().generic_function_store.get_list(name_list);
-
-            if (!name_list.empty())
-            {
-                for (std::size_t i = 0; i < name_list.size(); ++i)
-                {
-                    math_expr::igeneric_function<T>& ifunc = *st.get_generic_function(name_list[i]);
-                    add_function(name_list[i], ifunc);
-                }
-            }
-        }
-
-        {
-            std::vector<std::string> name_list;
-
-            st.local_data().string_function_store.get_list(name_list);
-
-            if (!name_list.empty())
-            {
-                for (std::size_t i = 0; i < name_list.size(); ++i)
-                {
-                    math_expr::igeneric_function<T>& ifunc = *st.get_string_function(name_list[i]);
-                    add_function(name_list[i], ifunc);
-                }
-            }
-        }
-
-        {
-            std::vector<std::string> name_list;
-
-            st.local_data().overload_function_store.get_list(name_list);
-
-            if (!name_list.empty())
-            {
-                for (std::size_t i = 0; i < name_list.size(); ++i)
-                {
-                    math_expr::igeneric_function<T>& ifunc =
-                        *st.get_overload_function(name_list[i]);
-                    add_function(name_list[i], ifunc);
-                }
-            }
-        }
+        local_data().function_registry.load_from(st.local_data().function_registry);
     }
 
     inline void load_variables_from(const symbol_table<T>& st)
     {
-        std::vector<std::string> name_list;
-
-        st.local_data().variable_store.get_list(name_list);
-
-        if (!name_list.empty())
-        {
-            for (std::size_t i = 0; i < name_list.size(); ++i)
-            {
-                T& variable = st.get_variable(name_list[i])->ref();
-                add_variable(name_list[i], variable);
-            }
-        }
+        local_data().variable_registry.load_variables_from(st.local_data().variable_registry);
     }
 
     inline void load_vectors_from(const symbol_table<T>& st)
     {
-        std::vector<std::string> name_list;
-
-        st.local_data().vector_store.get_list(name_list);
-
-        if (!name_list.empty())
-        {
-            for (std::size_t i = 0; i < name_list.size(); ++i)
-            {
-                vector_holder_t& vecholder = *st.get_vector(name_list[i]);
-                add_vector(name_list[i], vecholder.data(), vecholder.size());
-            }
-        }
+        local_data().variable_registry.load_vectors_from(st.local_data().variable_registry);
     }
 
    private:
@@ -1541,8 +1410,7 @@ class symbol_table
             return false;
         if (symbol_exists(function_name))
             return false;
-        local_data().free_function_list_.push_back(std::make_unique<freefunc<Args...>>(function));
-        return add_function(function_name, (*local_data().free_function_list_.back()));
+        return local_data().function_registry.add_function(function_name, function);
     }
 
     template <typename... Args>
@@ -1555,8 +1423,7 @@ class symbol_table
             return false;
         if (symbol_exists(function_name, false))
             return false;
-        local_data().free_function_list_.push_back(std::make_unique<freefunc<Args...>>(function));
-        return add_reserved_function(function_name, (*local_data().free_function_list_.back()));
+        return local_data().function_registry.add_function(function_name, function);
     }
 
     inline bool valid_symbol(const std::string& symbol, const bool check_reserved_symb = true) const

@@ -61,6 +61,7 @@ limitations under the License.
 #include "math_expr/parser_settings.hpp"
 #include "math_expr/parser_symbol_types.hpp"
 #include "math_expr/parser_unknown_symbol_resolver.hpp"
+#include "math_expr/parser/scope_manager.hpp"
 
 namespace math_expr
 {
@@ -218,380 +219,11 @@ class parser : public lexer::parser_helper
     using vococov_t = details::T0oT1oT2oT3_define<T, cref_t, const_t, const_t, cref_t>;
 
     using results_context_t = results_context<T>;
+    using scope_element = math_expr::scope_element<T>;
+    using scope_element_manager = math_expr::scope_element_manager<T>;
+    using scope_handler = math_expr::scope_handler<T>;
 
     using prsrhlpr_t = parser_helper;
-
-    struct scope_element
-    {
-        enum class element_type
-        {
-            e_none,
-            e_literal,
-            e_variable,
-            e_vector,
-            e_vecelem,
-            e_string
-        };
-
-        using vector_holder_t = details::vector_holder<T>;
-        using literal_node_ptr = literal_node_t*;
-        using variable_node_ptr = variable_node_t*;
-        using vector_holder_ptr = vector_holder_t*;
-        using expression_node_ptr = expression_node_t*;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        using stringvar_node_ptr = stringvar_node_t*;
-#endif
-
-        scope_element()
-            : name("???"),
-              size(std::numeric_limits<std::size_t>::max()),
-              index(std::numeric_limits<std::size_t>::max()),
-              depth(std::numeric_limits<std::size_t>::max()),
-              ref_count(0),
-              ip_index(0),
-              type(element_type::e_none),
-              active(false),
-              var_node(nullptr),
-              vec_node(nullptr)
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-              ,
-              str_node(nullptr)
-#endif
-        {
-        }
-
-        bool operator<(const scope_element& se) const
-        {
-            if (ip_index < se.ip_index)
-                return true;
-            else if (ip_index > se.ip_index)
-                return false;
-            else if (depth < se.depth)
-                return true;
-            else if (depth > se.depth)
-                return false;
-            else if (index < se.index)
-                return true;
-            else if (index > se.index)
-                return false;
-            else
-                return (name < se.name);
-        }
-
-        void clear()
-        {
-            name = "???";
-            size = std::numeric_limits<std::size_t>::max();
-            index = std::numeric_limits<std::size_t>::max();
-            depth = std::numeric_limits<std::size_t>::max();
-            type = element_type::e_none;
-            active = false;
-            ref_count = 0;
-            ip_index = 0;
-            scalar_data.reset();
-            vector_data.reset();
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            str_data.reset();
-#endif
-            var_node = nullptr;
-            vec_node = nullptr;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            str_node = nullptr;
-#endif
-        }
-
-        std::string name;
-        std::size_t size;
-        std::size_t index;
-        std::size_t depth;
-        std::size_t ref_count;
-        std::size_t ip_index;
-        element_type type;
-        bool active;
-        std::unique_ptr<T> scalar_data;
-        std::unique_ptr<T[]> vector_data;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        std::unique_ptr<std::string> str_data;
-#endif
-        expression_node_ptr var_node;
-        vector_holder_ptr vec_node;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        stringvar_node_ptr str_node;
-#endif
-    };
-
-    class scope_element_manager
-    {
-       public:
-        using expression_node_ptr = expression_node_t*;
-        using variable_node_ptr = variable_node_t*;
-        using parser_t = parser<T>;
-
-        scope_element_manager()
-            : parser_(nullptr), input_param_cnt_(0), total_local_symb_size_bytes_(0)
-        {
-        }
-
-        inline void set_parser(parser_t& p)
-        {
-            parser_ = &p;
-        }
-
-        inline std::size_t size() const
-        {
-            return element_.size();
-        }
-
-        inline bool empty() const
-        {
-            return element_.empty();
-        }
-
-        inline scope_element& get_element(const std::size_t& index)
-        {
-            if (index < element_.size())
-                return element_[index];
-            else
-                return null_element_;
-        }
-
-        inline scope_element& get_element(
-            const std::string& var_name,
-            const std::size_t index = std::numeric_limits<std::size_t>::max())
-        {
-            const std::size_t current_depth = ref_parser().state_.scope_depth;
-
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.depth > current_depth)
-                    continue;
-                else if (core::imatch(se.name, var_name) && (se.index == index))
-                    return se;
-            }
-
-            return null_element_;
-        }
-
-        inline scope_element& get_active_element(
-            const std::string& var_name,
-            const std::size_t index = std::numeric_limits<std::size_t>::max())
-        {
-            const std::size_t current_depth = ref_parser().state_.scope_depth;
-
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.depth > current_depth)
-                    continue;
-                else if (core::imatch(se.name, var_name) && (se.index == index) && (se.active))
-                    return se;
-            }
-
-            return null_element_;
-        }
-
-        inline bool add_element(scope_element&& se)
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& cse = element_[i];
-
-                if (core::imatch(cse.name, se.name) && (cse.depth <= se.depth) &&
-                    (cse.index == se.index) && (cse.size == se.size) && (cse.type == se.type) &&
-                    (cse.active))
-                    return false;
-            }
-
-            switch (se.type)
-            {
-                case scope_element::element_type::e_variable:
-                    total_local_symb_size_bytes_ += sizeof(T);
-                    break;
-
-                case scope_element::element_type::e_literal:
-                    total_local_symb_size_bytes_ += sizeof(T);
-                    break;
-
-                case scope_element::element_type::e_vector:
-                    total_local_symb_size_bytes_ += sizeof(T) * se.size;
-                    break;
-
-                default:
-                    break;
-            }
-
-            element_.push_back(std::move(se));
-            std::sort(element_.begin(), element_.end());
-
-            return true;
-        }
-
-        inline void deactivate(const std::size_t& scope_depth)
-        {
-            core::debug_print("deactivate() - Scope depth: %d\n",
-                              static_cast<int>(ref_parser().state_.scope_depth));
-
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.active && (se.depth >= scope_depth))
-                {
-                    core::debug_print("deactivate() - element[%02d] '%s'\n", static_cast<int>(i),
-                                      se.name.c_str());
-
-                    se.active = false;
-                }
-            }
-        }
-
-        inline void free_element(scope_element& se)
-        {
-            core::debug_print("free_element() - se[%s]\n", se.name.c_str());
-
-            switch (se.type)
-            {
-                case scope_element::element_type::e_literal:
-                    delete se.var_node;
-                    break;
-
-                case scope_element::element_type::e_variable:
-                    delete se.var_node;
-                    break;
-
-                case scope_element::element_type::e_vector:
-                    delete se.vec_node;
-                    break;
-
-                case scope_element::element_type::e_vecelem:
-                    delete se.var_node;
-                    break;
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                case scope_element::element_type::e_string:
-                    delete se.str_node;
-                    break;
-#endif
-
-                default:
-                    return;
-            }
-
-            se.clear();
-        }
-
-        inline void cleanup()
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                free_element(element_[i]);
-            }
-
-            element_.clear();
-
-            input_param_cnt_ = 0;
-            total_local_symb_size_bytes_ = 0;
-        }
-
-        inline std::size_t total_local_symb_size_bytes() const
-        {
-            return total_local_symb_size_bytes_;
-        }
-
-        inline std::size_t next_ip_index()
-        {
-            return ++input_param_cnt_;
-        }
-
-        inline expression_node_ptr get_variable(const T& v)
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.active && se.var_node && details::is_variable_node(se.var_node))
-                {
-                    variable_node_ptr vn = reinterpret_cast<variable_node_ptr>(se.var_node);
-
-                    if (&(vn->ref()) == (&v))
-                    {
-                        return se.var_node;
-                    }
-                }
-            }
-
-            return expression_node_ptr(0);
-        }
-
-        inline std::string get_vector_name(const T* data)
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.active && se.vec_node && (se.vec_node->data() == data))
-                {
-                    return se.name;
-                }
-            }
-
-            return "neo-vector";
-        }
-
-       private:
-        scope_element_manager(const scope_element_manager&) = delete;
-        scope_element_manager& operator=(const scope_element_manager&) = delete;
-
-        inline parser_t& ref_parser()
-        {
-            assert(parser_);
-            return *parser_;
-        }
-
-        parser_t* parser_;
-        std::vector<scope_element> element_;
-        scope_element null_element_;
-        std::size_t input_param_cnt_;
-        std::size_t total_local_symb_size_bytes_;
-    };
-
-    class scope_handler
-    {
-       public:
-        using parser_t = parser<T>;
-
-        explicit scope_handler(parser<T>& p) : parser_(p)
-        {
-            parser_.state_.scope_depth++;
-            if constexpr (::math_expr::core::build_options::kEnableDebugging)
-            {
-                const std::string depth(2 * parser_.state_.scope_depth, '-');
-                core::debug_print("%s> Scope Depth: %02d\n", depth.c_str(),
-                                  static_cast<int>(parser_.state_.scope_depth));
-            }
-        }
-
-        ~scope_handler()
-        {
-            parser_.sem_.deactivate(parser_.state_.scope_depth);
-            parser_.state_.scope_depth--;
-            if constexpr (::math_expr::core::build_options::kEnableDebugging)
-            {
-                const std::string depth(2 * parser_.state_.scope_depth, '-');
-                core::debug_print("<%s Scope Depth: %02d\n", depth.c_str(),
-                                  static_cast<int>(parser_.state_.scope_depth));
-            }
-        }
-
-       private:
-        scope_handler(const scope_handler&) = delete;
-        scope_handler& operator=(const scope_handler&) = delete;
-
-        parser_t& parser_;
-    };
 
     template <typename T_>
     struct halfopen_range_policy
@@ -1347,7 +979,7 @@ class parser : public lexer::parser_helper
           compilation_check_ptr_(nullptr),
           assert_check_(nullptr)
     {
-        sem_.set_parser(*this);
+        sem_.set_scope_depth(state_.scope_depth);
         init_precompilation();
 
         details::load_operations_map(base_ops_map_);
@@ -3620,7 +3252,7 @@ class parser : public lexer::parser_helper
         {
             const token_t::token_type separator = token_t::e_eof;
 
-            scope_handler sh(*this);
+            scope_handler sh(state_.scope_depth, sem_);
 
             scoped_bool_or_restorer sbr(state_.side_effect_present);
 
@@ -3753,7 +3385,7 @@ class parser : public lexer::parser_helper
 
         next_token();
 
-        scope_handler sh(*this);
+        scope_handler sh(state_.scope_depth, sem_);
 
         if (!token_is(token_t::e_lbracket))
         {
@@ -4541,7 +4173,7 @@ class parser : public lexer::parser_helper
 
         scoped_vec_delete<expression_node_t> svd((*this), arg_list);
 
-        scope_handler sh(*this);
+        scope_handler sh(state_.scope_depth, sem_);
 
         scoped_bool_or_restorer sbr(state_.side_effect_present);
 
