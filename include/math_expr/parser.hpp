@@ -67,6 +67,7 @@ limitations under the License.
 #include "math_expr/parser/expression_table.hpp"
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
+#include "math_expr/parser/control_flow_parser.hpp"
 
 namespace math_expr
 {
@@ -1521,6 +1522,187 @@ class parser : public lexer::parser_helper
         std::size_t& v_;
     };
 
+    struct control_flow_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit control_flow_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              brkcnt_list(parser.brkcnt_list_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool token_is(const std::string& symbol,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(symbol, mode);
+        }
+
+        inline bool token_is_loop(const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_loop(mode);
+        }
+
+        inline bool token_is_arithmetic_opr(
+            const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_arithmetic_opr(mode);
+        }
+
+        inline bool token_is_right_bracket(
+            const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_right_bracket(mode);
+        }
+
+        inline bool token_is_ineq_opr(const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_ineq_opr(mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline bool peek_token_is(const std::string& symbol) const
+        {
+            return parser_.peek_token_is(symbol);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
+                                                        const bool wrap_sequence = false)
+        {
+            return parser_.parse_multi_sequence(source, wrap_sequence);
+        }
+
+        template <typename Sequence1, typename Sequence2>
+        inline expression_node_ptr simplify(Sequence1& expression_list, Sequence2& side_effect_list)
+        {
+            return parser_.simplify(expression_list, side_effect_list);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr conditional(expression_node_ptr condition,
+                                               expression_node_ptr consequent,
+                                               expression_node_ptr alternative)
+        {
+            return parser_.expression_generator_.conditional(condition, consequent, alternative);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline expression_node_ptr conditional_string(expression_node_ptr condition,
+                                                      expression_node_ptr consequent,
+                                                      expression_node_ptr alternative)
+        {
+            return parser_.expression_generator_.conditional_string(condition, consequent,
+                                                                    alternative);
+        }
+#endif
+
+        inline expression_node_ptr conditional_vector(expression_node_ptr condition,
+                                                      expression_node_ptr consequent,
+                                                      expression_node_ptr alternative)
+        {
+            return parser_.expression_generator_.conditional_vector(condition, consequent,
+                                                                    alternative);
+        }
+
+        inline expression_node_ptr while_loop(expression_node_ptr condition,
+                                              expression_node_ptr branch,
+                                              const bool break_or_continue_present)
+        {
+            return parser_.expression_generator_.while_loop(condition, branch,
+                                                            break_or_continue_present);
+        }
+
+        inline expression_node_ptr repeat_until_loop(expression_node_ptr condition,
+                                                     expression_node_ptr branch,
+                                                     const bool break_or_continue_present)
+        {
+            return parser_.expression_generator_.repeat_until_loop(condition, branch,
+                                                                   break_or_continue_present);
+        }
+
+        inline expression_node_ptr for_loop(expression_node_ptr initialiser,
+                                            expression_node_ptr condition,
+                                            expression_node_ptr incrementor,
+                                            expression_node_ptr loop_body,
+                                            const bool break_or_continue_present)
+        {
+            return parser_.expression_generator_.for_loop(initialiser, condition, incrementor,
+                                                          loop_body, break_or_continue_present);
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+        inline expression_node_ptr make_variable_node(T& value)
+        {
+            return node_allocator.template allocate<variable_node_t>(value);
+        }
+
+        inline void handle_brkcnt_scope_exit()
+        {
+            parser_.handle_brkcnt_scope_exit();
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        std::deque<bool>& brkcnt_list;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -1860,472 +2042,26 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_conditional_statement_01(expression_node_ptr condition)
     {
-        // Parse: [if][(][condition][,][consequent][,][alternative][)]
-
-        expression_node_ptr consequent = error_node();
-        expression_node_ptr alternative = error_node();
-
-        bool result = true;
-
-        if (!token_is(token_t::e_comma))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR035 - Expected ',' between if-statement condition and consequent",
-                           core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (consequent = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR036 - Failed to parse consequent for if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (!token_is(token_t::e_comma))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR037 - Expected ',' between if-statement consequent and alternative",
-                           core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (alternative = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR038 - Failed to parse alternative for if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR039 - Expected ')' at the end of if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consq_is_str = is_generally_string_node(consequent);
-            const bool alter_is_str = is_generally_string_node(alternative);
-
-            if (consq_is_str || alter_is_str)
-            {
-                if (consq_is_str && alter_is_str)
-                {
-                    expression_node_ptr result_node = expression_generator_.conditional_string(
-                        condition, consequent, alternative);
-
-                    if (result_node && result_node->valid())
-                    {
-                        return result_node;
-                    }
-
-                    set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                                         "ERR040 - Failed to synthesize node: conditional_string",
-                                         core::error_location()));
-
-                    free_node(node_allocator_, result_node);
-                    return error_node();
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR041 - Return types of if-statement differ: string/non-string",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-#endif
-
-        if (result)
-        {
-            const bool consq_is_vec = is_ivector_node(consequent);
-            const bool alter_is_vec = is_ivector_node(alternative);
-
-            if (consq_is_vec || alter_is_vec)
-            {
-                if (consq_is_vec && alter_is_vec)
-                {
-                    return expression_generator_.conditional_vector(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR042 - Return types of if-statement differ: vector/non-vector",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, consequent);
-            free_node(node_allocator_, alternative);
-
-            return error_node();
-        }
-        else
-            return expression_generator_.conditional(condition, consequent, alternative);
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_conditional_statement_01(context, condition);
     }
 
     inline expression_node_ptr parse_conditional_statement_02(expression_node_ptr condition)
     {
-        expression_node_ptr consequent = error_node();
-        expression_node_ptr alternative = error_node();
-
-        bool result = true;
-
-        if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            if (nullptr == (consequent = parse_multi_sequence("if-statement-01")))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR043 - Failed to parse body of consequent for if-statement",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!settings_.commutative_check_enabled() &&
-                     !token_is("else", prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_loop(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_arithmetic_opr(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_right_bracket(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_ineq_opr(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR044 - Expected ';' at the end of the consequent for if-statement (1)",
-                    core::error_location()));
-
-                result = false;
-            }
-        }
-        else
-        {
-            if (settings_.commutative_check_enabled() &&
-                token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                next_token();
-            }
-
-            if (nullptr != (consequent = parse_expression()))
-            {
-                if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR045 - Expected ';' at the end of the consequent for if-statement (2)",
-                        core::error_location()));
-
-                    result = false;
-                }
-            }
-            else
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR046 - Failed to parse body of consequent for if-statement",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (result)
-        {
-            if (core::imatch(current_token().value, "else") ||
-                (token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold) &&
-                 peek_token_is("else")))
-            {
-                next_token();
-
-                if (core::imatch(current_token().value, "else"))
-                {
-                    next_token();
-                }
-
-                if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    if (nullptr == (alternative = parse_multi_sequence("else-statement-01")))
-                    {
-                        set_error(make_error(
-                            parser_error::error_mode::e_syntax, current_token(),
-                            "ERR047 - Failed to parse body of the 'else' for if-statement",
-                            core::error_location()));
-
-                        result = false;
-                    }
-                }
-                else if (core::imatch(current_token().value, "if"))
-                {
-                    if (nullptr == (alternative = parse_conditional_statement()))
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR048 - Failed to parse body of if-else statement",
-                                             core::error_location()));
-
-                        result = false;
-                    }
-                }
-                else if (nullptr != (alternative = parse_expression()))
-                {
-                    if (!token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
-                        !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                        !token_is(token_t::e_eof))
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR049 - Expected ';' at the end of the 'else-if' "
-                                             "for the if-statement",
-                                             core::error_location()));
-
-                        result = false;
-                    }
-                }
-                else
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR050 - Failed to parse body of the 'else' for if-statement",
-                                   core::error_location()));
-
-                    result = false;
-                }
-            }
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consq_is_str = is_generally_string_node(consequent);
-            const bool alter_is_str = is_generally_string_node(alternative);
-
-            if (consq_is_str || alter_is_str)
-            {
-                if (consq_is_str && alter_is_str)
-                {
-                    return expression_generator_.conditional_string(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR051 - Return types of if-statement differ: string/non-string",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-#endif
-
-        if (result)
-        {
-            const bool consq_is_vec = is_ivector_node(consequent);
-            const bool alter_is_vec = is_ivector_node(alternative);
-
-            if (consq_is_vec || alter_is_vec)
-            {
-                if (consq_is_vec && alter_is_vec)
-                {
-                    return expression_generator_.conditional_vector(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR052 - Return types of if-statement differ: vector/non-vector",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, consequent);
-            free_node(node_allocator_, alternative);
-
-            return error_node();
-        }
-        else
-            return expression_generator_.conditional(condition, consequent, alternative);
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_conditional_statement_02(context, condition);
     }
 
     inline expression_node_ptr parse_conditional_statement()
     {
-        expression_node_ptr condition = error_node();
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR053 - Expected '(' at start of if-statement, instead got: '" +
-                                     current_token().value + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR054 - Failed to parse condition for if-statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (token_is(token_t::e_comma, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            // if (x,y,z)
-            return parse_conditional_statement_01(condition);
-        }
-        else if (token_is(token_t::e_rbracket))
-        {
-            /*
-               00. if (x) y;
-               01. if (x) y; else z;
-               02. if (x) y; else {z0; ... zn;}
-               03. if (x) y; else if (z) w;
-               04. if (x) y; else if (z) w; else u;
-               05. if (x) y; else if (z) w; else {u0; ... un;}
-               06. if (x) y; else if (z) {w0; ... wn;}
-               07. if (x) {y0; ... yn;}
-               08. if (x) {y0; ... yn;} else z;
-               09. if (x) {y0; ... yn;} else {z0; ... zn;};
-               10. if (x) {y0; ... yn;} else if (z) w;
-               11. if (x) {y0; ... yn;} else if (z) w; else u;
-               12. if (x) {y0; ... nex;} else if (z) w; else {u0 ... un;}
-               13. if (x) {y0; ... yn;} else if (z) {w0; ... wn;}
-            */
-            return parse_conditional_statement_02(condition);
-        }
-
-        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                             "ERR055 - Invalid if-statement", core::error_location()));
-
-        free_node(node_allocator_, condition);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_conditional_statement(context);
     }
 
     inline expression_node_ptr parse_ternary_conditional_statement(expression_node_ptr condition)
     {
-        // Parse: [condition][?][consequent][:][alternative]
-        expression_node_ptr consequent = error_node();
-        expression_node_ptr alternative = error_node();
-
-        bool result = true;
-
-        if (nullptr == condition)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR056 - Encountered invalid condition branch for ternary if-statement",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_ternary))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR057 - Expected '?' after condition of ternary if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (consequent = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR058 - Failed to parse consequent for ternary if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (!token_is(token_t::e_colon))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR059 - Expected ':' between ternary if-statement consequent and alternative",
-                core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (alternative = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR060 - Failed to parse alternative for ternary if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consq_is_str = is_generally_string_node(consequent);
-            const bool alter_is_str = is_generally_string_node(alternative);
-
-            if (consq_is_str || alter_is_str)
-            {
-                if (consq_is_str && alter_is_str)
-                {
-                    return expression_generator_.conditional_string(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR061 - Return types of ternary differ: string/non-string",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-#endif
-
-        if (result)
-        {
-            const bool consq_is_vec = is_ivector_node(consequent);
-            const bool alter_is_vec = is_ivector_node(alternative);
-
-            if (consq_is_vec || alter_is_vec)
-            {
-                if (consq_is_vec && alter_is_vec)
-                {
-                    return expression_generator_.conditional_vector(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR062 - Return types of ternary differ: vector/non-vector",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, consequent);
-            free_node(node_allocator_, alternative);
-
-            return error_node();
-        }
-        else
-            return expression_generator_.conditional(condition, consequent, alternative);
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_ternary_conditional_statement(context, condition);
     }
 
     inline expression_node_ptr parse_not_statement()
@@ -2350,441 +2086,20 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_while_loop()
     {
-        // Parse: [while][(][test expr][)][{][expression][}]
-        expression_node_ptr condition = error_node();
-        expression_node_ptr branch = error_node();
-        expression_node_ptr result_node = error_node();
-
-        bool result = true;
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR064 - Expected '(' at start of while-loop condition statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR065 - Failed to parse condition for while-loop",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR066 - Expected ')' at end of while-loop condition statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-
-        brkcnt_list_.push_front(false);
-
-        if (result)
-        {
-            scoped_inc_dec sid(state_.parsing_loop_stmt_count);
-
-            if (nullptr == (branch = parse_multi_sequence("while-loop", true)))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR067 - Failed to parse body of while-loop"));
-                result = false;
-            }
-            else if (nullptr == (result_node = expression_generator_.while_loop(
-                                     condition, branch, brkcnt_list_.front())))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR068 - Failed to synthesize while-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        handle_brkcnt_scope_exit();
-
-        if (!result)
-        {
-            free_node(node_allocator_, branch);
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, result_node);
-
-            return error_node();
-        }
-
-        if (result_node && result_node->valid())
-        {
-            return result_node;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR069 - Failed to synthesize 'valid' while-loop",
-                             core::error_location()));
-
-        free_node(node_allocator_, result_node);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_while_loop(context);
     }
 
     inline expression_node_ptr parse_repeat_until_loop()
     {
-        // Parse: [repeat][{][expression][}][until][(][test expr][)]
-        expression_node_ptr condition = error_node();
-        expression_node_ptr branch = error_node();
-        next_token();
-
-        std::vector<expression_node_ptr> arg_list;
-        std::vector<bool> side_effect_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        brkcnt_list_.push_front(false);
-
-        if (core::imatch(current_token().value, "until"))
-        {
-            next_token();
-            branch = node_allocator_.allocate<details::null_node<T>>();
-        }
-        else
-        {
-            const token_t::token_type separator = token_t::e_eof;
-
-            scope_handler sh(state_.scope_depth, sem_);
-
-            scoped_bool_or_restorer sbr(state_.side_effect_present);
-
-            scoped_inc_dec sid(state_.parsing_loop_stmt_count);
-
-            for (;;)
-            {
-                state_.side_effect_present = false;
-
-                expression_node_ptr arg = parse_expression();
-
-                if (nullptr == arg)
-                    return error_node();
-                else
-                {
-                    arg_list.push_back(arg);
-                    side_effect_list.push_back(state_.side_effect_present);
-                }
-
-                if (core::imatch(current_token().value, "until"))
-                {
-                    next_token();
-                    break;
-                }
-
-                const bool is_next_until =
-                    peek_token_is(token_t::e_symbol) && peek_token_is("until");
-
-                if (!token_is(separator) && is_next_until)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR070 - Expected '" + token_t::to_str(separator) +
-                                             "' in body of repeat until loop",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                if (core::imatch(current_token().value, "until"))
-                {
-                    next_token();
-                    break;
-                }
-            }
-
-            branch = simplify(arg_list, side_effect_list);
-
-            svd.delete_ptr = (nullptr == branch);
-
-            if (svd.delete_ptr)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR071 - Failed to parse body of repeat until loop",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR072 - Expected '(' before condition statement of repeat until loop",
-                           core::error_location()));
-
-            free_node(node_allocator_, branch);
-            return error_node();
-        }
-        else if (nullptr == (condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR073 - Failed to parse condition for repeat until loop",
-                                 core::error_location()));
-
-            free_node(node_allocator_, branch);
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR074 - Expected ')' after condition of repeat until loop",
-                                 core::error_location()));
-
-            free_node(node_allocator_, branch);
-            free_node(node_allocator_, condition);
-
-            return error_node();
-        }
-
-        expression_node_ptr result_node =
-            expression_generator_.repeat_until_loop(condition, branch, brkcnt_list_.front());
-
-        if (nullptr == result_node)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR075 - Failed to synthesize repeat until loop",
-                                 core::error_location()));
-
-            free_node(node_allocator_, condition);
-
-            return error_node();
-        }
-
-        handle_brkcnt_scope_exit();
-
-        if (result_node && result_node->valid())
-        {
-            return result_node;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR076 - Failed to synthesize 'valid' repeat until loop",
-                             core::error_location()));
-
-        free_node(node_allocator_, result_node);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_repeat_until_loop(context);
     }
 
     inline expression_node_ptr parse_for_loop()
     {
-        expression_node_ptr initialiser = error_node();
-        expression_node_ptr condition = error_node();
-        expression_node_ptr incrementor = error_node();
-        expression_node_ptr loop_body = error_node();
-
-        scope_element* se = nullptr;
-        bool result = true;
-
-        next_token();
-
-        scope_handler sh(state_.scope_depth, sem_);
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR077 - Expected '(' at start of for-loop",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (!token_is(token_t::e_eof))
-        {
-            if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold) &&
-                core::imatch(current_token().value, "var"))
-            {
-                next_token();
-
-                if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR078 - Expected a variable at the start of initialiser "
-                                         "section of for-loop",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-                else if (!peek_token_is(token_t::e_assign))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR079 - Expected variable assignment of initialiser section of for-loop",
-                        core::error_location()));
-
-                    return error_node();
-                }
-
-                const std::string loop_counter_symbol = current_token().value;
-
-                se = &sem_.get_element(loop_counter_symbol);
-
-                if ((se->name == loop_counter_symbol) && se->active)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR080 - For-loop variable '" + loop_counter_symbol +
-                                             "' is being shadowed by a previous declaration",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-                else if (!symtab_store_.is_variable(loop_counter_symbol))
-                {
-                    if (!se->active && (se->name == loop_counter_symbol) &&
-                        (se->type == scope_element::element_type::e_variable))
-                    {
-                        se->active = true;
-                        se->ref_count++;
-                    }
-                    else
-                    {
-                        scope_element nse;
-                        nse.name = loop_counter_symbol;
-                        nse.active = true;
-                        nse.ref_count = 1;
-                        nse.type = scope_element::element_type::e_variable;
-                        nse.depth = state_.scope_depth;
-                        nse.scalar_data = std::make_unique<T>(T(0));
-                        nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
-
-                        if (!sem_.add_element(std::move(nse)))
-                        {
-                            set_error(make_error(parser_error::error_mode::e_syntax,
-                                                 current_token(),
-                                                 "ERR081 - Failed to add new local variable '" +
-                                                     loop_counter_symbol + "' to SEM",
-                                                 core::error_location()));
-
-                            sem_.free_element(nse);
-
-                            result = false;
-                        }
-                        else
-                        {
-                            core::debug_print(
-                                "parse_for_loop() - INFO - Added new local variable: %s\n",
-                                nse.name.c_str());
-
-                            state_.activate_side_effect("parse_for_loop()");
-                        }
-                    }
-                }
-            }
-
-            if (nullptr == (initialiser = parse_expression()))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR082 - Failed to parse initialiser of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!token_is(token_t::e_eof))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR083 - Expected ';' after initialiser of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!token_is(token_t::e_eof))
-        {
-            if (nullptr == (condition = parse_expression()))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR084 - Failed to parse condition of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!token_is(token_t::e_eof))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR085 - Expected ';' after condition section of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            if (nullptr == (incrementor = parse_expression()))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR086 - Failed to parse incrementor of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!token_is(token_t::e_rbracket))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR087 - Expected ')' after incrementor section of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (result)
-        {
-            brkcnt_list_.push_front(false);
-
-            scoped_inc_dec sid(state_.parsing_loop_stmt_count);
-
-            if (nullptr == (loop_body = parse_multi_sequence("for-loop", true)))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR088 - Failed to parse body of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            if (se)
-            {
-                se->ref_count--;
-            }
-
-            free_node(node_allocator_, initialiser);
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, incrementor);
-            free_node(node_allocator_, loop_body);
-            return error_node();
-        }
-
-        expression_node_ptr result_node = expression_generator_.for_loop(
-            initialiser, condition, incrementor, loop_body, brkcnt_list_.front());
-        handle_brkcnt_scope_exit();
-
-        if (result_node && result_node->valid())
-        {
-            return result_node;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR089 - Failed to synthesize 'valid' for-loop",
-                             core::error_location()));
-
-        free_node(node_allocator_, result_node);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_for_loop(context);
     }
 
     inline expression_node_ptr parse_switch_statement()
