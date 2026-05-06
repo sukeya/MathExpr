@@ -14133,6 +14133,42 @@ TEST_CASE("Entity parser delegation remains stable", "[parser][entity]")
     }
 }
 
+TEST_CASE("Symbol resolution parser delegation remains stable", "[parser][symbol-resolution]")
+{
+    SECTION("registered variables and functions stay stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        numeric_type x = numeric_type(2);
+
+        REQUIRE(symbol_table.add_constants());
+        REQUIRE(symbol_table.add_variable("x", x));
+        REQUIRE(symbol_table.add_function("inc", increment_symbol_table_probe));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("x + inc(2)", parser, expression);
+        CHECK(expression.value() == numeric_type(5));
+    }
+
+    SECTION("unknown symbol resolver stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        my_usr<numeric_type> resolver;
+
+        REQUIRE(symbol_table.add_constants());
+        expression.register_symbol_table(symbol_table);
+
+        resolver.next_value(true);
+        parser.enable_unknown_symbol_resolver(&resolver);
+
+        test_support::require_compiles<numeric_type>("v0 + c1", parser, expression);
+        CHECK(expression.value() == numeric_type(3));
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
