@@ -36,6 +36,7 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/results_context.hpp"
 #include "math_expr/symbol_table.hpp"
+#include "math_expr/details/hot_expression_tree.hpp"
 #include "math_expr/details/node_variant_adapter.hpp"
 #include "math_expr/details/node_utils.hpp"
 
@@ -152,6 +153,7 @@ class expression
         explicit control_block(expression_ptr e)
             : expr(e), retinv_null(false), return_invoked(&retinv_null)
         {
+            hot_tree = details::hot_expression_tree<T>::try_build(expr);
         }
 
         ~control_block()
@@ -163,6 +165,7 @@ class expression
         }
 
         expression_ptr expr;
+        std::unique_ptr<details::hot_expression_tree<T>> hot_tree;
         local_data_list_t local_data_list;
         std::unique_ptr<results_context_t> results;
         bool retinv_null;
@@ -253,6 +256,11 @@ class expression
     {
         assert(control_block_);
         assert(control_block_->expr);
+
+        if (control_block_->hot_tree)
+        {
+            return control_block_->hot_tree->value();
+        }
 
         return details::node_variant_adapter<T>::value(control_block_->expr);
     }

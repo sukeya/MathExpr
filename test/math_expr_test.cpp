@@ -14387,6 +14387,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         test_support::require_compiles("x + 0", variable_parser, variable_expression);
         REQUIRE(variable_expression.get_control_block());
         REQUIRE(variable_expression.get_control_block()->expr);
+        REQUIRE(variable_expression.get_control_block()->hot_tree != nullptr);
         auto* variable_node = adapter_t::variable(variable_expression.get_control_block()->expr);
         REQUIRE(variable_node != nullptr);
         CHECK(&variable_node->ref() == &scalar);
@@ -14399,6 +14400,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         test_support::require_compiles("9 + abs(x)", cob_parser, cob_expression);
         REQUIRE(cob_expression.get_control_block());
         REQUIRE(cob_expression.get_control_block()->expr);
+        REQUIRE(cob_expression.get_control_block()->hot_tree != nullptr);
         auto* cob_base = adapter_t::cob_base(cob_expression.get_control_block()->expr);
         REQUIRE(cob_base != nullptr);
         CHECK(cob_base->c() == numeric_type(9));
@@ -14422,6 +14424,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
 
         REQUIRE(symbol_expression.get_control_block());
         REQUIRE(symbol_expression.get_control_block()->expr);
+        CHECK(symbol_expression.get_control_block()->hot_tree == nullptr);
         auto* stringvar_node =
             adapter_t::string_variable(symbol_expression.get_control_block()->expr);
         REQUIRE(stringvar_node != nullptr);
@@ -14549,6 +14552,37 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         CHECK(adapter_t::value(&hot_unary) == numeric_type(-5));
         CHECK(adapter_t::value(&hot_binary) == numeric_type(12));
         CHECK(adapter_t::value(&hot_trinary) == numeric_type(1));
+    }
+
+    SECTION("compact hot tree is built only for supported hot paths")
+    {
+        numeric_type x = numeric_type(5);
+        numeric_type y = numeric_type(2);
+        std::string text = "abc";
+        math_expr::symbol_table<numeric_type> symbol_table;
+        REQUIRE(symbol_table.add_variable("x", x));
+        REQUIRE(symbol_table.add_variable("y", y));
+        REQUIRE(symbol_table.add_stringvar("s", text));
+
+        math_expr::expression<numeric_type> hot_expression;
+        hot_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> hot_parser;
+        test_support::require_compiles("9 + abs(x)", hot_parser, hot_expression);
+        REQUIRE(hot_expression.get_control_block());
+        REQUIRE(hot_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(hot_expression.get_control_block()->hot_tree->size() >= 2);
+        CHECK(hot_expression.value() == numeric_type(14));
+
+        x = numeric_type(7);
+        CHECK(hot_expression.value() == numeric_type(16));
+        CHECK(hot_expression.get_control_block()->hot_tree->value() == numeric_type(16));
+
+        math_expr::expression<numeric_type> cold_expression;
+        cold_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> cold_parser;
+        test_support::require_compiles("s", cold_parser, cold_expression);
+        REQUIRE(cold_expression.get_control_block());
+        CHECK(cold_expression.get_control_block()->hot_tree == nullptr);
     }
 }
 

@@ -2716,6 +2716,11 @@ class voc_node final : public voc_base_node<T>
         return Operation::process(v_, c_);
     }
 
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return Operation::type();
+    }
+
     inline core::operators::operator_type operation() const override
     {
         return Operation::operation();
@@ -2758,6 +2763,11 @@ class vob_node final : public vob_base_node<T>
     inline T value() const override
     {
         return Operation::process(v_, branch_.first->value());
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return Operation::type();
     }
 
     inline const T& v() const override
@@ -2816,6 +2826,11 @@ class bov_node final : public bov_base_node<T>
     inline T value() const override
     {
         return Operation::process(branch_.first->value(), v_);
+    }
+
+    inline typename expression_node<T>::node_type type() const override
+    {
+        return Operation::type();
     }
 
     inline const T& v() const override
