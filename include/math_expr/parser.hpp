@@ -4444,6 +4444,40 @@ class parser : public lexer::parser_helper
             return true;
         }
 
+        inline bool is_null_branch(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::is_null(node);
+        }
+
+        inline bool is_literal_branch(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::is_literal(node);
+        }
+
+        inline bool is_variable_branch(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::is_variable(node);
+        }
+
+        inline Type literal_value(expression_node_ptr node) const
+        {
+            auto* literal = node_variant_adapter_t::literal(node);
+            assert(nullptr != literal);
+            return literal->value();
+        }
+
+        inline const Type& variable_ref(expression_node_ptr node) const
+        {
+            auto* variable = node_variant_adapter_t::variable(node);
+            assert(nullptr != variable);
+            return variable->ref();
+        }
+
+        inline expression_node_ptr variable_expression(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::variable(node);
+        }
+
         inline expression_node_ptr operator()(const core::operators::operator_type& operation,
                                               expression_node_ptr (&branch)[1])
         {
@@ -4451,7 +4485,7 @@ class parser : public lexer::parser_helper
             {
                 return error_node();
             }
-            else if (details::is_null_node(branch[0]))
+            else if (is_null_branch(branch[0]))
             {
                 return branch[0];
             }
@@ -4463,11 +4497,11 @@ class parser : public lexer::parser_helper
             {
                 return error_node();
             }
-            else if (details::is_constant_node(branch[0]))
+            else if (is_literal_branch(branch[0]))
             {
                 return synthesize_expression<unary_node_t, 1>(operation, branch);
             }
-            else if (unary_optimisable(operation) && details::is_variable_node(branch[0]))
+            else if (unary_optimisable(operation) && is_variable_branch(branch[0]))
             {
                 return synthesize_uv_expression(operation, branch);
             }
@@ -4593,11 +4627,11 @@ class parser : public lexer::parser_helper
             static const std::string cs_str("(cs)");
             static const std::string cstrrng_str("(crngs)");
 
-            if (details::is_null_node(branch))
+            if (is_null_branch(branch))
                 return null_str;
-            else if (details::is_constant_node(branch))
+            else if (is_literal_branch(branch))
                 return const_str;
-            else if (details::is_variable_node(branch))
+            else if (is_variable_branch(branch))
                 return var_str;
             else if (details::is_vov_node(branch))
                 return vov_str;
@@ -4640,7 +4674,7 @@ class parser : public lexer::parser_helper
             if (!operation_optimisable(operation))
                 return false;
             else
-                return details::is_constant_node(branch[0]) && details::is_variable_node(branch[1]);
+                return is_literal_branch(branch[0]) && is_variable_branch(branch[1]);
         }
 
         inline bool voc_optimisable(const core::operators::operator_type& operation,
@@ -4649,7 +4683,7 @@ class parser : public lexer::parser_helper
             if (!operation_optimisable(operation))
                 return false;
             else
-                return details::is_variable_node(branch[0]) && details::is_constant_node(branch[1]);
+                return is_variable_branch(branch[0]) && is_literal_branch(branch[1]);
         }
 
         inline bool vov_optimisable(const core::operators::operator_type& operation,
@@ -4658,7 +4692,7 @@ class parser : public lexer::parser_helper
             if (!operation_optimisable(operation))
                 return false;
             else
-                return details::is_variable_node(branch[0]) && details::is_variable_node(branch[1]);
+                return is_variable_branch(branch[0]) && is_variable_branch(branch[1]);
         }
 
         inline bool cob_optimisable(const core::operators::operator_type& operation,
@@ -4726,8 +4760,7 @@ class parser : public lexer::parser_helper
             if (!operation_optimisable(operation))
                 return false;
             else
-                return details::is_variable_node(branch[0]) &&
-                       !details::is_variable_node(branch[1]);
+                return is_variable_branch(branch[0]) && !is_variable_branch(branch[1]);
         }
 
         inline bool bov_optimisable(const core::operators::operator_type& operation,
@@ -4736,8 +4769,7 @@ class parser : public lexer::parser_helper
             if (!operation_optimisable(operation))
                 return false;
             else
-                return !details::is_variable_node(branch[0]) &&
-                       details::is_variable_node(branch[1]);
+                return !is_variable_branch(branch[0]) && is_variable_branch(branch[1]);
         }
 
         inline bool binext_optimisable(const core::operators::operator_type& operation,
@@ -4759,10 +4791,10 @@ class parser : public lexer::parser_helper
 
                 if (details::is_string_node(branch[0]))
                     return !b1_is_genstring;
-                else if (details::is_literal_node(branch[0]))
+                else if (is_literal_branch(branch[0]))
                     return true;
                 else
-                    return (!details::is_variable_node(branch[0]) &&
+                    return (!is_variable_branch(branch[0]) &&
                             !details::is_vector_elem_node(branch[0]) &&
                             !details::is_vector_celem_node(branch[0]) &&
                             !details::is_vector_elem_rtc_node(branch[0]) &&
@@ -4781,12 +4813,12 @@ class parser : public lexer::parser_helper
         inline bool is_constpow_operation(const core::operators::operator_type& operation,
                                           expression_node_ptr (&branch)[2]) const
         {
-            if (!details::is_constant_node(branch[1]) || details::is_constant_node(branch[0]) ||
-                details::is_variable_node(branch[0]) || details::is_vector_node(branch[0]) ||
+            if (!is_literal_branch(branch[1]) || is_literal_branch(branch[0]) ||
+                is_variable_branch(branch[0]) || details::is_vector_node(branch[0]) ||
                 details::is_generally_string_node(branch[0]))
                 return false;
 
-            const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+            const Type c = literal_value(branch[1]);
 
             return cardinal_pow_optimisable(operation, c);
         }
@@ -4877,7 +4909,7 @@ class parser : public lexer::parser_helper
 
         inline bool is_null_present(expression_node_ptr (&branch)[2]) const
         {
-            return (details::is_null_node(branch[0]) || details::is_null_node(branch[1]));
+            return (is_null_branch(branch[0]) || is_null_branch(branch[1]));
         }
 
         inline bool is_vector_eqineq_logic_operation(
@@ -8146,7 +8178,7 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v = expr_gen.variable_ref(branch[0]);
 
 #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
                 if (details::is_sf3ext_node(branch[1]))
@@ -8224,7 +8256,7 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type& v = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v = expr_gen.variable_ref(branch[1]);
 
 #ifndef MATH_EXPR_DISABLE_ENHANCED_FEATURES
                 if (details::is_sf3ext_node(branch[0]))
@@ -8316,7 +8348,7 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c = expr_gen.literal_value(branch[0]);
 
                 details::free_node(*expr_gen.node_allocator_, branch[0]);
 
@@ -8468,7 +8500,7 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c = expr_gen.literal_value(branch[1]);
 
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
 
@@ -9024,8 +9056,8 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v1 = expr_gen.variable_ref(branch[0]);
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
 
                 switch (operation)
                 {
@@ -9047,8 +9079,8 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
-                const Type& v = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type c = expr_gen.literal_value(branch[0]);
+                const Type& v = expr_gen.variable_ref(branch[1]);
 
                 details::free_node(*(expr_gen.node_allocator_), branch[0]);
 
@@ -9060,10 +9092,10 @@ class parser : public lexer::parser_helper
                     return expr_gen(T(0));
                 else if (std::equal_to<T>()(T(0), c) &&
                          (core::operators::operator_type::add == operation))
-                    return static_cast<details::variable_node<Type>*>(branch[1]);
+                    return expr_gen.variable_expression(branch[1]);
                 else if (std::equal_to<T>()(T(1), c) &&
                          (core::operators::operator_type::mul == operation))
-                    return static_cast<details::variable_node<Type>*>(branch[1]);
+                    return expr_gen.variable_expression(branch[1]);
 
                 switch (operation)
                 {
@@ -9085,8 +9117,8 @@ class parser : public lexer::parser_helper
                 expression_generator<Type>& expr_gen,
                 const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
             {
-                const Type& v = static_cast<details::variable_node<Type>*>(branch[0])->ref();
-                const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type& v = expr_gen.variable_ref(branch[0]);
+                const Type c = expr_gen.literal_value(branch[1]);
 
                 details::free_node(*(expr_gen.node_allocator_), branch[1]);
 
@@ -9105,13 +9137,13 @@ class parser : public lexer::parser_helper
                     return expr_gen(std::numeric_limits<T>::quiet_NaN());
                 else if (std::equal_to<T>()(T(0), c) &&
                          (core::operators::operator_type::add == operation))
-                    return static_cast<details::variable_node<Type>*>(branch[0]);
+                    return expr_gen.variable_expression(branch[0]);
                 else if (std::equal_to<T>()(T(1), c) &&
                          (core::operators::operator_type::mul == operation))
-                    return static_cast<details::variable_node<Type>*>(branch[0]);
+                    return expr_gen.variable_expression(branch[0]);
                 else if (std::equal_to<T>()(T(1), c) &&
                          (core::operators::operator_type::div == operation))
-                    return static_cast<details::variable_node<Type>*>(branch[0]);
+                    return expr_gen.variable_expression(branch[0]);
 
                 switch (operation)
                 {

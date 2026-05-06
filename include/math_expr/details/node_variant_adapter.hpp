@@ -246,6 +246,16 @@ class node_variant_adapter
     {
         return holds<null_view>(node);
     }
+
+    static inline bool is_literal(expression_ptr node)
+    {
+        return nullptr != literal(node);
+    }
+
+    static inline bool is_variable(expression_ptr node)
+    {
+        return nullptr != variable(node);
+    }
 };
 }  // namespace math_expr::details
 

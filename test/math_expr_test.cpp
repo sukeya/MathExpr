@@ -14365,9 +14365,21 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
 
     SECTION("typed string views and synthesis paths remain stable")
     {
+        numeric_type scalar = numeric_type(5);
         std::string symbol_text = "bbb";
         math_expr::symbol_table<numeric_type> symbol_table;
+        REQUIRE(symbol_table.add_variable("x", scalar));
         REQUIRE(symbol_table.add_stringvar("s", symbol_text));
+
+        math_expr::expression<numeric_type> variable_expression;
+        variable_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> variable_parser;
+        test_support::require_compiles("x + 0", variable_parser, variable_expression);
+        REQUIRE(variable_expression.get_control_block());
+        REQUIRE(variable_expression.get_control_block()->expr);
+        auto* variable_node = adapter_t::variable(variable_expression.get_control_block()->expr);
+        REQUIRE(variable_node != nullptr);
+        CHECK(&variable_node->ref() == &scalar);
 
         math_expr::expression<numeric_type> symbol_expression;
         symbol_expression.register_symbol_table(symbol_table);
