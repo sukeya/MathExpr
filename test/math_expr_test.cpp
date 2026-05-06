@@ -14095,6 +14095,44 @@ TEST_CASE("Special-case parser delegation remains stable", "[parser][special-cas
     }
 }
 
+TEST_CASE("Entity parser delegation remains stable", "[parser][entity]")
+{
+    SECTION("const strings and registered strings stay stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        std::string text = "abc123";
+
+        REQUIRE(symbol_table.add_stringvar("s", text));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("'hello'[]", parser, expression);
+        CHECK(expression.value() == numeric_type(5));
+
+        test_support::require_compiles<numeric_type>("s[1:2] == 'bc'[:]", parser, expression);
+        CHECK(expression.value() == numeric_type(1));
+    }
+
+    SECTION("vector symbols stay stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+            {"var v[3] := {1,2,3}; v[]", numeric_type(3)},
+            {"var v[3] := {1,2,3}; v[1]", numeric_type(2)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());

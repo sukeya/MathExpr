@@ -69,6 +69,7 @@ limitations under the License.
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
 #include "math_expr/parser/dynamic_function_parser.hpp"
+#include "math_expr/parser/entity_parser.hpp"
 #include "math_expr/parser/function_call_parser.hpp"
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
@@ -2093,6 +2094,170 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct entity_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using range_t = typename parser<T>::range_t;
+        using scope_element_t = math_expr::scope_element<T>;
+        using symbol_table_t = typename parser<T>::symbol_table_t;
+        using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
+        using string_context_t = typename symtab_store_t::string_context;
+        using vector_context_t = typename symtab_store_t::vector_context;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
+#endif
+
+        explicit entity_context(parser<T>& parser)
+            : parser_(parser),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
+        {
+            return parser_.parse_range(rp, skip_lsqr);
+        }
+
+        inline expression_node_ptr parse_vector_index(const std::string& vector_name = "")
+        {
+            return parser_.parse_vector_index(vector_name);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline scope_element_t& get_active_element(const std::string& symbol)
+        {
+            return sem.get_active_element(symbol);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline string_context_t get_string_context(const std::string& symbol) const
+        {
+            return symtab_store.get_string_context(symbol);
+        }
+
+        inline bool is_conststr_stringvar(const std::string& symbol) const
+        {
+            return symtab_store.is_conststr_stringvar(symbol);
+        }
+
+        inline bool is_constant_string(const std::string& symbol) const
+        {
+            return symtab_store.is_constant_string(symbol);
+        }
+
+        inline expression_node_ptr make_string_literal(const std::string& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_const_string_range(const std::string& value, range_t& range)
+        {
+            return parser_.expression_generator_(value, range);
+        }
+
+        inline expression_node_ptr make_string_range(stringvar_node_ptr node, range_t& range)
+        {
+            return parser_.expression_generator_(node->ref(), range);
+        }
+
+        inline expression_node_ptr make_stringvar_size_node(stringvar_node_ptr node)
+        {
+            return node_allocator.template allocate<details::string_nodes::stringvar_size_node<T>>(
+                node->ref());
+        }
+
+        inline void lodge_immutable_string_symbol(const lexer::token& token, core::char_cptr begin,
+                                                  const std::size_t size)
+        {
+            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(begin, size));
+        }
+#endif
+
+        inline vector_context_t get_vector_context(const std::string& vector_name) const
+        {
+            return symtab_store.get_vector_context(vector_name);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_vector_node(vector_holder_ptr vector_holder)
+        {
+            return node_allocator.template allocate<vector_node_t>(vector_holder);
+        }
+
+        inline expression_node_ptr make_vector_size_node(vector_holder_ptr vector_holder)
+        {
+            return node_allocator.template allocate<vector_size_node_t>(vector_holder);
+        }
+
+        inline expression_node_ptr synthesize_vector_element(const std::string& vector_name,
+                                                             vector_holder_ptr vector_holder,
+                                                             expression_node_ptr vector_node,
+                                                             expression_node_ptr index_expr)
+        {
+            return parser_.synthesize_vector_element(vector_name, vector_holder, vector_node,
+                                                     index_expr);
+        }
+
+        inline void lodge_immutable_vector_symbol(const lexer::token& token, const T* begin,
+                                                  const std::size_t size)
+        {
+            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(begin, size));
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        parser<T>& parser_;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        details::node_allocator& node_allocator;
+    };
+
     struct function_call_context
     {
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
@@ -2590,98 +2755,8 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_string()
     {
-        const std::string symbol = current_token().value;
-
-        using strvar_node_t = details::string_nodes::stringvar_node<T>*;
-
-        expression_node_ptr result = error_node();
-        strvar_node_t const_str_node = static_cast<strvar_node_t>(0);
-
-        scope_element& se = sem_.get_active_element(symbol);
-
-        if (scope_element::element_type::e_string == se.type)
-        {
-            se.active = true;
-            result = se.str_node;
-            lodge_symbol(symbol, symbol_type::e_st_local_string);
-        }
-        else
-        {
-            using str_ctxt_t = typename symtab_store_t::string_context;
-            str_ctxt_t str_ctx = symtab_store_.get_string_context(symbol);
-
-            if ((nullptr == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR121 - Unknown string symbol", core::error_location()));
-
-                return error_node();
-            }
-
-            assert(str_ctx.str_var != nullptr);
-            assert(str_ctx.symbol_table != nullptr);
-
-            result = str_ctx.str_var;
-
-            if (symtab_store_.is_constant_string(symbol))
-            {
-                const_str_node = static_cast<strvar_node_t>(result);
-                result = expression_generator_(const_str_node->str());
-            }
-            else if (symbol_table_t::symtab_mutability_type::e_immutable ==
-                     str_ctx.symbol_table->mutability())
-            {
-                lodge_immutable_symbol(current_token(), make_memory_range(str_ctx.str_var->base(),
-                                                                          str_ctx.str_var->size()));
-            }
-
-            lodge_symbol(symbol, symbol_type::e_st_string);
-        }
-
-        if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            next_token();
-
-            if (peek_token_is(token_t::e_rsqrbracket))
-            {
-                next_token();
-                next_token();
-
-                if (const_str_node)
-                {
-                    free_node(node_allocator_, result);
-
-                    return expression_generator_(T(const_str_node->size()));
-                }
-                else
-                    return node_allocator_.allocate<details::string_nodes::stringvar_size_node<T>>(
-                        static_cast<details::string_nodes::stringvar_node<T>*>(result)->ref());
-            }
-
-            range_t rp;
-
-            if (!parse_range(rp))
-            {
-                free_node(node_allocator_, result);
-
-                return error_node();
-            }
-            else if (const_str_node)
-            {
-                free_node(node_allocator_, result);
-                result = expression_generator_(const_str_node->ref(), rp);
-            }
-            else
-                result = expression_generator_(
-                    static_cast<details::string_nodes::stringvar_node<T>*>(result)->ref(), rp);
-
-            if (result)
-                rp.clear();
-        }
-        else
-            next_token();
-
-        return result;
+        entity_context context(*this);
+        return parser_entity<T>::parse_string(context);
     }
 #else
     inline expression_node_ptr parse_string()
@@ -2693,67 +2768,8 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_const_string()
     {
-        const std::string const_str = current_token().value;
-        expression_node_ptr result = expression_generator_(const_str);
-
-        if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            next_token();
-
-            if (peek_token_is(token_t::e_rsqrbracket))
-            {
-                next_token();
-                next_token();
-
-                free_node(node_allocator_, result);
-
-                return expression_generator_(T(const_str.size()));
-            }
-
-            range_t rp;
-
-            if (!parse_range(rp))
-            {
-                free_node(node_allocator_, result);
-                rp.free();
-
-                return error_node();
-            }
-
-            free_node(node_allocator_, result);
-
-            if (rp.n1_c.first && (rp.n1_c.second == std::numeric_limits<std::size_t>::max()))
-            {
-                rp.n1_c.second = const_str.size() - 1;
-                rp.cache.second = rp.n1_c.second;
-            }
-
-            if ((rp.n0_c.first && (rp.n0_c.second >= const_str.size())) ||
-                (rp.n1_c.first && (rp.n1_c.second >= const_str.size())))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR122 - Overflow in range for string: '" + const_str + "'[" +
-                        (rp.n0_c.first ? core::to_str(static_cast<int>(rp.n0_c.second)) : "?") +
-                        ":" +
-                        (rp.n1_c.first ? core::to_str(static_cast<int>(rp.n1_c.second)) : "?") +
-                        "]",
-                    core::error_location()));
-
-                rp.free();
-
-                return error_node();
-            }
-
-            result = expression_generator_(const_str, rp);
-
-            if (result)
-                rp.clear();
-        }
-        else
-            next_token();
-
-        return result;
+        entity_context context(*this);
+        return parser_entity<T>::parse_const_string(context);
     }
 #else
     inline expression_node_ptr parse_const_string()
@@ -2770,68 +2786,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_vector()
     {
-        const std::string vector_name = current_token().value;
-
-        vector_holder_ptr vec = vector_holder_ptr(0);
-
-        const scope_element& se = sem_.get_active_element(vector_name);
-
-        if (!core::imatch(se.name, vector_name) || (se.depth > state_.scope_depth) ||
-            (scope_element::element_type::e_vector != se.type))
-        {
-            using vec_ctxt_t = typename symtab_store_t::vector_context;
-            vec_ctxt_t vec_ctx = symtab_store_.get_vector_context(vector_name);
-
-            if (nullptr == vec_ctx.vector_holder)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR125 - Symbol '" + vector_name + " not a vector",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            assert(nullptr != vec_ctx.vector_holder);
-            assert(nullptr != vec_ctx.symbol_table);
-
-            vec = vec_ctx.vector_holder;
-
-            if (symbol_table_t::symtab_mutability_type::e_immutable ==
-                vec_ctx.symbol_table->mutability())
-            {
-                lodge_immutable_symbol(current_token(),
-                                       make_memory_range(vec->data(), vec->size()));
-            }
-        }
-        else
-        {
-            vec = se.vec_node;
-        }
-
-        assert(nullptr != vec);
-
-        next_token();
-
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            return node_allocator_.allocate<vector_node_t>(vec);
-        }
-        else if (token_is(token_t::e_rsqrbracket))
-        {
-            return (vec->rebaseable()) ? node_allocator_.allocate<vector_size_node_t>(vec)
-                                       : expression_generator_(T(vec->size()));
-        }
-
-        expression_node_ptr index_expr = parse_vector_index(vector_name);
-
-        if (index_expr)
-        {
-            expression_node_ptr vec_node = node_allocator_.allocate<vector_node_t>(vec);
-
-            return synthesize_vector_element(vector_name, vec, vec_node, index_expr);
-        }
-
-        return error_node();
+        entity_context context(*this);
+        return parser_entity<T>::parse_vector(context);
     }
 
     inline expression_node_ptr synthesize_vector_element(const std::string& vector_name,
