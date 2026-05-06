@@ -5657,10 +5657,10 @@ class parser : public lexer::parser_helper
         {
             using arg_list_t = std::vector<std::pair<expression_node_ptr, bool>>;
 
-#define CASE_STMT(N)                            \
-    if (is_true(arg[(2 * N)].first))            \
-    {                                           \
-        return arg[(2 * N) + 1].first->value(); \
+#define CASE_STMT(N)                                                            \
+    if (is_true(arg[(2 * N)].first))                                            \
+    {                                                                           \
+        return details::node_variant_adapter<T>::value(arg[(2 * N) + 1].first); \
     }
 
             struct switch_impl_1
@@ -5671,7 +5671,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 1) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -5684,7 +5684,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 2) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -5698,7 +5698,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 3) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -5713,7 +5713,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 4) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -5729,7 +5729,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 5) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -5746,7 +5746,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 6) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -5764,7 +5764,7 @@ class parser : public lexer::parser_helper
 
                     assert(arg.size() == ((2 * 7) + 1));
 
-                    return arg.back().first->value();
+                    return details::node_variant_adapter<T>::value(arg.back().first);
                 }
             };
 
@@ -6011,7 +6011,7 @@ class parser : public lexer::parser_helper
 
             assert(temp_node);
 
-            const T v = temp_node->value();
+            const T v = details::node_variant_adapter<T>::value(temp_node);
 
             details::free_node(*node_allocator_, temp_node);
 
@@ -6232,7 +6232,7 @@ class parser : public lexer::parser_helper
 
             assert(temp_node);
 
-            const T v = temp_node->value();
+            const T v = details::node_variant_adapter<T>::value(temp_node);
 
             details::free_node(*node_allocator_, temp_node);
 
@@ -6414,7 +6414,7 @@ class parser : public lexer::parser_helper
                     return error_node();
             }
 
-            const T v = temp_node->value();
+            const T v = details::node_variant_adapter<T>::value(temp_node);
 
             details::free_node(*node_allocator_, temp_node);
 
@@ -6637,7 +6637,7 @@ class parser : public lexer::parser_helper
             if (!arg_list.empty() && !vaf->has_side_effects() &&
                 fold_passes_t::is_constant_foldable(arg_list))
             {
-                const Type v = result->value();
+                const Type v = details::node_variant_adapter<T>::value(result);
                 details::free_node(*node_allocator_, result);
                 result = node_allocator_->allocate<literal_node_t>(v);
             }
@@ -6696,7 +6696,7 @@ class parser : public lexer::parser_helper
             {
                 genfunc_node_ptr->init_branches();
 
-                const Type v = result->value();
+                const Type v = details::node_variant_adapter<T>::value(result);
 
                 details::free_node(*node_allocator_, result);
 
@@ -6765,7 +6765,7 @@ class parser : public lexer::parser_helper
             {
                 strfunc_node_ptr->init_branches();
 
-                const Type v = result->value();
+                const Type v = details::node_variant_adapter<T>::value(result);
 
                 details::free_node(*node_allocator_, result);
 
@@ -14480,7 +14480,7 @@ class parser : public lexer::parser_helper
                     synthesize_sos_expression_impl<const std::string, const std::string>(opr, s0,
                                                                                          s1);
 
-                const Type v = temp->value();
+                const Type v = details::node_variant_adapter<T>::value(temp);
 
                 details::free_node(*node_allocator_, temp);
 
@@ -15004,7 +15004,7 @@ class parser : public lexer::parser_helper
 
                 if (fold_passes_t::is_constant_foldable(branch))
                 {
-                    const Type v = expression_point->value();
+                    const Type v = details::node_variant_adapter<T>::value(expression_point);
                     details::free_node(*node_allocator_, expression_point);
 
                     return node_allocator_->allocate<literal_node_t>(v);
@@ -15053,7 +15053,7 @@ class parser : public lexer::parser_helper
 
             if (fold_passes_t::is_constant_foldable(branch) && !f->has_side_effects())
             {
-                Type v = expression_point->value();
+                Type v = details::node_variant_adapter<T>::value(expression_point);
                 details::free_node(*node_allocator_, expression_point);
 
                 return node_allocator_->allocate<literal_node_t>(v);
