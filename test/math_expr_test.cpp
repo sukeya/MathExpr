@@ -14008,6 +14008,62 @@ TEST_CASE("Function call parser delegation remains stable", "[parser][function-c
     }
 }
 
+TEST_CASE("Dynamic function parser delegation remains stable", "[parser][dynamic-function]")
+{
+    SECTION("vararg dispatch stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        vararg_func<numeric_type> function;
+
+        REQUIRE(symbol_table.add_function("vf", function));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("vf()", parser, expression);
+        CHECK(expression.value() == numeric_type(0));
+
+        test_support::require_compiles<numeric_type>("vf(1,2)", parser, expression);
+        CHECK(expression.value() == numeric_type(1));
+    }
+
+    SECTION("generic dispatch stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        gen_func<numeric_type> function;
+        std::string text = "abc123";
+
+        REQUIRE(symbol_table.add_function("gf", function));
+        REQUIRE(symbol_table.add_stringvar("s", text));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("gf(1,s)", parser, expression);
+        CHECK(expression.value() == numeric_type(0));
+        CHECK(function.scalar_count == 1);
+        CHECK(function.string_count == 1);
+    }
+
+    SECTION("overload dispatch stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        overload_func<numeric_type> function("T:T|S:S");
+        numeric_type x = numeric_type(3);
+
+        REQUIRE(symbol_table.add_function("of", function));
+        REQUIRE(symbol_table.add_variable("x", x));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("of(x)", parser, expression);
+        CHECK(expression.value() == numeric_type(1));
+        CHECK(function.current_ps_index == 0);
+        CHECK(function.current_param_seq == "T");
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
