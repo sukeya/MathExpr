@@ -68,6 +68,8 @@ limitations under the License.
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/range_parser.hpp"
+#include "math_expr/parser/sequence_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
 
@@ -1851,6 +1853,110 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct sequence_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit sequence_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        template <typename Sequence1, typename Sequence2>
+        inline expression_node_ptr simplify(Sequence1& expression_list, Sequence2& side_effect_list,
+                                            const bool specialise_on_final_type = false)
+        {
+            return parser_.simplify(expression_list, side_effect_list, specialise_on_final_type);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        details::node_allocator& node_allocator;
+    };
+
+    struct range_context
+    {
+        explicit range_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type)
+        {
+            return parser_.token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -2470,253 +2576,14 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
                                                     const bool enforce_crlbrackets = false)
     {
-        token_t::token_type open_bracket = token_t::e_lcrlbracket;
-        token_t::token_type close_bracket = token_t::e_rcrlbracket;
-        token_t::token_type separator = token_t::e_eof;
-
-        if (!token_is(open_bracket))
-        {
-            if (!enforce_crlbrackets && token_is(token_t::e_lbracket))
-            {
-                open_bracket = token_t::e_lbracket;
-                close_bracket = token_t::e_rbracket;
-                separator = token_t::e_comma;
-            }
-            else
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR111 - Expected '" + token_t::to_str(open_bracket) +
-                                   "' for call to multi-sequence" +
-                                   ((!source.empty()) ? std::string(" section of " + source) : ""),
-                               core::error_location()));
-
-                return error_node();
-            }
-        }
-        else if (token_is(close_bracket))
-        {
-            return node_allocator_.allocate<details::null_node<T>>();
-        }
-
-        std::vector<expression_node_ptr> arg_list;
-        std::vector<bool> side_effect_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        scope_handler sh(state_.scope_depth, sem_);
-
-        scoped_bool_or_restorer sbr(state_.side_effect_present);
-
-        for (;;)
-        {
-            state_.side_effect_present = false;
-
-            expression_node_ptr arg = parse_expression();
-
-            if (nullptr == arg)
-                return error_node();
-            else
-            {
-                arg_list.push_back(arg);
-                side_effect_list.push_back(state_.side_effect_present);
-            }
-
-            if (token_is(close_bracket))
-                break;
-
-            const bool is_next_close = peek_token_is(close_bracket);
-
-            if (!token_is(separator) && is_next_close)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR112 - Expected '" +
-                                         lexer::token::seperator_to_str(separator) +
-                                         "' for call to multi-sequence section of " + source,
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            if (token_is(close_bracket))
-                break;
-        }
-
-        expression_node_ptr result = simplify(arg_list, side_effect_list, source.empty());
-
-        svd.delete_ptr = (nullptr == result);
-        return result;
+        sequence_context context(*this);
+        return parser_sequence<T>::parse_multi_sequence(context, source, enforce_crlbrackets);
     }
 
     inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
     {
-        // Examples of valid ranges:
-        // 1. [1:5]     -> [1,5)
-        // 2. [ :5]     -> [0,5)
-        // 3. [1: ]     -> [1,end)
-        // 4. [x:y]     -> [x,y) where x <= y
-        // 5. [x+1:y/2] -> [x+1,y/2) where x+1 <= y/2
-        // 6. [ :y]     -> [0,y) where 0 <= y
-        // 7. [x: ]     -> [x,end) where x <= end
-
-        rp.clear();
-
-        if (!skip_lsqr && !token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR113 - Expected '[' for start of range",
-                                 core::error_location()));
-
-            return false;
-        }
-
-        if (token_is(token_t::e_colon))
-        {
-            rp.n0_c.first = true;
-            rp.n0_c.second = 0;
-            rp.cache.first = 0;
-        }
-        else
-        {
-            expression_node_ptr r0 = parse_expression();
-
-            if (nullptr == r0)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR114 - Failed parse begin section of range",
-                                     core::error_location()));
-
-                return false;
-            }
-            else if (is_constant_node(r0))
-            {
-                const T r0_value = r0->value();
-
-                if (r0_value >= T(0))
-                {
-                    rp.n0_c.first = true;
-                    rp.n0_c.second = static_cast<std::size_t>(core::numeric::to_int64(r0_value));
-                    rp.cache.first = rp.n0_c.second;
-                }
-
-                free_node(node_allocator_, r0);
-
-                if (r0_value < T(0))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR115 - Range lower bound less than zero! Constraint: r0 >= 0",
-                                   core::error_location()));
-
-                    return false;
-                }
-            }
-            else
-            {
-                rp.n0_e.first = true;
-                rp.n0_e.second = r0;
-            }
-
-            if (!token_is(token_t::e_colon))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR116 - Expected ':' for break  in range",
-                                     core::error_location()));
-
-                rp.free();
-
-                return false;
-            }
-        }
-
-        if (token_is(token_t::e_rsqrbracket))
-        {
-            rp.n1_c.first = true;
-            rp.n1_c.second = std::numeric_limits<std::size_t>::max();
-        }
-        else
-        {
-            expression_node_ptr r1 = parse_expression();
-
-            if (nullptr == r1)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR117 - Failed parse end section of range",
-                                     core::error_location()));
-
-                rp.free();
-
-                return false;
-            }
-            else if (is_constant_node(r1))
-            {
-                const T r1_value = r1->value();
-
-                if (r1_value >= T(0))
-                {
-                    rp.n1_c.first = true;
-                    rp.n1_c.second = static_cast<std::size_t>(core::numeric::to_int64(r1_value));
-                    rp.cache.second = rp.n1_c.second;
-                }
-
-                free_node(node_allocator_, r1);
-
-                if (r1_value < T(0))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR118 - Range upper bound less than zero! Constraint: r1 >= 0",
-                                   core::error_location()));
-
-                    rp.free();
-
-                    return false;
-                }
-            }
-            else
-            {
-                rp.n1_e.first = true;
-                rp.n1_e.second = r1;
-            }
-
-            if (!token_is(token_t::e_rsqrbracket))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR119 - Expected ']' for start of range",
-                                     core::error_location()));
-
-                rp.free();
-
-                return false;
-            }
-        }
-
-        if (rp.const_range())
-        {
-            std::size_t r0 = 0;
-            std::size_t r1 = 0;
-
-            bool rp_result = false;
-
-            try
-            {
-                rp_result = rp(r0, r1);
-            }
-            catch (std::runtime_error&)
-            {
-            }
-
-            if (!rp_result || (r0 > r1))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR120 - Invalid range, Constraint: r0 <= r1",
-                                     core::error_location()));
-
-                return false;
-            }
-        }
-
-        return true;
+        range_context context(*this);
+        return parser_range<T>::parse_range(context, rp, skip_lsqr);
     }
 
     inline void lodge_symbol(const std::string& symbol, const symbol_type st)

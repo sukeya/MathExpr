@@ -13918,6 +13918,42 @@ TEST_CASE("Vararg parser delegation remains stable", "[parser][vararg]")
     }
 }
 
+TEST_CASE("Sequence parser delegation remains stable", "[parser][sequence]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"~(1,2,7)", numeric_type(7)},
+        {"~{1;2;9;}", numeric_type(9)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Range parser delegation remains stable", "[parser][range]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"'0123456789'[2:5] == '2345'", numeric_type(1)},
+        {"'0123456789'[4:] == '456789'", numeric_type(1)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
