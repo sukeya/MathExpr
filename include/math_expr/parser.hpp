@@ -4160,6 +4160,7 @@ class parser : public lexer::parser_helper
     {
        public:
         using expression_node_ptr = details::expression_node<Type>*;
+        using node_variant_adapter_t = details::node_variant_adapter<Type>;
         using synthesize_functor_t = expression_node_ptr (*)(
             expression_generator<T>&, const core::operators::operator_type& operation,
             expression_node_ptr (&branch)[2]);
@@ -14589,6 +14590,8 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr synthesize_string_expression(
             const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
         {
+            using string_view_t = typename node_variant_adapter_t::string_view;
+
             if ((nullptr == branch[0]) || (nullptr == branch[1]))
             {
                 details::free_all_nodes(*node_allocator_, branch);
@@ -14596,13 +14599,18 @@ class parser : public lexer::parser_helper
                 return error_node();
             }
 
-            const bool b0_is_s = details::is_string_node(branch[0]);
-            const bool b0_is_cs = details::is_const_string_node(branch[0]);
+            const auto branch0_view = node_variant_adapter_t::classify(branch[0]);
+            const auto branch1_view = node_variant_adapter_t::classify(branch[1]);
+            const auto* branch0_string = std::get_if<string_view_t>(&branch0_view);
+            const auto* branch1_string = std::get_if<string_view_t>(&branch1_view);
+
+            const bool b0_is_s = branch0_string && (nullptr != branch0_string->mutable_node);
+            const bool b0_is_cs = branch0_string && branch0_string->is_const_literal;
             const bool b0_is_sr = details::is_string_range_node(branch[0]);
             const bool b0_is_csr = details::is_const_string_range_node(branch[0]);
 
-            const bool b1_is_s = details::is_string_node(branch[1]);
-            const bool b1_is_cs = details::is_const_string_node(branch[1]);
+            const bool b1_is_s = branch1_string && (nullptr != branch1_string->mutable_node);
+            const bool b1_is_cs = branch1_string && branch1_string->is_const_literal;
             const bool b1_is_sr = details::is_string_range_node(branch[1]);
             const bool b1_is_csr = details::is_const_string_range_node(branch[1]);
 
@@ -14694,6 +14702,8 @@ class parser : public lexer::parser_helper
         inline expression_node_ptr synthesize_string_expression(
             const core::operators::operator_type& opr, expression_node_ptr (&branch)[3])
         {
+            using string_view_t = typename node_variant_adapter_t::string_view;
+
             if (core::operators::operator_type::inrange != opr)
                 return error_node();
             else if ((nullptr == branch[0]) || (nullptr == branch[1]) || (nullptr == branch[2]))
@@ -14702,16 +14712,26 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (details::is_const_string_node(branch[0]) &&
-                     details::is_const_string_node(branch[1]) &&
-                     details::is_const_string_node(branch[2]))
+
+            const auto branch0_view = node_variant_adapter_t::classify(branch[0]);
+            const auto branch1_view = node_variant_adapter_t::classify(branch[1]);
+            const auto branch2_view = node_variant_adapter_t::classify(branch[2]);
+            const auto* branch0_string = std::get_if<string_view_t>(&branch0_view);
+            const auto* branch1_string = std::get_if<string_view_t>(&branch1_view);
+            const auto* branch2_string = std::get_if<string_view_t>(&branch2_view);
+
+            const bool b0_is_cs = branch0_string && branch0_string->is_const_literal;
+            const bool b1_is_cs = branch1_string && branch1_string->is_const_literal;
+            const bool b2_is_cs = branch2_string && branch2_string->is_const_literal;
+            const bool b0_is_s = branch0_string && (nullptr != branch0_string->mutable_node);
+            const bool b1_is_s = branch1_string && (nullptr != branch1_string->mutable_node);
+            const bool b2_is_s = branch2_string && (nullptr != branch2_string->mutable_node);
+
+            if (b0_is_cs && b1_is_cs && b2_is_cs)
             {
-                const std::string s0 =
-                    static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-                const std::string s1 =
-                    static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-                const std::string s2 =
-                    static_cast<details::string_literal_node<Type>*>(branch[2])->str();
+                const std::string s0 = branch0_string->base->str();
+                const std::string s1 = branch1_string->base->str();
+                const std::string s2 = branch2_string->base->str();
 
                 const Type v = (((s0 <= s1) && (s1 <= s2)) ? Type(1) : Type(0));
 
@@ -14719,15 +14739,11 @@ class parser : public lexer::parser_helper
 
                 return node_allocator_->allocate_c<details::literal_node<Type>>(v);
             }
-            else if (details::is_string_node(branch[0]) && details::is_string_node(branch[1]) &&
-                     details::is_string_node(branch[2]))
+            else if (b0_is_s && b1_is_s && b2_is_s)
             {
-                std::string& s0 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string& s2 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
+                std::string& s0 = branch0_string->mutable_node->ref();
+                std::string& s1 = branch1_string->mutable_node->ref();
+                std::string& s2 = branch2_string->mutable_node->ref();
 
                 using inrange_t =
                     typename details::sosos_node<Type, std::string&, std::string&, std::string&,
@@ -14737,13 +14753,11 @@ class parser : public lexer::parser_helper
                     ->allocate_type<inrange_t, std::string&, std::string&, std::string&>(s0, s1,
                                                                                          s2);
             }
-            else if (details::is_const_string_node(branch[0]) &&
-                     details::is_string_node(branch[1]) && details::is_const_string_node(branch[2]))
+            else if (b0_is_cs && b1_is_s && b2_is_cs)
             {
-                std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
+                std::string s0 = branch0_string->base->str();
+                std::string& s1 = branch1_string->mutable_node->ref();
+                std::string s2 = branch2_string->base->str();
 
                 using inrange_t =
                     typename details::sosos_node<Type, std::string, std::string&, std::string,
@@ -14755,14 +14769,11 @@ class parser : public lexer::parser_helper
                 return node_allocator_
                     ->allocate_type<inrange_t, std::string, std::string&, std::string>(s0, s1, s2);
             }
-            else if (details::is_string_node(branch[0]) &&
-                     details::is_const_string_node(branch[1]) && details::is_string_node(branch[2]))
+            else if (b0_is_s && b1_is_cs && b2_is_s)
             {
-                std::string& s0 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-                std::string s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-                std::string& s2 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
+                std::string& s0 = branch0_string->mutable_node->ref();
+                std::string s1 = branch1_string->base->str();
+                std::string& s2 = branch2_string->mutable_node->ref();
 
                 using inrange_t =
                     typename details::sosos_node<Type, std::string&, std::string, std::string&,
@@ -14773,14 +14784,11 @@ class parser : public lexer::parser_helper
                 return node_allocator_
                     ->allocate_type<inrange_t, std::string&, std::string, std::string&>(s0, s1, s2);
             }
-            else if (details::is_string_node(branch[0]) && details::is_string_node(branch[1]) &&
-                     details::is_const_string_node(branch[2]))
+            else if (b0_is_s && b1_is_s && b2_is_cs)
             {
-                std::string& s0 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
+                std::string& s0 = branch0_string->mutable_node->ref();
+                std::string& s1 = branch1_string->mutable_node->ref();
+                std::string s2 = branch2_string->base->str();
 
                 using inrange_t =
                     typename details::sosos_node<Type, std::string&, std::string&, std::string,
@@ -14791,14 +14799,11 @@ class parser : public lexer::parser_helper
                 return node_allocator_
                     ->allocate_type<inrange_t, std::string&, std::string&, std::string>(s0, s1, s2);
             }
-            else if (details::is_const_string_node(branch[0]) &&
-                     details::is_string_node(branch[1]) && details::is_string_node(branch[2]))
+            else if (b0_is_cs && b1_is_s && b2_is_s)
             {
-                std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string& s2 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
+                std::string s0 = branch0_string->base->str();
+                std::string& s1 = branch1_string->mutable_node->ref();
+                std::string& s2 = branch2_string->mutable_node->ref();
 
                 using inrange_t =
                     typename details::sosos_node<Type, std::string, std::string&, std::string&,
@@ -14837,8 +14842,8 @@ class parser : public lexer::parser_helper
 
             using nulleq_node_t = typename details::null_eq_node<T>;
 
-            const bool b0_null = details::is_null_node(branch[0]);
-            const bool b1_null = details::is_null_node(branch[1]);
+            const bool b0_null = node_variant_adapter_t::is_null(branch[0]);
+            const bool b1_null = node_variant_adapter_t::is_null(branch[1]);
 
             if (b0_null && b1_null)
             {

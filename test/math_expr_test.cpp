@@ -14326,6 +14326,7 @@ TEST_CASE("Branch parser delegation remains stable", "[parser][branch]")
 TEST_CASE("Expression helper variant classification remains stable", "[expression-helper][variant]")
 {
     using et_t = math_expr::expression_helper<numeric_type>;
+    using adapter_t = math_expr::details::node_variant_adapter<numeric_type>;
 
     SECTION("scalar and string categories stay stable")
     {
@@ -14333,11 +14334,64 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::parser<numeric_type> literal_parser;
         test_support::require_compiles("1 + 2", literal_parser, literal_expression);
         CHECK(et_t::is_type(literal_expression, et_t::node_types::e_literal));
+        CHECK(std::holds_alternative<
+              math_expr::details::node_variant_adapter<numeric_type>::literal_view>(
+            literal_expression.classify_root_node()));
+        REQUIRE(literal_expression.get_control_block());
+        REQUIRE(literal_expression.get_control_block()->expr);
+        REQUIRE(adapter_t::literal(literal_expression.get_control_block()->expr) != nullptr);
+        CHECK(adapter_t::literal(literal_expression.get_control_block()->expr)->value() ==
+              numeric_type(3));
 
         math_expr::expression<numeric_type> string_expression;
         math_expr::parser<numeric_type> string_parser;
-        test_support::require_compiles("'ab' + 'cd'", string_parser, string_expression);
+        test_support::require_compiles("'abcd'", string_parser, string_expression);
         CHECK(et_t::is_type(string_expression, et_t::node_types::e_string));
+        REQUIRE(string_expression.get_control_block());
+        REQUIRE(string_expression.get_control_block()->expr);
+        const auto* const_string_node =
+            adapter_t::const_string(string_expression.get_control_block()->expr);
+        REQUIRE(const_string_node != nullptr);
+        CHECK(const_string_node->str() == "abcd");
+
+        const auto string_view = string_expression.classify_root_node();
+        const auto* string_variant = std::get_if<typename adapter_t::string_view>(&string_view);
+        REQUIRE(string_variant != nullptr);
+        CHECK(string_variant->is_const_literal);
+        CHECK(string_variant->mutable_node == nullptr);
+        REQUIRE(string_variant->base != nullptr);
+        CHECK(string_variant->base->str() == "abcd");
+    }
+
+    SECTION("typed string views and synthesis paths remain stable")
+    {
+        std::string symbol_text = "bbb";
+        math_expr::symbol_table<numeric_type> symbol_table;
+        REQUIRE(symbol_table.add_stringvar("s", symbol_text));
+
+        math_expr::expression<numeric_type> symbol_expression;
+        symbol_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> symbol_parser;
+        test_support::require_compiles("s", symbol_parser, symbol_expression);
+
+        REQUIRE(symbol_expression.get_control_block());
+        REQUIRE(symbol_expression.get_control_block()->expr);
+        auto* stringvar_node =
+            adapter_t::string_variable(symbol_expression.get_control_block()->expr);
+        REQUIRE(stringvar_node != nullptr);
+        CHECK(&stringvar_node->ref() == &symbol_text);
+
+        math_expr::expression<numeric_type> inrange_expression;
+        inrange_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> inrange_parser;
+        test_support::require_compiles("inrange('aaa',s,'ccc')", inrange_parser,
+                                       inrange_expression);
+        CHECK(inrange_expression.value() == numeric_type(1));
+
+        math_expr::expression<numeric_type> null_expression;
+        math_expr::parser<numeric_type> null_parser;
+        test_support::require_compiles("null + 7", null_parser, null_expression);
+        CHECK(null_expression.value() == numeric_type(7));
     }
 }
 

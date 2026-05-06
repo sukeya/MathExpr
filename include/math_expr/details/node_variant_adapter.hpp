@@ -42,6 +42,11 @@ class node_variant_adapter
 {
    public:
     using expression_ptr = expression_node<T>*;
+    using literal_node_t = literal_node<T>;
+    using variable_node_t = variable_node<T>;
+    using string_base_node_t = string_base_node<T>;
+    using string_literal_node_t = string_literal_node<T>;
+    using stringvar_node_t = string_nodes::stringvar_node<T>;
 
     struct null_view
     {
@@ -51,16 +56,21 @@ class node_variant_adapter
     struct literal_view
     {
         expression_ptr node;
+        literal_node_t* literal;
     };
 
     struct variable_view
     {
         expression_ptr node;
+        variable_node_t* variable;
     };
 
     struct string_view
     {
         expression_ptr node;
+        string_base_node_t* base;
+        stringvar_node_t* mutable_node;
+        bool is_const_literal;
     };
 
     struct unary_view
@@ -125,15 +135,18 @@ class node_variant_adapter
         }
         else if (is_variable_node(node))
         {
-            return variable_view{node};
+            return variable_view{node, static_cast<variable_node_t*>(node)};
         }
         else if (is_generally_string_node(node))
         {
-            return string_view{node};
+            return string_view{
+                node, static_cast<string_base_node_t*>(node->as_string_base()),
+                is_string_node(node) ? static_cast<stringvar_node_t*>(node) : nullptr,
+                is_const_string_node(node)};
         }
         else if (is_literal_node(node))
         {
-            return literal_view{node};
+            return literal_view{node, static_cast<literal_node_t*>(node)};
         }
         else if (is_unary_node(node))
         {
@@ -181,6 +194,57 @@ class node_variant_adapter
     static inline decltype(auto) visit(expression_ptr node, Visitor&& visitor)
     {
         return std::visit(std::forward<Visitor>(visitor), classify(node));
+    }
+
+    static inline literal_node_t* literal(expression_ptr node)
+    {
+        const variant_type node_variant = classify(node);
+        const auto* view = std::get_if<literal_view>(&node_variant);
+        return view ? view->literal : nullptr;
+    }
+
+    static inline variable_node_t* variable(expression_ptr node)
+    {
+        const variant_type node_variant = classify(node);
+        const auto* view = std::get_if<variable_view>(&node_variant);
+        return view ? view->variable : nullptr;
+    }
+
+    static inline string_base_node_t* string_base(expression_ptr node)
+    {
+        const variant_type node_variant = classify(node);
+        const auto* view = std::get_if<string_view>(&node_variant);
+        return view ? view->base : nullptr;
+    }
+
+    static inline stringvar_node_t* string_variable(expression_ptr node)
+    {
+        const variant_type node_variant = classify(node);
+        const auto* view = std::get_if<string_view>(&node_variant);
+        return view ? view->mutable_node : nullptr;
+    }
+
+    static inline string_literal_node_t* const_string(expression_ptr node)
+    {
+        const variant_type node_variant = classify(node);
+        const auto* view = std::get_if<string_view>(&node_variant);
+        return (view && view->is_const_literal) ? static_cast<string_literal_node_t*>(view->node)
+                                                : nullptr;
+    }
+
+    static inline bool is_string_variable(expression_ptr node)
+    {
+        return nullptr != string_variable(node);
+    }
+
+    static inline bool is_const_string(expression_ptr node)
+    {
+        return nullptr != const_string(node);
+    }
+
+    static inline bool is_null(expression_ptr node)
+    {
+        return holds<null_view>(node);
     }
 };
 }  // namespace math_expr::details

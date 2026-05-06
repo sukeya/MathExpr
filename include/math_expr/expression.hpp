@@ -36,6 +36,7 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/results_context.hpp"
 #include "math_expr/symbol_table.hpp"
+#include "math_expr/details/node_variant_adapter.hpp"
 #include "math_expr/details/node_utils.hpp"
 
 namespace math_expr
@@ -49,6 +50,8 @@ class expression
     using symtab_list_t = std::vector<symbol_table<T>>;
 
    public:
+    using root_node_variant_t = typename details::node_variant_adapter<T>::variant_type;
+
     struct control_block
     {
         enum class data_type
@@ -180,6 +183,22 @@ class expression
 
         static typename control_block::local_data_list_t null_local_data_list;
         return null_local_data_list;
+    }
+
+    inline root_node_variant_t classify_root_node() const
+    {
+        if (!control_block_)
+        {
+            return std::monostate{};
+        }
+
+        return details::node_variant_adapter<T>::classify(control_block_->expr);
+    }
+
+    template <typename Visitor>
+    inline decltype(auto) visit_root_node(Visitor&& visitor) const
+    {
+        return std::visit(std::forward<Visitor>(visitor), classify_root_node());
     }
 
    public:

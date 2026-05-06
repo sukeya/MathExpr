@@ -77,12 +77,7 @@ class expression_helper
 
     static inline node_variant_t classify(const expression<T>& expr)
     {
-        if (nullptr == expr.get_control_block())
-        {
-            return std::monostate{};
-        }
-
-        return node_variant_adapter_t::classify(expr.get_control_block()->expr);
+        return expr.classify_root_node();
     }
 
     static inline bool matches_node_type(const node_variant_t& node, const node_types expected)
