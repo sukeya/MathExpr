@@ -14462,6 +14462,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         test_support::require_compiles("-(x + 1)", neg_branch_parser, neg_branch_expression);
         REQUIRE(neg_branch_expression.get_control_block());
         REQUIRE(neg_branch_expression.get_control_block()->expr);
+        REQUIRE(neg_branch_expression.get_control_block()->hot_tree != nullptr);
         REQUIRE(adapter_t::branch(neg_branch_expression.get_control_block()->expr) != nullptr);
         CHECK(neg_branch_expression.value() == numeric_type(-6));
 
@@ -14519,6 +14520,17 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         CHECK(bov_expression.value() == numeric_type(7));
         CHECK(std::holds_alternative<typename adapter_t::bov_hot_view>(
             adapter_t::classify_hot(bov_expression.get_control_block()->expr)));
+
+        math_expr::expression<numeric_type> uvouv_expression;
+        uvouv_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> uvouv_parser;
+        test_support::require_compiles("sin(x) + cos(y)", uvouv_parser, uvouv_expression);
+        REQUIRE(uvouv_expression.get_control_block());
+        REQUIRE(uvouv_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::uvouv_hot_view>(
+            adapter_t::classify_hot(uvouv_expression.get_control_block()->expr)));
+        const numeric_type uvouv_expected = std::sin(scalar) + std::cos(y);
+        CHECK(std::abs(uvouv_expression.value() - uvouv_expected) < numeric_type(1.0e-12));
 
         math_expr::expression<numeric_type> clamp_expression;
         clamp_expression.register_symbol_table(symbol_table);

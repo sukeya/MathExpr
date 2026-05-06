@@ -1659,6 +1659,16 @@ class uvouv_node final : public expression_node<T>
         return v1_;
     }
 
+    inline const T& v0() const
+    {
+        return v0_;
+    }
+
+    inline const T& v1() const
+    {
+        return v1_;
+    }
+
     inline ufunc_t u0()
     {
         return u0_;
@@ -1669,7 +1679,22 @@ class uvouv_node final : public expression_node<T>
         return u1_;
     }
 
-    inline ufunc_t f()
+    inline ufunc_t u0() const
+    {
+        return u0_;
+    }
+
+    inline ufunc_t u1() const
+    {
+        return u1_;
+    }
+
+    inline bfunc_t f()
+    {
+        return f_;
+    }
+
+    inline bfunc_t f() const
     {
         return f_;
     }
@@ -1714,6 +1739,11 @@ class unary_branch_node final : public expression_node<T>
     }
 
     inline core::operators::operator_type operation()
+    {
+        return Operation::operation();
+    }
+
+    inline core::operators::operator_type operation() const
     {
         return Operation::operation();
     }

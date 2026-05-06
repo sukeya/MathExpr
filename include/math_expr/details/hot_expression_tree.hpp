@@ -50,6 +50,12 @@ class hot_expression_tree
         const T* ref;
     };
 
+    struct unary_branch_data
+    {
+        core::operators::operator_type operation;
+        node_index_t child;
+    };
+
     struct vov_data
     {
         core::operators::operator_type operation;
@@ -99,9 +105,22 @@ class hot_expression_tree
         T c;
     };
 
-    using node_data_t =
-        std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
-                     vov_data, cov_data, voc_data, vob_data, bov_data, cob_data, boc_data>;
+    struct uvouv_data
+    {
+        using functor_t = typename core::numeric::functor_t<T>;
+        using unary_functor_t = typename functor_t::ufunc_t;
+        using binary_functor_t = typename functor_t::bfunc_t;
+
+        const T* v0;
+        const T* v1;
+        unary_functor_t u0;
+        unary_functor_t u1;
+        binary_functor_t f;
+    };
+
+    using node_data_t = std::variant<literal_data, variable_data, unary_data, binary_data,
+                                     trinary_data, uv_data, unary_branch_data, vov_data, cov_data,
+                                     voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data>;
 
     struct node
     {
@@ -196,6 +215,11 @@ class hot_expression_tree
                 return core::operators::process<T>(data.operation, *data.ref);
             }
 
+            T operator()(const unary_branch_data& data) const
+            {
+                return core::operators::process<T>(data.operation, tree.evaluate(data.child));
+            }
+
             T operator()(const vov_data& data) const
             {
                 return core::operators::process<T>(data.operation, *data.lhs, *data.rhs);
@@ -233,6 +257,11 @@ class hot_expression_tree
             {
                 return core::operators::process<T>(data.operation, tree.evaluate(data.child),
                                                    data.c);
+            }
+
+            T operator()(const uvouv_data& data) const
+            {
+                return data.f(data.u0(*data.v0), data.u1(*data.v1));
             }
         };
 
@@ -309,6 +338,15 @@ class hot_expression_tree
                 {
                     return emplace(uv_data{view.uv->operation(), &view.uv->v()});
                 }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::unary_branch_hot_view>)
+                {
+                    const auto child = append_child(node_variant_adapter_t::branch(view.node));
+                    if (!child.has_value())
+                        return std::nullopt;
+                    return emplace(unary_branch_data{view.operation, *child});
+                }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::vov_hot_view>)
                 {
@@ -356,6 +394,12 @@ class hot_expression_tree
                     if (!child.has_value())
                         return std::nullopt;
                     return emplace(boc_data{view.boc->operation(), *child, view.boc->c()});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::uvouv_hot_view>)
+                {
+                    return emplace(uvouv_data{&view.uvouv->v0(), &view.uvouv->v1(),
+                                              view.uvouv->u0(), view.uvouv->u1(), view.uvouv->f()});
                 }
                 else
                 {

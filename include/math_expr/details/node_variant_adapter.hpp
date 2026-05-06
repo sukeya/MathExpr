@@ -60,6 +60,7 @@ class node_variant_adapter
     using boc_base_node_t = boc_base_node<T>;
     using t0ot1ot2_base_node_t = T0oT1oT2_base_node<T>;
     using t0ot1ot2ot3_base_node_t = T0oT1oT2oT3_base_node<T>;
+    using uvouv_node_t = uvouv_node<T>;
 
     struct null_view
     {
@@ -155,6 +156,12 @@ class node_variant_adapter
         uv_base_node_t* uv;
     };
 
+    struct unary_branch_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type operation;
+    };
+
     struct vov_hot_view
     {
         expression_ptr node;
@@ -197,6 +204,12 @@ class node_variant_adapter
         boc_base_node_t* boc;
     };
 
+    struct uvouv_hot_view
+    {
+        expression_ptr node;
+        uvouv_node_t* uvouv;
+    };
+
     struct fallback_view
     {
         expression_ptr node;
@@ -209,8 +222,102 @@ class node_variant_adapter
 
     using hot_variant_type =
         std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
-                     trinary_hot_view, uv_hot_view, vov_hot_view, cov_hot_view, voc_hot_view,
-                     vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view, fallback_view>;
+                     trinary_hot_view, uv_hot_view, unary_branch_hot_view, vov_hot_view,
+                     cov_hot_view, voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view,
+                     boc_hot_view, uvouv_hot_view, fallback_view>;
+
+    static inline std::optional<core::operators::operator_type> unary_branch_operation(
+        const typename expression_node<T>::node_type type)
+    {
+        using node_type = typename expression_node<T>::node_type;
+        using operator_type = core::operators::operator_type;
+
+        switch (type)
+        {
+            case node_type::e_abs:
+                return operator_type::abs;
+            case node_type::e_acos:
+                return operator_type::acos;
+            case node_type::e_acosh:
+                return operator_type::acosh;
+            case node_type::e_asin:
+                return operator_type::asin;
+            case node_type::e_asinh:
+                return operator_type::asinh;
+            case node_type::e_atan:
+                return operator_type::atan;
+            case node_type::e_atanh:
+                return operator_type::atanh;
+            case node_type::e_ceil:
+                return operator_type::ceil;
+            case node_type::e_cos:
+                return operator_type::cos;
+            case node_type::e_cosh:
+                return operator_type::cosh;
+            case node_type::e_exp:
+                return operator_type::exp;
+            case node_type::e_expm1:
+                return operator_type::expm1;
+            case node_type::e_floor:
+                return operator_type::floor;
+            case node_type::e_log:
+                return operator_type::log;
+            case node_type::e_log10:
+                return operator_type::log10;
+            case node_type::e_log2:
+                return operator_type::log2;
+            case node_type::e_log1p:
+                return operator_type::log1p;
+            case node_type::e_neg:
+                return operator_type::neg;
+            case node_type::e_pos:
+                return operator_type::pos;
+            case node_type::e_round:
+                return operator_type::round;
+            case node_type::e_sin:
+                return operator_type::sin;
+            case node_type::e_sinc:
+                return operator_type::sinc;
+            case node_type::e_sinh:
+                return operator_type::sinh;
+            case node_type::e_sqrt:
+                return operator_type::sqrt;
+            case node_type::e_tan:
+                return operator_type::tan;
+            case node_type::e_tanh:
+                return operator_type::tanh;
+            case node_type::e_cot:
+                return operator_type::cot;
+            case node_type::e_sec:
+                return operator_type::sec;
+            case node_type::e_csc:
+                return operator_type::csc;
+            case node_type::e_r2d:
+                return operator_type::r2d;
+            case node_type::e_d2r:
+                return operator_type::d2r;
+            case node_type::e_d2g:
+                return operator_type::d2g;
+            case node_type::e_g2d:
+                return operator_type::g2d;
+            case node_type::e_notl:
+                return operator_type::notl;
+            case node_type::e_sgn:
+                return operator_type::sgn;
+            case node_type::e_erf:
+                return operator_type::erf;
+            case node_type::e_erfc:
+                return operator_type::erfc;
+            case node_type::e_ncdf:
+                return operator_type::ncdf;
+            case node_type::e_frac:
+                return operator_type::frac;
+            case node_type::e_trunc:
+                return operator_type::trunc;
+            default:
+                return std::nullopt;
+        }
+    }
 
     static inline variant_type classify(expression_ptr node)
     {
@@ -283,6 +390,15 @@ class node_variant_adapter
         if (auto* uv = node->as_uv_base_node(); nullptr != uv)
         {
             return uv_hot_view{node, uv};
+        }
+        else if (const auto operation = unary_branch_operation(node->type());
+                 operation.has_value() && (nullptr != node->branch(0)))
+        {
+            return unary_branch_hot_view{node, *operation};
+        }
+        else if (node->type() == expression_node<T>::node_type::e_uvouv)
+        {
+            return uvouv_hot_view{node, static_cast<uvouv_node_t*>(node)};
         }
         else if (auto* vov = node->as_vov_base(); nullptr != vov)
         {
@@ -548,6 +664,13 @@ class node_variant_adapter
                 return core::operators::process<T>(view.uv->operation(), view.uv->v());
             }
 
+            T operator()(const unary_branch_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.operation,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node)));
+            }
+
             T operator()(const vov_hot_view& view) const
             {
                 return core::operators::process<T>(view.vov->operation(), view.vov->v0(),
@@ -594,6 +717,12 @@ class node_variant_adapter
                     view.boc->operation(),
                     node_variant_adapter::value(node_variant_adapter::branch(view.node)),
                     view.boc->c());
+            }
+
+            T operator()(const uvouv_hot_view& view) const
+            {
+                return view.uvouv->f()(view.uvouv->u0()(view.uvouv->v0()),
+                                       view.uvouv->u1()(view.uvouv->v1()));
             }
 
             T operator()(const fallback_view& view) const
