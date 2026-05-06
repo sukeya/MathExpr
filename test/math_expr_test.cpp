@@ -14342,6 +14342,8 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(adapter_t::literal(literal_expression.get_control_block()->expr) != nullptr);
         CHECK(adapter_t::literal(literal_expression.get_control_block()->expr)->value() ==
               numeric_type(3));
+        CHECK(adapter_t::value(literal_expression.get_control_block()->expr) == numeric_type(3));
+        CHECK(adapter_t::node_depth(literal_expression.get_control_block()->expr) >= 1);
 
         math_expr::expression<numeric_type> string_expression;
         math_expr::parser<numeric_type> string_parser;

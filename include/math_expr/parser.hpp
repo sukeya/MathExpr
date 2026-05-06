@@ -1245,11 +1245,14 @@ class parser : public lexer::parser_helper
             }
         }
 
-        if ((nullptr != expression) && (expression->node_depth() > settings_.max_node_depth_))
+        const std::size_t expression_depth =
+            details::node_variant_adapter<T>::node_depth(expression);
+
+        if ((nullptr != expression) && (expression_depth > settings_.max_node_depth_))
         {
             set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
                                  "ERR018 - Expression depth of " +
-                                     core::to_str(static_cast<int>(expression->node_depth())) +
+                                     core::to_str(static_cast<int>(expression_depth)) +
                                      " exceeds maximum allowed expression depth of " +
                                      core::to_str(static_cast<int>(settings_.max_node_depth_)),
                                  core::error_location()));
@@ -1290,7 +1293,7 @@ class parser : public lexer::parser_helper
             if (n)
             {
                 expression_node_ptr un_r = details::node_variant_adapter<T>::branch(n);
-                n->release();
+                details::node_variant_adapter<T>::release_branch(n);
                 free_node(node_allocator_, node);
                 node = un_r;
 

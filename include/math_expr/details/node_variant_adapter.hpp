@@ -294,6 +294,24 @@ class node_variant_adapter
         return base ? base->move_branch(index) : nullptr;
     }
 
+    static inline T value(expression_ptr node)
+    {
+        return node ? node->value() : std::numeric_limits<T>::quiet_NaN();
+    }
+
+    static inline std::size_t node_depth(expression_ptr node)
+    {
+        return node ? node->node_depth() : std::size_t(0);
+    }
+
+    static inline void release_branch(expression_ptr node)
+    {
+        if (node)
+        {
+            node->release_branch();
+        }
+    }
+
     static inline t0ot1ot2_base_node_t* t0ot1ot2_base(expression_ptr node)
     {
         return node ? node->as_T0oT1oT2_base() : nullptr;

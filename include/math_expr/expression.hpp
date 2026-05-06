@@ -254,7 +254,7 @@ class expression
         assert(control_block_);
         assert(control_block_->expr);
 
-        return control_block_->expr->value();
+        return details::node_variant_adapter<T>::value(control_block_->expr);
     }
 
     inline T operator()() const
