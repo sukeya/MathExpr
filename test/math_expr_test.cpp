@@ -13972,6 +13972,24 @@ TEST_CASE("String range parser delegation remains stable", "[parser][string-rang
     }
 }
 
+TEST_CASE("Vector index parser delegation remains stable", "[parser][vector-index]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"var v[3] := {1,2,3}; v[2]", numeric_type(3)},
+        {"var v[3] := {1,2,3}; (v + 1)[1]", numeric_type(3)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
