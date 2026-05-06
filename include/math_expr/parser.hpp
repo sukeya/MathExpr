@@ -81,6 +81,7 @@ limitations under the License.
 #include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
+#include "math_expr/parser/vector_definition_parser.hpp"
 #include "math_expr/parser/vector_index_parser.hpp"
 
 namespace math_expr
@@ -2958,6 +2959,139 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct vector_definition_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using scope_element_t = math_expr::scope_element<T>;
+        using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
+        using vector_node_t = typename parser<T>::vector_node_t;
+
+        explicit vector_definition_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool token_is(const token_t::token_type type, const std::string& value,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, value, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline bool is_constant_node(expression_node_ptr node) const
+        {
+            return details::is_constant_node(node);
+        }
+
+        inline std::size_t max_local_vector_size() const
+        {
+            return settings.max_local_vector_size();
+        }
+
+        inline std::size_t total_local_symb_size_bytes() const
+        {
+            return sem.total_local_symb_size_bytes();
+        }
+
+        inline std::size_t max_total_local_symbol_size_bytes() const
+        {
+            return settings.max_total_local_symbol_size_bytes();
+        }
+
+        inline scope_element_t& get_element(const std::string& symbol)
+        {
+            return sem.get_element(symbol);
+        }
+
+        inline const scope_element_t& get_active_element(const std::string& symbol) const
+        {
+            return sem.get_active_element(symbol);
+        }
+
+        inline bool add_element(scope_element_t&& se)
+        {
+            return sem.add_element(std::move(se));
+        }
+
+        inline void free_element(scope_element_t& se)
+        {
+            sem.free_element(se);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        inline vector_holder_ptr make_vector_holder(T* data, std::size_t size)
+        {
+            return new typename scope_element_t::vector_holder_t(data, size);
+        }
+
+        inline expression_node_ptr make_assign_vector(expression_node_ptr lhs,
+                                                      expression_node_ptr rhs)
+        {
+            return parser_.expression_generator_(core::operators::operator_type::assign, lhs, rhs);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        details::node_allocator& node_allocator;
+    };
+
     struct special_case_context
     {
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
@@ -3768,434 +3902,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_define_vector_statement(const std::string& vec_name)
     {
-        expression_node_ptr size_expression_node = error_node();
-
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR157 - Expected '[' as part of vector size definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (size_expression_node = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR158 - Failed to determine size of vector '" + vec_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!is_constant_node(size_expression_node))
-        {
-            const bool is_rebaseble_vector =
-                (size_expression_node->type() ==
-                 details::expression_node<T>::node_type::e_vecsize) &&
-                static_cast<details::vector_size_node<T>*>(size_expression_node)
-                    ->vec_holder()
-                    ->rebaseable();
-
-            free_node(node_allocator_, size_expression_node);
-
-            const std::string error_msg =
-                (is_rebaseble_vector)
-                    ? std::string(
-                          "Rebasable/Resizable vector cannot be used to define the size of vector")
-                    : std::string("Expected a constant literal number as size of vector");
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR159 - " + error_msg + " '" + vec_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const T vector_size = size_expression_node->value();
-
-        free_node(node_allocator_, size_expression_node);
-
-        const std::size_t max_vector_size = settings_.max_local_vector_size();
-
-        if ((vector_size <= T(0)) ||
-            std::not_equal_to<T>()(T(0), vector_size - core::numeric::trunc(vector_size)) ||
-            (static_cast<std::size_t>(vector_size) > max_vector_size))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR160 - Invalid vector size. Must be an integer in the "
-                           "range [0," +
-                               core::to_str(static_cast<std::size_t>(max_vector_size)) +
-                               "], size: " + core::to_str(core::numeric::to_int32(vector_size)),
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        typename symbol_table_t::vector_holder_ptr vec_holder =
-            typename symbol_table_t::vector_holder_ptr(0);
-
-        const std::size_t vec_size = static_cast<std::size_t>(core::numeric::to_int32(vector_size));
-        const std::size_t predicted_total_lclsymb_size =
-            sizeof(T) * vec_size + sem_.total_local_symb_size_bytes();
-
-        if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR161 - Adding vector '" + vec_name + "' of size " +
-                                     core::to_str(vec_size) +
-                                     " bytes "
-                                     "will exceed max total local symbol size of: " +
-                                     core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                     " bytes, "
-                                     "current total size: " +
-                                     core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        scope_element& se = sem_.get_element(vec_name);
-
-        if (se.name == vec_name)
-        {
-            if (se.active)
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR162 - Illegal redefinition of local vector: '" + vec_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-            else if ((se.size == vec_size) && (scope_element::element_type::e_vector == se.type))
-            {
-                vec_holder = se.vec_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == vec_holder)
-        {
-            scope_element nse;
-            nse.name = vec_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_vector;
-            nse.depth = state_.scope_depth;
-            nse.size = vec_size;
-            nse.vector_data = std::make_unique<T[]>(vec_size);
-            nse.vec_node =
-                new typename scope_element::vector_holder_t(nse.vector_data.get(), nse.size);
-
-            core::numeric::set_zero_value(nse.vector_data.get(), vec_size);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR163 - Failed to add new local vector '" + vec_name + "' to SEM",
-                               core::error_location()));
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            vec_holder = nse.vec_node;
-
-            core::debug_print(
-                "parse_define_vector_statement() - INFO - Added new local vector: %s[%d]\n",
-                nse.name.c_str(), static_cast<int>(nse.size));
-        }
-
-        state_.activate_side_effect("parse_define_vector_statement()");
-
-        lodge_symbol(vec_name, symbol_type::e_st_local_vector);
-
-        std::vector<expression_node_ptr> vec_initilizer_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), vec_initilizer_list);
-
-        bool single_value_initialiser = false;
-        bool range_value_initialiser = false;
-        bool vec_to_vec_initialiser = false;
-        bool null_initialisation = false;
-
-        if (!token_is(token_t::e_rsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR164 - Expected ']' as part of vector size definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            if (!token_is(token_t::e_assign))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR165 - Expected ':=' as part of vector definition",
-                                     core::error_location()));
-
-                return error_node();
-            }
-            else if (token_is(token_t::e_lsqrbracket))
-            {
-                expression_node_ptr initialiser_component = parse_expression();
-
-                if (nullptr == initialiser_component)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR166 - Failed to parse first component of vector "
-                                         "initialiser for vector: " +
-                                             vec_name,
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                vec_initilizer_list.push_back(initialiser_component);
-
-                if (token_is(token_t::e_colon))
-                {
-                    initialiser_component = parse_expression();
-
-                    if (nullptr == initialiser_component)
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR167 - Failed to parse second component of vector "
-                                             "initialiser for vector: " +
-                                                 vec_name,
-                                             core::error_location()));
-
-                        return error_node();
-                    }
-
-                    vec_initilizer_list.push_back(initialiser_component);
-                }
-
-                if (!token_is(token_t::e_rsqrbracket))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR168 - Expected ']' to close single value vector initialiser",
-                                   core::error_location()));
-
-                    return error_node();
-                }
-
-                switch (vec_initilizer_list.size())
-                {
-                    case 1:
-                        single_value_initialiser = true;
-                        break;
-                    case 2:
-                        range_value_initialiser = true;
-                        break;
-                }
-            }
-            else if (!token_is(token_t::e_lcrlbracket))
-            {
-                expression_node_ptr initialiser = error_node();
-
-                // Is this a vector to vector assignment and initialisation?
-                if (token_t::e_symbol == current_token().type)
-                {
-                    // Is it a locally defined vector?
-                    const scope_element& lcl_se = sem_.get_active_element(current_token().value);
-
-                    if (scope_element::element_type::e_vector == lcl_se.type)
-                    {
-                        if (nullptr != (initialiser = parse_expression()))
-                            vec_initilizer_list.push_back(initialiser);
-                        else
-                            return error_node();
-                    }
-                    // Are we dealing with a user defined vector?
-                    else if (symtab_store_.is_vector(current_token().value))
-                    {
-                        lodge_symbol(current_token().value, symbol_type::e_st_vector);
-
-                        if (nullptr != (initialiser = parse_expression()))
-                            vec_initilizer_list.push_back(initialiser);
-                        else
-                            return error_node();
-                    }
-                    // Are we dealing with a null initialisation vector definition?
-                    else if (token_is(token_t::e_symbol, "null"))
-                        null_initialisation = true;
-                }
-
-                if (!null_initialisation)
-                {
-                    if (nullptr == initialiser)
-                    {
-                        set_error(
-                            make_error(parser_error::error_mode::e_syntax, current_token(),
-                                       "ERR169 - Expected '{' as part of vector initialiser list",
-                                       core::error_location()));
-
-                        return error_node();
-                    }
-                    else
-                        vec_to_vec_initialiser = true;
-                }
-            }
-            else if (!token_is(token_t::e_rcrlbracket))
-            {
-                for (;;)
-                {
-                    expression_node_ptr initialiser = parse_expression();
-
-                    if (nullptr == initialiser)
-                    {
-                        set_error(
-                            make_error(parser_error::error_mode::e_syntax, current_token(),
-                                       "ERR170 - Expected '{' as part of vector initialiser list",
-                                       core::error_location()));
-
-                        return error_node();
-                    }
-                    else
-                        vec_initilizer_list.push_back(initialiser);
-
-                    if (token_is(token_t::e_rcrlbracket))
-                        break;
-
-                    const bool is_next_close = peek_token_is(token_t::e_rcrlbracket);
-
-                    if (!token_is(token_t::e_comma) && is_next_close)
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR171 - Expected ',' between vector initialisers",
-                                             core::error_location()));
-
-                        return error_node();
-                    }
-
-                    if (token_is(token_t::e_rcrlbracket))
-                        break;
-                }
-            }
-
-            if (!token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                !token_is(token_t::e_rsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR172 - Expected ';' at end of vector definition",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-
-            if (!single_value_initialiser && !range_value_initialiser &&
-                (T(vec_initilizer_list.size()) > vector_size))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR173 - Initialiser list larger than the number of elements "
-                                     "in the vector: '" +
-                                         vec_name + "'",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        expression_node_ptr result = error_node();
-
-        if ((vec_initilizer_list.size() == 1) && single_value_initialiser)
-        {
-            if (details::is_constant_node(vec_initilizer_list[0]))
-            {
-                // vector_init_zero_value_node   var v[10] := [0]
-                if (T(0) == vec_initilizer_list[0]->value())
-                {
-                    result = node_allocator_.allocate<details::vector_init_zero_value_node<T>>(
-                        (*vec_holder)[0], vec_size, vec_initilizer_list);
-                }
-                else
-                {
-                    // vector_init_single_constvalue_node   var v[10] := [123]
-                    result =
-                        node_allocator_.allocate<details::vector_init_single_constvalue_node<T>>(
-                            (*vec_holder)[0], vec_size, vec_initilizer_list);
-                }
-            }
-            else
-            {
-                // vector_init_single_value_node   var v[10] := [123 + (x / y)]
-                result = node_allocator_.allocate<details::vector_init_single_value_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-        }
-        else if ((vec_initilizer_list.size() == 2) && range_value_initialiser)
-        {
-            bool base_const = details::is_constant_node(vec_initilizer_list[0]);
-            bool inc_const = details::is_constant_node(vec_initilizer_list[1]);
-
-            if (base_const && inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [1 : 3.5]
-                result = node_allocator_.allocate<details::vector_init_iota_constconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-            else if (base_const && !inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [1 : x + y]
-                result = node_allocator_.allocate<details::vector_init_iota_constnconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-            else if (!base_const && inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [x + y : 3]
-                result = node_allocator_.allocate<details::vector_init_iota_nconstconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-            else if (!base_const && !inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [x + y :  z / w]
-                result = node_allocator_.allocate<details::vector_init_iota_nconstnconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-        }
-        else if (null_initialisation)
-            result = expression_generator_(T(0.0));
-        else if (vec_to_vec_initialiser)
-        {
-            expression_node_ptr vec_node = node_allocator_.allocate<vector_node_t>(vec_holder);
-
-            result = expression_generator_(core::operators::operator_type::assign, vec_node,
-                                           vec_initilizer_list[0]);
-        }
-        else
-        {
-            result = node_allocator_.allocate<details::vector_initialisation_node<T>>(
-                (*vec_holder)[0], vec_size, vec_initilizer_list, single_value_initialiser);
-        }
-
-        svd.delete_ptr = false;
-
-        if (result && result->valid())
-        {
-            return result;
-        }
-
-        details::free_node(node_allocator_, result);
-
-        set_error(
-            make_error(parser_error::error_mode::e_synthesis, current_token(),
-                       "ERR174 - Failed to generate initialisation node for vector: " + vec_name,
-                       core::error_location()));
-
-        return error_node();
+        vector_definition_context context(*this);
+        return parser_vector_definition<T>::parse_define_vector_statement(context, vec_name);
     }
 
     inline expression_node_ptr parse_define_string_statement(

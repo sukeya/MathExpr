@@ -14263,6 +14263,26 @@ TEST_CASE("Definition parser delegation remains stable", "[parser][definition]")
     }
 }
 
+TEST_CASE("Vector definition parser delegation remains stable", "[parser][vector-definition]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 4> programs = {{
+        {"var v[3] := [1]; v[0] + v[1] + v[2]", numeric_type(3)},
+        {"var v[3] := [1:2]; v[0] + 10 * v[1] + 100 * v[2]", numeric_type(531)},
+        {"var src[3] := {1,2,3}; var dst[3] := src; dst[2]", numeric_type(3)},
+        {"var v[3] := null; v[0] + v[1] + v[2]", numeric_type(0)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
