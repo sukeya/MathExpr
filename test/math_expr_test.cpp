@@ -14283,6 +14283,46 @@ TEST_CASE("Vector definition parser delegation remains stable", "[parser][vector
     }
 }
 
+TEST_CASE("Branch parser delegation remains stable", "[parser][branch]")
+{
+    SECTION("grouping and unary operators stay stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 4> programs = {{
+            {"(2)(3)", numeric_type(6)},
+            {"{2}{3}", numeric_type(6)},
+            {"-(1 + 2)", numeric_type(-3)},
+            {"+(1 + 2)", numeric_type(3)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("ternary stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles("1 ? 2 : 3", parser, expression);
+        CHECK(expression.value() == numeric_type(2));
+    }
+
+    SECTION("missing operator remains guarded")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compile_fails("1 2", parser, expression);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());

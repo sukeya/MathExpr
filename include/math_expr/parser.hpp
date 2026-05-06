@@ -68,6 +68,7 @@ limitations under the License.
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/branch_parser.hpp"
 #include "math_expr/parser/definition_parser.hpp"
 #include "math_expr/parser/dynamic_function_parser.hpp"
 #include "math_expr/parser/entity_parser.hpp"
@@ -3092,6 +3093,116 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct branch_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using precedence_level = typename parser<T>::precedence_level;
+
+        explicit branch_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression(
+            const precedence_level precedence = precedence_level::e_level00)
+        {
+            return parser_.parse_expression(precedence);
+        }
+
+        inline expression_node_ptr parse_symbol()
+        {
+            return parser_.parse_symbol();
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline expression_node_ptr parse_const_string()
+        {
+            return parser_.parse_const_string();
+        }
+#endif
+
+        inline expression_node_ptr parse_ternary_conditional_statement(
+            expression_node_ptr condition)
+        {
+            return parser_.parse_ternary_conditional_statement(condition);
+        }
+
+        inline bool parse_pending_string_rangesize(expression_node_ptr& expression)
+        {
+            return parser_.parse_pending_string_rangesize(expression);
+        }
+
+        inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
+        {
+            parser_.parse_pending_vector_index_operator(expression);
+        }
+
+        inline bool simplify_unary_negation_branch(expression_node_ptr& expression)
+        {
+            return parser_.simplify_unary_negation_branch(expression);
+        }
+
+        inline bool commutative_check_enabled() const
+        {
+            return parser_.settings_.commutative_check_enabled();
+        }
+
+        inline void insert_front(const token_t::token_type type)
+        {
+            parser_.lexer().insert_front(type);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_unary_operator(
+            const core::operators::operator_type operation, expression_node_ptr branch)
+        {
+            return parser_.expression_generator_(operation, branch);
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
     struct special_case_context
     {
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
@@ -3965,82 +4076,15 @@ class parser : public lexer::parser_helper
 
     inline bool post_variable_process(const std::string& symbol)
     {
-        if (peek_token_is(token_t::e_lbracket) || peek_token_is(token_t::e_lcrlbracket) ||
-            peek_token_is(token_t::e_lsqrbracket))
-        {
-            if (!settings_.commutative_check_enabled())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR229 - Invalid sequence of variable '" + symbol + "' and bracket",
-                               core::error_location()));
-
-                return false;
-            }
-
-            lexer().insert_front(token_t::e_mul);
-        }
-
-        return true;
+        branch_context context(*this);
+        return parser_branch<T>::post_variable_process(context, symbol);
     }
 
     inline bool post_bracket_process(const typename token_t::token_type& token,
                                      expression_node_ptr& branch)
     {
-        bool implied_mul = false;
-
-        if (details::is_generally_string_node(branch))
-            return true;
-
-        if (details::is_ivector_node(branch))
-            return true;
-
-        const lexer::parser_helper::token_advance_mode hold =
-            prsrhlpr_t::token_advance_mode::e_hold;
-
-        switch (token)
-        {
-            case token_t::e_lcrlbracket:
-                implied_mul = token_is(token_t::e_lbracket, hold) ||
-                              token_is(token_t::e_lcrlbracket, hold) ||
-                              token_is(token_t::e_lsqrbracket, hold);
-                break;
-
-            case token_t::e_lbracket:
-                implied_mul = token_is(token_t::e_lbracket, hold) ||
-                              token_is(token_t::e_lcrlbracket, hold) ||
-                              token_is(token_t::e_lsqrbracket, hold);
-                break;
-
-            case token_t::e_lsqrbracket:
-                implied_mul = token_is(token_t::e_lbracket, hold) ||
-                              token_is(token_t::e_lcrlbracket, hold) ||
-                              token_is(token_t::e_lsqrbracket, hold);
-                break;
-
-            default:
-                return true;
-        }
-
-        if (implied_mul)
-        {
-            if (!settings_.commutative_check_enabled())
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR230 - Invalid sequence of brackets",
-                                     core::error_location()));
-
-                return false;
-            }
-            else if (token_t::e_eof != current_token().type)
-            {
-                lexer().insert_front(current_token().type);
-                lexer().insert_front(token_t::e_mul);
-                next_token();
-            }
-        }
-
-        return true;
+        branch_context context(*this);
+        return parser_branch<T>::post_bracket_process(context, token, branch);
     }
 
     using interval_t = typename interval_container_t<std::uintptr_t>::interval_t;
@@ -4079,20 +4123,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
     {
-        if (expression && ((current_token().type == token_t::e_symbol) ||
-                           (current_token().type == token_t::e_number)))
-        {
-            free_node(node_allocator_, expression);
-
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR240 - Invalid syntax '" + current_token().value +
-                                     "' possible missing operator or context",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        return expression;
+        branch_context context(*this);
+        return parser_branch<T>::check_block_statement_closure(context, expression);
     }
 
     inline expression_node_ptr parse_symbol()
@@ -4110,181 +4142,8 @@ class parser : public lexer::parser_helper
         {
             return error_node();
         }
-
-        expression_node_ptr branch = error_node();
-
-        if (token_t::e_number == current_token().type)
-        {
-            T numeric_value = T(0);
-
-            if (core::numeric::string_to_real(current_token().value, numeric_value))
-            {
-                expression_node_ptr literal_exp = expression_generator_(numeric_value);
-
-                if (nullptr == literal_exp)
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_numeric, current_token(),
-                        "ERR242 - Failed generate node for scalar: '" + current_token().value + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-
-                next_token();
-                branch = literal_exp;
-            }
-            else
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_numeric, current_token(),
-                    "ERR243 - Failed to convert '" + current_token().value + "' to a number",
-                    core::error_location()));
-
-                return error_node();
-            }
-        }
-        else if (token_t::e_symbol == current_token().type)
-        {
-            branch = parse_symbol();
-        }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        else if (token_t::e_string == current_token().type)
-        {
-            branch = parse_const_string();
-        }
-#endif
-        else if (token_t::e_lbracket == current_token().type)
-        {
-            next_token();
-
-            if (nullptr == (branch = parse_expression()))
-            {
-                return error_node();
-            }
-
-            token_is(token_t::e_eof);
-
-            if (!token_is(token_t::e_rbracket))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR244 - Expected ')' instead of: '" + current_token().value + "'",
-                               core::error_location()));
-
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (!post_bracket_process(token_t::e_lbracket, branch))
-            {
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-
-            parse_pending_vector_index_operator(branch);
-        }
-        else if (token_t::e_lsqrbracket == current_token().type)
-        {
-            next_token();
-
-            if (nullptr == (branch = parse_expression()))
-                return error_node();
-            else if (!token_is(token_t::e_rsqrbracket))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR245 - Expected ']' instead of: '" + current_token().value + "'",
-                               core::error_location()));
-
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (!post_bracket_process(token_t::e_lsqrbracket, branch))
-            {
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-        }
-        else if (token_t::e_lcrlbracket == current_token().type)
-        {
-            next_token();
-
-            if (nullptr == (branch = parse_expression()))
-                return error_node();
-            else if (!token_is(token_t::e_rcrlbracket))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR246 - Expected '}' instead of: '" + current_token().value + "'",
-                               core::error_location()));
-
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (!post_bracket_process(token_t::e_lcrlbracket, branch))
-            {
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-        }
-        else if (token_t::e_sub == current_token().type)
-        {
-            next_token();
-            branch = parse_expression(precedence_level::e_level11);
-
-            if (branch &&
-                !(details::is_neg_unary_node(branch) && simplify_unary_negation_branch(branch)))
-            {
-                expression_node_ptr result =
-                    expression_generator_(core::operators::operator_type::neg, branch);
-
-                if (nullptr == result)
-                {
-                    details::free_node(node_allocator_, branch);
-
-                    return error_node();
-                }
-                else
-                    branch = result;
-            }
-        }
-        else if (token_t::e_add == current_token().type)
-        {
-            next_token();
-            branch = parse_expression(precedence_level::e_level13);
-        }
-        else if (token_t::e_eof == current_token().type)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR247 - Premature end of expression[1]",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR248 - Premature end of expression[2]",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (branch && (precedence_level::e_level00 == precedence) &&
-            token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            branch = parse_ternary_conditional_statement(branch);
-        }
-
-        parse_pending_string_rangesize(branch);
-
-        return branch;
+        branch_context context(*this);
+        return parser_branch<T>::parse_branch(context, precedence);
     }
 
     /**
