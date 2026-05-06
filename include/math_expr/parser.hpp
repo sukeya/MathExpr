@@ -72,6 +72,7 @@ limitations under the License.
 #include "math_expr/parser/function_call_parser.hpp"
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
+#include "math_expr/parser/special_case_parser.hpp"
 #include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
@@ -2171,6 +2172,89 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct special_case_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit special_case_context(parser<T>& parser)
+            : parser_(parser),
+              state(parser.state_),
+              brkcnt_list(parser.brkcnt_list_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        template <std::size_t N>
+        inline expression_node_ptr special_function(const core::operators::operator_type operation,
+                                                    expression_node_ptr (&branch)[N])
+        {
+            return parser_.expression_generator_.special_function(operation, branch);
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+#ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
+        inline expression_node_ptr make_break_node(expression_node_ptr return_expr)
+        {
+            return node_allocator.template allocate<details::break_node<T>>(return_expr);
+        }
+
+        inline expression_node_ptr make_continue_node()
+        {
+            return node_allocator.template allocate<details::continue_node<T>>();
+        }
+#endif
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        parser_state& state;
+        std::deque<bool>& brkcnt_list;
+        details::node_allocator& node_allocator;
+    };
+
     class type_checker;
 
     struct dynamic_function_context
@@ -3079,210 +3163,29 @@ class parser : public lexer::parser_helper
     }
 #endif
 
-    template <typename Type, std::size_t NumberOfParameters>
-    struct parse_special_function_impl
-    {
-        static inline expression_node_ptr process(parser<Type>& p,
-                                                  const core::operators::operator_type opt_type,
-                                                  const std::string& sf_name)
-        {
-            expression_node_ptr branch[NumberOfParameters];
-            expression_node_ptr result = error_node();
-
-            std::fill_n(branch, NumberOfParameters, nullptr);
-
-            scoped_delete<expression_node_t, NumberOfParameters> sd(p, branch);
-
-            p.next_token();
-
-            if (!p.token_is(token_t::e_lbracket))
-            {
-                p.set_error(
-                    make_error(parser_error::error_mode::e_syntax, p.current_token(),
-                               "ERR146 - Expected '(' for special function '" + sf_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            for (std::size_t i = 0; i < NumberOfParameters; ++i)
-            {
-                branch[i] = p.parse_expression();
-
-                if (nullptr == branch[i])
-                {
-                    return p.error_node();
-                }
-                else if (i < (NumberOfParameters - 1))
-                {
-                    if (!p.token_is(token_t::e_comma))
-                    {
-                        p.set_error(make_error(
-                            parser_error::error_mode::e_syntax, p.current_token(),
-                            "ERR147 - Expected ',' before next parameter of special function '" +
-                                sf_name + "'",
-                            core::error_location()));
-
-                        return p.error_node();
-                    }
-                }
-            }
-
-            if (!p.token_is(token_t::e_rbracket))
-            {
-                p.set_error(make_error(
-                    parser_error::error_mode::e_syntax, p.current_token(),
-                    "ERR148 - Invalid number of parameters for special function '" + sf_name + "'",
-                    core::error_location()));
-
-                return p.error_node();
-            }
-            else
-                result = p.expression_generator_.special_function(opt_type, branch);
-
-            sd.delete_ptr = (nullptr == result);
-
-            return result;
-        }
-    };
-
     inline expression_node_ptr parse_special_function()
     {
-        const std::string sf_name = current_token().value;
-
-        // Expect: $fDD(expr0,expr1,expr2) or $fDD(expr0,expr1,expr2,expr3)
-        if (!core::is_digit(sf_name[2]) || !core::is_digit(sf_name[3]))
-        {
-            set_error(make_error(parser_error::error_mode::e_token, current_token(),
-                                 "ERR149 - Invalid special function[1]: " + sf_name,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const int id = (sf_name[2] - '0') * 10 + (sf_name[3] - '0');
-
-        if (id >= static_cast<int>(core::operators::operator_type::sffinal))
-        {
-            set_error(make_error(parser_error::error_mode::e_token, current_token(),
-                                 "ERR150 - Invalid special function[2]: " + sf_name,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const int sf_3_to_4 = static_cast<int>(core::operators::operator_type::sf48);
-        const core::operators::operator_type opt_type =
-            static_cast<core::operators::operator_type>(id + 1000);
-        const std::size_t NumberOfParameters = (id < (sf_3_to_4 - 1000)) ? 3U : 4U;
-
-        switch (NumberOfParameters)
-        {
-            case 3:
-                return parse_special_function_impl<T, 3>::process((*this), opt_type, sf_name);
-            case 4:
-                return parse_special_function_impl<T, 4>::process((*this), opt_type, sf_name);
-            default:
-                return error_node();
-        }
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_special_function(context);
     }
 
     inline expression_node_ptr parse_null_statement()
     {
-        next_token();
-        return node_allocator_.allocate<details::null_node<T>>();
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_null_statement(context);
     }
 
 #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
     inline expression_node_ptr parse_break_statement()
     {
-        if (state_.parsing_break_stmt)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR151 - Invoking 'break' within a break call is not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (0 == state_.parsing_loop_stmt_count)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR152 - Invalid use of 'break', allowed only in the scope of a loop",
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_bool_negator sbn(state_.parsing_break_stmt);
-
-        if (!brkcnt_list_.empty())
-        {
-            next_token();
-
-            brkcnt_list_.front() = true;
-
-            expression_node_ptr return_expr = error_node();
-
-            if (token_is(token_t::e_lsqrbracket))
-            {
-                if (nullptr == (return_expr = parse_expression()))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR153 - Failed to parse return expression for 'break' statement",
-                        core::error_location()));
-
-                    return error_node();
-                }
-                else if (!token_is(token_t::e_rsqrbracket))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR154 - Expected ']' at the completion of break's return expression",
-                        core::error_location()));
-
-                    free_node(node_allocator_, return_expr);
-
-                    return error_node();
-                }
-            }
-
-            state_.activate_side_effect("parse_break_statement()");
-
-            return node_allocator_.allocate<details::break_node<T>>(return_expr);
-        }
-        else
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR155 - Invalid use of 'break', allowed only in the scope of a loop",
-                           core::error_location()));
-        }
-
-        return error_node();
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_break_statement(context);
     }
 
     inline expression_node_ptr parse_continue_statement()
     {
-        if (0 == state_.parsing_loop_stmt_count)
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR156 - Invalid use of 'continue', allowed only in the scope of a loop",
-                core::error_location()));
-
-            return error_node();
-        }
-        else
-        {
-            next_token();
-
-            brkcnt_list_.front() = true;
-            state_.activate_side_effect("parse_continue_statement()");
-
-            return node_allocator_.allocate<details::continue_node<T>>();
-        }
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_continue_statement(context);
     }
 #endif
 
