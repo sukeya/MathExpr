@@ -74,6 +74,7 @@ limitations under the License.
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
 #include "math_expr/parser/special_case_parser.hpp"
+#include "math_expr/parser/symbol_resolution_parser.hpp"
 #include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
@@ -2335,6 +2336,178 @@ class parser : public lexer::parser_helper
         parser_state& state;
         base_ops_map_t& base_ops_map;
         details::node_allocator& node_allocator;
+    };
+
+    struct symbol_resolution_context
+    {
+        using scope_element_t = math_expr::scope_element<T>;
+        using symbol_table_t = typename parser<T>::symbol_table_t;
+        using variable_context_t = typename symtab_store_t::variable_context;
+        using unknown_symbol_resolver_t = typename parser<T>::unknown_symbol_resolver;
+
+        explicit symbol_resolution_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              resolve_unknown_symbol(parser.resolve_unknown_symbol_),
+              unknown_symbol_resolver(parser.unknown_symbol_resolver_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline variable_context_t get_variable_context(const std::string& symbol) const
+        {
+            return symtab_store.get_variable_context(symbol);
+        }
+
+        inline bool is_constant_node(const std::string& symbol) const
+        {
+            return symtab_store.is_constant_node(symbol);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline void lodge_immutable_variable_symbol(const lexer::token& token, const T& value)
+        {
+            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(value));
+        }
+
+        inline bool post_variable_process(const std::string& symbol)
+        {
+            return parser_.post_variable_process(symbol);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline bool scope_empty() const
+        {
+            return sem.empty();
+        }
+
+        inline scope_element_t& get_active_element(const std::string& symbol)
+        {
+            return sem.get_active_element(symbol);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline bool is_stringvar(const std::string& symbol) const
+        {
+            return symtab_store.is_stringvar(symbol);
+        }
+
+        inline expression_node_ptr parse_string()
+        {
+            return parser_.parse_string();
+        }
+
+        inline igeneric_function<T>* get_string_function(const std::string& symbol) const
+        {
+            return symtab_store.get_string_function(symbol);
+        }
+
+        inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function,
+                                                              const std::string& function_name)
+        {
+            return parser_.parse_string_function_call(function, function_name);
+        }
+
+        inline igeneric_function<T>* get_overload_function(const std::string& symbol) const
+        {
+            return symtab_store.get_overload_function(symbol);
+        }
+
+        inline expression_node_ptr parse_overload_function_call(igeneric_function<T>* function,
+                                                                const std::string& function_name)
+        {
+            return parser_.parse_overload_function_call(function, function_name);
+        }
+#endif
+
+        inline expression_node_ptr parse_vector()
+        {
+            return parser_.parse_vector();
+        }
+
+        inline ifunction<T>* get_function(const std::string& symbol) const
+        {
+            return symtab_store.get_function(symbol);
+        }
+
+        inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
+                                                             const std::string& function_name)
+        {
+            return parser_.parse_function_invocation(function, function_name);
+        }
+
+        inline ivararg_function<T>* get_vararg_function(const std::string& symbol) const
+        {
+            return symtab_store.get_vararg_function(symbol);
+        }
+
+        inline expression_node_ptr parse_vararg_function_call(ivararg_function<T>* function,
+                                                              const std::string& function_name)
+        {
+            return parser_.parse_vararg_function_call(function, function_name);
+        }
+
+        inline igeneric_function<T>* get_generic_function(const std::string& symbol) const
+        {
+            return symtab_store.get_generic_function(symbol);
+        }
+
+        inline expression_node_ptr parse_generic_function_call(igeneric_function<T>* function,
+                                                               const std::string& function_name)
+        {
+            return parser_.parse_generic_function_call(function, function_name);
+        }
+
+        inline bool is_vector(const std::string& symbol) const
+        {
+            return symtab_store.is_vector(symbol);
+        }
+
+        inline symbol_table_t& get_symbol_table()
+        {
+            return symtab_store.get_symbol_table();
+        }
+
+        inline expression_node_ptr get_variable(const std::string& symbol) const
+        {
+            return symtab_store.get_variable(symbol);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        bool& resolve_unknown_symbol;
+        unknown_symbol_resolver_t*& unknown_symbol_resolver;
     };
 
     struct special_case_context
@@ -4757,319 +4930,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_symtab_symbol()
     {
-        const std::string symbol = current_token().value;
-
-        // Are we dealing with a variable or a special constant?
-        using var_ctxt_t = typename symtab_store_t::variable_context;
-        var_ctxt_t var_ctx = symtab_store_.get_variable_context(symbol);
-
-        if (var_ctx.variable)
-        {
-            assert(var_ctx.symbol_table);
-
-            expression_node_ptr result_variable = var_ctx.variable;
-
-            if (symtab_store_.is_constant_node(symbol))
-            {
-                result_variable = expression_generator_(var_ctx.variable->value());
-            }
-            else if (symbol_table_t::symtab_mutability_type::e_immutable ==
-                     var_ctx.symbol_table->mutability())
-            {
-                lodge_immutable_symbol(current_token(), make_memory_range(var_ctx.variable->ref()));
-                result_variable = var_ctx.variable;
-            }
-
-            if (!post_variable_process(symbol))
-                return error_node();
-
-            lodge_symbol(symbol, symbol_type::e_st_variable);
-
-            next_token();
-
-            return result_variable;
-        }
-
-        // Are we dealing with a locally defined variable, vector or string?
-        if (!sem_.empty())
-        {
-            scope_element& se = sem_.get_active_element(symbol);
-
-            if (se.active && core::imatch(se.name, symbol))
-            {
-                if ((scope_element::element_type::e_variable == se.type) ||
-                    (scope_element::element_type::e_literal == se.type))
-                {
-                    se.active = true;
-                    lodge_symbol(symbol, symbol_type::e_st_local_variable);
-
-                    if (!post_variable_process(symbol))
-                        return error_node();
-
-                    next_token();
-
-                    return (scope_element::element_type::e_variable == se.type)
-                               ? se.var_node
-                               : expression_generator_(se.var_node->value());
-                }
-                else if (scope_element::element_type::e_vector == se.type)
-                {
-                    return parse_vector();
-                }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                else if (scope_element::element_type::e_string == se.type)
-                {
-                    return parse_string();
-                }
-#endif
-            }
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        // Are we dealing with a string variable?
-        if (symtab_store_.is_stringvar(symbol))
-        {
-            return parse_string();
-        }
-#endif
-
-        {
-            // Are we dealing with a function?
-            ifunction<T>* function = symtab_store_.get_function(symbol);
-
-            if (function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr func_node = parse_function_invocation(function, symbol);
-
-                if (func_node)
-                    return func_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR231 - Failed to generate node for function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        {
-            // Are we dealing with a vararg function?
-            ivararg_function<T>* vararg_function = symtab_store_.get_vararg_function(symbol);
-
-            if (vararg_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr vararg_func_node =
-                    parse_vararg_function_call(vararg_function, symbol);
-
-                if (vararg_func_node)
-                    return vararg_func_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR232 - Failed to generate node for vararg function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        {
-            // Are we dealing with a vararg generic function?
-            igeneric_function<T>* generic_function = symtab_store_.get_generic_function(symbol);
-
-            if (generic_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr genericfunc_node =
-                    parse_generic_function_call(generic_function, symbol);
-
-                if (genericfunc_node)
-                    return genericfunc_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR233 - Failed to generate node for generic function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        {
-            // Are we dealing with a vararg string returning function?
-            igeneric_function<T>* string_function = symtab_store_.get_string_function(symbol);
-
-            if (string_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr stringfunc_node =
-                    parse_string_function_call(string_function, symbol);
-
-                if (stringfunc_node)
-                    return stringfunc_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR234 - Failed to generate node for string function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        {
-            // Are we dealing with a vararg overloaded scalar/string returning function?
-            igeneric_function<T>* overload_function = symtab_store_.get_overload_function(symbol);
-
-            if (overload_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr overloadfunc_node =
-                    parse_overload_function_call(overload_function, symbol);
-
-                if (overloadfunc_node)
-                    return overloadfunc_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR235 - Failed to generate node for overload function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-#endif
-
-        // Are we dealing with a vector?
-        if (symtab_store_.is_vector(symbol))
-        {
-            lodge_symbol(symbol, symbol_type::e_st_vector);
-            return parse_vector();
-        }
-
-        if (core::is_reserved_symbol(symbol))
-        {
-            if (settings_.function_enabled(symbol) || !core::is_base_function(symbol))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR236 - Invalid use of reserved symbol '" + symbol + "'",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        // Should we handle unknown symbols?
-        if (resolve_unknown_symbol_ && unknown_symbol_resolver_)
-        {
-            if (!(settings_.rsrvd_sym_usr_disabled() && core::is_reserved_symbol(symbol)))
-            {
-                symbol_table_t& symtab = symtab_store_.get_symbol_table();
-
-                std::string error_message;
-
-                if (unknown_symbol_resolver::usr_mode::e_usrmode_default ==
-                    unknown_symbol_resolver_->mode)
-                {
-                    T default_value = T(0);
-
-                    typename unknown_symbol_resolver::usr_symbol_type usr_symbol_type =
-                        unknown_symbol_resolver::usr_symbol_type::e_usr_unknown_type;
-
-                    if (unknown_symbol_resolver_->process(symbol, usr_symbol_type, default_value,
-                                                          error_message))
-                    {
-                        bool create_result = false;
-
-                        switch (usr_symbol_type)
-                        {
-                            case unknown_symbol_resolver::usr_symbol_type::e_usr_variable_type:
-                                create_result = symtab.create_variable(symbol, default_value);
-                                break;
-
-                            case unknown_symbol_resolver::usr_symbol_type::e_usr_constant_type:
-                                create_result = symtab.add_constant(symbol, default_value);
-                                break;
-
-                            default:
-                                create_result = false;
-                        }
-
-                        if (create_result)
-                        {
-                            expression_node_ptr var = symtab_store_.get_variable(symbol);
-
-                            if (var)
-                            {
-                                if (symtab_store_.is_constant_node(symbol))
-                                {
-                                    var = expression_generator_(var->value());
-                                }
-
-                                lodge_symbol(symbol, symbol_type::e_st_variable);
-
-                                if (!post_variable_process(symbol))
-                                    return error_node();
-
-                                next_token();
-
-                                return var;
-                            }
-                        }
-                    }
-
-                    set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
-                                         "ERR237 - Failed to create variable: '" + symbol + "'" +
-                                             (error_message.empty() ? "" : " - " + error_message),
-                                         core::error_location()));
-                }
-                else if (unknown_symbol_resolver::usr_mode::e_usrmode_extended ==
-                         unknown_symbol_resolver_->mode)
-                {
-                    if (unknown_symbol_resolver_->process(symbol, symtab, error_message))
-                    {
-                        expression_node_ptr result = parse_symtab_symbol();
-
-                        if (result)
-                        {
-                            return result;
-                        }
-                    }
-
-                    set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
-                                         "ERR238 - Failed to resolve symbol: '" + symbol + "'" +
-                                             (error_message.empty() ? "" : " - " + error_message),
-                                         core::error_location()));
-                }
-
-                return error_node();
-            }
-        }
-
-        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                             "ERR239 - Undefined symbol: '" + symbol + "'",
-                             core::error_location()));
-
-        return error_node();
+        symbol_resolution_context context(*this);
+        return parser_symbol_resolution<T>::parse_symtab_symbol(context);
     }
 
     inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
