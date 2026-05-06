@@ -13860,6 +13860,27 @@ TEST_CASE("Arithmetic parser regressions remain stable", "[parser][regression]")
     }
 }
 
+TEST_CASE("Control-flow parser delegation remains stable", "[parser][control-flow]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 5> programs = {{
+        {"if (1 < 2) { 1 + 2; 7; } else 9", numeric_type(7)},
+        {"(1 < 2 ? 5 : 8)", numeric_type(5)},
+        {"var x := 1; while (x < 4) { x += 1; }; x", numeric_type(4)},
+        {"var x := 0; repeat x += 2; until (x >= 6); x", numeric_type(6)},
+        {"var total := 0; for (var i := 0; i < 4; i += 1) { total += i; }; total", numeric_type(6)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
