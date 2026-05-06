@@ -69,6 +69,7 @@ limitations under the License.
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
+#include "math_expr/parser/vararg_parser.hpp"
 
 namespace math_expr
 {
@@ -1778,6 +1779,78 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct vararg_context
+    {
+        explicit vararg_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type)
+        {
+            return parser_.token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_multi_sequence()
+        {
+            return parser_.parse_multi_sequence();
+        }
+
+        inline expression_node_ptr parse_multi_switch_statement()
+        {
+            return parser_.parse_multi_switch_statement();
+        }
+
+        inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
+        {
+            return parser_.check_block_statement_closure(expression);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline expression_node_ptr vararg_function(const core::operators::operator_type operation,
+                                                   std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.vararg_function(operation, arg_list);
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -2191,94 +2264,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_vararg_function()
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        core::operators::operator_type opt_type = core::operators::operator_type::default_op;
-        const std::string symbol = current_token().value;
-
-        if (core::imatch(symbol, "~"))
-        {
-            next_token();
-            return check_block_statement_closure(parse_multi_sequence());
-        }
-        else if (core::imatch(symbol, "[*]"))
-        {
-            return check_block_statement_closure(parse_multi_switch_statement());
-        }
-        else if (core::imatch(symbol, "avg"))
-            opt_type = core::operators::operator_type::avg;
-        else if (core::imatch(symbol, "mand"))
-            opt_type = core::operators::operator_type::mand;
-        else if (core::imatch(symbol, "max"))
-            opt_type = core::operators::operator_type::max;
-        else if (core::imatch(symbol, "min"))
-            opt_type = core::operators::operator_type::min;
-        else if (core::imatch(symbol, "mor"))
-            opt_type = core::operators::operator_type::mor;
-        else if (core::imatch(symbol, "mul"))
-            opt_type = core::operators::operator_type::prod;
-        else if (core::imatch(symbol, "sum"))
-            opt_type = core::operators::operator_type::sum;
-        else
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR104 - Unsupported built-in vararg function: " + symbol,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        lodge_symbol(symbol, symbol_type::e_st_function);
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR105 - Expected '(' for call to vararg function: " + symbol,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR106 - vararg function: " + symbol + " requires at least one input parameter",
-                core::error_location()));
-
-            return error_node();
-        }
-
-        for (;;)
-        {
-            expression_node_ptr arg = parse_expression();
-
-            if (nullptr == arg)
-                return error_node();
-            else
-                arg_list.push_back(arg);
-
-            if (token_is(token_t::e_rbracket))
-                break;
-            else if (!token_is(token_t::e_comma))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR107 - Expected ',' for call to vararg function: " + symbol,
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        const expression_node_ptr result =
-            expression_generator_.vararg_function(opt_type, arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-        return result;
+        vararg_context context(*this);
+        return parser_vararg<T>::parse_vararg_function(context);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
