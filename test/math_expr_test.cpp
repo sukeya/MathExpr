@@ -14323,6 +14323,24 @@ TEST_CASE("Branch parser delegation remains stable", "[parser][branch]")
     }
 }
 
+TEST_CASE("Expression helper variant classification remains stable", "[expression-helper][variant]")
+{
+    using et_t = math_expr::expression_helper<numeric_type>;
+
+    SECTION("scalar and string categories stay stable")
+    {
+        math_expr::expression<numeric_type> literal_expression;
+        math_expr::parser<numeric_type> literal_parser;
+        test_support::require_compiles("1 + 2", literal_parser, literal_expression);
+        CHECK(et_t::is_type(literal_expression, et_t::node_types::e_literal));
+
+        math_expr::expression<numeric_type> string_expression;
+        math_expr::parser<numeric_type> string_parser;
+        test_support::require_compiles("'ab' + 'cd'", string_parser, string_expression);
+        CHECK(et_t::is_type(string_expression, et_t::node_types::e_string));
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
