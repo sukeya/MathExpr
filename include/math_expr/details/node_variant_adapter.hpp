@@ -48,6 +48,8 @@ class node_variant_adapter
     using string_literal_node_t = string_literal_node<T>;
     using stringvar_node_t = string_nodes::stringvar_node<T>;
     using uv_base_node_t = uv_base_node<T>;
+    using cob_base_node_t = cob_base_node<T>;
+    using boc_base_node_t = boc_base_node<T>;
     using t0ot1ot2_base_node_t = T0oT1oT2_base_node<T>;
     using t0ot1ot2ot3_base_node_t = T0oT1oT2oT3_base_node<T>;
 
@@ -268,6 +270,28 @@ class node_variant_adapter
     static inline uv_base_node_t* unary_variable_base(expression_ptr node)
     {
         return node ? node->as_uv_base_node() : nullptr;
+    }
+
+    static inline cob_base_node_t* cob_base(expression_ptr node)
+    {
+        return node ? node->as_cob_base() : nullptr;
+    }
+
+    static inline boc_base_node_t* boc_base(expression_ptr node)
+    {
+        return node ? node->as_boc_base() : nullptr;
+    }
+
+    static inline expression_ptr move_cob_branch(expression_ptr node, const std::size_t index = 0)
+    {
+        auto* base = cob_base(node);
+        return base ? base->move_branch(index) : nullptr;
+    }
+
+    static inline expression_ptr move_boc_branch(expression_ptr node, const std::size_t index = 0)
+    {
+        auto* base = boc_base(node);
+        return base ? base->move_branch(index) : nullptr;
     }
 
     static inline t0ot1ot2_base_node_t* t0ot1ot2_base(expression_ptr node)

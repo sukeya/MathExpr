@@ -14381,6 +14381,28 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(variable_node != nullptr);
         CHECK(&variable_node->ref() == &scalar);
 
+        math_expr::expression<numeric_type> cob_expression;
+        cob_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> cob_parser;
+        test_support::require_compiles("9 + abs(x)", cob_parser, cob_expression);
+        REQUIRE(cob_expression.get_control_block());
+        REQUIRE(cob_expression.get_control_block()->expr);
+        auto* cob_base = adapter_t::cob_base(cob_expression.get_control_block()->expr);
+        REQUIRE(cob_base != nullptr);
+        CHECK(cob_base->c() == numeric_type(9));
+        REQUIRE(adapter_t::move_cob_branch(cob_expression.get_control_block()->expr) != nullptr);
+
+        math_expr::expression<numeric_type> boc_expression;
+        boc_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> boc_parser;
+        test_support::require_compiles("abs(x) + 9", boc_parser, boc_expression);
+        REQUIRE(boc_expression.get_control_block());
+        REQUIRE(boc_expression.get_control_block()->expr);
+        auto* boc_base = adapter_t::boc_base(boc_expression.get_control_block()->expr);
+        REQUIRE(boc_base != nullptr);
+        CHECK(boc_base->c() == numeric_type(9));
+        REQUIRE(adapter_t::move_boc_branch(boc_expression.get_control_block()->expr) != nullptr);
+
         math_expr::expression<numeric_type> symbol_expression;
         symbol_expression.register_symbol_table(symbol_table);
         math_expr::parser<numeric_type> symbol_parser;

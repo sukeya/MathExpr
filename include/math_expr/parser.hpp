@@ -4478,6 +4478,26 @@ class parser : public lexer::parser_helper
             return node_variant_adapter_t::variable(node);
         }
 
+        inline auto* cob_base(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::cob_base(node);
+        }
+
+        inline auto* boc_base(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::boc_base(node);
+        }
+
+        inline expression_node_ptr move_cob_branch(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::move_cob_branch(node);
+        }
+
+        inline expression_node_ptr move_boc_branch(expression_node_ptr node) const
+        {
+            return node_variant_adapter_t::move_boc_branch(node);
+        }
+
         inline expression_node_ptr operator()(const core::operators::operator_type& operation,
                                               expression_node_ptr (&branch)[1])
         {
@@ -8382,8 +8402,7 @@ class parser : public lexer::parser_helper
                     if ((core::operators::operator_type::mul == operation) ||
                         (core::operators::operator_type::add == operation))
                     {
-                        details::cob_base_node<Type>* cobnode =
-                            static_cast<details::cob_base_node<Type>*>(branch[1]);
+                        auto* cobnode = expr_gen.cob_base(branch[1]);
 
                         if (operation == cobnode->operation())
                         {
@@ -8405,8 +8424,7 @@ class parser : public lexer::parser_helper
 
                     if (operation == core::operators::operator_type::mul)
                     {
-                        details::cob_base_node<Type>* cobnode =
-                            static_cast<details::cob_base_node<Type>*>(branch[1]);
+                        auto* cobnode = expr_gen.cob_base(branch[1]);
                         core::operators::operator_type cob_opr = cobnode->operation();
 
                         if ((core::operators::operator_type::div == cob_opr) ||
@@ -8429,8 +8447,7 @@ class parser : public lexer::parser_helper
                     }
                     else if (operation == core::operators::operator_type::div)
                     {
-                        details::cob_base_node<Type>* cobnode =
-                            static_cast<details::cob_base_node<Type>*>(branch[1]);
+                        auto* cobnode = expr_gen.cob_base(branch[1]);
                         core::operators::operator_type cob_opr = cobnode->operation();
 
                         if ((core::operators::operator_type::div == cob_opr) ||
@@ -8443,13 +8460,13 @@ class parser : public lexer::parser_helper
                                 case core::operators::operator_type::div:
                                     new_cobnode = expr_gen.node_allocator_->template allocate_tt<
                                         typename details::cob_node<Type, details::mul_op<Type>>>(
-                                        c / cobnode->c(), cobnode->move_branch(0));
+                                        c / cobnode->c(), expr_gen.move_cob_branch(branch[1]));
                                     break;
 
                                 case core::operators::operator_type::mul:
                                     new_cobnode = expr_gen.node_allocator_->template allocate_tt<
                                         typename details::cob_node<Type, details::div_op<Type>>>(
-                                        c / cobnode->c(), cobnode->move_branch(0));
+                                        c / cobnode->c(), expr_gen.move_cob_branch(branch[1]));
                                     break;
 
                                 default:
@@ -8534,8 +8551,7 @@ class parser : public lexer::parser_helper
                     if ((core::operators::operator_type::mul == operation) ||
                         (core::operators::operator_type::add == operation))
                     {
-                        details::boc_base_node<Type>* bocnode =
-                            static_cast<details::boc_base_node<Type>*>(branch[0]);
+                        auto* bocnode = expr_gen.boc_base(branch[0]);
 
                         if (operation == bocnode->operation())
                         {
@@ -8556,8 +8572,7 @@ class parser : public lexer::parser_helper
                     }
                     else if (operation == core::operators::operator_type::div)
                     {
-                        details::boc_base_node<Type>* bocnode =
-                            static_cast<details::boc_base_node<Type>*>(branch[0]);
+                        auto* bocnode = expr_gen.boc_base(branch[0]);
                         core::operators::operator_type boc_opr = bocnode->operation();
 
                         if ((core::operators::operator_type::div == boc_opr) ||
@@ -8581,8 +8596,7 @@ class parser : public lexer::parser_helper
                     else if (operation == core::operators::operator_type::pow)
                     {
                         // (v ^ c0) ^ c1 --> v ^(c0 * c1)
-                        details::boc_base_node<Type>* bocnode =
-                            static_cast<details::boc_base_node<Type>*>(branch[0]);
+                        auto* bocnode = expr_gen.boc_base(branch[0]);
                         core::operators::operator_type boc_opr = bocnode->operation();
 
                         if (core::operators::operator_type::pow == boc_opr)
@@ -8637,8 +8651,7 @@ class parser : public lexer::parser_helper
                 // (cob) o c --> cob
                 if (details::is_cob_node(branch[0]))
                 {
-                    details::cob_base_node<Type>* cobnode =
-                        static_cast<details::cob_base_node<Type>*>(branch[0]);
+                    auto* cobnode = expr_gen.cob_base(branch[0]);
 
                     const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
 
@@ -8727,7 +8740,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::div_op<Type>>>(
-                                cobnode->c() / c, cobnode->move_branch(0));
+                                cobnode->c() / c, expr_gen.move_cob_branch(branch[0]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[0]);
                         }
@@ -8742,8 +8755,7 @@ class parser : public lexer::parser_helper
                 // c o (cob) --> cob
                 else if (details::is_cob_node(branch[1]))
                 {
-                    details::cob_base_node<Type>* cobnode =
-                        static_cast<details::cob_base_node<Type>*>(branch[1]);
+                    auto* cobnode = expr_gen.cob_base(branch[1]);
 
                     const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
 
@@ -8789,7 +8801,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::sub_op<Type>>>(
-                                c - cobnode->c(), cobnode->move_branch(0));
+                                c - cobnode->c(), expr_gen.move_cob_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8805,7 +8817,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::add_op<Type>>>(
-                                c - cobnode->c(), cobnode->move_branch(0));
+                                c - cobnode->c(), expr_gen.move_cob_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8821,7 +8833,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::div_op<Type>>>(
-                                c / cobnode->c(), cobnode->move_branch(0));
+                                c / cobnode->c(), expr_gen.move_cob_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8837,7 +8849,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::mul_op<Type>>>(
-                                c / cobnode->c(), cobnode->move_branch(0));
+                                c / cobnode->c(), expr_gen.move_cob_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8864,8 +8876,7 @@ class parser : public lexer::parser_helper
                 // (boc) o c --> boc
                 if (details::is_boc_node(branch[0]))
                 {
-                    details::boc_base_node<Type>* bocnode =
-                        static_cast<details::boc_base_node<Type>*>(branch[0]);
+                    auto* bocnode = expr_gen.boc_base(branch[0]);
 
                     const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
 
@@ -8907,7 +8918,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::boc_node<Type, details::add_op<Type>>>(
-                                bocnode->move_branch(0), c - bocnode->c());
+                                expr_gen.move_boc_branch(branch[0]), c - bocnode->c());
 
                             details::free_node(*expr_gen.node_allocator_, branch[0]);
                         }
@@ -8943,8 +8954,7 @@ class parser : public lexer::parser_helper
                 // c o (boc) --> boc
                 else if (details::is_boc_node(branch[1]))
                 {
-                    details::boc_base_node<Type>* bocnode =
-                        static_cast<details::boc_base_node<Type>*>(branch[1]);
+                    auto* bocnode = expr_gen.boc_base(branch[1]);
 
                     const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
 
@@ -8959,7 +8969,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::sub_op<Type>>>(
-                                c - bocnode->c(), bocnode->move_branch(0));
+                                c - bocnode->c(), expr_gen.move_boc_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8970,7 +8980,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::boc_node<Type, details::add_op<Type>>>(
-                                bocnode->move_branch(0), c - bocnode->c());
+                                expr_gen.move_boc_branch(branch[1]), c - bocnode->c());
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8978,7 +8988,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::sub_op<Type>>>(
-                                c + bocnode->c(), bocnode->move_branch(0));
+                                c + bocnode->c(), expr_gen.move_boc_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -8994,7 +9004,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::div_op<Type>>>(
-                                c / bocnode->c(), bocnode->move_branch(0));
+                                c / bocnode->c(), expr_gen.move_boc_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
@@ -9010,7 +9020,7 @@ class parser : public lexer::parser_helper
                         {
                             result = expr_gen.node_allocator_->template allocate_tt<
                                 typename details::cob_node<Type, details::div_op<Type>>>(
-                                c * bocnode->c(), bocnode->move_branch(0));
+                                c * bocnode->c(), expr_gen.move_boc_branch(branch[1]));
 
                             details::free_node(*expr_gen.node_allocator_, branch[1]);
                         }
