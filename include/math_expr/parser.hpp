@@ -73,6 +73,7 @@ limitations under the License.
 #include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
+#include "math_expr/parser/vector_index_parser.hpp"
 
 namespace math_expr
 {
@@ -2021,6 +2022,74 @@ class parser : public lexer::parser_helper
     };
 #endif
 
+    struct vector_index_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using vector_interface_t = details::vector_interface<T>;
+
+        explicit vector_index_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              sem(parser.sem_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr synthesize_vector_element(const std::string& vector_name,
+                                                             vector_holder_ptr vec,
+                                                             expression_node_ptr vec_node,
+                                                             expression_node_ptr index_expr)
+        {
+            return parser_.synthesize_vector_element(vector_name, vec, vec_node, index_expr);
+        }
+
+        inline bool errors_empty() const
+        {
+            return parser_.error_list_.empty();
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        scope_element_manager& sem;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
@@ -2463,46 +2532,8 @@ class parser : public lexer::parser_helper
 
     inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
     {
-        if ((nullptr != expression) && error_list_.empty() && is_ivector_node(expression))
-        {
-            if (settings_.commutative_check_enabled() &&
-                token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold) &&
-                peek_token_is(token_t::e_lsqrbracket))
-            {
-                token_is(token_t::e_mul);
-                token_is(token_t::e_lsqrbracket);
-            }
-            else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                token_is(token_t::e_lsqrbracket);
-            }
-            else if (token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                     peek_token_is(token_t::e_lsqrbracket))
-            {
-                token_is(token_t::e_rbracket);
-                token_is(token_t::e_lsqrbracket);
-            }
-            else
-                return;
-
-            details::vector_interface<T>* vi = expression->as_vector_iface();
-
-            if (vi)
-            {
-                details::vector_holder<T>& vec = vi->vec()->vec_holder();
-                const std::string vector_name = sem_.get_vector_name(vec.data());
-                expression_node_ptr index = parse_vector_index(vector_name);
-
-                if (index)
-                {
-                    expression = synthesize_vector_element(vector_name, &vec, expression, index);
-                    return;
-                }
-            }
-
-            free_node(node_allocator_, expression);
-            expression = error_node();
-        }
+        vector_index_context context(*this);
+        parser_vector_index<T>::parse_pending_vector_index_operator(context, expression);
     }
 
     template <typename Allocator1, typename Allocator2,
@@ -2777,28 +2808,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_vector_index(const std::string& vector_name = "")
     {
-        expression_node_ptr index_expr = error_node();
-
-        if (nullptr == (index_expr = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR123 - Failed to parse index for vector: '" + vector_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR124 - Expected ']' for index of vector: '" + vector_name + "'",
-                                 core::error_location()));
-
-            free_node(node_allocator_, index_expr);
-
-            return error_node();
-        }
-
-        return index_expr;
+        vector_index_context context(*this);
+        return parser_vector_index<T>::parse_vector_index(context, vector_name);
     }
 
     inline expression_node_ptr parse_vector()
