@@ -14200,6 +14200,48 @@ TEST_CASE("Symbol parser delegation remains stable", "[parser][symbol]")
     }
 }
 
+TEST_CASE("Statement parser delegation remains stable", "[parser][statement]")
+{
+    SECTION("swap stays stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+            {"var x := 1; var y := 2; swap(x,y); x + y", numeric_type(3)},
+            {"var v[2] := {1,2}; swap(v[0],v[1]); v[0] * 10 + v[1]", numeric_type(21)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("return stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles<numeric_type>("return[1,2]; 7", parser, expression);
+        static_cast<void>(expression.value());
+        CHECK(expression.return_invoked());
+        REQUIRE(expression.results().count() == 2);
+    }
+
+    SECTION("assert stays stable without a registered handler")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles<numeric_type>("assert(1,'ok','id') == null", parser,
+                                                     expression);
+        CHECK(expression.value() == numeric_type(1));
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
