@@ -74,6 +74,7 @@ limitations under the License.
 #include "math_expr/parser/range_parser.hpp"
 #include "math_expr/parser/sequence_parser.hpp"
 #include "math_expr/parser/special_case_parser.hpp"
+#include "math_expr/parser/symbol_parser.hpp"
 #include "math_expr/parser/symbol_resolution_parser.hpp"
 #include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
@@ -2508,6 +2509,166 @@ class parser : public lexer::parser_helper
         symtab_store_t& symtab_store;
         bool& resolve_unknown_symbol;
         unknown_symbol_resolver_t*& unknown_symbol_resolver;
+    };
+
+    struct symbol_context
+    {
+        explicit symbol_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline bool valid_vararg_operation(const std::string& symbol) const
+        {
+            return parser_.valid_vararg_operation(symbol);
+        }
+
+        inline bool valid_base_operation(const std::string& symbol) const
+        {
+            return parser_.valid_base_operation(symbol);
+        }
+
+        inline expression_node_ptr parse_vararg_function()
+        {
+            return parser_.parse_vararg_function();
+        }
+
+        inline expression_node_ptr parse_not_statement()
+        {
+            return parser_.parse_not_statement();
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr parse_base_operation()
+        {
+            return parser_.parse_base_operation();
+        }
+
+        inline expression_node_ptr parse_conditional_statement()
+        {
+            return parser_.parse_conditional_statement();
+        }
+
+        inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
+        {
+            return parser_.check_block_statement_closure(expression);
+        }
+
+        inline expression_node_ptr parse_while_loop()
+        {
+            return parser_.parse_while_loop();
+        }
+
+        inline expression_node_ptr parse_repeat_until_loop()
+        {
+            return parser_.parse_repeat_until_loop();
+        }
+
+        inline expression_node_ptr parse_for_loop()
+        {
+            return parser_.parse_for_loop();
+        }
+
+        inline expression_node_ptr parse_switch_statement()
+        {
+            return parser_.parse_switch_statement();
+        }
+
+        inline expression_node_ptr parse_special_function()
+        {
+            return parser_.parse_special_function();
+        }
+
+        inline expression_node_ptr parse_null_statement()
+        {
+            return parser_.parse_null_statement();
+        }
+
+#ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
+        inline expression_node_ptr parse_break_statement()
+        {
+            return parser_.parse_break_statement();
+        }
+
+        inline expression_node_ptr parse_continue_statement()
+        {
+            return parser_.parse_continue_statement();
+        }
+#endif
+
+        inline expression_node_ptr parse_define_var_statement()
+        {
+            return parser_.parse_define_var_statement();
+        }
+
+        inline expression_node_ptr parse_define_constvar_statement()
+        {
+            return parser_.parse_define_constvar_statement();
+        }
+
+        inline expression_node_ptr parse_swap_statement()
+        {
+            return parser_.parse_swap_statement();
+        }
+
+#ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
+        inline expression_node_ptr parse_return_statement()
+        {
+            return parser_.parse_return_statement();
+        }
+#endif
+
+        inline expression_node_ptr parse_assert_statement()
+        {
+            return parser_.parse_assert_statement();
+        }
+
+        inline bool symtab_valid() const
+        {
+            return symtab_store.valid();
+        }
+
+        inline bool scope_empty() const
+        {
+            return sem.empty();
+        }
+
+        inline expression_node_ptr parse_symtab_symbol()
+        {
+            return parser_.parse_symtab_symbol();
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
     };
 
     struct special_case_context
@@ -4954,122 +5115,8 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_symbol()
     {
-        static constexpr std::string_view symbol_if = "if";
-        static constexpr std::string_view symbol_while = "while";
-        static constexpr std::string_view symbol_repeat = "repeat";
-        static constexpr std::string_view symbol_for = "for";
-        static constexpr std::string_view symbol_switch = "switch";
-        static constexpr std::string_view symbol_null = "null";
-        static constexpr std::string_view symbol_break = "break";
-        static constexpr std::string_view symbol_continue = "continue";
-        static constexpr std::string_view symbol_var = "var";
-        static constexpr std::string_view symbol_const = "const";
-        static constexpr std::string_view symbol_swap = "swap";
-        static constexpr std::string_view symbol_return = "return";
-        static constexpr std::string_view symbol_not = "not";
-        static constexpr std::string_view symbol_assert = "assert";
-        static constexpr std::string_view symbol_true = "true";
-        static constexpr std::string_view symbol_false = "false";
-
-        const std::string symbol = current_token().value;
-
-        if (valid_vararg_operation(symbol))
-        {
-            return parse_vararg_function();
-        }
-        else if (core::imatch(symbol, symbol_not))
-        {
-            return parse_not_statement();
-        }
-        else if (core::imatch(symbol, symbol_true))
-        {
-            next_token();
-            return expression_generator_(core::numeric::true_v<T>);
-        }
-        else if (core::imatch(symbol, symbol_false))
-        {
-            next_token();
-            return expression_generator_(core::numeric::false_v<T>);
-        }
-        else if (valid_base_operation(symbol))
-        {
-            return parse_base_operation();
-        }
-        else if (core::imatch(symbol, symbol_if) && settings_.control_struct_enabled(symbol))
-        {
-            return parse_conditional_statement();
-        }
-        else if (core::imatch(symbol, symbol_while) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_while_loop());
-        }
-        else if (core::imatch(symbol, symbol_repeat) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_repeat_until_loop());
-        }
-        else if (core::imatch(symbol, symbol_for) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_for_loop());
-        }
-        else if (core::imatch(symbol, symbol_switch) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_switch_statement());
-        }
-        else if (core::is_valid_sf_symbol(symbol))
-        {
-            return parse_special_function();
-        }
-        else if (core::imatch(symbol, symbol_null))
-        {
-            return parse_null_statement();
-        }
-#ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
-        else if (core::imatch(symbol, symbol_break))
-        {
-            return parse_break_statement();
-        }
-        else if (core::imatch(symbol, symbol_continue))
-        {
-            return parse_continue_statement();
-        }
-#endif
-        else if (core::imatch(symbol, symbol_var))
-        {
-            return parse_define_var_statement();
-        }
-        else if (core::imatch(symbol, symbol_const))
-        {
-            return parse_define_constvar_statement();
-        }
-        else if (core::imatch(symbol, symbol_swap))
-        {
-            return parse_swap_statement();
-        }
-#ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
-        else if (core::imatch(symbol, symbol_return) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_return_statement());
-        }
-#endif
-        else if (core::imatch(symbol, symbol_assert))
-        {
-            return parse_assert_statement();
-        }
-        else if (symtab_store_.valid() || !sem_.empty())
-        {
-            return parse_symtab_symbol();
-        }
-        else
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_symtab, current_token(),
-                           "ERR241 - Unknown variable or function encountered. Symbol table(s) "
-                           "is either invalid or does not contain symbol: '" +
-                               symbol + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
+        symbol_context context(*this);
+        return parser_symbol<T>::parse_symbol(context);
     }
 
     inline expression_node_ptr parse_branch(
