@@ -7997,7 +7997,7 @@ class parser : public lexer::parser_helper
 
         inline expression_node_ptr cardinal_pow_optimisation(expression_node_ptr (&branch)[2])
         {
-            const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+            const Type c = literal_value(branch[1]);
             const bool not_recipricol = (c >= T(0));
             const unsigned int p =
                 static_cast<unsigned int>(core::numeric::to_int32(core::numeric::abs(c)));
@@ -8656,7 +8656,7 @@ class parser : public lexer::parser_helper
                 {
                     auto* cobnode = expr_gen.cob_base(branch[0]);
 
-                    const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                    const Type c = expr_gen.literal_value(branch[1]);
 
                     if (std::equal_to<T>()(T(0), c) &&
                         (core::operators::operator_type::mul == operation))
@@ -8760,7 +8760,7 @@ class parser : public lexer::parser_helper
                 {
                     auto* cobnode = expr_gen.cob_base(branch[1]);
 
-                    const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                    const Type c = expr_gen.literal_value(branch[0]);
 
                     if (std::equal_to<T>()(T(0), c) &&
                         (core::operators::operator_type::mul == operation))
@@ -8881,7 +8881,7 @@ class parser : public lexer::parser_helper
                 {
                     auto* bocnode = expr_gen.boc_base(branch[0]);
 
-                    const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                    const Type c = expr_gen.literal_value(branch[1]);
 
                     if (core::operators::operator_type::add == bocnode->operation())
                     {
@@ -8959,7 +8959,7 @@ class parser : public lexer::parser_helper
                 {
                     auto* bocnode = expr_gen.boc_base(branch[1]);
 
-                    const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                    const Type c = expr_gen.literal_value(branch[0]);
 
                     if (core::operators::operator_type::add == bocnode->operation())
                     {
@@ -9534,7 +9534,7 @@ class parser : public lexer::parser_helper
                     static_cast<details::vov_base_node<Type>*>(branch[0]);
                 const Type& v0 = vov->v0();
                 const Type& v1 = vov->v1();
-                const Type& v2 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v2 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = vov->operation();
                 const core::operators::operator_type o1 = operation;
 
@@ -9597,7 +9597,7 @@ class parser : public lexer::parser_helper
                 // (v0) o0 (v1 o1 v2)
                 const details::vov_base_node<Type>* vov =
                     static_cast<details::vov_base_node<Type>*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = vov->v0();
                 const Type& v2 = vov->v1();
                 const core::operators::operator_type o0 = operation;
@@ -9664,7 +9664,7 @@ class parser : public lexer::parser_helper
                     static_cast<details::vov_base_node<Type>*>(branch[0]);
                 const Type& v0 = vov->v0();
                 const Type& v1 = vov->v1();
-                const Type c = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = vov->operation();
                 const core::operators::operator_type o1 = operation;
 
@@ -9728,7 +9728,7 @@ class parser : public lexer::parser_helper
                 // (v0) o0 (v1 o1 c)
                 const details::voc_base_node<Type>* voc =
                     static_cast<const details::voc_base_node<Type>*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type& v1 = voc->v();
                 const Type c = voc->c();
                 const core::operators::operator_type o0 = operation;
@@ -9795,7 +9795,7 @@ class parser : public lexer::parser_helper
                     static_cast<details::voc_base_node<Type>*>(branch[0]);
                 const Type& v0 = voc->v();
                 const Type c = voc->c();
-                const Type& v1 = static_cast<details::variable_node<Type>*>(branch[1])->ref();
+                const Type& v1 = expr_gen.variable_ref(branch[1]);
                 const core::operators::operator_type o0 = voc->operation();
                 const core::operators::operator_type o1 = operation;
 
@@ -9858,7 +9858,7 @@ class parser : public lexer::parser_helper
                 // (v0) o0 (c o1 v1)
                 const details::cov_base_node<Type>* cov =
                     static_cast<details::cov_base_node<Type>*>(branch[1]);
-                const Type& v0 = static_cast<details::variable_node<Type>*>(branch[0])->ref();
+                const Type& v0 = expr_gen.variable_ref(branch[0]);
                 const Type c = cov->c();
                 const Type& v1 = cov->v();
                 const core::operators::operator_type o0 = operation;
@@ -9988,7 +9988,7 @@ class parser : public lexer::parser_helper
                 // (c) o0 (v0 o1 v1)
                 const details::vov_base_node<Type>* vov =
                     static_cast<details::vov_base_node<Type>*>(branch[1]);
-                const Type c = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c = expr_gen.literal_value(branch[0]);
                 const Type& v0 = vov->v0();
                 const Type& v1 = vov->v1();
                 const core::operators::operator_type o0 = operation;
@@ -10056,7 +10056,7 @@ class parser : public lexer::parser_helper
                     static_cast<details::cov_base_node<Type>*>(branch[0]);
                 const Type c0 = cov->c();
                 const Type& v = cov->v();
-                const Type c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c1 = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = cov->operation();
                 const core::operators::operator_type o1 = operation;
 
@@ -10180,7 +10180,7 @@ class parser : public lexer::parser_helper
                 // (c0) o0 (v o1 c1)
                 const details::voc_base_node<Type>* voc =
                     static_cast<details::voc_base_node<Type>*>(branch[1]);
-                const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c0 = expr_gen.literal_value(branch[0]);
                 const Type& v = voc->v();
                 const Type c1 = voc->c();
                 const core::operators::operator_type o0 = operation;
@@ -10318,7 +10318,7 @@ class parser : public lexer::parser_helper
                 // (c0) o0 (c1 o1 v)
                 const details::cov_base_node<Type>* cov =
                     static_cast<details::cov_base_node<Type>*>(branch[1]);
-                const Type c0 = static_cast<details::literal_node<Type>*>(branch[0])->value();
+                const Type c0 = expr_gen.literal_value(branch[0]);
                 const Type c1 = cov->c();
                 const Type& v = cov->v();
                 const core::operators::operator_type o0 = operation;
@@ -10446,7 +10446,7 @@ class parser : public lexer::parser_helper
                     static_cast<details::voc_base_node<Type>*>(branch[0]);
                 const Type& v = voc->v();
                 const Type& c0 = voc->c();
-                const Type& c1 = static_cast<details::literal_node<Type>*>(branch[1])->value();
+                const Type c1 = expr_gen.literal_value(branch[1]);
                 const core::operators::operator_type o0 = voc->operation();
                 const core::operators::operator_type o1 = operation;
 
