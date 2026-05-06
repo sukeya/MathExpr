@@ -58,9 +58,12 @@ limitations under the License.
 #include "math_expr/details/return_nodes.hpp"
 #include "math_expr/details/vector_nodes.hpp"
 #include "math_expr/parser_dependent_entity_collector.hpp"
+#include "math_expr/parser/fold_passes.hpp"
 #include "math_expr/parser_settings.hpp"
 #include "math_expr/parser_symbol_types.hpp"
 #include "math_expr/parser_unknown_symbol_resolver.hpp"
+#include "math_expr/parser/expression_table.hpp"
+#include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 
 namespace math_expr
@@ -82,25 +85,6 @@ template <typename T>
 class parser : public lexer::parser_helper
 {
    private:
-    enum class precedence_level
-    {
-        e_level00,
-        e_level01,
-        e_level02,
-        e_level03,
-        e_level04,
-        e_level05,
-        e_level06,
-        e_level07,
-        e_level08,
-        e_level09,
-        e_level10,
-        e_level11,
-        e_level12,
-        e_level13,
-        e_level14
-    };
-
     using cref_t = const T&;
     using const_t = const T;
     using F = ifunction<T>;
@@ -219,6 +203,10 @@ class parser : public lexer::parser_helper
     using vococov_t = details::T0oT1oT2oT3_define<T, cref_t, const_t, const_t, cref_t>;
 
     using results_context_t = results_context<T>;
+    using expression_table_t = math_expr::expression_table<token_t>;
+    using precedence_level = typename expression_table_t::precedence_level;
+    using expression_state_t = typename expression_table_t::state_t;
+    static constexpr precedence_level default_precedence = precedence_level::e_level00;
     using scope_element = math_expr::scope_element<T>;
     using scope_element_manager = math_expr::scope_element_manager<T>;
     using scope_handler = math_expr::scope_handler<T>;
@@ -982,12 +970,8 @@ class parser : public lexer::parser_helper
         sem_.set_scope_depth(state_.scope_depth);
         init_precompilation();
 
-        details::load_operations_map(base_ops_map_);
-        load_unary_operations_map(unary_op_map_);
-        load_binary_operations_map(binary_op_map_);
-        load_inv_binary_operations_map(inv_binary_op_map_);
-        load_sf3_map(sf3_map_);
-        load_sf4_map(sf4_map_);
+        math_expr::rtl_wiring<T>::load(base_ops_map_, unary_op_map_, binary_op_map_,
+                                       inv_binary_op_map_, sf3_map_, sf4_map_);
 
         expression_generator_.init_synthesize_map();
         expression_generator_.set_parser(*this);
@@ -1626,33 +1610,7 @@ class parser : public lexer::parser_helper
         return result;
     }
 
-    static constexpr precedence_level default_precedence = precedence_level::e_level00;
-
-    struct state_t
-    {
-        inline void set(const precedence_level& l, const precedence_level& r,
-                        const core::operators::operator_type& o, const token_t& tkn = token_t())
-        {
-            left = l;
-            right = r;
-            operation = o;
-            token = tkn;
-        }
-
-        inline void reset()
-        {
-            left = precedence_level::e_level00;
-            right = precedence_level::e_level00;
-            operation = core::operators::operator_type::default_op;
-        }
-
-        precedence_level left;
-        precedence_level right;
-        core::operators::operator_type operation;
-        token_t token;
-    };
-
-    inline void push_current_state(const state_t current_state)
+    inline void push_current_state(const expression_state_t current_state)
     {
         current_state_stack_.push_back(current_state);
     }
@@ -1665,9 +1623,9 @@ class parser : public lexer::parser_helper
         }
     }
 
-    inline state_t current_state() const
+    inline expression_state_t current_state() const
     {
-        return (!current_state_stack_.empty()) ? current_state_stack_.back() : state_t();
+        return (!current_state_stack_.empty()) ? current_state_stack_.back() : expression_state_t();
     }
 
     inline bool halt_compilation_check()
@@ -1719,197 +1677,11 @@ class parser : public lexer::parser_helper
 
         bool break_loop = false;
 
-        state_t current_state;
+        expression_state_t current_state;
 
         for (;;)
         {
-            current_state.reset();
-
-            switch (current_token().type)
-            {
-                case token_t::e_assign:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::assign, current_token());
-                    break;
-                case token_t::e_addass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::addass, current_token());
-                    break;
-                case token_t::e_subass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::subass, current_token());
-                    break;
-                case token_t::e_mulass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::mulass, current_token());
-                    break;
-                case token_t::e_divass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::divass, current_token());
-                    break;
-                case token_t::e_modass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::modass, current_token());
-                    break;
-                case token_t::e_swap:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::swap, current_token());
-                    break;
-                case token_t::e_lt:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::lt, current_token());
-                    break;
-                case token_t::e_lte:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::lte, current_token());
-                    break;
-                case token_t::e_eq:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::eq, current_token());
-                    break;
-                case token_t::e_ne:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::ne, current_token());
-                    break;
-                case token_t::e_gte:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::gte, current_token());
-                    break;
-                case token_t::e_gt:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::gt, current_token());
-                    break;
-                case token_t::e_add:
-                    current_state.set(precedence_level::e_level07, precedence_level::e_level08,
-                                      core::operators::operator_type::add, current_token());
-                    break;
-                case token_t::e_sub:
-                    current_state.set(precedence_level::e_level07, precedence_level::e_level08,
-                                      core::operators::operator_type::sub, current_token());
-                    break;
-                case token_t::e_div:
-                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                      core::operators::operator_type::div, current_token());
-                    break;
-                case token_t::e_mul:
-                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                      core::operators::operator_type::mul, current_token());
-                    break;
-                case token_t::e_mod:
-                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                      core::operators::operator_type::mod, current_token());
-                    break;
-                case token_t::e_pow:
-                    current_state.set(precedence_level::e_level12, precedence_level::e_level12,
-                                      core::operators::operator_type::pow, current_token());
-                    break;
-                default:
-                    if (token_t::e_symbol == current_token().type)
-                    {
-                        static constexpr std::string_view s_and = "and";
-                        static constexpr std::string_view s_nand = "nand";
-                        static constexpr std::string_view s_or = "or";
-                        static constexpr std::string_view s_nor = "nor";
-                        static constexpr std::string_view s_xor = "xor";
-                        static constexpr std::string_view s_xnor = "xnor";
-                        static constexpr std::string_view s_in = "in";
-                        static constexpr std::string_view s_like = "like";
-                        static constexpr std::string_view s_ilike = "ilike";
-                        static constexpr std::string_view s_and1 = "&";
-                        static constexpr std::string_view s_or1 = "|";
-                        static constexpr std::string_view s_not = "not";
-
-                        if (core::imatch(current_token().value, s_and))
-                        {
-                            current_state.set(
-                                precedence_level::e_level03, precedence_level::e_level04,
-                                core::operators::operator_type::logical_and, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_and1))
-                        {
-                            current_state.set(precedence_level::e_level03,
-                                              precedence_level::e_level04,
-                                              ::math_expr::core::build_options::kDisableScAndOr
-                                                  ? core::operators::operator_type::logical_and
-                                                  : core::operators::operator_type::scand,
-                                              current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_nand))
-                        {
-                            current_state.set(
-                                precedence_level::e_level03, precedence_level::e_level04,
-                                core::operators::operator_type::nand, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_or))
-                        {
-                            current_state.set(
-                                precedence_level::e_level01, precedence_level::e_level02,
-                                core::operators::operator_type::logical_or, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_or1))
-                        {
-                            current_state.set(precedence_level::e_level01,
-                                              precedence_level::e_level02,
-                                              ::math_expr::core::build_options::kDisableScAndOr
-                                                  ? core::operators::operator_type::logical_or
-                                                  : core::operators::operator_type::scor,
-                                              current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_nor))
-                        {
-                            current_state.set(precedence_level::e_level01,
-                                              precedence_level::e_level02,
-                                              core::operators::operator_type::nor, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_xor))
-                        {
-                            current_state.set(
-                                precedence_level::e_level01, precedence_level::e_level02,
-                                core::operators::operator_type::logical_xor, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_xnor))
-                        {
-                            current_state.set(
-                                precedence_level::e_level01, precedence_level::e_level02,
-                                core::operators::operator_type::xnor, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_in))
-                        {
-                            current_state.set(precedence_level::e_level04,
-                                              precedence_level::e_level04,
-                                              core::operators::operator_type::in, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_like))
-                        {
-                            current_state.set(
-                                precedence_level::e_level04, precedence_level::e_level04,
-                                core::operators::operator_type::like, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_ilike))
-                        {
-                            current_state.set(
-                                precedence_level::e_level04, precedence_level::e_level04,
-                                core::operators::operator_type::ilike, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_not))
-                        {
-                            break;
-                        }
-                    }
-
-                    break_loop = true;
-            }
+            break_loop = !expression_table_t::resolve(current_token(), current_state);
 
             if (break_loop)
             {
@@ -7789,6 +7561,7 @@ class parser : public lexer::parser_helper
             expression_node_ptr (&branch)[2]);
         using synthesize_map_t = std::map<std::string, synthesize_functor_t>;
         using parser_t = typename math_expr::parser<Type>;
+        using fold_passes_t = math_expr::fold_passes<Type>;
         using vtype = const Type&;
         using ctype = const Type;
 
@@ -9340,7 +9113,7 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (is_constant_foldable(arg_list))
+            else if (fold_passes_t::is_constant_foldable(arg_list))
                 return const_optimise_switch(arg_list);
 
             switch ((arg_list.size() - 1) / 2)
@@ -9375,7 +9148,7 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (is_constant_foldable(arg_list))
+            else if (fold_passes_t::is_constant_foldable(arg_list))
                 return const_optimise_mswitch(arg_list);
             else
                 return node_allocator_->allocate<details::multi_switch_node<Type>>(arg_list);
@@ -9648,7 +9421,7 @@ class parser : public lexer::parser_helper
         {
             if (!all_nodes_valid(branch))
                 return error_node();
-            else if (is_constant_foldable(branch))
+            else if (fold_passes_t::is_constant_foldable(branch))
                 return const_optimise_sf3(operation, branch);
             else if (all_nodes_variables(branch))
                 return varnode_optimise_sf3(operation, branch);
@@ -9877,7 +9650,7 @@ class parser : public lexer::parser_helper
         {
             if (!all_nodes_valid(branch))
                 return error_node();
-            else if (is_constant_foldable(branch))
+            else if (fold_passes_t::is_constant_foldable(branch))
                 return const_optimise_sf4(operation, branch);
             else if (all_nodes_variables(branch))
                 return varnode_optimise_sf4(operation, branch);
@@ -10053,7 +9826,7 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (is_constant_foldable(arg_list))
+            else if (fold_passes_t::is_constant_foldable(arg_list))
                 return const_optimise_varargfunc(operation, arg_list);
             else if ((1 == arg_list.size()) && details::is_ivector_node(arg_list[0]))
                 return vectorize_func(operation, arg_list);
@@ -10193,7 +9966,8 @@ class parser : public lexer::parser_helper
 
             expression_node_ptr result = node_allocator_->allocate<alloc_type>(vaf, arg_list);
 
-            if (!arg_list.empty() && !vaf->has_side_effects() && is_constant_foldable(arg_list))
+            if (!arg_list.empty() && !vaf->has_side_effects() &&
+                fold_passes_t::is_constant_foldable(arg_list))
             {
                 const Type v = result->value();
                 details::free_node(*node_allocator_, result);
@@ -10250,7 +10024,7 @@ class parser : public lexer::parser_helper
             assert(genfunc_node_ptr);
 
             if (!arg_list.empty() && !gf->has_side_effects() &&
-                parser_->state_.type_check_enabled && is_constant_foldable(arg_list))
+                parser_->state_.type_check_enabled && fold_passes_t::is_constant_foldable(arg_list))
             {
                 genfunc_node_ptr->init_branches();
 
@@ -10318,7 +10092,8 @@ class parser : public lexer::parser_helper
 
             assert(strfunc_node_ptr);
 
-            if (!arg_list.empty() && !gf->has_side_effects() && is_constant_foldable(arg_list))
+            if (!arg_list.empty() && !gf->has_side_effects() &&
+                fold_passes_t::is_constant_foldable(arg_list))
             {
                 strfunc_node_ptr->init_branches();
 
@@ -10581,35 +10356,6 @@ class parser : public lexer::parser_helper
         }
 
        private:
-        template <std::size_t N, typename NodePtr>
-        inline bool is_constant_foldable(NodePtr (&b)[N]) const
-        {
-            for (std::size_t i = 0; i < N; ++i)
-            {
-                if (nullptr == b[i])
-                    return false;
-                else if (!details::is_constant_node(b[i]))
-                    return false;
-            }
-
-            return true;
-        }
-
-        template <typename NodePtr, typename Allocator,
-                  template <typename, typename> class Sequence>
-        inline bool is_constant_foldable(const Sequence<NodePtr, Allocator>& b) const
-        {
-            for (std::size_t i = 0; i < b.size(); ++i)
-            {
-                if (nullptr == b[i])
-                    return false;
-                else if (!details::is_constant_node(b[i]))
-                    return false;
-            }
-
-            return true;
-        }
-
         void lodge_assignment(symbol_type cst, expression_node_ptr node)
         {
             parser_->state_.activate_side_effect("lodge_assignment()");
@@ -18597,7 +18343,7 @@ class parser : public lexer::parser_helper
                 expression_node_ptr expression_point =
                     node_allocator_->allocate<NodeType>(operation, branch);
 
-                if (is_constant_foldable<N>(branch))
+                if (fold_passes_t::is_constant_foldable(branch))
                 {
                     const Type v = expression_point->value();
                     details::free_node(*node_allocator_, expression_point);
@@ -18646,7 +18392,7 @@ class parser : public lexer::parser_helper
             else
                 func_node_ptr->init_branches(branch);
 
-            if (is_constant_foldable<N>(branch) && !f->has_side_effects())
+            if (fold_passes_t::is_constant_foldable(branch) && !f->has_side_effects())
             {
                 Type v = expression_point->value();
                 details::free_node(*node_allocator_, expression_point);
@@ -18756,269 +18502,6 @@ class parser : public lexer::parser_helper
         results_context_ = 0;
     }
 
-    inline void load_unary_operations_map(unary_op_map_t& m)
-    {
-#define REGISTER_UNARY_OP(Op, UnaryFunctor) m.insert(std::make_pair(Op, UnaryFunctor<T>::process))
-
-        REGISTER_UNARY_OP(core::operators::operator_type::abs, details::abs_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::acos, details::acos_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::acosh, details::acosh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::asin, details::asin_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::asinh, details::asinh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::atanh, details::atanh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::ceil, details::ceil_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::cos, details::cos_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::cosh, details::cosh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::exp, details::exp_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::expm1, details::expm1_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::floor, details::floor_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log, details::log_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log10, details::log10_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log2, details::log2_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log1p, details::log1p_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::neg, details::neg_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::pos, details::pos_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::round, details::round_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sin, details::sin_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sinc, details::sinc_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sinh, details::sinh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sqrt, details::sqrt_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::tan, details::tan_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::tanh, details::tanh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::cot, details::cot_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sec, details::sec_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::csc, details::csc_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::r2d, details::r2d_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::d2r, details::d2r_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::d2g, details::d2g_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::g2d, details::g2d_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::notl, details::notl_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sgn, details::sgn_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::erf, details::erf_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::erfc, details::erfc_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::ncdf, details::ncdf_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::frac, details::frac_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::trunc, details::trunc_op);
-#undef REGISTER_UNARY_OP
-    }
-
-    inline void load_binary_operations_map(binary_op_map_t& m)
-    {
-        using value_type = typename binary_op_map_t::value_type;
-
-#define REGISTER_BINARY_OP(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process))
-
-        REGISTER_BINARY_OP(core::operators::operator_type::add, details::add_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::sub, details::sub_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mul, details::mul_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::div, details::div_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mod, details::mod_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::pow, details::pow_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lt, details::lt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lte, details::lte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gt, details::gt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gte, details::gte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::eq, details::eq_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::ne, details::ne_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_and, details::and_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nand, details::nand_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_or, details::or_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nor, details::nor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_xor, details::xor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::xnor, details::xnor_op);
-#undef REGISTER_BINARY_OP
-    }
-
-    inline void load_inv_binary_operations_map(inv_binary_op_map_t& m)
-    {
-        using value_type = typename inv_binary_op_map_t::value_type;
-
-#define REGISTER_BINARY_OP(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op))
-
-        REGISTER_BINARY_OP(core::operators::operator_type::add, details::add_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::sub, details::sub_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mul, details::mul_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::div, details::div_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mod, details::mod_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::pow, details::pow_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lt, details::lt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lte, details::lte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gt, details::gt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gte, details::gte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::eq, details::eq_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::ne, details::ne_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_and, details::and_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nand, details::nand_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_or, details::or_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nor, details::nor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_xor, details::xor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::xnor, details::xnor_op);
-#undef REGISTER_BINARY_OP
-    }
-
-    inline void load_sf3_map(sf3_map_t& sf3_map)
-    {
-        using pair_t = std::pair<trinary_functor_t, core::operators::operator_type>;
-
-#define REGISTER_SF3(Op)                     \
-    sf3_map[details::sf##Op##_op<T>::id()] = \
-        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
-
-        REGISTER_SF3(00);
-        REGISTER_SF3(01);
-        REGISTER_SF3(02);
-        REGISTER_SF3(03);
-        REGISTER_SF3(04);
-        REGISTER_SF3(05);
-        REGISTER_SF3(06);
-        REGISTER_SF3(07);
-        REGISTER_SF3(08);
-        REGISTER_SF3(09);
-        REGISTER_SF3(10);
-        REGISTER_SF3(11);
-        REGISTER_SF3(12);
-        REGISTER_SF3(13);
-        REGISTER_SF3(14);
-        REGISTER_SF3(15);
-        REGISTER_SF3(16);
-        REGISTER_SF3(17);
-        REGISTER_SF3(18);
-        REGISTER_SF3(19);
-        REGISTER_SF3(20);
-        REGISTER_SF3(21);
-        REGISTER_SF3(22);
-        REGISTER_SF3(23);
-        REGISTER_SF3(24);
-        REGISTER_SF3(25);
-        REGISTER_SF3(26);
-        REGISTER_SF3(27);
-        REGISTER_SF3(28);
-        REGISTER_SF3(29);
-        REGISTER_SF3(30);
-#undef REGISTER_SF3
-
-#define REGISTER_SF3_EXTID(Id, Op) \
-    sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
-
-        REGISTER_SF3_EXTID("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
-#undef REGISTER_SF3_EXTID
-    }
-
-    inline void load_sf4_map(sf4_map_t& sf4_map)
-    {
-        using pair_t = std::pair<quaternary_functor_t, core::operators::operator_type>;
-
-#define REGISTER_SF4(Op)                     \
-    sf4_map[details::sf##Op##_op<T>::id()] = \
-        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
-
-        REGISTER_SF4(48);
-        REGISTER_SF4(49);
-        REGISTER_SF4(50);
-        REGISTER_SF4(51);
-        REGISTER_SF4(52);
-        REGISTER_SF4(53);
-        REGISTER_SF4(54);
-        REGISTER_SF4(55);
-        REGISTER_SF4(56);
-        REGISTER_SF4(57);
-        REGISTER_SF4(58);
-        REGISTER_SF4(59);
-        REGISTER_SF4(60);
-        REGISTER_SF4(61);
-        REGISTER_SF4(62);
-        REGISTER_SF4(63);
-        REGISTER_SF4(64);
-        REGISTER_SF4(65);
-        REGISTER_SF4(66);
-        REGISTER_SF4(67);
-        REGISTER_SF4(68);
-        REGISTER_SF4(69);
-        REGISTER_SF4(70);
-        REGISTER_SF4(71);
-        REGISTER_SF4(72);
-        REGISTER_SF4(73);
-        REGISTER_SF4(74);
-        REGISTER_SF4(75);
-        REGISTER_SF4(76);
-        REGISTER_SF4(77);
-        REGISTER_SF4(78);
-        REGISTER_SF4(79);
-        REGISTER_SF4(80);
-        REGISTER_SF4(81);
-        REGISTER_SF4(82);
-        REGISTER_SF4(83);
-#undef REGISTER_SF4
-
-#define REGISTER_SF4EXT(Op)                     \
-    sf4_map[details::sfext##Op##_op<T>::id()] = \
-        pair_t(details::sfext##Op##_op<T>::process, core::operators::operator_type::sf4ext##Op)
-
-        REGISTER_SF4EXT(00);
-        REGISTER_SF4EXT(01);
-        REGISTER_SF4EXT(02);
-        REGISTER_SF4EXT(03);
-        REGISTER_SF4EXT(04);
-        REGISTER_SF4EXT(05);
-        REGISTER_SF4EXT(06);
-        REGISTER_SF4EXT(07);
-        REGISTER_SF4EXT(08);
-        REGISTER_SF4EXT(09);
-        REGISTER_SF4EXT(10);
-        REGISTER_SF4EXT(11);
-        REGISTER_SF4EXT(12);
-        REGISTER_SF4EXT(13);
-        REGISTER_SF4EXT(14);
-        REGISTER_SF4EXT(15);
-        REGISTER_SF4EXT(16);
-        REGISTER_SF4EXT(17);
-        REGISTER_SF4EXT(18);
-        REGISTER_SF4EXT(19);
-        REGISTER_SF4EXT(20);
-        REGISTER_SF4EXT(21);
-        REGISTER_SF4EXT(22);
-        REGISTER_SF4EXT(23);
-        REGISTER_SF4EXT(24);
-        REGISTER_SF4EXT(25);
-        REGISTER_SF4EXT(26);
-        REGISTER_SF4EXT(27);
-        REGISTER_SF4EXT(28);
-        REGISTER_SF4EXT(29);
-        REGISTER_SF4EXT(30);
-        REGISTER_SF4EXT(31);
-        REGISTER_SF4EXT(32);
-        REGISTER_SF4EXT(33);
-        REGISTER_SF4EXT(34);
-        REGISTER_SF4EXT(35);
-        REGISTER_SF4EXT(36);
-        REGISTER_SF4EXT(37);
-        REGISTER_SF4EXT(38);
-        REGISTER_SF4EXT(39);
-        REGISTER_SF4EXT(40);
-        REGISTER_SF4EXT(41);
-        REGISTER_SF4EXT(42);
-        REGISTER_SF4EXT(43);
-        REGISTER_SF4EXT(44);
-        REGISTER_SF4EXT(45);
-        REGISTER_SF4EXT(46);
-        REGISTER_SF4EXT(47);
-        REGISTER_SF4EXT(48);
-        REGISTER_SF4EXT(49);
-        REGISTER_SF4EXT(50);
-        REGISTER_SF4EXT(51);
-        REGISTER_SF4EXT(52);
-        REGISTER_SF4EXT(53);
-        REGISTER_SF4EXT(54);
-        REGISTER_SF4EXT(55);
-        REGISTER_SF4EXT(56);
-        REGISTER_SF4EXT(57);
-        REGISTER_SF4EXT(58);
-        REGISTER_SF4EXT(59);
-        REGISTER_SF4EXT(60);
-        REGISTER_SF4EXT(61);
-#undef REGISTER_SF4EXT
-    }
-
     inline results_context_t& results_ctx()
     {
         if (nullptr == results_context_)
@@ -19087,7 +18570,7 @@ class parser : public lexer::parser_helper
     sf4_map_t sf4_map_;
     std::string synthesis_error_;
     scope_element_manager sem_;
-    std::vector<state_t> current_state_stack_;
+    std::vector<expression_state_t> current_state_stack_;
 
     immutable_memory_map_t immutable_memory_map_;
     immutable_symtok_map_t immutable_symtok_map_;
