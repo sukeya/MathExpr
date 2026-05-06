@@ -68,6 +68,7 @@ limitations under the License.
 #include "math_expr/parser/rtl_wiring.hpp"
 #include "math_expr/parser/scope_manager.hpp"
 #include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/definition_parser.hpp"
 #include "math_expr/parser/dynamic_function_parser.hpp"
 #include "math_expr/parser/entity_parser.hpp"
 #include "math_expr/parser/function_call_parser.hpp"
@@ -2813,6 +2814,150 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
+    struct definition_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using scope_element_t = math_expr::scope_element<T>;
+        using variable_node_ptr = typename parser<T>::variable_node_t*;
+        using literal_node_ptr = typename parser<T>::literal_node_t*;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
+#endif
+
+        explicit definition_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool token_is(const std::string& symbol)
+        {
+            return parser_.token_is(symbol);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_define_vector_statement(const std::string& var_name)
+        {
+            return parser_.parse_define_vector_statement(var_name);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline scope_element_t& get_element(const std::string& symbol)
+        {
+            return sem.get_element(symbol);
+        }
+
+        inline bool add_element(scope_element_t&& se)
+        {
+            return sem.add_element(std::move(se));
+        }
+
+        inline void free_element(scope_element_t& se)
+        {
+            sem.free_element(se);
+        }
+
+        inline std::size_t total_local_symb_size_bytes() const
+        {
+            return sem.total_local_symb_size_bytes();
+        }
+
+        inline std::size_t max_total_local_symbol_size_bytes() const
+        {
+            return settings.max_total_local_symbol_size_bytes();
+        }
+
+        inline std::size_t next_ip_index()
+        {
+            return sem.next_ip_index();
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline variable_node_ptr make_variable_node(T& value)
+        {
+            return static_cast<variable_node_ptr>(
+                node_allocator.template allocate<variable_node_t>(value));
+        }
+
+        inline literal_node_ptr make_literal_node(const T& value)
+        {
+            return static_cast<literal_node_ptr>(
+                node_allocator.template allocate<literal_node_t>(value));
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline stringvar_node_ptr make_stringvar_node(std::string& value)
+        {
+            return new stringvar_node_t(value);
+        }
+#endif
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_assignment(expression_node_ptr lhs, expression_node_ptr rhs)
+        {
+            expression_node_ptr branch[2] = {lhs, rhs};
+            return parser_.expression_generator_(core::operators::operator_type::assign, branch);
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        details::node_allocator& node_allocator;
+    };
+
     struct special_case_context
     {
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
@@ -4053,573 +4198,36 @@ class parser : public lexer::parser_helper
         return error_node();
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_define_string_statement(
         const std::string& str_name, expression_node_ptr initialisation_expression)
     {
-        stringvar_node_t* str_node = nullptr;
-
-        scope_element& se = sem_.get_element(str_name);
-
-        if (se.name == str_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR175 - Illegal redefinition of local variable: '" + str_name + "'",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_string == se.type)
-            {
-                str_node = se.str_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == str_node)
-        {
-            scope_element nse;
-            nse.name = str_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_string;
-            nse.depth = state_.scope_depth;
-            nse.str_data = std::make_unique<std::string>();
-            nse.str_node = new stringvar_node_t(*nse.str_data);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR176 - Failed to add new local string variable '" + str_name + "' to SEM",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            str_node = nse.str_node;
-
-            core::debug_print(
-                "parse_define_string_statement() - INFO - Added new local string variable: %s\n",
-                nse.name.c_str());
-        }
-
-        lodge_symbol(str_name, symbol_type::e_st_local_string);
-
-        state_.activate_side_effect("parse_define_string_statement()");
-
-        expression_node_ptr branch[2] = {0};
-
-        branch[0] = str_node;
-        branch[1] = initialisation_expression;
-
-        return expression_generator_(core::operators::operator_type::assign, branch);
+        definition_context context(*this);
+        return parser_definition<T>::parse_define_string_statement(context, str_name,
+                                                                   initialisation_expression);
     }
-#else
-    inline expression_node_ptr parse_define_string_statement(const std::string&,
-                                                             expression_node_ptr)
-    {
-        return error_node();
-    }
-#endif
 
     inline bool local_variable_is_shadowed(const std::string& symbol)
     {
-        const scope_element& se = sem_.get_element(symbol);
-        return (se.name == symbol) && se.active;
+        definition_context context(*this);
+        return parser_definition<T>::local_variable_is_shadowed(context, symbol);
     }
 
     inline expression_node_ptr parse_define_var_statement()
     {
-        if (settings_.vardef_disabled())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR177 - Illegal variable definition", core::error_location()));
-
-            return error_node();
-        }
-        else if (!core::imatch(current_token().value, "var"))
-        {
-            return error_node();
-        }
-        else
-            next_token();
-
-        const std::string var_name = current_token().value;
-
-        expression_node_ptr initialisation_expression = error_node();
-
-        if (!token_is(token_t::e_symbol))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR178 - Expected a symbol for variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (core::is_reserved_symbol(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR179 - Illegal redefinition of reserved keyword: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (symtab_store_.symbol_exists(var_name))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR180 - Illegal redefinition of variable '" + var_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (local_variable_is_shadowed(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR181 - Illegal redefinition of local variable: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            return parse_define_vector_statement(var_name);
-        }
-        else if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            return parse_uninitialised_var_statement(var_name);
-        }
-        else if (token_is(token_t::e_assign))
-        {
-            if (nullptr == (initialisation_expression = parse_expression()))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR182 - Failed to parse initialisation expression for variable '" +
-                                   var_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        if (!token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-            !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-            !token_is(token_t::e_rsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR183 - Expected ';' after variable '" + var_name + "' definition",
-                               core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-        }
-
-        if ((nullptr != initialisation_expression) &&
-            details::is_generally_string_node(initialisation_expression))
-        {
-            return parse_define_string_statement(var_name, initialisation_expression);
-        }
-
-        expression_node_ptr var_node = nullptr;
-
-        scope_element& se = sem_.get_element(var_name);
-
-        if (se.name == var_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR184 - Illegal redefinition of local variable: '" + var_name + "'",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_variable == se.type)
-            {
-                var_node = se.var_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == var_node)
-        {
-            const std::size_t predicted_total_lclsymb_size =
-                sizeof(T) + sem_.total_local_symb_size_bytes();
-
-            if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR185 - Adding variable '" + var_name +
-                                   "' "
-                                   "will exceed max total local symbol size of: " +
-                                   core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                   " bytes, "
-                                   "current total size: " +
-                                   core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-
-            scope_element nse;
-            nse.name = var_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_variable;
-            nse.depth = state_.scope_depth;
-            nse.scalar_data = std::make_unique<T>(T(0));
-            nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR186 - Failed to add new local variable '" + var_name + "' to SEM",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            var_node = nse.var_node;
-
-            core::debug_print(
-                "parse_define_var_statement() - INFO - Added new local variable: %s\n",
-                nse.name.c_str());
-        }
-
-        state_.activate_side_effect("parse_define_var_statement()");
-
-        lodge_symbol(var_name, symbol_type::e_st_local_variable);
-
-        expression_node_ptr branch[2] = {0};
-
-        branch[0] = var_node;
-        branch[1] =
-            initialisation_expression ? initialisation_expression : expression_generator_(T(0));
-
-        return expression_generator_(core::operators::operator_type::assign, branch);
+        definition_context context(*this);
+        return parser_definition<T>::parse_define_var_statement(context);
     }
 
     inline expression_node_ptr parse_define_constvar_statement()
     {
-        if (settings_.vardef_disabled())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR187 - Illegal const variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is("const"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR188 - Expected 'const' keyword for const-variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is("var"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR189 - Expected 'var' keyword for const-variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const std::string var_name = current_token().value;
-
-        expression_node_ptr initialisation_expression = error_node();
-
-        if (!token_is(token_t::e_symbol))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR190 - Expected a symbol for const-variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (core::is_reserved_symbol(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR191 - Illegal redefinition of reserved keyword: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (symtab_store_.symbol_exists(var_name))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR192 - Illegal redefinition of variable '" + var_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (local_variable_is_shadowed(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR193 - Illegal redefinition of local variable: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_assign))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR194 - Expected assignment operator after const-variable: '" +
-                                     var_name + "' definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (initialisation_expression = parse_expression()))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR195 - Failed to parse initialisation expression for const-variable: '" +
-                    var_name + "'",
-                core::error_location()));
-
-            return error_node();
-        }
-
-        if (!details::is_literal_node(initialisation_expression))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR196 - initialisation expression for const-variable: '" +
-                                     var_name + "' must be a constant/literal",
-                                 core::error_location()));
-
-            free_node(node_allocator_, initialisation_expression);
-
-            return error_node();
-        }
-
-        assert(initialisation_expression);
-
-        const T init_value = initialisation_expression->value();
-
-        free_node(node_allocator_, initialisation_expression);
-
-        expression_node_ptr var_node = nullptr;
-
-        scope_element& se = sem_.get_element(var_name);
-
-        if (se.name == var_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR197 - Illegal redefinition of local variable: '" + var_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_literal == se.type)
-            {
-                var_node = se.var_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == var_node)
-        {
-            const std::size_t predicted_total_lclsymb_size =
-                sizeof(T) + sem_.total_local_symb_size_bytes();
-
-            if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR198 - Adding variable '" + var_name +
-                                   "' "
-                                   "will exceed max total local symbol size of: " +
-                                   core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                   " bytes, "
-                                   "current total size: " +
-                                   core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            scope_element nse;
-            nse.name = var_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_literal;
-            nse.depth = state_.scope_depth;
-            nse.var_node = node_allocator_.allocate<literal_node_t>(init_value);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR199 - Failed to add new local const-variable '" + var_name + "' to SEM",
-                    core::error_location()));
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            var_node = nse.var_node;
-
-            core::debug_print(
-                "parse_define_constvar_statement() - INFO - Added new local const-variable: %s\n",
-                nse.name.c_str());
-        }
-
-        state_.activate_side_effect("parse_define_constvar_statement()");
-
-        lodge_symbol(var_name, symbol_type::e_st_local_variable);
-
-        return expression_generator_(var_node->value());
+        definition_context context(*this);
+        return parser_definition<T>::parse_define_constvar_statement(context);
     }
 
     inline expression_node_ptr parse_uninitialised_var_statement(const std::string& var_name)
     {
-        if (!token_is(token_t::e_lcrlbracket) || !token_is(token_t::e_rcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR200 - Expected a '{}' for uninitialised var definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR201 - Expected ';' after uninitialised variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr var_node = nullptr;
-
-        scope_element& se = sem_.get_element(var_name);
-
-        if (se.name == var_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR202 - Illegal redefinition of local variable: '" + var_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_variable == se.type)
-            {
-                var_node = se.var_node;
-                se.active = true;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == var_node)
-        {
-            const std::size_t predicted_total_lclsymb_size =
-                sizeof(T) + sem_.total_local_symb_size_bytes();
-
-            if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR203 - Adding variable '" + var_name +
-                                   "' "
-                                   "will exceed max total local symbol size of: " +
-                                   core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                   " bytes, "
-                                   "current total size: " +
-                                   core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            scope_element nse;
-            nse.name = var_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_variable;
-            nse.depth = state_.scope_depth;
-            nse.ip_index = sem_.next_ip_index();
-            nse.scalar_data = std::make_unique<T>(T(0));
-            nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR204 - Failed to add new local variable '" + var_name + "' to SEM",
-                    core::error_location()));
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            core::debug_print(
-                "parse_uninitialised_var_statement() - INFO - Added new local variable: %s\n",
-                nse.name.c_str());
-        }
-
-        lodge_symbol(var_name, symbol_type::e_st_local_variable);
-
-        state_.activate_side_effect("parse_uninitialised_var_statement()");
-
-        return expression_generator_(T(0));
+        definition_context context(*this);
+        return parser_definition<T>::parse_uninitialised_var_statement(context, var_name);
     }
 
     inline expression_node_ptr parse_swap_statement()
