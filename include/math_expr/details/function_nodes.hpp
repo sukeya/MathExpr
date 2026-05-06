@@ -2912,7 +2912,7 @@ class string_function_node : public generic_function_node<T, StringFunction>,
 #endif
 
 template <typename T, typename GenericFunction>
-class multimode_genfunction_node : public generic_function_node<T, GenericFunction>
+class multimode_genfunction_node final : public generic_function_node<T, GenericFunction>
 {
    public:
     using gen_function_t = generic_function_node<T, GenericFunction>;

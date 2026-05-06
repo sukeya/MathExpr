@@ -1439,6 +1439,11 @@ class vob_base_node : public expression_node<T>
    public:
     virtual ~vob_base_node() {}
 
+    inline virtual core::operators::operator_type operation() const
+    {
+        return core::operators::operator_type::default_op;
+    }
+
     virtual const T& v() const = 0;
 
     vob_base_node<T>* as_vob_base() override
@@ -1452,6 +1457,11 @@ class bov_base_node : public expression_node<T>
 {
    public:
     virtual ~bov_base_node() {}
+
+    inline virtual core::operators::operator_type operation() const
+    {
+        return core::operators::operator_type::default_op;
+    }
 
     virtual const T& v() const = 0;
 
@@ -2755,6 +2765,11 @@ class vob_node final : public vob_base_node<T>
         return v_;
     }
 
+    inline core::operators::operator_type operation() const override
+    {
+        return Operation::operation();
+    }
+
     inline bool valid() const override
     {
         return branch_.first && branch_.first->valid();
@@ -2806,6 +2821,11 @@ class bov_node final : public bov_base_node<T>
     inline const T& v() const override
     {
         return v_;
+    }
+
+    inline core::operators::operator_type operation() const override
+    {
+        return Operation::operation();
     }
 
     inline bool valid() const override

@@ -60,7 +60,7 @@ class unary_node : public expression_node<T>
         return expression_node<T>::node_type::e_unary;
     }
 
-    inline core::operators::operator_type operation()
+    inline core::operators::operator_type operation() const
     {
         return operation_;
     }
@@ -121,7 +121,7 @@ class binary_node : public expression_node<T>
         return expression_node<T>::node_type::e_binary;
     }
 
-    inline core::operators::operator_type operation()
+    inline core::operators::operator_type operation() const
     {
         return operation_;
     }
@@ -257,6 +257,17 @@ class trinary_node : public expression_node<T>
         return expression_node<T>::node_type::e_trinary;
     }
 
+    inline expression_node<T>* branch(const std::size_t& index = 0) const override
+    {
+        assert(index < 3);
+        return branch_[index].first;
+    }
+
+    inline core::operators::operator_type operation() const
+    {
+        return operation_;
+    }
+
     inline bool valid() const override
     {
         return branch_[0].first && branch_[0].first->valid() && branch_[1].first &&
@@ -300,6 +311,12 @@ class quaternary_node : public expression_node<T>
     inline typename expression_node<T>::node_type type() const override
     {
         return expression_node<T>::node_type::e_quaternary;
+    }
+
+    inline expression_node<T>* branch(const std::size_t& index = 0) const override
+    {
+        assert(index < 4);
+        return branch_[index].first;
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override

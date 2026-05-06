@@ -47,6 +47,14 @@ class node_variant_adapter
     using string_base_node_t = string_base_node<T>;
     using string_literal_node_t = string_literal_node<T>;
     using stringvar_node_t = string_nodes::stringvar_node<T>;
+    using unary_node_t = unary_node<T>;
+    using binary_node_t = binary_node<T>;
+    using trinary_node_t = trinary_node<T>;
+    using vov_base_node_t = vov_base_node<T>;
+    using cov_base_node_t = cov_base_node<T>;
+    using voc_base_node_t = voc_base_node<T>;
+    using vob_base_node_t = vob_base_node<T>;
+    using bov_base_node_t = bov_base_node<T>;
     using uv_base_node_t = uv_base_node<T>;
     using cob_base_node_t = cob_base_node<T>;
     using boc_base_node_t = boc_base_node<T>;
@@ -123,10 +131,86 @@ class node_variant_adapter
         expression_ptr node;
     };
 
+    struct unary_hot_view
+    {
+        expression_ptr node;
+        unary_node_t* unary;
+    };
+
+    struct binary_hot_view
+    {
+        expression_ptr node;
+        binary_node_t* binary;
+    };
+
+    struct trinary_hot_view
+    {
+        expression_ptr node;
+        trinary_node_t* trinary;
+    };
+
+    struct uv_hot_view
+    {
+        expression_ptr node;
+        uv_base_node_t* uv;
+    };
+
+    struct vov_hot_view
+    {
+        expression_ptr node;
+        vov_base_node_t* vov;
+    };
+
+    struct cov_hot_view
+    {
+        expression_ptr node;
+        cov_base_node_t* cov;
+    };
+
+    struct voc_hot_view
+    {
+        expression_ptr node;
+        voc_base_node_t* voc;
+    };
+
+    struct vob_hot_view
+    {
+        expression_ptr node;
+        vob_base_node_t* vob;
+    };
+
+    struct bov_hot_view
+    {
+        expression_ptr node;
+        bov_base_node_t* bov;
+    };
+
+    struct cob_hot_view
+    {
+        expression_ptr node;
+        cob_base_node_t* cob;
+    };
+
+    struct boc_hot_view
+    {
+        expression_ptr node;
+        boc_base_node_t* boc;
+    };
+
+    struct fallback_view
+    {
+        expression_ptr node;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
                      assert_view, sf3ext_view, sf4ext_view, other_view>;
+
+    using hot_variant_type =
+        std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
+                     trinary_hot_view, uv_hot_view, vov_hot_view, cov_hot_view, voc_hot_view,
+                     vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view, fallback_view>;
 
     static inline variant_type classify(expression_ptr node)
     {
@@ -187,6 +271,82 @@ class node_variant_adapter
         }
 
         return other_view{node};
+    }
+
+    static inline hot_variant_type classify_hot(expression_ptr node)
+    {
+        if (nullptr == node)
+        {
+            return std::monostate{};
+        }
+
+        if (auto* uv = node->as_uv_base_node(); nullptr != uv)
+        {
+            return uv_hot_view{node, uv};
+        }
+        else if (auto* vov = node->as_vov_base(); nullptr != vov)
+        {
+            return vov_hot_view{node, vov};
+        }
+        else if (auto* cov = node->as_cov_base(); nullptr != cov)
+        {
+            return cov_hot_view{node, cov};
+        }
+        else if (auto* voc = node->as_voc_base(); nullptr != voc)
+        {
+            return voc_hot_view{node, voc};
+        }
+        else if (auto* vob = node->as_vob_base(); nullptr != vob)
+        {
+            return vob_hot_view{node, vob};
+        }
+        else if (auto* bov = node->as_bov_base(); nullptr != bov)
+        {
+            return bov_hot_view{node, bov};
+        }
+        else if (auto* cob = node->as_cob_base(); nullptr != cob)
+        {
+            return cob_hot_view{node, cob};
+        }
+        else if (auto* boc = node->as_boc_base(); nullptr != boc)
+        {
+            return boc_hot_view{node, boc};
+        }
+
+        switch (node->type())
+        {
+            case expression_node<T>::node_type::e_constant:
+                return literal_view{node, static_cast<literal_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_variable:
+                return variable_view{node, static_cast<variable_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_unary:
+                if ((nullptr != node->branch(0)) && (typeid(*node) == typeid(unary_node_t)))
+                {
+                    return unary_hot_view{node, static_cast<unary_node_t*>(node)};
+                }
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_binary:
+                if ((nullptr != node->branch(0)) && (nullptr != node->branch(1)) &&
+                    (typeid(*node) == typeid(binary_node_t)))
+                {
+                    return binary_hot_view{node, static_cast<binary_node_t*>(node)};
+                }
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_trinary:
+                if ((nullptr != node->branch(0)) && (nullptr != node->branch(1)) &&
+                    (nullptr != node->branch(2)) && (typeid(*node) == typeid(trinary_node_t)))
+                {
+                    return trinary_hot_view{node, static_cast<trinary_node_t*>(node)};
+                }
+                return fallback_view{node};
+
+            default:
+                return fallback_view{node};
+        }
     }
 
     template <typename Alternative>
@@ -272,6 +432,31 @@ class node_variant_adapter
         return node ? node->as_uv_base_node() : nullptr;
     }
 
+    static inline vov_base_node_t* vov_base(expression_ptr node)
+    {
+        return node ? node->as_vov_base() : nullptr;
+    }
+
+    static inline cov_base_node_t* cov_base(expression_ptr node)
+    {
+        return node ? node->as_cov_base() : nullptr;
+    }
+
+    static inline voc_base_node_t* voc_base(expression_ptr node)
+    {
+        return node ? node->as_voc_base() : nullptr;
+    }
+
+    static inline vob_base_node_t* vob_base(expression_ptr node)
+    {
+        return node ? node->as_vob_base() : nullptr;
+    }
+
+    static inline bov_base_node_t* bov_base(expression_ptr node)
+    {
+        return node ? node->as_bov_base() : nullptr;
+    }
+
     static inline cob_base_node_t* cob_base(expression_ptr node)
     {
         return node ? node->as_cob_base() : nullptr;
@@ -296,7 +481,128 @@ class node_variant_adapter
 
     static inline T value(expression_ptr node)
     {
-        return node ? node->value() : std::numeric_limits<T>::quiet_NaN();
+        struct visitor
+        {
+            static inline T trinary_value(trinary_node_t* trinary)
+            {
+                const T arg0 = node_variant_adapter::value(trinary->branch(0));
+                const T arg1 = node_variant_adapter::value(trinary->branch(1));
+                const T arg2 = node_variant_adapter::value(trinary->branch(2));
+
+                switch (trinary->operation())
+                {
+                    case core::operators::operator_type::inrange:
+                        return (arg1 < arg0) ? core::numeric::false_v<T>
+                                             : ((arg1 > arg2) ? core::numeric::false_v<T>
+                                                              : core::numeric::true_v<T>);
+
+                    case core::operators::operator_type::clamp:
+                        return (arg1 < arg0) ? arg0 : (arg1 > arg2 ? arg2 : arg1);
+
+                    case core::operators::operator_type::iclamp:
+                        if ((arg1 <= arg0) || (arg1 >= arg2))
+                            return arg1;
+                        else
+                            return ((T(2) * arg1 <= (arg2 + arg0)) ? arg0 : arg2);
+
+                    default:
+                        return trinary->value();
+                }
+            }
+
+            T operator()(std::monostate) const
+            {
+                return std::numeric_limits<T>::quiet_NaN();
+            }
+
+            T operator()(const literal_view& view) const
+            {
+                return view.literal->value();
+            }
+
+            T operator()(const variable_view& view) const
+            {
+                return view.variable->ref();
+            }
+
+            T operator()(const unary_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.unary->operation(), node_variant_adapter::value(view.unary->branch(0)));
+            }
+
+            T operator()(const binary_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.binary->operation(), node_variant_adapter::value(view.binary->branch(0)),
+                    node_variant_adapter::value(view.binary->branch(1)));
+            }
+
+            T operator()(const trinary_hot_view& view) const
+            {
+                return trinary_value(view.trinary);
+            }
+
+            T operator()(const uv_hot_view& view) const
+            {
+                return core::operators::process<T>(view.uv->operation(), view.uv->v());
+            }
+
+            T operator()(const vov_hot_view& view) const
+            {
+                return core::operators::process<T>(view.vov->operation(), view.vov->v0(),
+                                                   view.vov->v1());
+            }
+
+            T operator()(const cov_hot_view& view) const
+            {
+                return core::operators::process<T>(view.cov->operation(), view.cov->c(),
+                                                   view.cov->v());
+            }
+
+            T operator()(const voc_hot_view& view) const
+            {
+                return core::operators::process<T>(view.voc->operation(), view.voc->v(),
+                                                   view.voc->c());
+            }
+
+            T operator()(const vob_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.vob->operation(), view.vob->v(),
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node)));
+            }
+
+            T operator()(const bov_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.bov->operation(),
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node)),
+                    view.bov->v());
+            }
+
+            T operator()(const cob_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.cob->operation(), view.cob->c(),
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node)));
+            }
+
+            T operator()(const boc_hot_view& view) const
+            {
+                return core::operators::process<T>(
+                    view.boc->operation(),
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node)),
+                    view.boc->c());
+            }
+
+            T operator()(const fallback_view& view) const
+            {
+                return view.node->value();
+            }
+        };
+
+        return std::visit(visitor{}, classify_hot(node));
     }
 
     static inline std::size_t node_depth(expression_ptr node)

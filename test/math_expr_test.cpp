@@ -14344,6 +14344,8 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
               numeric_type(3));
         CHECK(adapter_t::value(literal_expression.get_control_block()->expr) == numeric_type(3));
         CHECK(adapter_t::node_depth(literal_expression.get_control_block()->expr) >= 1);
+        CHECK(std::holds_alternative<typename adapter_t::literal_view>(
+            adapter_t::classify_hot(literal_expression.get_control_block()->expr)));
 
         math_expr::expression<numeric_type> string_expression;
         math_expr::parser<numeric_type> string_parser;
@@ -14388,6 +14390,8 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         auto* variable_node = adapter_t::variable(variable_expression.get_control_block()->expr);
         REQUIRE(variable_node != nullptr);
         CHECK(&variable_node->ref() == &scalar);
+        CHECK(std::holds_alternative<typename adapter_t::variable_view>(
+            adapter_t::classify_hot(variable_expression.get_control_block()->expr)));
 
         math_expr::expression<numeric_type> cob_expression;
         cob_expression.register_symbol_table(symbol_table);
@@ -14445,10 +14449,13 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
             adapter_t::unary_variable_base(neg_variable_expression.get_control_block()->expr);
         REQUIRE(unary_variable_base != nullptr);
         CHECK(&unary_variable_base->v() == &scalar);
+        CHECK(std::holds_alternative<typename adapter_t::uv_hot_view>(
+            adapter_t::classify_hot(neg_variable_expression.get_control_block()->expr)));
 
         math_expr::expression<numeric_type> neg_branch_expression;
         neg_branch_expression.register_symbol_table(symbol_table);
         math_expr::parser<numeric_type> neg_branch_parser;
+        neg_branch_parser.settings().disable_strength_reduction();
         test_support::require_compiles("-(x + 1)", neg_branch_parser, neg_branch_expression);
         REQUIRE(neg_branch_expression.get_control_block());
         REQUIRE(neg_branch_expression.get_control_block()->expr);
@@ -14458,6 +14465,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::expression<numeric_type> nested_variable_expression;
         nested_variable_expression.register_symbol_table(symbol_table);
         math_expr::parser<numeric_type> nested_variable_parser;
+        nested_variable_parser.settings().disable_strength_reduction();
         test_support::require_compiles("x + (y + (z + w))", nested_variable_parser,
                                        nested_variable_expression);
         CHECK(nested_variable_expression.value() == numeric_type(14));
@@ -14468,6 +14476,79 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         test_support::require_compiles("2 + (x + (3 + y))", nested_literal_parser,
                                        nested_literal_expression);
         CHECK(nested_literal_expression.value() == numeric_type(12));
+
+        math_expr::expression<numeric_type> vov_expression;
+        vov_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> vov_parser;
+        test_support::require_compiles("x + y", vov_parser, vov_expression);
+        CHECK(vov_expression.value() == numeric_type(7));
+        CHECK(std::holds_alternative<typename adapter_t::vov_hot_view>(
+            adapter_t::classify_hot(vov_expression.get_control_block()->expr)));
+
+        math_expr::expression<numeric_type> cov_expression;
+        cov_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> cov_parser;
+        test_support::require_compiles("2 + x", cov_parser, cov_expression);
+        CHECK(cov_expression.value() == numeric_type(7));
+        CHECK(std::holds_alternative<typename adapter_t::cov_hot_view>(
+            adapter_t::classify_hot(cov_expression.get_control_block()->expr)));
+
+        math_expr::expression<numeric_type> voc_expression;
+        voc_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> voc_parser;
+        test_support::require_compiles("x + 2", voc_parser, voc_expression);
+        CHECK(voc_expression.value() == numeric_type(7));
+        CHECK(std::holds_alternative<typename adapter_t::voc_hot_view>(
+            adapter_t::classify_hot(voc_expression.get_control_block()->expr)));
+
+        math_expr::expression<numeric_type> vob_expression;
+        vob_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> vob_parser;
+        test_support::require_compiles("x + abs(y)", vob_parser, vob_expression);
+        CHECK(vob_expression.value() == numeric_type(7));
+        CHECK(std::holds_alternative<typename adapter_t::vob_hot_view>(
+            adapter_t::classify_hot(vob_expression.get_control_block()->expr)));
+
+        math_expr::expression<numeric_type> bov_expression;
+        bov_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> bov_parser;
+        test_support::require_compiles("abs(y) + x", bov_parser, bov_expression);
+        CHECK(bov_expression.value() == numeric_type(7));
+        CHECK(std::holds_alternative<typename adapter_t::bov_hot_view>(
+            adapter_t::classify_hot(bov_expression.get_control_block()->expr)));
+
+        math_expr::expression<numeric_type> clamp_expression;
+        clamp_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> clamp_parser;
+        clamp_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("clamp(-1,x,1)", clamp_parser, clamp_expression);
+        CHECK(clamp_expression.value() == numeric_type(1));
+
+        math_expr::details::literal_node<numeric_type> hot_literal(numeric_type(7));
+        math_expr::details::variable_node<numeric_type> hot_variable(scalar);
+        math_expr::details::unary_node<numeric_type> hot_unary(
+            math_expr::core::operators::operator_type::neg, &hot_variable);
+        math_expr::details::binary_node<numeric_type> hot_binary(
+            math_expr::core::operators::operator_type::add, &hot_literal, &hot_variable);
+        math_expr::details::literal_node<numeric_type> hot_lower(numeric_type(-1));
+        math_expr::details::literal_node<numeric_type> hot_upper(numeric_type(1));
+        math_expr::details::trinary_node<numeric_type> hot_trinary(
+            math_expr::core::operators::operator_type::clamp, &hot_lower, &hot_variable,
+            &hot_upper);
+
+        CHECK(std::holds_alternative<typename adapter_t::literal_view>(
+            adapter_t::classify_hot(&hot_literal)));
+        CHECK(std::holds_alternative<typename adapter_t::variable_view>(
+            adapter_t::classify_hot(&hot_variable)));
+        CHECK(std::holds_alternative<typename adapter_t::unary_hot_view>(
+            adapter_t::classify_hot(&hot_unary)));
+        CHECK(std::holds_alternative<typename adapter_t::binary_hot_view>(
+            adapter_t::classify_hot(&hot_binary)));
+        CHECK(std::holds_alternative<typename adapter_t::trinary_hot_view>(
+            adapter_t::classify_hot(&hot_trinary)));
+        CHECK(adapter_t::value(&hot_unary) == numeric_type(-5));
+        CHECK(adapter_t::value(&hot_binary) == numeric_type(12));
+        CHECK(adapter_t::value(&hot_trinary) == numeric_type(1));
     }
 }
 
