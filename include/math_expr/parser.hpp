@@ -491,6 +491,25 @@ class parser : public lexer::parser_helper
 
     inline bool compile(const std::string& expression_string, expression<T>& expr)
     {
+        struct generation_guard
+        {
+            explicit generation_guard(details::node_allocator& allocator) : allocator(allocator)
+            {
+                allocator.begin_generation();
+            }
+
+            ~generation_guard()
+            {
+                if (!released)
+                {
+                    allocator.clear_generation();
+                }
+            }
+
+            details::node_allocator& allocator;
+            bool released{false};
+        };
+
         state_.reset();
         error_list_.clear();
         brkcnt_list_.clear();
@@ -502,6 +521,8 @@ class parser : public lexer::parser_helper
         sem_.cleanup();
 
         return_cleanup();
+
+        generation_guard arena_guard(node_allocator_);
 
         if (!valid_settings())
         {
@@ -572,7 +593,8 @@ class parser : public lexer::parser_helper
                 e = expression_generator_.return_envelope(e, results_context_, retinvk_ptr);
             }
 
-            expr.set_expression(e);
+            expr.set_expression(e, node_allocator_.release_generation_arena());
+            arena_guard.released = true;
             expr.set_retinvk(retinvk_ptr);
 
             register_local_vars(expr);

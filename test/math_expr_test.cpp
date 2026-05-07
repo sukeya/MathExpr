@@ -14587,6 +14587,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::parser<numeric_type> hot_parser;
         test_support::require_compiles("9 + abs(x)", hot_parser, hot_expression);
         REQUIRE(hot_expression.get_control_block());
+        REQUIRE(hot_expression.get_control_block()->node_arena != nullptr);
         REQUIRE(hot_expression.get_control_block()->hot_tree != nullptr);
         CHECK(hot_expression.get_control_block()->hot_tree->size() >= 2);
         CHECK(hot_expression.value() == numeric_type(14));
@@ -14600,7 +14601,22 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::parser<numeric_type> cold_parser;
         test_support::require_compiles("s", cold_parser, cold_expression);
         REQUIRE(cold_expression.get_control_block());
+        REQUIRE(cold_expression.get_control_block()->node_arena != nullptr);
         CHECK(cold_expression.get_control_block()->hot_tree == nullptr);
+
+        math_expr::expression<numeric_type> arena_expression;
+        arena_expression.register_symbol_table(symbol_table);
+        {
+            math_expr::parser<numeric_type> scoped_parser;
+            test_support::require_compiles("x + z", scoped_parser, arena_expression);
+            REQUIRE(arena_expression.get_control_block());
+            REQUIRE(arena_expression.get_control_block()->node_arena != nullptr);
+        }
+        x = numeric_type(11);
+        z = numeric_type(4);
+        CHECK(arena_expression.value() == numeric_type(15));
+        x = numeric_type(7);
+        z = numeric_type(3);
 
         math_expr::expression<numeric_type> scalar_pow_expression;
         scalar_pow_expression.register_symbol_table(symbol_table);

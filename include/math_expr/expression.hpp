@@ -37,6 +37,7 @@ limitations under the License.
 #include "math_expr/results_context.hpp"
 #include "math_expr/symbol_table.hpp"
 #include "math_expr/details/hot_expression_tree.hpp"
+#include "math_expr/details/node_memory_arena.hpp"
 #include "math_expr/details/node_variant_adapter.hpp"
 #include "math_expr/details/node_utils.hpp"
 
@@ -148,10 +149,17 @@ class expression
         using local_data_list_t = std::vector<data_pack>;
         using results_context_t = results_context<T>;
 
-        control_block() : expr(nullptr), retinv_null(false), return_invoked(&retinv_null) {}
+        control_block()
+            : node_arena(nullptr), expr(nullptr), retinv_null(false), return_invoked(&retinv_null)
+        {
+        }
 
-        explicit control_block(expression_ptr e)
-            : expr(e), retinv_null(false), return_invoked(&retinv_null)
+        explicit control_block(expression_ptr e,
+                               std::shared_ptr<details::node_memory_arena> arena = nullptr)
+            : node_arena(std::move(arena)),
+              expr(e),
+              retinv_null(false),
+              return_invoked(&retinv_null)
         {
             hot_tree = details::hot_expression_tree<T>::try_build(expr);
         }
@@ -164,6 +172,7 @@ class expression
             }
         }
 
+        std::shared_ptr<details::node_memory_arena> node_arena;
         expression_ptr expr;
         std::unique_ptr<details::hot_expression_tree<T>> hot_tree;
         local_data_list_t local_data_list;
@@ -336,11 +345,12 @@ class expression
         return symbol_table_list_;
     }
 
-    inline void set_expression(const expression_ptr expr)
+    inline void set_expression(const expression_ptr expr,
+                               std::shared_ptr<details::node_memory_arena> arena = nullptr)
     {
         if (expr)
         {
-            control_block_ = std::make_shared<control_block>(expr);
+            control_block_ = std::make_shared<control_block>(expr, std::move(arena));
         }
     }
 

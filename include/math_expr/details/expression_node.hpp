@@ -37,6 +37,7 @@ limitations under the License.
 #include "math_expr/core/std_includes.hpp"
 #include "math_expr/fwd.hpp"
 #include "math_expr/details/fwd.hpp"
+#include "math_expr/details/node_memory_arena.hpp"
 #include "math_expr/core/operator_types.hpp"
 
 namespace math_expr::details
@@ -46,6 +47,15 @@ class expression_node : public node_collector_interface<expression_node<T>>,
                         public node_depth_base<expression_node<T>>
 {
    public:
+    struct allocation_header
+    {
+        bool arena_backed;
+    };
+
+    static constexpr std::size_t k_allocation_header_size =
+        ((sizeof(allocation_header) + alignof(std::max_align_t) - 1U) / alignof(std::max_align_t)) *
+        alignof(std::max_align_t);
+
     enum class node_type
     {
         e_none,
@@ -252,6 +262,10 @@ class expression_node : public node_collector_interface<expression_node<T>>,
     {
         return nullptr;
     }
+    virtual T0oT1_base_node<T>* as_T0oT1_base()
+    {
+        return nullptr;
+    }
     virtual uv_base_node<T>* as_uv_base_node()
     {
         return nullptr;
@@ -301,6 +315,62 @@ class expression_node : public node_collector_interface<expression_node<T>>,
         return nullptr;
     }
     virtual void release_branch() {}
+
+    static void* operator new(std::size_t size)
+    {
+        if (auto* arena = active_node_memory_arena(); nullptr != arena)
+        {
+            if (void* storage =
+                    arena->allocate(k_allocation_header_size + size, alignof(std::max_align_t));
+                nullptr != storage)
+            {
+                auto* header = static_cast<allocation_header*>(storage);
+                header->arena_backed = true;
+                return static_cast<std::byte*>(storage) + k_allocation_header_size;
+            }
+        }
+
+        void* storage = ::operator new(k_allocation_header_size + size);
+        auto* header = static_cast<allocation_header*>(storage);
+        header->arena_backed = false;
+        return static_cast<std::byte*>(storage) + k_allocation_header_size;
+    }
+
+    static void operator delete(void* ptr) noexcept
+    {
+        if (nullptr == ptr)
+        {
+            return;
+        }
+
+        auto* storage = static_cast<std::byte*>(ptr) - k_allocation_header_size;
+        auto* header = reinterpret_cast<allocation_header*>(storage);
+
+        if (!header->arena_backed)
+        {
+            ::operator delete(storage);
+        }
+    }
+
+    static void operator delete(void* ptr, std::size_t) noexcept
+    {
+        operator delete(ptr);
+    }
+
+    static void* operator new(std::size_t size, std::align_val_t alignment)
+    {
+        return ::operator new(size, alignment);
+    }
+
+    static void operator delete(void* ptr, std::align_val_t alignment) noexcept
+    {
+        ::operator delete(ptr, alignment);
+    }
+
+    static void operator delete(void* ptr, std::size_t, std::align_val_t alignment) noexcept
+    {
+        ::operator delete(ptr, alignment);
+    }
 };  // class expression_node
 
 template <typename T>

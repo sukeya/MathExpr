@@ -37,6 +37,7 @@ namespace math_expr::details
 {
 template <typename T>
 class expression_node;
+class node_memory_arena;
 template <typename T>
 class variable_node;
 template <typename T>
@@ -71,6 +72,8 @@ template <typename T>
 class scalar_pow_base_node;
 template <typename T>
 class branch_pow_base_node;
+template <typename T>
+class T0oT1_base_node;
 template <typename T>
 class T0oT1oT2_base_node;
 template <typename T>

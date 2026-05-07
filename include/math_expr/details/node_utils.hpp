@@ -4375,6 +4375,23 @@ inline bool is_block_node(const expression_node<T>* node)
 class node_allocator
 {
    public:
+    node_allocator() = default;
+
+    void begin_generation()
+    {
+        arena_ = std::make_shared<node_memory_arena>();
+    }
+
+    void clear_generation()
+    {
+        arena_.reset();
+    }
+
+    std::shared_ptr<node_memory_arena> release_generation_arena()
+    {
+        return std::exchange(arena_, nullptr);
+    }
+
     template <typename ResultNode, typename OpType, typename ExprNode>
     inline expression_node<typename ResultNode::value_type>* allocate(OpType& operation,
                                                                       ExprNode (&branch)[1])
@@ -4438,7 +4455,7 @@ class node_allocator
     template <typename node_type>
     inline expression_node<typename node_type::value_type>* allocate() const
     {
-        return (new node_type());
+        return construct_raw<node_type>();
     }
 
     template <typename node_type, typename Type, typename Allocator,
@@ -4446,120 +4463,91 @@ class node_allocator
     inline expression_node<typename node_type::value_type>* allocate(
         const Sequence<Type, Allocator>& seq) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(seq));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(seq);
     }
 
     template <typename node_type, typename T1>
     inline expression_node<typename node_type::value_type>* allocate(T1& t1) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1);
     }
 
     template <typename node_type, typename T1>
     inline expression_node<typename node_type::value_type>* allocate_c(const T1& t1) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1);
     }
 
     template <typename node_type, typename T1, typename T2>
     inline expression_node<typename node_type::value_type>* allocate(const T1& t1,
                                                                      const T2& t2) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2);
     }
 
     template <typename node_type, typename T1, typename T2>
     inline expression_node<typename node_type::value_type>* allocate_cr(const T1& t1, T2& t2) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2);
     }
 
     template <typename node_type, typename T1, typename T2>
     inline expression_node<typename node_type::value_type>* allocate_rc(T1& t1, const T2& t2) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2);
     }
 
     template <typename node_type, typename T1, typename T2>
     inline expression_node<typename node_type::value_type>* allocate_rr(T1& t1, T2& t2) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2);
     }
 
     template <typename node_type, typename T1, typename T2>
     inline expression_node<typename node_type::value_type>* allocate_tt(T1 t1, T2 t2) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3>
     inline expression_node<typename node_type::value_type>* allocate_ttt(T1 t1, T2 t2, T3 t3) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4>
     inline expression_node<typename node_type::value_type>* allocate_tttt(T1 t1, T2 t2, T3 t3,
                                                                           T4 t4) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3, t4));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3>
     inline expression_node<typename node_type::value_type>* allocate_rrr(T1& t1, T2& t2,
                                                                          T3& t3) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4>
     inline expression_node<typename node_type::value_type>* allocate_rrrr(T1& t1, T2& t2, T3& t3,
                                                                           T4& t4) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3, t4));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5>
     inline expression_node<typename node_type::value_type>* allocate_rrrrr(T1& t1, T2& t2, T3& t3,
                                                                            T4& t4, T5& t5) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3>
     inline expression_node<typename node_type::value_type>* allocate(const T1& t1, const T2& t2,
                                                                      const T3& t3) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4>
@@ -4567,9 +4555,7 @@ class node_allocator
                                                                      const T3& t3,
                                                                      const T4& t4) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3, t4));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -4577,10 +4563,7 @@ class node_allocator
                                                                      const T3& t3, const T4& t4,
                                                                      const T5& t5) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4590,10 +4573,7 @@ class node_allocator
                                                                      const T5& t5,
                                                                      const T6& t6) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4603,10 +4583,7 @@ class node_allocator
                                                                      const T5& t5, const T6& t6,
                                                                      const T7& t7) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6, t7));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6, t7);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4617,10 +4594,7 @@ class node_allocator
                                                                      const T7& t7,
                                                                      const T8& t8) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6, t7, t8));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6, t7, t8);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4631,10 +4605,7 @@ class node_allocator
                                                                      const T7& t7, const T8& t8,
                                                                      const T9& t9) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6, t7, t8, t9));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6, t7, t8, t9);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4643,37 +4614,27 @@ class node_allocator
         const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6,
         const T7& t7, const T8& t8, const T9& t9, const T10& t10) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3>
     inline expression_node<typename node_type::value_type>* allocate_type(T1 t1, T2 t2, T3 t3) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4>
     inline expression_node<typename node_type::value_type>* allocate_type(T1 t1, T2 t2, T3 t3,
                                                                           T4 t4) const
     {
-        expression_node<typename node_type::value_type>* result = (new node_type(t1, t2, t3, t4));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5>
     inline expression_node<typename node_type::value_type>* allocate_type(T1 t1, T2 t2, T3 t3,
                                                                           T4 t4, T5 t5) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4681,10 +4642,7 @@ class node_allocator
     inline expression_node<typename node_type::value_type>* allocate_type(T1 t1, T2 t2, T3 t3,
                                                                           T4 t4, T5 t5, T6 t6) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6);
     }
 
     template <typename node_type, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -4693,10 +4651,7 @@ class node_allocator
                                                                           T4 t4, T5 t5, T6 t6,
                                                                           T7 t7) const
     {
-        expression_node<typename node_type::value_type>* result =
-            (new node_type(t1, t2, t3, t4, t5, t6, t7));
-        result->node_depth();
-        return result;
+        return construct_node<node_type>(t1, t2, t3, t4, t5, t6, t7);
     }
 
     template <typename T>
@@ -4709,6 +4664,26 @@ class node_allocator
         delete e;
         e = 0;
     }
+
+   private:
+    template <typename node_type, typename... Args>
+    inline expression_node<typename node_type::value_type>* construct_node(Args&&... args) const
+    {
+        node_memory_arena_scope scope(arena_.get());
+        expression_node<typename node_type::value_type>* result =
+            new node_type(std::forward<Args>(args)...);
+        result->node_depth();
+        return result;
+    }
+
+    template <typename node_type>
+    inline expression_node<typename node_type::value_type>* construct_raw() const
+    {
+        node_memory_arena_scope scope(arena_.get());
+        return new node_type();
+    }
+
+    std::shared_ptr<node_memory_arena> arena_;
 };
 
 inline void load_operations_map(
