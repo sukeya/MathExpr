@@ -341,6 +341,38 @@ class quaternary_node : public expression_node<T>
     branch_t branch_[4];
 };
 
+template <typename T>
+class sf3_base_node : public trinary_node<T>
+{
+   public:
+    using tfunc_t = typename core::numeric::functor_t<T>::tfunc_t;
+
+    using trinary_node<T>::trinary_node;
+
+    sf3_base_node<T>* as_sf3_base() override
+    {
+        return this;
+    }
+
+    virtual tfunc_t functor() const = 0;
+};
+
+template <typename T>
+class sf4_base_node : public quaternary_node<T>
+{
+   public:
+    using qfunc_t = typename core::numeric::functor_t<T>::qfunc_t;
+
+    using quaternary_node<T>::quaternary_node;
+
+    sf4_base_node<T>* as_sf4_base() override
+    {
+        return this;
+    }
+
+    virtual qfunc_t functor() const = 0;
+};
+
 }  // namespace math_expr::details
 
 #endif

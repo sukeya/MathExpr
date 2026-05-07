@@ -1948,47 +1948,59 @@ struct sf_base
 // clang-format on
 
 template <typename T, typename SpecialFunction>
-class sf3_node final : public trinary_node<T>
+class sf3_node final : public sf3_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
+    using tfunc_t = typename core::numeric::functor_t<T>::tfunc_t;
 
     sf3_node(const core::operators::operator_type& opr, expression_ptr branch0,
              expression_ptr branch1, expression_ptr branch2)
-        : trinary_node<T>(opr, branch0, branch1, branch2)
+        : sf3_base_node<T>(opr, branch0, branch1, branch2)
     {
     }
 
     inline T value() const override
     {
-        const T x = trinary_node<T>::branch_[0].first->value();
-        const T y = trinary_node<T>::branch_[1].first->value();
-        const T z = trinary_node<T>::branch_[2].first->value();
+        const T x = sf3_base_node<T>::branch_[0].first->value();
+        const T y = sf3_base_node<T>::branch_[1].first->value();
+        const T z = sf3_base_node<T>::branch_[2].first->value();
 
         return SpecialFunction::process(x, y, z);
+    }
+
+    tfunc_t functor() const override
+    {
+        return &SpecialFunction::process;
     }
 };
 
 template <typename T, typename SpecialFunction>
-class sf4_node final : public quaternary_node<T>
+class sf4_node final : public sf4_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
+    using qfunc_t = typename core::numeric::functor_t<T>::qfunc_t;
 
     sf4_node(const core::operators::operator_type& opr, expression_ptr branch0,
              expression_ptr branch1, expression_ptr branch2, expression_ptr branch3)
-        : quaternary_node<T>(opr, branch0, branch1, branch2, branch3)
+        : sf4_base_node<T>(opr, branch0, branch1, branch2, branch3)
     {
     }
 
     inline T value() const override
     {
-        const T x = quaternary_node<T>::branch_[0].first->value();
-        const T y = quaternary_node<T>::branch_[1].first->value();
-        const T z = quaternary_node<T>::branch_[2].first->value();
-        const T w = quaternary_node<T>::branch_[3].first->value();
+        const T x = sf4_base_node<T>::branch_[0].first->value();
+        const T y = sf4_base_node<T>::branch_[1].first->value();
+        const T z = sf4_base_node<T>::branch_[2].first->value();
+        const T w = sf4_base_node<T>::branch_[3].first->value();
 
         return SpecialFunction::process(x, y, z, w);
+    }
+
+    qfunc_t functor() const override
+    {
+        return &SpecialFunction::process;
     }
 };
 

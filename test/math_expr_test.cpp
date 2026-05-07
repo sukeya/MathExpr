@@ -14550,6 +14550,14 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::details::trinary_node<numeric_type> hot_trinary(
             math_expr::core::operators::operator_type::clamp, &hot_lower, &hot_variable,
             &hot_upper);
+        math_expr::details::literal_node<numeric_type> hot_sf3_z(numeric_type(4));
+        math_expr::details::sf3_node<numeric_type, math_expr::details::sf00_op<numeric_type>>
+            hot_sf3(math_expr::core::operators::operator_type::sf00, &hot_literal, &hot_variable,
+                    &hot_sf3_z);
+        math_expr::details::literal_node<numeric_type> hot_sf4_w(numeric_type(2));
+        math_expr::details::sf4_node<numeric_type, math_expr::details::sf48_op<numeric_type>>
+            hot_sf4(math_expr::core::operators::operator_type::sf48, &hot_literal, &hot_variable,
+                    &hot_sf3_z, &hot_sf4_w);
 
         CHECK(std::holds_alternative<typename adapter_t::literal_view>(
             adapter_t::classify_hot(&hot_literal)));
@@ -14561,9 +14569,23 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
             adapter_t::classify_hot(&hot_binary)));
         CHECK(std::holds_alternative<typename adapter_t::trinary_hot_view>(
             adapter_t::classify_hot(&hot_trinary)));
+        CHECK(std::holds_alternative<typename adapter_t::sf3_hot_view>(
+            adapter_t::classify_hot(&hot_sf3)));
+        CHECK(std::holds_alternative<typename adapter_t::sf4_hot_view>(
+            adapter_t::classify_hot(&hot_sf4)));
         CHECK(adapter_t::value(&hot_unary) == numeric_type(-5));
         CHECK(adapter_t::value(&hot_binary) == numeric_type(12));
         CHECK(adapter_t::value(&hot_trinary) == numeric_type(1));
+        CHECK(adapter_t::value(&hot_sf3) == hot_sf3.value());
+        CHECK(adapter_t::value(&hot_sf4) == hot_sf4.value());
+
+        auto sf3_tree = math_expr::details::hot_expression_tree<numeric_type>::try_build(&hot_sf3);
+        REQUIRE(sf3_tree != nullptr);
+        CHECK(sf3_tree->value() == hot_sf3.value());
+
+        auto sf4_tree = math_expr::details::hot_expression_tree<numeric_type>::try_build(&hot_sf4);
+        REQUIRE(sf4_tree != nullptr);
+        CHECK(sf4_tree->value() == hot_sf4.value());
     }
 
     SECTION("compact hot tree is built only for supported hot paths")

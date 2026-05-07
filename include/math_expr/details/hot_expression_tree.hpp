@@ -44,6 +44,27 @@ class hot_expression_tree
         node_index_t arg2;
     };
 
+    struct sf3_data
+    {
+        using trinary_functor_t = typename core::numeric::functor_t<T>::tfunc_t;
+
+        trinary_functor_t functor;
+        node_index_t arg0;
+        node_index_t arg1;
+        node_index_t arg2;
+    };
+
+    struct sf4_data
+    {
+        using quaternary_functor_t = typename core::numeric::functor_t<T>::qfunc_t;
+
+        quaternary_functor_t functor;
+        node_index_t arg0;
+        node_index_t arg1;
+        node_index_t arg2;
+        node_index_t arg3;
+    };
+
     struct conditional_data
     {
         node_index_t condition;
@@ -202,11 +223,11 @@ class hot_expression_tree
     };
 
     using node_data_t =
-        std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
-                     conditional_data, scand_data, scor_data, scalar_pow_data, branch_pow_data,
-                     unary_branch_data, vov_data, cov_data, voc_data, vob_data, bov_data, cob_data,
-                     boc_data, uvouv_data, t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data,
-                     fallback_subtree_data>;
+        std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data,
+                     sf4_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
+                     branch_pow_data, unary_branch_data, vov_data, cov_data, voc_data, vob_data,
+                     bov_data, cob_data, boc_data, uvouv_data, t0ot1ot2_data, t0ot1ot2ot3_data,
+                     nulleq_data, fallback_subtree_data>;
 
     struct node
     {
@@ -359,6 +380,18 @@ class hot_expression_tree
                 return hot_expression_tree::eval_trinary(data, tree.evaluate(data.arg0),
                                                          tree.evaluate(data.arg1),
                                                          tree.evaluate(data.arg2));
+            }
+
+            T operator()(const sf3_data& data) const
+            {
+                return data.functor(tree.evaluate(data.arg0), tree.evaluate(data.arg1),
+                                    tree.evaluate(data.arg2));
+            }
+
+            T operator()(const sf4_data& data) const
+            {
+                return data.functor(tree.evaluate(data.arg0), tree.evaluate(data.arg1),
+                                    tree.evaluate(data.arg2), tree.evaluate(data.arg3));
             }
 
             T operator()(const conditional_data& data) const
@@ -559,6 +592,32 @@ class hot_expression_tree
                     if (!arg0.has_value() || !arg1.has_value() || !arg2.has_value())
                         return std::nullopt;
                     return emplace(trinary_data{view.trinary->operation(), *arg0, *arg1, *arg2});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::sf3_hot_view>)
+                {
+                    const auto arg0 = append_child(view.sf3->branch(0));
+                    const auto arg1 = append_child(view.sf3->branch(1));
+                    const auto arg2 = append_child(view.sf3->branch(2));
+                    if (!arg0.has_value() || !arg1.has_value() || !arg2.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(sf3_data{view.sf3->functor(), *arg0, *arg1, *arg2});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::sf4_hot_view>)
+                {
+                    const auto arg0 = append_child(view.sf4->branch(0));
+                    const auto arg1 = append_child(view.sf4->branch(1));
+                    const auto arg2 = append_child(view.sf4->branch(2));
+                    const auto arg3 = append_child(view.sf4->branch(3));
+                    if (!arg0.has_value() || !arg1.has_value() || !arg2.has_value() ||
+                        !arg3.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(sf4_data{view.sf4->functor(), *arg0, *arg1, *arg2, *arg3});
                 }
                 else if constexpr (std::is_same_v<
                                        view_t,

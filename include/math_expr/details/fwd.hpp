@@ -83,6 +83,10 @@ class null_node;
 template <typename T>
 class literal_node;
 template <typename T>
+class sf3_base_node;
+template <typename T>
+class sf4_base_node;
+template <typename T>
 class unary_node;
 template <typename T>
 class binary_node;

@@ -50,6 +50,8 @@ class node_variant_adapter
     using string_base_node_t = string_base_node<T>;
     using string_literal_node_t = string_literal_node<T>;
     using stringvar_node_t = string_nodes::stringvar_node<T>;
+    using sf3_base_node_t = sf3_base_node<T>;
+    using sf4_base_node_t = sf4_base_node<T>;
     using unary_node_t = unary_node<T>;
     using binary_node_t = binary_node<T>;
     using trinary_node_t = trinary_node<T>;
@@ -153,6 +155,18 @@ class node_variant_adapter
     {
         expression_ptr node;
         trinary_node_t* trinary;
+    };
+
+    struct sf3_hot_view
+    {
+        expression_ptr node;
+        sf3_base_node_t* sf3;
+    };
+
+    struct sf4_hot_view
+    {
+        expression_ptr node;
+        sf4_base_node_t* sf4;
     };
 
     struct conditional_hot_view
@@ -272,11 +286,12 @@ class node_variant_adapter
 
     using hot_variant_type =
         std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
-                     trinary_hot_view, conditional_hot_view, uv_hot_view, scalar_pow_hot_view,
-                     branch_pow_hot_view, unary_branch_hot_view, vov_hot_view, cov_hot_view,
-                     voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view,
-                     uvouv_hot_view, t0ot1ot2_hot_view, t0ot1ot2ot3_hot_view, scand_hot_view,
-                     scor_hot_view, nulleq_hot_view, fallback_view>;
+                     trinary_hot_view, sf3_hot_view, sf4_hot_view, conditional_hot_view,
+                     uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view, unary_branch_hot_view,
+                     vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view, bov_hot_view,
+                     cob_hot_view, boc_hot_view, uvouv_hot_view, t0ot1ot2_hot_view,
+                     t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view,
+                     fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -495,6 +510,14 @@ class node_variant_adapter
                  (nullptr != node->branch(0)))
         {
             return nulleq_hot_view{node, static_cast<null_eq_node_t*>(node)};
+        }
+        else if (auto* sf3 = node->as_sf3_base(); nullptr != sf3)
+        {
+            return sf3_hot_view{node, sf3};
+        }
+        else if (auto* sf4 = node->as_sf4_base(); nullptr != sf4)
+        {
+            return sf4_hot_view{node, sf4};
         }
         else if (auto* base = node->as_T0oT1oT2_base();
                  (nullptr != base) && (3 == base->operand_count()) &&
@@ -787,6 +810,21 @@ class node_variant_adapter
             T operator()(const trinary_hot_view& view) const
             {
                 return trinary_value(view.trinary);
+            }
+
+            T operator()(const sf3_hot_view& view) const
+            {
+                return view.sf3->functor()(node_variant_adapter::value(view.sf3->branch(0)),
+                                           node_variant_adapter::value(view.sf3->branch(1)),
+                                           node_variant_adapter::value(view.sf3->branch(2)));
+            }
+
+            T operator()(const sf4_hot_view& view) const
+            {
+                return view.sf4->functor()(node_variant_adapter::value(view.sf4->branch(0)),
+                                           node_variant_adapter::value(view.sf4->branch(1)),
+                                           node_variant_adapter::value(view.sf4->branch(2)),
+                                           node_variant_adapter::value(view.sf4->branch(3)));
             }
 
             T operator()(const conditional_hot_view& view) const

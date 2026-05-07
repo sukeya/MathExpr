@@ -262,6 +262,14 @@ class expression_node : public node_collector_interface<expression_node<T>>,
     {
         return nullptr;
     }
+    virtual sf3_base_node<T>* as_sf3_base()
+    {
+        return nullptr;
+    }
+    virtual sf4_base_node<T>* as_sf4_base()
+    {
+        return nullptr;
+    }
     virtual T0oT1_base_node<T>* as_T0oT1_base()
     {
         return nullptr;
