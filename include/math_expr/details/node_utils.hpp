@@ -1604,6 +1604,7 @@ class T0oT1oT2_base_node : public expression_node<T>
    public:
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
+    using tfunc_t = typename functor_t::tfunc_t;
 
     virtual ~T0oT1oT2_base_node() {}
 
@@ -1634,6 +1635,11 @@ class T0oT1oT2_base_node : public expression_node<T>
         return nullptr;
     }
 
+    virtual tfunc_t ternary_functor() const
+    {
+        return nullptr;
+    }
+
     virtual std::size_t mode_index() const
     {
         return 0;
@@ -1651,6 +1657,7 @@ class T0oT1oT2oT3_base_node : public expression_node<T>
    public:
     using functor_t = typename core::numeric::functor_t<T>;
     using bfunc_t = typename functor_t::bfunc_t;
+    using qfunc_t = typename functor_t::qfunc_t;
 
     virtual ~T0oT1oT2oT3_base_node() {}
 
@@ -1677,6 +1684,11 @@ class T0oT1oT2oT3_base_node : public expression_node<T>
     }
 
     virtual bfunc_t binary_functor(const std::size_t) const
+    {
+        return nullptr;
+    }
+
+    virtual qfunc_t quaternary_functor() const
     {
         return nullptr;
     }
@@ -2605,7 +2617,62 @@ class T0oT1oT2_sf3 final : public T0oT1oT2_base_node<T>
         return t2_;
     }
 
+    std::size_t operand_count() const override
+    {
+        return 3;
+    }
+
+    bool operand_is_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return is_variable_param_v<T0>;
+            case 1:
+                return is_variable_param_v<T1>;
+            case 2:
+                return is_variable_param_v<T2>;
+            default:
+                return false;
+        }
+    }
+
+    const T* operand_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_reference_ptr<T0, T>(t0_);
+            case 1:
+                return operand_reference_ptr<T1, T>(t1_);
+            case 2:
+                return operand_reference_ptr<T2, T>(t2_);
+            default:
+                return nullptr;
+        }
+    }
+
+    T operand_value(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_scalar_value<T0, T>(t0_);
+            case 1:
+                return operand_scalar_value<T1, T>(t1_);
+            case 2:
+                return operand_scalar_value<T2, T>(t2_);
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
     tfunc_t f() const
+    {
+        return f_;
+    }
+
+    tfunc_t ternary_functor() const override
     {
         return f_;
     }
@@ -2648,6 +2715,56 @@ class sf3ext_type_node : public T0oT1oT2_base_node<T>
     virtual T1 t1() const = 0;
 
     virtual T2 t2() const = 0;
+
+    std::size_t operand_count() const override
+    {
+        return 3;
+    }
+
+    bool operand_is_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return is_variable_param_v<T0>;
+            case 1:
+                return is_variable_param_v<T1>;
+            case 2:
+                return is_variable_param_v<T2>;
+            default:
+                return false;
+        }
+    }
+
+    const T* operand_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_reference_ptr<T0, T>(t0());
+            case 1:
+                return operand_reference_ptr<T1, T>(t1());
+            case 2:
+                return operand_reference_ptr<T2, T>(t2());
+            default:
+                return nullptr;
+        }
+    }
+
+    T operand_value(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_scalar_value<T0, T>(t0());
+            case 1:
+                return operand_scalar_value<T1, T>(t1());
+            case 2:
+                return operand_scalar_value<T2, T>(t2());
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
 };
 
 template <typename T, typename T0, typename T1, typename T2, typename SF3Operation>
@@ -2689,6 +2806,11 @@ class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
         return t2_;
     }
 
+    typename sf3ext_type_node<T, T0, T1, T2>::tfunc_t ternary_functor() const override
+    {
+        return &node_type::eval_functor;
+    }
+
     std::string type_id() const override
     {
         return id();
@@ -2697,6 +2819,11 @@ class T0oT1oT2_sf3ext final : public sf3ext_type_node<T, T0, T1, T2>
     static inline std::string id()
     {
         return SF3Operation::id();
+    }
+
+    static inline T eval_functor(const T& p0, const T& p1, const T& p2)
+    {
+        return SF3Operation::process(p0, p1, p2);
     }
 
     template <typename Allocator>
@@ -2783,7 +2910,68 @@ class T0oT1oT2oT3_sf4 final : public T0oT1oT2_base_node<T>
         return t3_;
     }
 
+    std::size_t operand_count() const override
+    {
+        return 4;
+    }
+
+    bool operand_is_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return is_variable_param_v<T0>;
+            case 1:
+                return is_variable_param_v<T1>;
+            case 2:
+                return is_variable_param_v<T2>;
+            case 3:
+                return is_variable_param_v<T3>;
+            default:
+                return false;
+        }
+    }
+
+    const T* operand_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_reference_ptr<T0, T>(t0_);
+            case 1:
+                return operand_reference_ptr<T1, T>(t1_);
+            case 2:
+                return operand_reference_ptr<T2, T>(t2_);
+            case 3:
+                return operand_reference_ptr<T3, T>(t3_);
+            default:
+                return nullptr;
+        }
+    }
+
+    T operand_value(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_scalar_value<T0, T>(t0_);
+            case 1:
+                return operand_scalar_value<T1, T>(t1_);
+            case 2:
+                return operand_scalar_value<T2, T>(t2_);
+            case 3:
+                return operand_scalar_value<T3, T>(t3_);
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
     qfunc_t f() const
+    {
+        return f_;
+    }
+
+    qfunc_t quaternary_functor() const override
     {
         return f_;
     }
@@ -2856,6 +3044,67 @@ class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
         return t3_;
     }
 
+    std::size_t operand_count() const override
+    {
+        return 4;
+    }
+
+    bool operand_is_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return is_variable_param_v<T0>;
+            case 1:
+                return is_variable_param_v<T1>;
+            case 2:
+                return is_variable_param_v<T2>;
+            case 3:
+                return is_variable_param_v<T3>;
+            default:
+                return false;
+        }
+    }
+
+    const T* operand_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_reference_ptr<T0, T>(t0_);
+            case 1:
+                return operand_reference_ptr<T1, T>(t1_);
+            case 2:
+                return operand_reference_ptr<T2, T>(t2_);
+            case 3:
+                return operand_reference_ptr<T3, T>(t3_);
+            default:
+                return nullptr;
+        }
+    }
+
+    T operand_value(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_scalar_value<T0, T>(t0_);
+            case 1:
+                return operand_scalar_value<T1, T>(t1_);
+            case 2:
+                return operand_scalar_value<T2, T>(t2_);
+            case 3:
+                return operand_scalar_value<T3, T>(t3_);
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
+    typename T0oT1oT2oT3_base_node<T>::qfunc_t quaternary_functor() const override
+    {
+        return &node_type::eval_functor;
+    }
+
     std::string type_id() const override
     {
         return id();
@@ -2864,6 +3113,11 @@ class T0oT1oT2oT3_sf4ext final : public T0oT1oT2oT3_base_node<T>
     static inline std::string id()
     {
         return SF4Operation::id();
+    }
+
+    static inline T eval_functor(const T& p0, const T& p1, const T& p2, const T& p3)
+    {
+        return SF4Operation::process(p0, p1, p2, p3);
     }
 
     template <typename Allocator>

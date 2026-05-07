@@ -14570,11 +14570,15 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
     {
         numeric_type x = numeric_type(5);
         numeric_type y = numeric_type(2);
+        numeric_type z = numeric_type(3);
+        numeric_type w = numeric_type(4);
         numeric_type nan_value = numeric_type(4);
         std::string text = "abc";
         math_expr::symbol_table<numeric_type> symbol_table;
         REQUIRE(symbol_table.add_variable("x", x));
         REQUIRE(symbol_table.add_variable("y", y));
+        REQUIRE(symbol_table.add_variable("z", z));
+        REQUIRE(symbol_table.add_variable("w", w));
         REQUIRE(symbol_table.add_variable("nanv", nan_value));
         REQUIRE(symbol_table.add_stringvar("s", text));
 
@@ -14637,7 +14641,30 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(conditional_expression.get_control_block()->hot_tree != nullptr);
         CHECK(conditional_expression.value() == numeric_type(9));
 
+        x = numeric_type(5);
         y = numeric_type(2);
+
+        math_expr::expression<numeric_type> sf3_expression;
+        sf3_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> sf3_parser;
+        sf3_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("x + y + z", sf3_parser, sf3_expression);
+        REQUIRE(sf3_expression.get_control_block());
+        REQUIRE(sf3_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::t0ot1ot2_hot_view>(
+            adapter_t::classify_hot(sf3_expression.get_control_block()->expr)));
+        CHECK(sf3_expression.value() == numeric_type(10));
+
+        math_expr::expression<numeric_type> sf4_expression;
+        sf4_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> sf4_parser;
+        sf4_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("(x + y) + (z + w)", sf4_parser, sf4_expression);
+        REQUIRE(sf4_expression.get_control_block());
+        REQUIRE(sf4_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::t0ot1ot2ot3_hot_view>(
+            adapter_t::classify_hot(sf4_expression.get_control_block()->expr)));
+        CHECK(sf4_expression.value() == numeric_type(14));
 
         math_expr::expression<numeric_type> specialized_and_expression;
         specialized_and_expression.register_symbol_table(symbol_table);

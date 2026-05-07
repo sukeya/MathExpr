@@ -498,14 +498,16 @@ class node_variant_adapter
         }
         else if (auto* base = node->as_T0oT1oT2_base();
                  (nullptr != base) && (3 == base->operand_count()) &&
-                 (nullptr != base->binary_functor(0)) && (nullptr != base->binary_functor(1)))
+                 (((nullptr != base->binary_functor(0)) && (nullptr != base->binary_functor(1))) ||
+                  (nullptr != base->ternary_functor())))
         {
             return t0ot1ot2_hot_view{node, base};
         }
         else if (auto* base = node->as_T0oT1oT2oT3_base();
                  (nullptr != base) && (4 == base->operand_count()) &&
-                 (nullptr != base->binary_functor(0)) && (nullptr != base->binary_functor(1)) &&
-                 (nullptr != base->binary_functor(2)))
+                 (((nullptr != base->binary_functor(0)) && (nullptr != base->binary_functor(1)) &&
+                   (nullptr != base->binary_functor(2))) ||
+                  (nullptr != base->quaternary_functor())))
         {
             return t0ot1ot2ot3_hot_view{node, base};
         }
@@ -886,6 +888,11 @@ class node_variant_adapter
                 const T t1 = resolve(view.base, 1);
                 const T t2 = resolve(view.base, 2);
 
+                if (nullptr != view.base->ternary_functor())
+                {
+                    return view.base->ternary_functor()(t0, t1, t2);
+                }
+
                 switch (view.base->mode_index())
                 {
                     case 0:
@@ -905,6 +912,11 @@ class node_variant_adapter
                 const T t1 = resolve(view.base, 1);
                 const T t2 = resolve(view.base, 2);
                 const T t3 = resolve(view.base, 3);
+
+                if (nullptr != view.base->quaternary_functor())
+                {
+                    return view.base->quaternary_functor()(t0, t1, t2, t3);
+                }
 
                 switch (view.base->mode_index())
                 {

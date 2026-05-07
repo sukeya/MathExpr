@@ -166,22 +166,28 @@ class hot_expression_tree
     struct t0ot1ot2_data
     {
         using binary_functor_t = typename core::numeric::functor_t<T>::bfunc_t;
+        using trinary_functor_t = typename core::numeric::functor_t<T>::tfunc_t;
 
         std::array<operand_slot, 3> operands;
         binary_functor_t f0;
         binary_functor_t f1;
+        trinary_functor_t tf;
         std::uint8_t mode;
+        bool use_trinary_functor;
     };
 
     struct t0ot1ot2ot3_data
     {
         using binary_functor_t = typename core::numeric::functor_t<T>::bfunc_t;
+        using quaternary_functor_t = typename core::numeric::functor_t<T>::qfunc_t;
 
         std::array<operand_slot, 4> operands;
         binary_functor_t f0;
         binary_functor_t f1;
         binary_functor_t f2;
+        quaternary_functor_t qf;
         std::uint8_t mode;
+        bool use_quaternary_functor;
     };
 
     struct nulleq_data
@@ -276,6 +282,11 @@ class hot_expression_tree
         const T t1 = resolve_operand(data.operands[1]);
         const T t2 = resolve_operand(data.operands[2]);
 
+        if (data.use_trinary_functor)
+        {
+            return data.tf(t0, t1, t2);
+        }
+
         switch (data.mode)
         {
             case 0:
@@ -293,6 +304,11 @@ class hot_expression_tree
         const T t1 = resolve_operand(data.operands[1]);
         const T t2 = resolve_operand(data.operands[2]);
         const T t3 = resolve_operand(data.operands[3]);
+
+        if (data.use_quaternary_functor)
+        {
+            return data.qf(t0, t1, t2, t3);
+        }
 
         switch (data.mode)
         {
@@ -692,9 +708,11 @@ class hot_expression_tree
                                           view.base->operand_reference(2),
                                           view.base->operand_value(2)),
                     }};
-                    return emplace(t0ot1ot2_data{
-                        operands, view.base->binary_functor(0), view.base->binary_functor(1),
-                        static_cast<std::uint8_t>(view.base->mode_index())});
+                    return emplace(t0ot1ot2_data{operands, view.base->binary_functor(0),
+                                                 view.base->binary_functor(1),
+                                                 view.base->ternary_functor(),
+                                                 static_cast<std::uint8_t>(view.base->mode_index()),
+                                                 nullptr != view.base->ternary_functor()});
                 }
                 else if constexpr (std::is_same_v<
                                        view_t,
@@ -714,10 +732,11 @@ class hot_expression_tree
                                           view.base->operand_reference(3),
                                           view.base->operand_value(3)),
                     }};
-                    return emplace(
-                        t0ot1ot2ot3_data{operands, view.base->binary_functor(0),
-                                         view.base->binary_functor(1), view.base->binary_functor(2),
-                                         static_cast<std::uint8_t>(view.base->mode_index())});
+                    return emplace(t0ot1ot2ot3_data{
+                        operands, view.base->binary_functor(0), view.base->binary_functor(1),
+                        view.base->binary_functor(2), view.base->quaternary_functor(),
+                        static_cast<std::uint8_t>(view.base->mode_index()),
+                        nullptr != view.base->quaternary_functor()});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::nulleq_hot_view>)
