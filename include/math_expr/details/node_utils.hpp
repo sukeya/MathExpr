@@ -1602,9 +1602,42 @@ template <typename T>
 class T0oT1oT2_base_node : public expression_node<T>
 {
    public:
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
+
     virtual ~T0oT1oT2_base_node() {}
 
     virtual std::string type_id() const = 0;
+
+    virtual std::size_t operand_count() const
+    {
+        return 0;
+    }
+
+    virtual bool operand_is_reference(const std::size_t) const
+    {
+        return false;
+    }
+
+    virtual const T* operand_reference(const std::size_t) const
+    {
+        return nullptr;
+    }
+
+    virtual T operand_value(const std::size_t) const
+    {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    virtual bfunc_t binary_functor(const std::size_t) const
+    {
+        return nullptr;
+    }
+
+    virtual std::size_t mode_index() const
+    {
+        return 0;
+    }
 
     T0oT1oT2_base_node<T>* as_T0oT1oT2_base() override
     {
@@ -1616,9 +1649,42 @@ template <typename T>
 class T0oT1oT2oT3_base_node : public expression_node<T>
 {
    public:
+    using functor_t = typename core::numeric::functor_t<T>;
+    using bfunc_t = typename functor_t::bfunc_t;
+
     virtual ~T0oT1oT2oT3_base_node() {}
 
     virtual std::string type_id() const = 0;
+
+    virtual std::size_t operand_count() const
+    {
+        return 0;
+    }
+
+    virtual bool operand_is_reference(const std::size_t) const
+    {
+        return false;
+    }
+
+    virtual const T* operand_reference(const std::size_t) const
+    {
+        return nullptr;
+    }
+
+    virtual T operand_value(const std::size_t) const
+    {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    virtual bfunc_t binary_functor(const std::size_t) const
+    {
+        return nullptr;
+    }
+
+    virtual std::size_t mode_index() const
+    {
+        return 0;
+    }
 
     T0oT1oT2oT3_base_node<T>* as_T0oT1oT2oT3_base() override
     {
@@ -1845,6 +1911,25 @@ template <typename T>
 inline std::string crtype_str()
 {
     return param_to_str < is_variable_param_v<T> ? 1 : 0 > ::result();
+}
+
+template <typename Param, typename T>
+inline const T* operand_reference_ptr(const Param& param)
+{
+    if constexpr (is_variable_param_v<Param>)
+    {
+        return &param;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+template <typename Param, typename T>
+inline T operand_scalar_value(const Param& param)
+{
+    return param;
 }
 
 template <typename T>
@@ -2195,6 +2280,81 @@ class T0oT1oT2 final : public T0oT1oT2_base_node<T>
         return id();
     }
 
+    std::size_t operand_count() const override
+    {
+        return 3;
+    }
+
+    bool operand_is_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return is_variable_param_v<T0>;
+            case 1:
+                return is_variable_param_v<T1>;
+            case 2:
+                return is_variable_param_v<T2>;
+            default:
+                return false;
+        }
+    }
+
+    const T* operand_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_reference_ptr<T0, T>(t0_);
+            case 1:
+                return operand_reference_ptr<T1, T>(t1_);
+            case 2:
+                return operand_reference_ptr<T2, T>(t2_);
+            default:
+                return nullptr;
+        }
+    }
+
+    T operand_value(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_scalar_value<T0, T>(t0_);
+            case 1:
+                return operand_scalar_value<T1, T>(t1_);
+            case 2:
+                return operand_scalar_value<T2, T>(t2_);
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
+    bfunc_t binary_functor(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return f0_;
+            case 1:
+                return f1_;
+            default:
+                return nullptr;
+        }
+    }
+
+    std::size_t mode_index() const override
+    {
+        if constexpr (std::is_same_v<process_mode_t, typename T0oT1oT2process<T>::mode0>)
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+
     static inline std::string id()
     {
         return process_mode_t::template id<T0, T1, T2>();
@@ -2281,6 +2441,101 @@ class T0oT1oT2oT3 final : public T0oT1oT2oT3_base_node<T>
     inline std::string type_id() const override
     {
         return id();
+    }
+
+    std::size_t operand_count() const override
+    {
+        return 4;
+    }
+
+    bool operand_is_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return is_variable_param_v<T0>;
+            case 1:
+                return is_variable_param_v<T1>;
+            case 2:
+                return is_variable_param_v<T2>;
+            case 3:
+                return is_variable_param_v<T3>;
+            default:
+                return false;
+        }
+    }
+
+    const T* operand_reference(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_reference_ptr<T0, T>(t0_);
+            case 1:
+                return operand_reference_ptr<T1, T>(t1_);
+            case 2:
+                return operand_reference_ptr<T2, T>(t2_);
+            case 3:
+                return operand_reference_ptr<T3, T>(t3_);
+            default:
+                return nullptr;
+        }
+    }
+
+    T operand_value(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return operand_scalar_value<T0, T>(t0_);
+            case 1:
+                return operand_scalar_value<T1, T>(t1_);
+            case 2:
+                return operand_scalar_value<T2, T>(t2_);
+            case 3:
+                return operand_scalar_value<T3, T>(t3_);
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
+    bfunc_t binary_functor(const std::size_t index) const override
+    {
+        switch (index)
+        {
+            case 0:
+                return f0_;
+            case 1:
+                return f1_;
+            case 2:
+                return f2_;
+            default:
+                return nullptr;
+        }
+    }
+
+    std::size_t mode_index() const override
+    {
+        if constexpr (std::is_same_v<process_mode_t, typename T0oT1oT20T3process<T>::mode0>)
+        {
+            return 0;
+        }
+        else if constexpr (std::is_same_v<process_mode_t, typename T0oT1oT20T3process<T>::mode1>)
+        {
+            return 1;
+        }
+        else if constexpr (std::is_same_v<process_mode_t, typename T0oT1oT20T3process<T>::mode2>)
+        {
+            return 2;
+        }
+        else if constexpr (std::is_same_v<process_mode_t, typename T0oT1oT20T3process<T>::mode3>)
+        {
+            return 3;
+        }
+        else
+        {
+            return 4;
+        }
     }
 
     static inline std::string id()

@@ -156,6 +156,34 @@ class hot_expression_tree
         binary_functor_t f;
     };
 
+    struct operand_slot
+    {
+        const T* ref;
+        T value;
+        bool is_ref;
+    };
+
+    struct t0ot1ot2_data
+    {
+        using binary_functor_t = typename core::numeric::functor_t<T>::bfunc_t;
+
+        std::array<operand_slot, 3> operands;
+        binary_functor_t f0;
+        binary_functor_t f1;
+        std::uint8_t mode;
+    };
+
+    struct t0ot1ot2ot3_data
+    {
+        using binary_functor_t = typename core::numeric::functor_t<T>::bfunc_t;
+
+        std::array<operand_slot, 4> operands;
+        binary_functor_t f0;
+        binary_functor_t f1;
+        binary_functor_t f2;
+        std::uint8_t mode;
+    };
+
     struct nulleq_data
     {
         node_index_t child;
@@ -171,7 +199,8 @@ class hot_expression_tree
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, uv_data,
                      conditional_data, scand_data, scor_data, scalar_pow_data, branch_pow_data,
                      unary_branch_data, vov_data, cov_data, voc_data, vob_data, bov_data, cob_data,
-                     boc_data, uvouv_data, nulleq_data, fallback_subtree_data>;
+                     boc_data, uvouv_data, t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data,
+                     fallback_subtree_data>;
 
     struct node
     {
@@ -208,6 +237,16 @@ class hot_expression_tree
    private:
     hot_expression_tree() = default;
 
+    static operand_slot make_operand_slot(const bool is_ref, const T* ref, const T value)
+    {
+        return operand_slot{ref, value, is_ref};
+    }
+
+    static T resolve_operand(const operand_slot& slot)
+    {
+        return slot.is_ref ? *slot.ref : slot.value;
+    }
+
     static T eval_trinary(const trinary_data& data, const T arg0, const T arg1, const T arg2)
     {
         switch (data.operation)
@@ -226,6 +265,47 @@ class hot_expression_tree
                 else
                     return ((T(2) * arg1 <= (arg2 + arg0)) ? arg0 : arg2);
 
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
+    static T eval_t0ot1ot2(const t0ot1ot2_data& data)
+    {
+        const T t0 = resolve_operand(data.operands[0]);
+        const T t1 = resolve_operand(data.operands[1]);
+        const T t2 = resolve_operand(data.operands[2]);
+
+        switch (data.mode)
+        {
+            case 0:
+                return data.f1(data.f0(t0, t1), t2);
+            case 1:
+                return data.f0(t0, data.f1(t1, t2));
+            default:
+                return std::numeric_limits<T>::quiet_NaN();
+        }
+    }
+
+    static T eval_t0ot1ot2ot3(const t0ot1ot2ot3_data& data)
+    {
+        const T t0 = resolve_operand(data.operands[0]);
+        const T t1 = resolve_operand(data.operands[1]);
+        const T t2 = resolve_operand(data.operands[2]);
+        const T t3 = resolve_operand(data.operands[3]);
+
+        switch (data.mode)
+        {
+            case 0:
+                return data.f1(data.f0(t0, t1), data.f2(t2, t3));
+            case 1:
+                return data.f0(t0, data.f1(t1, data.f2(t2, t3)));
+            case 2:
+                return data.f0(t0, data.f2(data.f1(t1, t2), t3));
+            case 3:
+                return data.f2(data.f1(data.f0(t0, t1), t2), t3);
+            case 4:
+                return data.f2(data.f0(t0, data.f1(t1, t2)), t3);
             default:
                 return std::numeric_limits<T>::quiet_NaN();
         }
@@ -362,6 +442,16 @@ class hot_expression_tree
             T operator()(const uvouv_data& data) const
             {
                 return data.f(data.u0(*data.v0), data.u1(*data.v1));
+            }
+
+            T operator()(const t0ot1ot2_data& data) const
+            {
+                return hot_expression_tree::eval_t0ot1ot2(data);
+            }
+
+            T operator()(const t0ot1ot2ot3_data& data) const
+            {
+                return hot_expression_tree::eval_t0ot1ot2ot3(data);
             }
 
             T operator()(const nulleq_data& data) const
@@ -587,6 +677,47 @@ class hot_expression_tree
                 {
                     return emplace(uvouv_data{&view.uvouv->v0(), &view.uvouv->v1(),
                                               view.uvouv->u0(), view.uvouv->u1(), view.uvouv->f()});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::t0ot1ot2_hot_view>)
+                {
+                    std::array<operand_slot, 3> operands{{
+                        make_operand_slot(view.base->operand_is_reference(0),
+                                          view.base->operand_reference(0),
+                                          view.base->operand_value(0)),
+                        make_operand_slot(view.base->operand_is_reference(1),
+                                          view.base->operand_reference(1),
+                                          view.base->operand_value(1)),
+                        make_operand_slot(view.base->operand_is_reference(2),
+                                          view.base->operand_reference(2),
+                                          view.base->operand_value(2)),
+                    }};
+                    return emplace(t0ot1ot2_data{
+                        operands, view.base->binary_functor(0), view.base->binary_functor(1),
+                        static_cast<std::uint8_t>(view.base->mode_index())});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::t0ot1ot2ot3_hot_view>)
+                {
+                    std::array<operand_slot, 4> operands{{
+                        make_operand_slot(view.base->operand_is_reference(0),
+                                          view.base->operand_reference(0),
+                                          view.base->operand_value(0)),
+                        make_operand_slot(view.base->operand_is_reference(1),
+                                          view.base->operand_reference(1),
+                                          view.base->operand_value(1)),
+                        make_operand_slot(view.base->operand_is_reference(2),
+                                          view.base->operand_reference(2),
+                                          view.base->operand_value(2)),
+                        make_operand_slot(view.base->operand_is_reference(3),
+                                          view.base->operand_reference(3),
+                                          view.base->operand_value(3)),
+                    }};
+                    return emplace(
+                        t0ot1ot2ot3_data{operands, view.base->binary_functor(0),
+                                         view.base->binary_functor(1), view.base->binary_functor(2),
+                                         static_cast<std::uint8_t>(view.base->mode_index())});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::nulleq_hot_view>)

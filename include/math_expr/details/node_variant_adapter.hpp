@@ -242,6 +242,18 @@ class node_variant_adapter
         uvouv_node_t* uvouv;
     };
 
+    struct t0ot1ot2_hot_view
+    {
+        expression_ptr node;
+        t0ot1ot2_base_node_t* base;
+    };
+
+    struct t0ot1ot2ot3_hot_view
+    {
+        expression_ptr node;
+        t0ot1ot2ot3_base_node_t* base;
+    };
+
     struct nulleq_hot_view
     {
         expression_ptr node;
@@ -263,7 +275,8 @@ class node_variant_adapter
                      trinary_hot_view, conditional_hot_view, uv_hot_view, scalar_pow_hot_view,
                      branch_pow_hot_view, unary_branch_hot_view, vov_hot_view, cov_hot_view,
                      voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view,
-                     uvouv_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view, fallback_view>;
+                     uvouv_hot_view, t0ot1ot2_hot_view, t0ot1ot2ot3_hot_view, scand_hot_view,
+                     scor_hot_view, nulleq_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -483,6 +496,19 @@ class node_variant_adapter
         {
             return nulleq_hot_view{node, static_cast<null_eq_node_t*>(node)};
         }
+        else if (auto* base = node->as_T0oT1oT2_base();
+                 (nullptr != base) && (3 == base->operand_count()) &&
+                 (nullptr != base->binary_functor(0)) && (nullptr != base->binary_functor(1)))
+        {
+            return t0ot1ot2_hot_view{node, base};
+        }
+        else if (auto* base = node->as_T0oT1oT2oT3_base();
+                 (nullptr != base) && (4 == base->operand_count()) &&
+                 (nullptr != base->binary_functor(0)) && (nullptr != base->binary_functor(1)) &&
+                 (nullptr != base->binary_functor(2)))
+        {
+            return t0ot1ot2ot3_hot_view{node, base};
+        }
         else if (auto* vov = node->as_vov_base(); nullptr != vov)
         {
             return vov_hot_view{node, vov};
@@ -689,6 +715,18 @@ class node_variant_adapter
     {
         struct visitor
         {
+            static inline T resolve(const t0ot1ot2_base_node_t* base, const std::size_t index)
+            {
+                return base->operand_is_reference(index) ? *base->operand_reference(index)
+                                                         : base->operand_value(index);
+            }
+
+            static inline T resolve(const t0ot1ot2ot3_base_node_t* base, const std::size_t index)
+            {
+                return base->operand_is_reference(index) ? *base->operand_reference(index)
+                                                         : base->operand_value(index);
+            }
+
             static inline T trinary_value(trinary_node_t* trinary)
             {
                 const T arg0 = node_variant_adapter::value(trinary->branch(0));
@@ -840,6 +878,58 @@ class node_variant_adapter
             {
                 return view.uvouv->f()(view.uvouv->u0()(view.uvouv->v0()),
                                        view.uvouv->u1()(view.uvouv->v1()));
+            }
+
+            T operator()(const t0ot1ot2_hot_view& view) const
+            {
+                const T t0 = resolve(view.base, 0);
+                const T t1 = resolve(view.base, 1);
+                const T t2 = resolve(view.base, 2);
+
+                switch (view.base->mode_index())
+                {
+                    case 0:
+                        return view.base->binary_functor(1)(view.base->binary_functor(0)(t0, t1),
+                                                            t2);
+                    case 1:
+                        return view.base->binary_functor(0)(t0,
+                                                            view.base->binary_functor(1)(t1, t2));
+                    default:
+                        return view.node->value();
+                }
+            }
+
+            T operator()(const t0ot1ot2ot3_hot_view& view) const
+            {
+                const T t0 = resolve(view.base, 0);
+                const T t1 = resolve(view.base, 1);
+                const T t2 = resolve(view.base, 2);
+                const T t3 = resolve(view.base, 3);
+
+                switch (view.base->mode_index())
+                {
+                    case 0:
+                        return view.base->binary_functor(1)(view.base->binary_functor(0)(t0, t1),
+                                                            view.base->binary_functor(2)(t2, t3));
+                    case 1:
+                        return view.base->binary_functor(0)(
+                            t0,
+                            view.base->binary_functor(1)(t1, view.base->binary_functor(2)(t2, t3)));
+                    case 2:
+                        return view.base->binary_functor(0)(
+                            t0,
+                            view.base->binary_functor(2)(view.base->binary_functor(1)(t1, t2), t3));
+                    case 3:
+                        return view.base->binary_functor(2)(
+                            view.base->binary_functor(1)(view.base->binary_functor(0)(t0, t1), t2),
+                            t3);
+                    case 4:
+                        return view.base->binary_functor(2)(
+                            view.base->binary_functor(0)(t0, view.base->binary_functor(1)(t1, t2)),
+                            t3);
+                    default:
+                        return view.node->value();
+                }
             }
 
             T operator()(const scand_hot_view& view) const

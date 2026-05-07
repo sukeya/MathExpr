@@ -14637,6 +14637,23 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         REQUIRE(conditional_expression.get_control_block()->hot_tree != nullptr);
         CHECK(conditional_expression.value() == numeric_type(9));
 
+        y = numeric_type(2);
+
+        math_expr::expression<numeric_type> specialized_and_expression;
+        specialized_and_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> specialized_and_parser;
+        specialized_and_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("(x > 0) and (y < 3)", specialized_and_parser,
+                                       specialized_and_expression);
+        REQUIRE(specialized_and_expression.get_control_block());
+        REQUIRE(specialized_and_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::t0ot1ot2ot3_hot_view>(
+            adapter_t::classify_hot(specialized_and_expression.get_control_block()->expr)));
+        CHECK(specialized_and_expression.value() == numeric_type(1));
+
+        y = numeric_type(5);
+        CHECK(specialized_and_expression.value() == numeric_type(0));
+
         math_expr::expression<numeric_type> scand_expression;
         scand_expression.register_symbol_table(symbol_table);
         math_expr::parser<numeric_type> scand_parser;
