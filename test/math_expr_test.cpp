@@ -14558,6 +14558,22 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         math_expr::details::sf4_node<numeric_type, math_expr::details::sf48_op<numeric_type>>
             hot_sf4(math_expr::core::operators::operator_type::sf48, &hot_literal, &hot_variable,
                     &hot_sf3_z, &hot_sf4_w);
+        struct fixed_hot_function final : public math_expr::ifunction<numeric_type>
+        {
+            fixed_hot_function() : math_expr::ifunction<numeric_type>(2) {}
+
+            numeric_type operator()(const numeric_type& lhs, const numeric_type& rhs) override
+            {
+                return lhs + (numeric_type(10) * rhs);
+            }
+        } hot_function_impl;
+        math_expr::details::function_N_node<numeric_type, math_expr::ifunction<numeric_type>, 2>
+            hot_function(&hot_function_impl);
+        math_expr::details::expression_node<numeric_type>* hot_function_branches[2] = {
+            &hot_literal,
+            &hot_variable,
+        };
+        REQUIRE(hot_function.init_branches(hot_function_branches));
 
         CHECK(std::holds_alternative<typename adapter_t::literal_view>(
             adapter_t::classify_hot(&hot_literal)));
@@ -14573,11 +14589,14 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
             adapter_t::classify_hot(&hot_sf3)));
         CHECK(std::holds_alternative<typename adapter_t::sf4_hot_view>(
             adapter_t::classify_hot(&hot_sf4)));
+        CHECK(std::holds_alternative<typename adapter_t::fixed_function_hot_view>(
+            adapter_t::classify_hot(&hot_function)));
         CHECK(adapter_t::value(&hot_unary) == numeric_type(-5));
         CHECK(adapter_t::value(&hot_binary) == numeric_type(12));
         CHECK(adapter_t::value(&hot_trinary) == numeric_type(1));
         CHECK(adapter_t::value(&hot_sf3) == hot_sf3.value());
         CHECK(adapter_t::value(&hot_sf4) == hot_sf4.value());
+        CHECK(adapter_t::value(&hot_function) == hot_function.value());
 
         auto sf3_tree = math_expr::details::hot_expression_tree<numeric_type>::try_build(&hot_sf3);
         REQUIRE(sf3_tree != nullptr);
@@ -14586,6 +14605,11 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         auto sf4_tree = math_expr::details::hot_expression_tree<numeric_type>::try_build(&hot_sf4);
         REQUIRE(sf4_tree != nullptr);
         CHECK(sf4_tree->value() == hot_sf4.value());
+
+        auto fixed_function_tree =
+            math_expr::details::hot_expression_tree<numeric_type>::try_build(&hot_function);
+        REQUIRE(fixed_function_tree != nullptr);
+        CHECK(fixed_function_tree->value() == hot_function.value());
     }
 
     SECTION("compact hot tree is built only for supported hot paths")
@@ -14681,6 +14705,29 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
 
         x = numeric_type(5);
         y = numeric_type(2);
+
+        struct parser_fixed_function final : public math_expr::ifunction<numeric_type>
+        {
+            parser_fixed_function() : math_expr::ifunction<numeric_type>(2) {}
+
+            numeric_type operator()(const numeric_type& lhs, const numeric_type& rhs) override
+            {
+                return lhs - (numeric_type(2) * rhs);
+            }
+        } parser_function;
+        REQUIRE(symbol_table.add_function("customf", parser_function));
+
+        math_expr::expression<numeric_type> fixed_function_expression;
+        fixed_function_expression.register_symbol_table(symbol_table);
+        math_expr::parser<numeric_type> fixed_function_parser;
+        fixed_function_parser.settings().disable_strength_reduction();
+        test_support::require_compiles("customf(x, y + 1)", fixed_function_parser,
+                                       fixed_function_expression);
+        REQUIRE(fixed_function_expression.get_control_block());
+        REQUIRE(fixed_function_expression.get_control_block()->hot_tree != nullptr);
+        CHECK(std::holds_alternative<typename adapter_t::fixed_function_hot_view>(
+            adapter_t::classify_hot(fixed_function_expression.get_control_block()->expr)));
+        CHECK(fixed_function_expression.value() == numeric_type(-1));
 
         math_expr::expression<numeric_type> sf3_expression;
         sf3_expression.register_symbol_table(symbol_table);

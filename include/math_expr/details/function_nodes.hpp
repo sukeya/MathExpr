@@ -2112,8 +2112,23 @@ class scor_node final : public binary_node<T>
     }
 };
 
+template <typename T>
+class fixed_function_base_node : public expression_node<T>
+{
+   public:
+    using expression_ptr = expression_node<T>*;
+
+    fixed_function_base_node<T>* as_fixed_function_base() override
+    {
+        return this;
+    }
+
+    virtual std::size_t arity() const = 0;
+    virtual T evaluate_values(const T* values) const = 0;
+};
+
 template <typename T, typename IFunction, std::size_t N>
-class function_N_node final : public expression_node<T>
+class function_N_node final : public fixed_function_base_node<T>
 {
    public:
     // Function of N parameters.
@@ -2168,9 +2183,24 @@ class function_N_node final : public expression_node<T>
         return expression_node<T>::node_type::e_function;
     }
 
+    expression_ptr branch(const std::size_t& index = 0) const override
+    {
+        return (index < N) ? branch_[index].first : nullptr;
+    }
+
     inline bool valid() const override
     {
         return initialised_;
+    }
+
+    std::size_t arity() const override
+    {
+        return N;
+    }
+
+    T evaluate_values(const T* values) const override
+    {
+        return invoke_values(std::make_index_sequence<N>{}, values);
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
@@ -2462,6 +2492,12 @@ class function_N_node final : public expression_node<T>
     };
 
    private:
+    template <std::size_t... I>
+    T invoke_values(std::index_sequence<I...>, const T* values) const
+    {
+        return (*function_)(values[I]...);
+    }
+
     ifunction* function_;
     std::size_t parameter_count_;
     branch_t branch_[N];
@@ -2469,7 +2505,7 @@ class function_N_node final : public expression_node<T>
 };
 
 template <typename T, typename IFunction>
-class function_N_node<T, IFunction, 0> final : public expression_node<T>
+class function_N_node<T, IFunction, 0> final : public fixed_function_base_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
@@ -2498,6 +2534,16 @@ class function_N_node<T, IFunction, 0> final : public expression_node<T>
     inline bool valid() const override
     {
         return function_;
+    }
+
+    std::size_t arity() const override
+    {
+        return 0;
+    }
+
+    T evaluate_values(const T*) const override
+    {
+        return (*function_)();
     }
 
    private:

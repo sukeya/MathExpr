@@ -65,6 +65,13 @@ class hot_expression_tree
         node_index_t arg3;
     };
 
+    struct fixed_function_data
+    {
+        fixed_function_base_node<T>* function;
+        std::array<node_index_t, 20> args;
+        std::uint8_t arity;
+    };
+
     struct conditional_data
     {
         node_index_t condition;
@@ -224,10 +231,10 @@ class hot_expression_tree
 
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data,
-                     sf4_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
-                     branch_pow_data, unary_branch_data, vov_data, cov_data, voc_data, vob_data,
-                     bov_data, cob_data, boc_data, uvouv_data, t0ot1ot2_data, t0ot1ot2ot3_data,
-                     nulleq_data, fallback_subtree_data>;
+                     sf4_data, fixed_function_data, uv_data, conditional_data, scand_data,
+                     scor_data, scalar_pow_data, branch_pow_data, unary_branch_data, vov_data,
+                     cov_data, voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
+                     t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data, fallback_subtree_data>;
 
     struct node
     {
@@ -392,6 +399,16 @@ class hot_expression_tree
             {
                 return data.functor(tree.evaluate(data.arg0), tree.evaluate(data.arg1),
                                     tree.evaluate(data.arg2), tree.evaluate(data.arg3));
+            }
+
+            T operator()(const fixed_function_data& data) const
+            {
+                std::array<T, 20> values{};
+                for (std::size_t i = 0; i < data.arity; ++i)
+                {
+                    values[i] = tree.evaluate(data.args[i]);
+                }
+                return data.function->evaluate_values(values.data());
             }
 
             T operator()(const conditional_data& data) const
@@ -618,6 +635,24 @@ class hot_expression_tree
                         return std::nullopt;
                     }
                     return emplace(sf4_data{view.sf4->functor(), *arg0, *arg1, *arg2, *arg3});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::fixed_function_hot_view>)
+                {
+                    fixed_function_data data{};
+                    data.function = view.function;
+                    data.arity = static_cast<std::uint8_t>(view.function->arity());
+                    for (std::size_t i = 0; i < data.arity; ++i)
+                    {
+                        const auto child = append_child(view.function->branch(i));
+                        if (!child.has_value())
+                        {
+                            return std::nullopt;
+                        }
+                        data.args[i] = *child;
+                    }
+                    return emplace(data);
                 }
                 else if constexpr (std::is_same_v<
                                        view_t,

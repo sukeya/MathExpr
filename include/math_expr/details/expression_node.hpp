@@ -270,6 +270,10 @@ class expression_node : public node_collector_interface<expression_node<T>>,
     {
         return nullptr;
     }
+    virtual fixed_function_base_node<T>* as_fixed_function_base()
+    {
+        return nullptr;
+    }
     virtual T0oT1_base_node<T>* as_T0oT1_base()
     {
         return nullptr;
