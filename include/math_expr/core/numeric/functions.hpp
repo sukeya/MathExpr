@@ -1335,6 +1335,26 @@ inline bool valid_exponent(const int exponent)
 }
 
 template <typename Iterator, typename T>
+T parse_digit(Iterator itr, Iterator end, T d, const ::math_expr::core::char_t zero)
+{
+    unsigned int digit;
+    while (end != itr)
+    {
+        digit = (*itr - zero);
+        if (digit < 10)
+        {
+            d = d * T(10) + digit;
+        }
+        else
+        {
+            break;
+        }
+        ++itr;
+    }
+    return d;
+}
+
+template <typename Iterator, typename T>
 inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 {
     ::math_expr::core::numeric::details::validate_supported_real_type<T>();
@@ -1358,42 +1378,13 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
     static constexpr ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
 
-#define PARSE_DIGIT_1(d)              \
-    if ((digit = (*itr - zero)) < 10) \
-    {                                 \
-        d = d * T(10) + digit;        \
-    }                                 \
-    else                              \
-    {                                 \
-        break;                        \
-    }                                 \
-    if (end == ++itr)                 \
-        break;
-
-#define PARSE_DIGIT_2(d)              \
-    if ((digit = (*itr - zero)) < 10) \
-    {                                 \
-        d = d * T(10) + digit;        \
-    }                                 \
-    else                              \
-    {                                 \
-        break;                        \
-    }                                 \
-    ++itr;
-
     if ('.' != (*itr))
     {
         const Iterator curr = itr;
 
         while ((end != itr) && (zero == (*itr))) ++itr;
 
-        while (end != itr)
-        {
-            unsigned int digit;
-            PARSE_DIGIT_1(d);
-            PARSE_DIGIT_1(d);
-            PARSE_DIGIT_2(d);
-        }
+        d = parse_digit(itr, end, d, zero);
 
         if (curr != itr)
             instate = true;
@@ -1408,13 +1399,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
             const Iterator curr = ++itr;
             T tmp_d = T(0);
 
-            while (end != itr)
-            {
-                unsigned int digit;
-                PARSE_DIGIT_1(tmp_d);
-                PARSE_DIGIT_1(tmp_d);
-                PARSE_DIGIT_2(tmp_d);
-            }
+            tmp_d = parse_digit(itr, end, tmp_d, zero);
 
             if (curr != itr)
             {
@@ -1427,9 +1412,6 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
                 d += compute_pow10(tmp_d, frac_exponent);
             }
-
-#undef PARSE_DIGIT_1
-#undef PARSE_DIGIT_2
         }
 
         if (end != itr)
