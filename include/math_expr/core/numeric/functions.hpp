@@ -1210,20 +1210,6 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
     {
         switch (length)
         {
-#ifdef math_expr_use_lut
-
-#define MATH_EXPR_PROCESS_DIGIT                           \
-    if ((digit = details::digit_table[(int)*itr++]) < 10) \
-        result = result * 10 + (digit);                   \
-    else                                                  \
-    {                                                     \
-        return_result = false;                            \
-        break;                                            \
-    }                                                     \
-    [[fallthrough]];
-
-#else
-
 #define MATH_EXPR_PROCESS_DIGIT          \
     if ((digit = (*itr++ - zero)) < 10)  \
         result = result * T(10) + digit; \
@@ -1233,8 +1219,6 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
         break;                           \
     }                                    \
     [[fallthrough]];
-
-#endif
 
             case 4:
                 MATH_EXPR_PROCESS_DIGIT;
