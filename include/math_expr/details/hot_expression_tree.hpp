@@ -296,6 +296,27 @@ class hot_expression_tree
         node_index_t vec_node;
     };
 
+    struct rbvec_elem_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        vector_access_runtime_check<T>* rt_check;
+        node_index_t vec_node;
+        node_index_t index_child;
+    };
+
+    struct rbvec_celem_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t index;
+        vector_access_runtime_check<T>* rt_check;
+        node_index_t vec_node;
+    };
+
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data,
                      sf4_data, fixed_function_data, uv_data, conditional_data, scand_data,
@@ -303,7 +324,8 @@ class hot_expression_tree
                      cov_data, voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
                      t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data, vararg_multi_data,
                      vec_celem_data, vec_elem_data, swap_data, vec_elem_rtc_data,
-                     vec_celem_rtc_data, rbvec_elem_data, rbvec_celem_data, fallback_subtree_data>;
+                     vec_celem_rtc_data, rbvec_elem_data, rbvec_celem_data, rbvec_elem_rtc_data,
+                     rbvec_celem_rtc_data, fallback_subtree_data>;
 
     struct node
     {
@@ -679,6 +701,50 @@ class hot_expression_tree
             {
                 tree.evaluate(data.vec_node);
                 return *(data.holder->data() + data.index);
+            }
+
+            T operator()(const rbvec_elem_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                const std::uint64_t index =
+                    core::numeric::to_uint64(tree.evaluate(data.index_child));
+
+                if (index <= data.holder->size() - 1)
+                {
+                    return *(data.holder->data() + index);
+                }
+
+                typename vector_access_runtime_check<T>::violation_context context;
+                context.base_ptr = data.holder->data();
+                context.end_ptr = data.holder->data() + data.holder->size();
+                context.access_ptr = data.holder->data() + index;
+                context.type_size = sizeof(T);
+
+                T* result_ptr = data.rt_check->handle_runtime_violation(context)
+                                    ? context.access_ptr
+                                    : data.holder->data();
+                return *result_ptr;
+            }
+
+            T operator()(const rbvec_celem_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+
+                if (data.index <= data.holder->size() - 1)
+                {
+                    return *(data.holder->data() + data.index);
+                }
+
+                typename vector_access_runtime_check<T>::violation_context context;
+                context.base_ptr = data.vector_base;
+                context.end_ptr = data.vector_base + data.holder->size();
+                context.access_ptr = data.vector_base + data.index;
+                context.type_size = sizeof(T);
+
+                T* result_ptr = data.rt_check->handle_runtime_violation(context)
+                                    ? context.access_ptr
+                                    : data.vector_base;
+                return *result_ptr;
             }
 
             T operator()(const fallback_subtree_data& data) const
@@ -1083,9 +1149,39 @@ class hot_expression_tree
                     return emplace(
                         rbvec_celem_data{view.rbvec->holder(), view.rbvec->elem_idx(), *vec_child});
                 }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::rbvec_elem_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.rtc->vec_branch());
+                    const auto idx_child = append_child(view.rtc->index_branch());
+                    if (!vec_child.has_value() || !idx_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(rbvec_elem_rtc_data{view.rtc->holder(), view.rtc->rt_check(),
+                                                       *vec_child, *idx_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::rbvec_celem_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.rtc->vec_branch());
+                    if (!vec_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(rbvec_celem_rtc_data{view.rtc->holder(), view.rtc->vec_data(),
+                                                        view.rtc->elem_idx(), view.rtc->rt_check(),
+                                                        *vec_child});
+                }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)
                 {
+                    if (view.node->type() == expression_node<T>::node_type::e_null)
+                    {
+                        return emplace(literal_data{std::numeric_limits<T>::quiet_NaN()});
+                    }
                     return emplace(fallback_subtree_data{view.node});
                 }
                 else

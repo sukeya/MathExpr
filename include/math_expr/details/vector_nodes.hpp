@@ -928,6 +928,23 @@ class rebasevector_elem_rtc_node final : public expression_node<T>, public ivari
         return (*vector_holder_);
     }
 
+    inline vector_holder_ptr holder() const
+    {
+        return vector_holder_;
+    }
+    inline vector_access_runtime_check<T>* rt_check() const
+    {
+        return vec_rt_chk_;
+    }
+    inline expression_ptr index_branch() const
+    {
+        return index_.first;
+    }
+    inline expression_ptr vec_branch() const
+    {
+        return vector_node_.first;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(vector_node_, node_delete_list);
@@ -1022,6 +1039,27 @@ class rebasevector_celem_rtc_node final : public expression_node<T>, public ivar
     inline vector_holder_t& vec_holder()
     {
         return (*vector_holder_);
+    }
+
+    inline vector_holder_ptr holder() const
+    {
+        return vector_holder_;
+    }
+    inline T* vec_data() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t elem_idx() const
+    {
+        return index_;
+    }
+    inline vector_access_runtime_check<T>* rt_check() const
+    {
+        return vec_rt_chk_;
+    }
+    inline expression_ptr vec_branch() const
+    {
+        return vector_node_.first;
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override

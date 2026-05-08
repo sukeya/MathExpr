@@ -180,8 +180,10 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `swap_node` — variable swap `swap(x, y)` returning the new value of the second variable
 - `vec_elem_rtc` / `vec_celem_rtc` — runtime-bounds-checked dynamic and constant vector element access
 - `rbvec_elem` / `rbvec_celem` — rebase vector element access (base pointer read from holder at evaluation time)
+- `rbvec_elem_rtc` / `rbvec_celem_rtc` — runtime-bounds-checked rebase vector element access
+- `null` nodes — baked to NaN literal at tree-build time (zero-cost at evaluation)
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector assignment and vector init nodes; and all control-flow nodes (while, for, switch, return).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector assignment, init, and size nodes; and all control-flow nodes (while, for, switch, return).
 
 Relevant header:
 
