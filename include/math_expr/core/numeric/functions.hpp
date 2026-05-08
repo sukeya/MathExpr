@@ -1319,13 +1319,12 @@ inline bool valid_exponent(const int exponent)
 }
 
 template <typename Iterator, typename T>
-T parse_digit(Iterator itr, Iterator end, T d, const ::math_expr::core::char_t zero)
+T parse_digit(Iterator& itr, Iterator end, T d, const ::math_expr::core::char_t zero)
 {
-    unsigned int digit;
     while (end != itr)
     {
-        digit = (*itr - zero);
-        if (digit < 10)
+        int digit = *itr - zero;
+        if (0 <= digit && digit < 10)
         {
             d = d * T(10) + digit;
         }
@@ -1360,7 +1359,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
     bool instate = false;
 
-    static constexpr ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
+    static constexpr ::math_expr::core::char_t zero = '0';
 
     if ('.' != (*itr))
     {
