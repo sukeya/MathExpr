@@ -1748,204 +1748,204 @@ struct sf_base
     using unary_functor_t = typename functor_t::ufunc_t;
 };
 
-// clang-format off
-#define DEFINE_SFOP3(NN, OP0, OP1)                                                                 \
-    template <typename T> struct sf##NN##_op : public sf_base<T>                                   \
-    {                                                                                              \
-        using Type = typename sf_base<T>::Type const;                                              \
-        static inline T process(Type x, Type y, Type z)                                            \
-        {                                                                                          \
-            return (OP0);                                                                          \
-        }                                                                                          \
-        static inline std::string id()                                                             \
-        {                                                                                          \
-            return (OP1);                                                                          \
-        }                                                                                          \
+#define DEFINE_SFOP3(NN, OP0, OP1)                      \
+    template <typename T>                               \
+    struct sf##NN##_op : public sf_base<T>              \
+    {                                                   \
+        using Type = typename sf_base<T>::Type const;   \
+        static inline T process(Type x, Type y, Type z) \
+        {                                               \
+            return (OP0);                               \
+        }                                               \
+        static inline std::string id()                  \
+        {                                               \
+            return (OP1);                               \
+        }                                               \
     };
 
-      DEFINE_SFOP3(00,(x + y) / z       ,"(t+t)/t");
-      DEFINE_SFOP3(01,(x + y) * z       ,"(t+t)*t");
-      DEFINE_SFOP3(02,(x + y) - z       ,"(t+t)-t");
-      DEFINE_SFOP3(03,(x + y) + z       ,"(t+t)+t");
-      DEFINE_SFOP3(04,(x - y) + z       ,"(t-t)+t");
-      DEFINE_SFOP3(05,(x - y) / z       ,"(t-t)/t");
-      DEFINE_SFOP3(06,(x - y) * z       ,"(t-t)*t");
-      DEFINE_SFOP3(07,(x * y) + z       ,"(t*t)+t");
-      DEFINE_SFOP3(08,(x * y) - z       ,"(t*t)-t");
-      DEFINE_SFOP3(09,(x * y) / z       ,"(t*t)/t");
-      DEFINE_SFOP3(10,(x * y) * z       ,"(t*t)*t");
-      DEFINE_SFOP3(11,(x / y) + z       ,"(t/t)+t");
-      DEFINE_SFOP3(12,(x / y) - z       ,"(t/t)-t");
-      DEFINE_SFOP3(13,(x / y) / z       ,"(t/t)/t");
-      DEFINE_SFOP3(14,(x / y) * z       ,"(t/t)*t");
-      DEFINE_SFOP3(15,x / (y + z)       ,"t/(t+t)");
-      DEFINE_SFOP3(16,x / (y - z)       ,"t/(t-t)");
-      DEFINE_SFOP3(17,x / (y * z)       ,"t/(t*t)");
-      DEFINE_SFOP3(18,x / (y / z)       ,"t/(t/t)");
-      DEFINE_SFOP3(19,x * (y + z)       ,"t*(t+t)");
-      DEFINE_SFOP3(20,x * (y - z)       ,"t*(t-t)");
-      DEFINE_SFOP3(21,x * (y * z)       ,"t*(t*t)");
-      DEFINE_SFOP3(22,x * (y / z)       ,"t*(t/t)");
-      DEFINE_SFOP3(23,x - (y + z)       ,"t-(t+t)");
-      DEFINE_SFOP3(24,x - (y - z)       ,"t-(t-t)");
-      DEFINE_SFOP3(25,x - (y / z)       ,"t-(t/t)");
-      DEFINE_SFOP3(26,x - (y * z)       ,"t-(t*t)");
-      DEFINE_SFOP3(27,x + (y * z)       ,"t+(t*t)");
-      DEFINE_SFOP3(28,x + (y / z)       ,"t+(t/t)");
-      DEFINE_SFOP3(29,x + (y + z)       ,"t+(t+t)");
-      DEFINE_SFOP3(30,x + (y - z)       ,"t+(t-t)");
-      DEFINE_SFOP3(31,(axnb<T,2>(x,y,z)),"       ");
-      DEFINE_SFOP3(32,(axnb<T,3>(x,y,z)),"       ");
-      DEFINE_SFOP3(33,(axnb<T,4>(x,y,z)),"       ");
-      DEFINE_SFOP3(34,(axnb<T,5>(x,y,z)),"       ");
-      DEFINE_SFOP3(35,(axnb<T,6>(x,y,z)),"       ");
-      DEFINE_SFOP3(36,(axnb<T,7>(x,y,z)),"       ");
-      DEFINE_SFOP3(37,(axnb<T,8>(x,y,z)),"       ");
-      DEFINE_SFOP3(38,(axnb<T,9>(x,y,z)),"       ");
-      DEFINE_SFOP3(39,x * core::numeric::log(y)   + z,"");
-      DEFINE_SFOP3(40,x * core::numeric::log(y)   - z,"");
-      DEFINE_SFOP3(41,x * core::numeric::log10(y) + z,"");
-      DEFINE_SFOP3(42,x * core::numeric::log10(y) - z,"");
-      DEFINE_SFOP3(43,x * core::numeric::sin(y) + z  ,"");
-      DEFINE_SFOP3(44,x * core::numeric::sin(y) - z  ,"");
-      DEFINE_SFOP3(45,x * core::numeric::cos(y) + z  ,"");
-      DEFINE_SFOP3(46,x * core::numeric::cos(y) - z  ,"");
-      DEFINE_SFOP3(47,details::is_true(x) ? y : z,"");
+DEFINE_SFOP3(00, (x + y) / z, "(t+t)/t");
+DEFINE_SFOP3(01, (x + y) * z, "(t+t)*t");
+DEFINE_SFOP3(02, (x + y) - z, "(t+t)-t");
+DEFINE_SFOP3(03, (x + y) + z, "(t+t)+t");
+DEFINE_SFOP3(04, (x - y) + z, "(t-t)+t");
+DEFINE_SFOP3(05, (x - y) / z, "(t-t)/t");
+DEFINE_SFOP3(06, (x - y) * z, "(t-t)*t");
+DEFINE_SFOP3(07, (x * y) + z, "(t*t)+t");
+DEFINE_SFOP3(08, (x * y) - z, "(t*t)-t");
+DEFINE_SFOP3(09, (x * y) / z, "(t*t)/t");
+DEFINE_SFOP3(10, (x * y) * z, "(t*t)*t");
+DEFINE_SFOP3(11, (x / y) + z, "(t/t)+t");
+DEFINE_SFOP3(12, (x / y) - z, "(t/t)-t");
+DEFINE_SFOP3(13, (x / y) / z, "(t/t)/t");
+DEFINE_SFOP3(14, (x / y) * z, "(t/t)*t");
+DEFINE_SFOP3(15, x / (y + z), "t/(t+t)");
+DEFINE_SFOP3(16, x / (y - z), "t/(t-t)");
+DEFINE_SFOP3(17, x / (y * z), "t/(t*t)");
+DEFINE_SFOP3(18, x / (y / z), "t/(t/t)");
+DEFINE_SFOP3(19, x*(y + z), "t*(t+t)");
+DEFINE_SFOP3(20, x*(y - z), "t*(t-t)");
+DEFINE_SFOP3(21, x*(y* z), "t*(t*t)");
+DEFINE_SFOP3(22, x*(y / z), "t*(t/t)");
+DEFINE_SFOP3(23, x - (y + z), "t-(t+t)");
+DEFINE_SFOP3(24, x - (y - z), "t-(t-t)");
+DEFINE_SFOP3(25, x - (y / z), "t-(t/t)");
+DEFINE_SFOP3(26, x - (y * z), "t-(t*t)");
+DEFINE_SFOP3(27, x + (y * z), "t+(t*t)");
+DEFINE_SFOP3(28, x + (y / z), "t+(t/t)");
+DEFINE_SFOP3(29, x + (y + z), "t+(t+t)");
+DEFINE_SFOP3(30, x + (y - z), "t+(t-t)");
+DEFINE_SFOP3(31, (axnb<T, 2>(x, y, z)), "       ");
+DEFINE_SFOP3(32, (axnb<T, 3>(x, y, z)), "       ");
+DEFINE_SFOP3(33, (axnb<T, 4>(x, y, z)), "       ");
+DEFINE_SFOP3(34, (axnb<T, 5>(x, y, z)), "       ");
+DEFINE_SFOP3(35, (axnb<T, 6>(x, y, z)), "       ");
+DEFINE_SFOP3(36, (axnb<T, 7>(x, y, z)), "       ");
+DEFINE_SFOP3(37, (axnb<T, 8>(x, y, z)), "       ");
+DEFINE_SFOP3(38, (axnb<T, 9>(x, y, z)), "       ");
+DEFINE_SFOP3(39, x* core::numeric::log(y) + z, "");
+DEFINE_SFOP3(40, x* core::numeric::log(y) - z, "");
+DEFINE_SFOP3(41, x* core::numeric::log10(y) + z, "");
+DEFINE_SFOP3(42, x* core::numeric::log10(y) - z, "");
+DEFINE_SFOP3(43, x* core::numeric::sin(y) + z, "");
+DEFINE_SFOP3(44, x* core::numeric::sin(y) - z, "");
+DEFINE_SFOP3(45, x* core::numeric::cos(y) + z, "");
+DEFINE_SFOP3(46, x* core::numeric::cos(y) - z, "");
+DEFINE_SFOP3(47, details::is_true(x) ? y : z, "");
 
-#define DEFINE_SFOP4(NN, OP0, OP1)                                                                 \
-    template <typename T> struct sf##NN##_op : public sf_base<T>                                   \
-    {                                                                                              \
-        using Type = typename sf_base<T>::Type const;                                              \
-        static inline T process(Type x, Type y, Type z, Type w)                                    \
-        {                                                                                          \
-            return (OP0);                                                                          \
-        }                                                                                          \
-        static inline std::string id()                                                             \
-        {                                                                                          \
-            return (OP1);                                                                          \
-        }                                                                                          \
+#define DEFINE_SFOP4(NN, OP0, OP1)                              \
+    template <typename T>                                       \
+    struct sf##NN##_op : public sf_base<T>                      \
+    {                                                           \
+        using Type = typename sf_base<T>::Type const;           \
+        static inline T process(Type x, Type y, Type z, Type w) \
+        {                                                       \
+            return (OP0);                                       \
+        }                                                       \
+        static inline std::string id()                          \
+        {                                                       \
+            return (OP1);                                       \
+        }                                                       \
     }
 
-      DEFINE_SFOP4(48,(x + ((y + z) / w)),"t+((t+t)/t)");
-      DEFINE_SFOP4(49,(x + ((y + z) * w)),"t+((t+t)*t)");
-      DEFINE_SFOP4(50,(x + ((y - z) / w)),"t+((t-t)/t)");
-      DEFINE_SFOP4(51,(x + ((y - z) * w)),"t+((t-t)*t)");
-      DEFINE_SFOP4(52,(x + ((y * z) / w)),"t+((t*t)/t)");
-      DEFINE_SFOP4(53,(x + ((y * z) * w)),"t+((t*t)*t)");
-      DEFINE_SFOP4(54,(x + ((y / z) + w)),"t+((t/t)+t)");
-      DEFINE_SFOP4(55,(x + ((y / z) / w)),"t+((t/t)/t)");
-      DEFINE_SFOP4(56,(x + ((y / z) * w)),"t+((t/t)*t)");
-      DEFINE_SFOP4(57,(x - ((y + z) / w)),"t-((t+t)/t)");
-      DEFINE_SFOP4(58,(x - ((y + z) * w)),"t-((t+t)*t)");
-      DEFINE_SFOP4(59,(x - ((y - z) / w)),"t-((t-t)/t)");
-      DEFINE_SFOP4(60,(x - ((y - z) * w)),"t-((t-t)*t)");
-      DEFINE_SFOP4(61,(x - ((y * z) / w)),"t-((t*t)/t)");
-      DEFINE_SFOP4(62,(x - ((y * z) * w)),"t-((t*t)*t)");
-      DEFINE_SFOP4(63,(x - ((y / z) / w)),"t-((t/t)/t)");
-      DEFINE_SFOP4(64,(x - ((y / z) * w)),"t-((t/t)*t)");
-      DEFINE_SFOP4(65,(((x + y) * z) - w),"((t+t)*t)-t");
-      DEFINE_SFOP4(66,(((x - y) * z) - w),"((t-t)*t)-t");
-      DEFINE_SFOP4(67,(((x * y) * z) - w),"((t*t)*t)-t");
-      DEFINE_SFOP4(68,(((x / y) * z) - w),"((t/t)*t)-t");
-      DEFINE_SFOP4(69,(((x + y) / z) - w),"((t+t)/t)-t");
-      DEFINE_SFOP4(70,(((x - y) / z) - w),"((t-t)/t)-t");
-      DEFINE_SFOP4(71,(((x * y) / z) - w),"((t*t)/t)-t");
-      DEFINE_SFOP4(72,(((x / y) / z) - w),"((t/t)/t)-t");
-      DEFINE_SFOP4(73,((x * y) + (z * w)),"(t*t)+(t*t)");
-      DEFINE_SFOP4(74,((x * y) - (z * w)),"(t*t)-(t*t)");
-      DEFINE_SFOP4(75,((x * y) + (z / w)),"(t*t)+(t/t)");
-      DEFINE_SFOP4(76,((x * y) - (z / w)),"(t*t)-(t/t)");
-      DEFINE_SFOP4(77,((x / y) + (z / w)),"(t/t)+(t/t)");
-      DEFINE_SFOP4(78,((x / y) - (z / w)),"(t/t)-(t/t)");
-      DEFINE_SFOP4(79,((x / y) - (z * w)),"(t/t)-(t*t)");
-      DEFINE_SFOP4(80,(x / (y + (z * w))),"t/(t+(t*t))");
-      DEFINE_SFOP4(81,(x / (y - (z * w))),"t/(t-(t*t))");
-      DEFINE_SFOP4(82,(x * (y + (z * w))),"t*(t+(t*t))");
-      DEFINE_SFOP4(83,(x * (y - (z * w))),"t*(t-(t*t))");
+DEFINE_SFOP4(48, (x + ((y + z) / w)), "t+((t+t)/t)");
+DEFINE_SFOP4(49, (x + ((y + z) * w)), "t+((t+t)*t)");
+DEFINE_SFOP4(50, (x + ((y - z) / w)), "t+((t-t)/t)");
+DEFINE_SFOP4(51, (x + ((y - z) * w)), "t+((t-t)*t)");
+DEFINE_SFOP4(52, (x + ((y * z) / w)), "t+((t*t)/t)");
+DEFINE_SFOP4(53, (x + ((y * z) * w)), "t+((t*t)*t)");
+DEFINE_SFOP4(54, (x + ((y / z) + w)), "t+((t/t)+t)");
+DEFINE_SFOP4(55, (x + ((y / z) / w)), "t+((t/t)/t)");
+DEFINE_SFOP4(56, (x + ((y / z) * w)), "t+((t/t)*t)");
+DEFINE_SFOP4(57, (x - ((y + z) / w)), "t-((t+t)/t)");
+DEFINE_SFOP4(58, (x - ((y + z) * w)), "t-((t+t)*t)");
+DEFINE_SFOP4(59, (x - ((y - z) / w)), "t-((t-t)/t)");
+DEFINE_SFOP4(60, (x - ((y - z) * w)), "t-((t-t)*t)");
+DEFINE_SFOP4(61, (x - ((y * z) / w)), "t-((t*t)/t)");
+DEFINE_SFOP4(62, (x - ((y * z) * w)), "t-((t*t)*t)");
+DEFINE_SFOP4(63, (x - ((y / z) / w)), "t-((t/t)/t)");
+DEFINE_SFOP4(64, (x - ((y / z) * w)), "t-((t/t)*t)");
+DEFINE_SFOP4(65, (((x + y) * z) - w), "((t+t)*t)-t");
+DEFINE_SFOP4(66, (((x - y) * z) - w), "((t-t)*t)-t");
+DEFINE_SFOP4(67, (((x * y) * z) - w), "((t*t)*t)-t");
+DEFINE_SFOP4(68, (((x / y) * z) - w), "((t/t)*t)-t");
+DEFINE_SFOP4(69, (((x + y) / z) - w), "((t+t)/t)-t");
+DEFINE_SFOP4(70, (((x - y) / z) - w), "((t-t)/t)-t");
+DEFINE_SFOP4(71, (((x * y) / z) - w), "((t*t)/t)-t");
+DEFINE_SFOP4(72, (((x / y) / z) - w), "((t/t)/t)-t");
+DEFINE_SFOP4(73, ((x * y) + (z * w)), "(t*t)+(t*t)");
+DEFINE_SFOP4(74, ((x * y) - (z * w)), "(t*t)-(t*t)");
+DEFINE_SFOP4(75, ((x * y) + (z / w)), "(t*t)+(t/t)");
+DEFINE_SFOP4(76, ((x * y) - (z / w)), "(t*t)-(t/t)");
+DEFINE_SFOP4(77, ((x / y) + (z / w)), "(t/t)+(t/t)");
+DEFINE_SFOP4(78, ((x / y) - (z / w)), "(t/t)-(t/t)");
+DEFINE_SFOP4(79, ((x / y) - (z * w)), "(t/t)-(t*t)");
+DEFINE_SFOP4(80, (x / (y + (z * w))), "t/(t+(t*t))");
+DEFINE_SFOP4(81, (x / (y - (z * w))), "t/(t-(t*t))");
+DEFINE_SFOP4(82, (x * (y + (z * w))), "t*(t+(t*t))");
+DEFINE_SFOP4(83, (x * (y - (z * w))), "t*(t-(t*t))");
 
-      DEFINE_SFOP4(84,(axn<T,2>(x,y) + axn<T,2>(z,w)),"");
-      DEFINE_SFOP4(85,(axn<T,3>(x,y) + axn<T,3>(z,w)),"");
-      DEFINE_SFOP4(86,(axn<T,4>(x,y) + axn<T,4>(z,w)),"");
-      DEFINE_SFOP4(87,(axn<T,5>(x,y) + axn<T,5>(z,w)),"");
-      DEFINE_SFOP4(88,(axn<T,6>(x,y) + axn<T,6>(z,w)),"");
-      DEFINE_SFOP4(89,(axn<T,7>(x,y) + axn<T,7>(z,w)),"");
-      DEFINE_SFOP4(90,(axn<T,8>(x,y) + axn<T,8>(z,w)),"");
-      DEFINE_SFOP4(91,(axn<T,9>(x,y) + axn<T,9>(z,w)),"");
-      DEFINE_SFOP4(92,((details::is_true(x) && details::is_true(y)) ? z : w),"");
-      DEFINE_SFOP4(93,((details::is_true(x) || details::is_true(y)) ? z : w),"");
-      DEFINE_SFOP4(94,((x <  y) ? z : w),"");
-      DEFINE_SFOP4(95,((x <= y) ? z : w),"");
-      DEFINE_SFOP4(96,((x >  y) ? z : w),"");
-      DEFINE_SFOP4(97,((x >= y) ? z : w),"");
-      DEFINE_SFOP4(98,(details::is_true(core::numeric::equal(x,y)) ? z : w),"");
-      DEFINE_SFOP4(99,(x * core::numeric::sin(y) + z * core::numeric::cos(w)),"");
+DEFINE_SFOP4(84, (axn<T, 2>(x, y) + axn<T, 2>(z, w)), "");
+DEFINE_SFOP4(85, (axn<T, 3>(x, y) + axn<T, 3>(z, w)), "");
+DEFINE_SFOP4(86, (axn<T, 4>(x, y) + axn<T, 4>(z, w)), "");
+DEFINE_SFOP4(87, (axn<T, 5>(x, y) + axn<T, 5>(z, w)), "");
+DEFINE_SFOP4(88, (axn<T, 6>(x, y) + axn<T, 6>(z, w)), "");
+DEFINE_SFOP4(89, (axn<T, 7>(x, y) + axn<T, 7>(z, w)), "");
+DEFINE_SFOP4(90, (axn<T, 8>(x, y) + axn<T, 8>(z, w)), "");
+DEFINE_SFOP4(91, (axn<T, 9>(x, y) + axn<T, 9>(z, w)), "");
+DEFINE_SFOP4(92, ((details::is_true(x) && details::is_true(y)) ? z : w), "");
+DEFINE_SFOP4(93, ((details::is_true(x) || details::is_true(y)) ? z : w), "");
+DEFINE_SFOP4(94, ((x < y) ? z : w), "");
+DEFINE_SFOP4(95, ((x <= y) ? z : w), "");
+DEFINE_SFOP4(96, ((x > y) ? z : w), "");
+DEFINE_SFOP4(97, ((x >= y) ? z : w), "");
+DEFINE_SFOP4(98, (details::is_true(core::numeric::equal(x, y)) ? z : w), "");
+DEFINE_SFOP4(99, (x * core::numeric::sin(y) + z * core::numeric::cos(w)), "");
 
-      DEFINE_SFOP4(ext00,((x + y) - (z * w)),"(t+t)-(t*t)");
-      DEFINE_SFOP4(ext01,((x + y) - (z / w)),"(t+t)-(t/t)");
-      DEFINE_SFOP4(ext02,((x + y) + (z * w)),"(t+t)+(t*t)");
-      DEFINE_SFOP4(ext03,((x + y) + (z / w)),"(t+t)+(t/t)");
-      DEFINE_SFOP4(ext04,((x - y) + (z * w)),"(t-t)+(t*t)");
-      DEFINE_SFOP4(ext05,((x - y) + (z / w)),"(t-t)+(t/t)");
-      DEFINE_SFOP4(ext06,((x - y) - (z * w)),"(t-t)-(t*t)");
-      DEFINE_SFOP4(ext07,((x - y) - (z / w)),"(t-t)-(t/t)");
-      DEFINE_SFOP4(ext08,((x + y) - (z - w)),"(t+t)-(t-t)");
-      DEFINE_SFOP4(ext09,((x + y) + (z - w)),"(t+t)+(t-t)");
-      DEFINE_SFOP4(ext10,((x + y) + (z + w)),"(t+t)+(t+t)");
-      DEFINE_SFOP4(ext11,((x + y) * (z - w)),"(t+t)*(t-t)");
-      DEFINE_SFOP4(ext12,((x + y) / (z - w)),"(t+t)/(t-t)");
-      DEFINE_SFOP4(ext13,((x - y) - (z + w)),"(t-t)-(t+t)");
-      DEFINE_SFOP4(ext14,((x - y) + (z + w)),"(t-t)+(t+t)");
-      DEFINE_SFOP4(ext15,((x - y) * (z + w)),"(t-t)*(t+t)");
-      DEFINE_SFOP4(ext16,((x - y) / (z + w)),"(t-t)/(t+t)");
-      DEFINE_SFOP4(ext17,((x * y) - (z + w)),"(t*t)-(t+t)");
-      DEFINE_SFOP4(ext18,((x / y) - (z + w)),"(t/t)-(t+t)");
-      DEFINE_SFOP4(ext19,((x * y) + (z + w)),"(t*t)+(t+t)");
-      DEFINE_SFOP4(ext20,((x / y) + (z + w)),"(t/t)+(t+t)");
-      DEFINE_SFOP4(ext21,((x * y) + (z - w)),"(t*t)+(t-t)");
-      DEFINE_SFOP4(ext22,((x / y) + (z - w)),"(t/t)+(t-t)");
-      DEFINE_SFOP4(ext23,((x * y) - (z - w)),"(t*t)-(t-t)");
-      DEFINE_SFOP4(ext24,((x / y) - (z - w)),"(t/t)-(t-t)");
-      DEFINE_SFOP4(ext25,((x + y) * (z * w)),"(t+t)*(t*t)");
-      DEFINE_SFOP4(ext26,((x + y) * (z / w)),"(t+t)*(t/t)");
-      DEFINE_SFOP4(ext27,((x + y) / (z * w)),"(t+t)/(t*t)");
-      DEFINE_SFOP4(ext28,((x + y) / (z / w)),"(t+t)/(t/t)");
-      DEFINE_SFOP4(ext29,((x - y) / (z * w)),"(t-t)/(t*t)");
-      DEFINE_SFOP4(ext30,((x - y) / (z / w)),"(t-t)/(t/t)");
-      DEFINE_SFOP4(ext31,((x - y) * (z * w)),"(t-t)*(t*t)");
-      DEFINE_SFOP4(ext32,((x - y) * (z / w)),"(t-t)*(t/t)");
-      DEFINE_SFOP4(ext33,((x * y) * (z + w)),"(t*t)*(t+t)");
-      DEFINE_SFOP4(ext34,((x / y) * (z + w)),"(t/t)*(t+t)");
-      DEFINE_SFOP4(ext35,((x * y) / (z + w)),"(t*t)/(t+t)");
-      DEFINE_SFOP4(ext36,((x / y) / (z + w)),"(t/t)/(t+t)");
-      DEFINE_SFOP4(ext37,((x * y) / (z - w)),"(t*t)/(t-t)");
-      DEFINE_SFOP4(ext38,((x / y) / (z - w)),"(t/t)/(t-t)");
-      DEFINE_SFOP4(ext39,((x * y) * (z - w)),"(t*t)*(t-t)");
-      DEFINE_SFOP4(ext40,((x * y) / (z * w)),"(t*t)/(t*t)");
-      DEFINE_SFOP4(ext41,((x / y) * (z / w)),"(t/t)*(t/t)");
-      DEFINE_SFOP4(ext42,((x / y) * (z - w)),"(t/t)*(t-t)");
-      DEFINE_SFOP4(ext43,((x * y) * (z * w)),"(t*t)*(t*t)");
-      DEFINE_SFOP4(ext44,(x + (y * (z / w))),"t+(t*(t/t))");
-      DEFINE_SFOP4(ext45,(x - (y * (z / w))),"t-(t*(t/t))");
-      DEFINE_SFOP4(ext46,(x + (y / (z * w))),"t+(t/(t*t))");
-      DEFINE_SFOP4(ext47,(x - (y / (z * w))),"t-(t/(t*t))");
-      DEFINE_SFOP4(ext48,(((x - y) - z) * w),"((t-t)-t)*t");
-      DEFINE_SFOP4(ext49,(((x - y) - z) / w),"((t-t)-t)/t");
-      DEFINE_SFOP4(ext50,(((x - y) + z) * w),"((t-t)+t)*t");
-      DEFINE_SFOP4(ext51,(((x - y) + z) / w),"((t-t)+t)/t");
-      DEFINE_SFOP4(ext52,((x + (y - z)) * w),"(t+(t-t))*t");
-      DEFINE_SFOP4(ext53,((x + (y - z)) / w),"(t+(t-t))/t");
-      DEFINE_SFOP4(ext54,((x + y) / (z + w)),"(t+t)/(t+t)");
-      DEFINE_SFOP4(ext55,((x - y) / (z - w)),"(t-t)/(t-t)");
-      DEFINE_SFOP4(ext56,((x + y) * (z + w)),"(t+t)*(t+t)");
-      DEFINE_SFOP4(ext57,((x - y) * (z - w)),"(t-t)*(t-t)");
-      DEFINE_SFOP4(ext58,((x - y) + (z - w)),"(t-t)+(t-t)");
-      DEFINE_SFOP4(ext59,((x - y) - (z - w)),"(t-t)-(t-t)");
-      DEFINE_SFOP4(ext60,((x / y) + (z * w)),"(t/t)+(t*t)");
-      DEFINE_SFOP4(ext61,(((x * y) * z) / w),"((t*t)*t)/t");
+DEFINE_SFOP4(ext00, ((x + y) - (z * w)), "(t+t)-(t*t)");
+DEFINE_SFOP4(ext01, ((x + y) - (z / w)), "(t+t)-(t/t)");
+DEFINE_SFOP4(ext02, ((x + y) + (z * w)), "(t+t)+(t*t)");
+DEFINE_SFOP4(ext03, ((x + y) + (z / w)), "(t+t)+(t/t)");
+DEFINE_SFOP4(ext04, ((x - y) + (z * w)), "(t-t)+(t*t)");
+DEFINE_SFOP4(ext05, ((x - y) + (z / w)), "(t-t)+(t/t)");
+DEFINE_SFOP4(ext06, ((x - y) - (z * w)), "(t-t)-(t*t)");
+DEFINE_SFOP4(ext07, ((x - y) - (z / w)), "(t-t)-(t/t)");
+DEFINE_SFOP4(ext08, ((x + y) - (z - w)), "(t+t)-(t-t)");
+DEFINE_SFOP4(ext09, ((x + y) + (z - w)), "(t+t)+(t-t)");
+DEFINE_SFOP4(ext10, ((x + y) + (z + w)), "(t+t)+(t+t)");
+DEFINE_SFOP4(ext11, ((x + y) * (z - w)), "(t+t)*(t-t)");
+DEFINE_SFOP4(ext12, ((x + y) / (z - w)), "(t+t)/(t-t)");
+DEFINE_SFOP4(ext13, ((x - y) - (z + w)), "(t-t)-(t+t)");
+DEFINE_SFOP4(ext14, ((x - y) + (z + w)), "(t-t)+(t+t)");
+DEFINE_SFOP4(ext15, ((x - y) * (z + w)), "(t-t)*(t+t)");
+DEFINE_SFOP4(ext16, ((x - y) / (z + w)), "(t-t)/(t+t)");
+DEFINE_SFOP4(ext17, ((x * y) - (z + w)), "(t*t)-(t+t)");
+DEFINE_SFOP4(ext18, ((x / y) - (z + w)), "(t/t)-(t+t)");
+DEFINE_SFOP4(ext19, ((x * y) + (z + w)), "(t*t)+(t+t)");
+DEFINE_SFOP4(ext20, ((x / y) + (z + w)), "(t/t)+(t+t)");
+DEFINE_SFOP4(ext21, ((x * y) + (z - w)), "(t*t)+(t-t)");
+DEFINE_SFOP4(ext22, ((x / y) + (z - w)), "(t/t)+(t-t)");
+DEFINE_SFOP4(ext23, ((x * y) - (z - w)), "(t*t)-(t-t)");
+DEFINE_SFOP4(ext24, ((x / y) - (z - w)), "(t/t)-(t-t)");
+DEFINE_SFOP4(ext25, ((x + y) * (z * w)), "(t+t)*(t*t)");
+DEFINE_SFOP4(ext26, ((x + y) * (z / w)), "(t+t)*(t/t)");
+DEFINE_SFOP4(ext27, ((x + y) / (z * w)), "(t+t)/(t*t)");
+DEFINE_SFOP4(ext28, ((x + y) / (z / w)), "(t+t)/(t/t)");
+DEFINE_SFOP4(ext29, ((x - y) / (z * w)), "(t-t)/(t*t)");
+DEFINE_SFOP4(ext30, ((x - y) / (z / w)), "(t-t)/(t/t)");
+DEFINE_SFOP4(ext31, ((x - y) * (z * w)), "(t-t)*(t*t)");
+DEFINE_SFOP4(ext32, ((x - y) * (z / w)), "(t-t)*(t/t)");
+DEFINE_SFOP4(ext33, ((x * y) * (z + w)), "(t*t)*(t+t)");
+DEFINE_SFOP4(ext34, ((x / y) * (z + w)), "(t/t)*(t+t)");
+DEFINE_SFOP4(ext35, ((x * y) / (z + w)), "(t*t)/(t+t)");
+DEFINE_SFOP4(ext36, ((x / y) / (z + w)), "(t/t)/(t+t)");
+DEFINE_SFOP4(ext37, ((x * y) / (z - w)), "(t*t)/(t-t)");
+DEFINE_SFOP4(ext38, ((x / y) / (z - w)), "(t/t)/(t-t)");
+DEFINE_SFOP4(ext39, ((x * y) * (z - w)), "(t*t)*(t-t)");
+DEFINE_SFOP4(ext40, ((x * y) / (z * w)), "(t*t)/(t*t)");
+DEFINE_SFOP4(ext41, ((x / y) * (z / w)), "(t/t)*(t/t)");
+DEFINE_SFOP4(ext42, ((x / y) * (z - w)), "(t/t)*(t-t)");
+DEFINE_SFOP4(ext43, ((x * y) * (z * w)), "(t*t)*(t*t)");
+DEFINE_SFOP4(ext44, (x + (y * (z / w))), "t+(t*(t/t))");
+DEFINE_SFOP4(ext45, (x - (y * (z / w))), "t-(t*(t/t))");
+DEFINE_SFOP4(ext46, (x + (y / (z * w))), "t+(t/(t*t))");
+DEFINE_SFOP4(ext47, (x - (y / (z * w))), "t-(t/(t*t))");
+DEFINE_SFOP4(ext48, (((x - y) - z) * w), "((t-t)-t)*t");
+DEFINE_SFOP4(ext49, (((x - y) - z) / w), "((t-t)-t)/t");
+DEFINE_SFOP4(ext50, (((x - y) + z) * w), "((t-t)+t)*t");
+DEFINE_SFOP4(ext51, (((x - y) + z) / w), "((t-t)+t)/t");
+DEFINE_SFOP4(ext52, ((x + (y - z)) * w), "(t+(t-t))*t");
+DEFINE_SFOP4(ext53, ((x + (y - z)) / w), "(t+(t-t))/t");
+DEFINE_SFOP4(ext54, ((x + y) / (z + w)), "(t+t)/(t+t)");
+DEFINE_SFOP4(ext55, ((x - y) / (z - w)), "(t-t)/(t-t)");
+DEFINE_SFOP4(ext56, ((x + y) * (z + w)), "(t+t)*(t+t)");
+DEFINE_SFOP4(ext57, ((x - y) * (z - w)), "(t-t)*(t-t)");
+DEFINE_SFOP4(ext58, ((x - y) + (z - w)), "(t-t)+(t-t)");
+DEFINE_SFOP4(ext59, ((x - y) - (z - w)), "(t-t)-(t-t)");
+DEFINE_SFOP4(ext60, ((x / y) + (z * w)), "(t/t)+(t*t)");
+DEFINE_SFOP4(ext61, (((x * y) * z) / w), "((t*t)*t)/t");
 
 #undef DEFINE_SFOP3
 #undef DEFINE_SFOP4
-// clang-format on
 
 template <typename T, typename SpecialFunction>
 class sf3_node final : public trinary_node<T>
