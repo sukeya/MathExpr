@@ -328,6 +328,11 @@ class expression_node : public node_collector_interface<expression_node<T>>,
     }
     virtual void release_branch() {}
 
+    virtual std::size_t arg_size() const
+    {
+        return 0;
+    }
+
     static void* operator new(std::size_t size)
     {
         if (auto* arena = active_node_memory_arena(); nullptr != arena)

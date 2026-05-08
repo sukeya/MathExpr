@@ -229,12 +229,32 @@ class hot_expression_tree
         expression_ptr node;
     };
 
+    struct vararg_multi_data
+    {
+        std::vector<node_index_t> args;
+    };
+
+    struct vec_celem_data
+    {
+        T* vector_base;
+        std::size_t index;
+        node_index_t vec_node;
+    };
+
+    struct vec_elem_data
+    {
+        T* vector_base;
+        node_index_t vec_node;
+        node_index_t index_child;
+    };
+
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data,
                      sf4_data, fixed_function_data, uv_data, conditional_data, scand_data,
                      scor_data, scalar_pow_data, branch_pow_data, unary_branch_data, vov_data,
                      cov_data, voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
-                     t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data, fallback_subtree_data>;
+                     t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data, vararg_multi_data,
+                     vec_celem_data, vec_elem_data, fallback_subtree_data>;
 
     struct node
     {
@@ -529,6 +549,28 @@ class hot_expression_tree
                 }
 
                 return data.equality ? core::numeric::false_v<T> : core::numeric::true_v<T>;
+            }
+
+            T operator()(const vararg_multi_data& data) const
+            {
+                for (std::size_t i = 0; i + 1 < data.args.size(); ++i)
+                {
+                    tree.evaluate(data.args[i]);
+                }
+                return tree.evaluate(data.args.back());
+            }
+
+            T operator()(const vec_celem_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                return *(data.vector_base + data.index);
+            }
+
+            T operator()(const vec_elem_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                return *(data.vector_base + idx);
             }
 
             T operator()(const fallback_subtree_data& data) const
@@ -841,6 +883,45 @@ class hot_expression_tree
                         return std::nullopt;
                     }
                     return emplace(nulleq_data{*child, view.nulleq->equality()});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vararg_multi_hot_view>)
+                {
+                    vararg_multi_data data{};
+                    data.args.reserve(view.count);
+                    for (std::size_t i = 0; i < view.count; ++i)
+                    {
+                        const auto child = append_child(view.node->branch(i));
+                        if (!child.has_value())
+                        {
+                            return std::nullopt;
+                        }
+                        data.args.push_back(*child);
+                    }
+                    return emplace(std::move(data));
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::vec_celem_hot_view>)
+                {
+                    const auto vec_child = append_child(view.celem->vec_branch());
+                    if (!vec_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(
+                        vec_celem_data{view.celem->vec_data(), view.celem->elem_idx(), *vec_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::vec_elem_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto idx_child = append_child(view.elem->index_branch());
+                    if (!vec_child.has_value() || !idx_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(vec_elem_data{view.elem->vec_data(), *vec_child, *idx_child});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

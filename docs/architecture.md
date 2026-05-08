@@ -174,8 +174,11 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `vov`, `cov`, `voc`, `vob`, `bov`, `cob`, `boc`
 - `uvouv`
 - type-erased `T0oT1oT2*` and `T0oT1oT2oT3*` specialized synthesis nodes
+- `vararg_multi` — multi-statement sequence blocks `(a; b; c)` that evaluate each expression and return the last result
+- `vec_celem` — constant-index vector element read `v[0]`, `v[1]`, …
+- `vec_elem` — dynamic-index vector element read `v[i]`
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path.
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path. Notable exclusions: vector assignment, RTC, and rebase variants; string nodes; generic / vararg functions; and all control-flow nodes (while, for, switch, return).
 
 Relevant header:
 
@@ -327,7 +330,7 @@ The following are still not fully replaced:
 
 - the full `expression_node<T>` hierarchy
 - parser-side direct legacy AST synthesis
-- fallback evaluation for many function, string, vector, and control-flow families
+- fallback evaluation for generic / vararg function nodes, string nodes, vector assignment / RTC / rebase variants, and all control-flow nodes (while, for, switch, return)
 - tree traversal APIs such as `collect_nodes()` as the universal ownership mechanism
 
 ---

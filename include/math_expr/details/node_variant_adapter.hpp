@@ -69,6 +69,8 @@ class node_variant_adapter
     using t0ot1ot2_base_node_t = T0oT1oT2_base_node<T>;
     using t0ot1ot2ot3_base_node_t = T0oT1oT2oT3_base_node<T>;
     using uvouv_node_t = uvouv_node<T>;
+    using vector_celem_node_t = vector_celem_node<T>;
+    using vector_elem_node_t = vector_elem_node<T>;
 
     struct null_view
     {
@@ -286,6 +288,24 @@ class node_variant_adapter
         expression_ptr node;
     };
 
+    struct vararg_multi_hot_view
+    {
+        expression_ptr node;
+        std::size_t count;
+    };
+
+    struct vec_celem_hot_view
+    {
+        expression_ptr node;
+        vector_celem_node_t* celem;
+    };
+
+    struct vec_elem_hot_view
+    {
+        expression_ptr node;
+        vector_elem_node_t* elem;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -298,7 +318,7 @@ class node_variant_adapter
                      unary_branch_hot_view, vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view,
                      bov_hot_view, cob_hot_view, boc_hot_view, uvouv_hot_view, t0ot1ot2_hot_view,
                      t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view,
-                     fallback_view>;
+                     vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -611,6 +631,22 @@ class node_variant_adapter
                     return conditional_hot_view{node};
                 }
                 return fallback_view{node};
+
+            case expression_node<T>::node_type::e_vararg_multi:
+            {
+                const std::size_t count = node->arg_size();
+                if (count > 0)
+                {
+                    return vararg_multi_hot_view{node, count};
+                }
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_veccelem:
+                return vec_celem_hot_view{node, static_cast<vector_celem_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_vecelem:
+                return vec_elem_hot_view{node, static_cast<vector_elem_node_t*>(node)};
 
             default:
                 return fallback_view{node};
@@ -1044,6 +1080,29 @@ class node_variant_adapter
 
                 return view.nulleq->equality() ? core::numeric::false_v<T>
                                                : core::numeric::true_v<T>;
+            }
+
+            T operator()(const vararg_multi_hot_view& view) const
+            {
+                for (std::size_t i = 0; i + 1 < view.count; ++i)
+                {
+                    node_variant_adapter::value(view.node->branch(i));
+                }
+                return node_variant_adapter::value(view.node->branch(view.count - 1));
+            }
+
+            T operator()(const vec_celem_hot_view& view) const
+            {
+                node_variant_adapter::value(view.celem->vec_branch());
+                return *(view.celem->vec_data() + view.celem->elem_idx());
+            }
+
+            T operator()(const vec_elem_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                const auto idx = core::numeric::to_uint64(
+                    node_variant_adapter::value(view.elem->index_branch()));
+                return *(view.elem->vec_data() + idx);
             }
 
             T operator()(const fallback_view& view) const

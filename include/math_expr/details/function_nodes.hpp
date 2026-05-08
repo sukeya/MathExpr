@@ -165,6 +165,16 @@ class vararg_node final : public expression_node<T>
         return arg_list_[index].first;
     }
 
+    inline expression_node<T>* branch(const std::size_t& index = 0) const override
+    {
+        return (index < arg_list_.size()) ? arg_list_[index].first : nullptr;
+    }
+
+    std::size_t arg_size() const override
+    {
+        return arg_list_.size();
+    }
+
    private:
     std::vector<branch_t> arg_list_;
     bool initialised_;
