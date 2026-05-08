@@ -177,8 +177,11 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `vararg_multi` — multi-statement sequence blocks `(a; b; c)` that evaluate each expression and return the last result
 - `vec_celem` — constant-index vector element read `v[0]`, `v[1]`, …
 - `vec_elem` — dynamic-index vector element read `v[i]`
+- `swap_node` — variable swap `swap(x, y)` returning the new value of the second variable
+- `vec_elem_rtc` / `vec_celem_rtc` — runtime-bounds-checked dynamic and constant vector element access
+- `rbvec_elem` / `rbvec_celem` — rebase vector element access (base pointer read from holder at evaluation time)
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path. Notable exclusions: vector assignment, RTC, and rebase variants; string nodes; generic / vararg functions; and all control-flow nodes (while, for, switch, return).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector assignment and vector init nodes; and all control-flow nodes (while, for, switch, return).
 
 Relevant header:
 
@@ -194,7 +197,7 @@ Design goals:
 - avoid repeated tree-shape virtual dispatch on evaluation
 - allow partial migration by embedding unsupported subtrees as fallback leaves
 
-`hot_expression_tree<T>::try_build(root)` succeeds only when at least part of the root can be represented compactly. If successful, `expression<T>::control_block` stores it and `expression<T>::value()` prefers it over the legacy tree.
+`hot_expression_tree<T>::try_build(root)` succeeds for any non-null root. Unsupported subtrees are stored as `fallback_subtree_data` leaves that call back into the legacy virtual AST. `expression<T>::control_block` always stores the result and `expression<T>::value()` always uses it.
 
 Important properties:
 
@@ -202,6 +205,7 @@ Important properties:
 - it can mix compact nodes with fallback subtree leaves
 - it short-circuits logical nodes directly
 - it evaluates supported specialized synthesis nodes without going back through the full legacy dispatch path
+- it is always built for any valid expression; the old compact_node_count_ guard that prevented all-fallback trees has been removed
 
 Relevant header:
 
@@ -255,22 +259,21 @@ Relevant header:
 
 ## Current Evaluation Strategy
 
-### Fast Path
+### Uniform Hot Path
 
-`expression<T>::value()` checks whether `control_block.hot_tree` exists.
+`expression<T>::value()` always evaluates through `control_block.hot_tree`.
 
-- If yes, evaluate the compact tree.
-- If no, use the adapter / legacy node path.
+- `hot_tree` is always built for any valid (non-null root) expression.
+- Supported node families evaluate without virtual dispatch via `std::visit` on `node_data_t`.
+- Unsupported subtrees are stored as `fallback_subtree_data` leaves that delegate back to `node_variant_adapter<T>::value(node)`, which calls the virtual `->value()` as a last resort.
 
-### Fallback Path
+### Fallback Path (for unsupported subtree leaves)
 
-Unsupported nodes still evaluate through the legacy virtual AST:
+When a `fallback_subtree_data` leaf is evaluated:
 
-- direct `node->value()`
-- specialized node overrides
-- recursive child traversal through `branch()`
+- `node_variant_adapter<T>::value(node)` is called, which may itself recurse through hot dispatch for supported child nodes, or call `node->value()` directly for fully unsupported nodes.
 
-This hybrid design keeps correctness while shrinking the legacy hot surface incrementally.
+This design eliminates the separate legacy code path in `expression<T>::value()` while keeping correctness for the remaining unsupported node families.
 
 ---
 
@@ -330,7 +333,7 @@ The following are still not fully replaced:
 
 - the full `expression_node<T>` hierarchy
 - parser-side direct legacy AST synthesis
-- fallback evaluation for generic / vararg function nodes, string nodes, vector assignment / RTC / rebase variants, and all control-flow nodes (while, for, switch, return)
+- fallback evaluation (via `fallback_subtree_data`) for generic / vararg function nodes, string nodes, vector assignment and init nodes, and all control-flow nodes (while, for, switch, return)
 - tree traversal APIs such as `collect_nodes()` as the universal ownership mechanism
 
 ---
@@ -342,7 +345,7 @@ When reading the current code, the safest model is:
 - `symbol_table<T>` is the public registration facade
 - `parser<T>` still builds legacy nodes
 - node allocation is arena-backed
-- `expression<T>` owns both the legacy root and optional compact hot tree
-- evaluation is hybrid: compact when possible, legacy otherwise
+- `expression<T>` owns both the legacy root and the compact hot tree (always present for valid expressions)
+- evaluation always goes through `hot_expression_tree`; unsupported subtrees fall back to virtual dispatch via `fallback_subtree_data` leaves
 
 That model matches the codebase today more closely than a “fully virtual AST” description or a “fully variant AST” description.

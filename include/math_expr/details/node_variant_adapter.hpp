@@ -71,6 +71,11 @@ class node_variant_adapter
     using uvouv_node_t = uvouv_node<T>;
     using vector_celem_node_t = vector_celem_node<T>;
     using vector_elem_node_t = vector_elem_node<T>;
+    using swap_node_t = swap_node<T>;
+    using vector_elem_rtc_node_t = vector_elem_rtc_node<T>;
+    using vector_celem_rtc_node_t = vector_celem_rtc_node<T>;
+    using rebasevector_elem_node_t = rebasevector_elem_node<T>;
+    using rebasevector_celem_node_t = rebasevector_celem_node<T>;
 
     struct null_view
     {
@@ -306,6 +311,36 @@ class node_variant_adapter
         vector_elem_node_t* elem;
     };
 
+    struct swap_hot_view
+    {
+        expression_ptr node;
+        swap_node_t* swap_ptr;
+    };
+
+    struct vec_elem_rtc_hot_view
+    {
+        expression_ptr node;
+        vector_elem_rtc_node_t* rtc;
+    };
+
+    struct vec_celem_rtc_hot_view
+    {
+        expression_ptr node;
+        vector_celem_rtc_node_t* rtc;
+    };
+
+    struct rbvec_elem_hot_view
+    {
+        expression_ptr node;
+        rebasevector_elem_node_t* rbvec;
+    };
+
+    struct rbvec_celem_hot_view
+    {
+        expression_ptr node;
+        rebasevector_celem_node_t* rbvec;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -318,7 +353,9 @@ class node_variant_adapter
                      unary_branch_hot_view, vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view,
                      bov_hot_view, cob_hot_view, boc_hot_view, uvouv_hot_view, t0ot1ot2_hot_view,
                      t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view,
-                     vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view, fallback_view>;
+                     vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view, swap_hot_view,
+                     vec_elem_rtc_hot_view, vec_celem_rtc_hot_view, rbvec_elem_hot_view,
+                     rbvec_celem_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -647,6 +684,25 @@ class node_variant_adapter
 
             case expression_node<T>::node_type::e_vecelem:
                 return vec_elem_hot_view{node, static_cast<vector_elem_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_swap:
+                if (typeid(*node) == typeid(swap_node_t))
+                {
+                    return swap_hot_view{node, static_cast<swap_node_t*>(node)};
+                }
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_vecelemrtc:
+                return vec_elem_rtc_hot_view{node, static_cast<vector_elem_rtc_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_veccelemrtc:
+                return vec_celem_rtc_hot_view{node, static_cast<vector_celem_rtc_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_rbvecelem:
+                return rbvec_elem_hot_view{node, static_cast<rebasevector_elem_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_rbveccelem:
+                return rbvec_celem_hot_view{node, static_cast<rebasevector_celem_node_t*>(node)};
 
             default:
                 return fallback_view{node};
@@ -1103,6 +1159,71 @@ class node_variant_adapter
                 const auto idx = core::numeric::to_uint64(
                     node_variant_adapter::value(view.elem->index_branch()));
                 return *(view.elem->vec_data() + idx);
+            }
+
+            T operator()(const swap_hot_view& view) const
+            {
+                std::swap(view.swap_ptr->var0_ptr()->ref(), view.swap_ptr->var1_ptr()->ref());
+                return view.swap_ptr->var1_ptr()->ref();
+            }
+
+            T operator()(const vec_elem_rtc_hot_view& view) const
+            {
+                const std::uint64_t index =
+                    core::numeric::to_uint64(node_variant_adapter::value(view.rtc->index_branch()));
+                node_variant_adapter::value(view.rtc->vec_branch());
+
+                if (index <= view.rtc->max_idx())
+                {
+                    return *(view.rtc->holder()->data() + index);
+                }
+
+                typename vector_access_runtime_check<T>::violation_context context;
+                context.base_ptr = view.rtc->vec_data();
+                context.end_ptr = view.rtc->vec_data() + view.rtc->holder()->size();
+                context.access_ptr = view.rtc->vec_data() + index;
+                context.type_size = sizeof(T);
+
+                T* result_ptr = view.rtc->rt_check()->handle_runtime_violation(context)
+                                    ? context.access_ptr
+                                    : view.rtc->vec_data();
+                return *result_ptr;
+            }
+
+            T operator()(const vec_celem_rtc_hot_view& view) const
+            {
+                node_variant_adapter::value(view.rtc->vec_branch());
+                const std::size_t index = view.rtc->elem_idx();
+
+                if (index <= view.rtc->max_idx())
+                {
+                    return *(view.rtc->holder()->data() + index);
+                }
+
+                typename vector_access_runtime_check<T>::violation_context context;
+                context.base_ptr = view.rtc->vec_data();
+                context.end_ptr = view.rtc->vec_data() + view.rtc->holder()->size();
+                context.access_ptr = view.rtc->vec_data() + index;
+                context.type_size = sizeof(T);
+
+                T* result_ptr = view.rtc->rt_check()->handle_runtime_violation(context)
+                                    ? context.access_ptr
+                                    : view.rtc->vec_data();
+                return *result_ptr;
+            }
+
+            T operator()(const rbvec_elem_hot_view& view) const
+            {
+                node_variant_adapter::value(view.rbvec->vec_branch());
+                const auto idx = core::numeric::to_uint64(
+                    node_variant_adapter::value(view.rbvec->index_branch()));
+                return *(view.rbvec->holder()->data() + idx);
+            }
+
+            T operator()(const rbvec_celem_hot_view& view) const
+            {
+                node_variant_adapter::value(view.rbvec->vec_branch());
+                return *(view.rbvec->holder()->data() + view.rbvec->elem_idx());
             }
 
             T operator()(const fallback_view& view) const

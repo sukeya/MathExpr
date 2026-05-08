@@ -14424,7 +14424,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
 
         REQUIRE(symbol_expression.get_control_block());
         REQUIRE(symbol_expression.get_control_block()->expr);
-        CHECK(symbol_expression.get_control_block()->hot_tree == nullptr);
+        CHECK(symbol_expression.get_control_block()->hot_tree != nullptr);
         auto* stringvar_node =
             adapter_t::string_variable(symbol_expression.get_control_block()->expr);
         REQUIRE(stringvar_node != nullptr);
@@ -14648,7 +14648,7 @@ TEST_CASE("Expression helper variant classification remains stable", "[expressio
         test_support::require_compiles("s", cold_parser, cold_expression);
         REQUIRE(cold_expression.get_control_block());
         REQUIRE(cold_expression.get_control_block()->node_arena != nullptr);
-        CHECK(cold_expression.get_control_block()->hot_tree == nullptr);
+        CHECK(cold_expression.get_control_block()->hot_tree != nullptr);
 
         math_expr::expression<numeric_type> arena_expression;
         arena_expression.register_symbol_table(symbol_table);

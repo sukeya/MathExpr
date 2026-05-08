@@ -248,13 +248,62 @@ class hot_expression_tree
         node_index_t index_child;
     };
 
+    struct swap_data
+    {
+        T* var0;
+        T* var1;
+    };
+
+    struct vec_elem_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t max_vector_index;
+        vector_access_runtime_check<T>* rt_check;
+        node_index_t vec_node;
+        node_index_t index_child;
+    };
+
+    struct vec_celem_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t index;
+        std::size_t max_vector_index;
+        vector_access_runtime_check<T>* rt_check;
+        node_index_t vec_node;
+    };
+
+    struct rbvec_elem_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        node_index_t vec_node;
+        node_index_t index_child;
+    };
+
+    struct rbvec_celem_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        std::size_t index;
+        node_index_t vec_node;
+    };
+
     using node_data_t =
         std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data,
                      sf4_data, fixed_function_data, uv_data, conditional_data, scand_data,
                      scor_data, scalar_pow_data, branch_pow_data, unary_branch_data, vov_data,
                      cov_data, voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
                      t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data, vararg_multi_data,
-                     vec_celem_data, vec_elem_data, fallback_subtree_data>;
+                     vec_celem_data, vec_elem_data, swap_data, vec_elem_rtc_data,
+                     vec_celem_rtc_data, rbvec_elem_data, rbvec_celem_data, fallback_subtree_data>;
 
     struct node
     {
@@ -266,10 +315,6 @@ class hot_expression_tree
         auto tree = std::unique_ptr<hot_expression_tree>(new hot_expression_tree());
         const std::optional<node_index_t> root_index = tree->append(root);
         if (!root_index.has_value())
-        {
-            return nullptr;
-        }
-        else if (0 == tree->compact_node_count_)
         {
             return nullptr;
         }
@@ -573,6 +618,69 @@ class hot_expression_tree
                 return *(data.vector_base + idx);
             }
 
+            T operator()(const swap_data& data) const
+            {
+                std::swap(*data.var0, *data.var1);
+                return *data.var1;
+            }
+
+            T operator()(const vec_elem_rtc_data& data) const
+            {
+                const std::uint64_t index =
+                    core::numeric::to_uint64(tree.evaluate(data.index_child));
+                tree.evaluate(data.vec_node);
+
+                if (index <= data.max_vector_index)
+                {
+                    return *(data.holder->data() + index);
+                }
+
+                typename vector_access_runtime_check<T>::violation_context context;
+                context.base_ptr = data.vector_base;
+                context.end_ptr = data.vector_base + data.holder->size();
+                context.access_ptr = data.vector_base + index;
+                context.type_size = sizeof(T);
+
+                T* result_ptr = data.rt_check->handle_runtime_violation(context)
+                                    ? context.access_ptr
+                                    : data.vector_base;
+                return *result_ptr;
+            }
+
+            T operator()(const vec_celem_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+
+                if (data.index <= data.max_vector_index)
+                {
+                    return *(data.holder->data() + data.index);
+                }
+
+                typename vector_access_runtime_check<T>::violation_context context;
+                context.base_ptr = data.vector_base;
+                context.end_ptr = data.vector_base + data.holder->size();
+                context.access_ptr = data.vector_base + data.index;
+                context.type_size = sizeof(T);
+
+                T* result_ptr = data.rt_check->handle_runtime_violation(context)
+                                    ? context.access_ptr
+                                    : data.vector_base;
+                return *result_ptr;
+            }
+
+            T operator()(const rbvec_elem_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                return *(data.holder->data() + idx);
+            }
+
+            T operator()(const rbvec_celem_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                return *(data.holder->data() + data.index);
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -595,13 +703,8 @@ class hot_expression_tree
             return append(child);
         };
 
-        auto emplace = [this](node_data_t data,
-                              const bool counts_as_compact = true) -> std::optional<node_index_t>
+        auto emplace = [this](node_data_t data) -> std::optional<node_index_t>
         {
-            if (counts_as_compact)
-            {
-                ++compact_node_count_;
-            }
             nodes_.push_back(node{std::move(data)});
             return static_cast<node_index_t>(nodes_.size() - 1);
         };
@@ -924,9 +1027,66 @@ class hot_expression_tree
                     return emplace(vec_elem_data{view.elem->vec_data(), *vec_child, *idx_child});
                 }
                 else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::swap_hot_view>)
+                {
+                    return emplace(swap_data{&view.swap_ptr->var0_ptr()->ref(),
+                                             &view.swap_ptr->var1_ptr()->ref()});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vec_elem_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.rtc->vec_branch());
+                    const auto idx_child = append_child(view.rtc->index_branch());
+                    if (!vec_child.has_value() || !idx_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(vec_elem_rtc_data{view.rtc->holder(), view.rtc->vec_data(),
+                                                     view.rtc->max_idx(), view.rtc->rt_check(),
+                                                     *vec_child, *idx_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vec_celem_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.rtc->vec_branch());
+                    if (!vec_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(vec_celem_rtc_data{view.rtc->holder(), view.rtc->vec_data(),
+                                                      view.rtc->elem_idx(), view.rtc->max_idx(),
+                                                      view.rtc->rt_check(), *vec_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::rbvec_elem_hot_view>)
+                {
+                    const auto vec_child = append_child(view.rbvec->vec_branch());
+                    const auto idx_child = append_child(view.rbvec->index_branch());
+                    if (!vec_child.has_value() || !idx_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(rbvec_elem_data{view.rbvec->holder(), *vec_child, *idx_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::rbvec_celem_hot_view>)
+                {
+                    const auto vec_child = append_child(view.rbvec->vec_branch());
+                    if (!vec_child.has_value())
+                    {
+                        return std::nullopt;
+                    }
+                    return emplace(
+                        rbvec_celem_data{view.rbvec->holder(), view.rbvec->elem_idx(), *vec_child});
+                }
+                else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)
                 {
-                    return emplace(fallback_subtree_data{view.node}, false);
+                    return emplace(fallback_subtree_data{view.node});
                 }
                 else
                 {
@@ -938,7 +1098,6 @@ class hot_expression_tree
 
     std::vector<node> nodes_;
     node_index_t root_{0};
-    std::size_t compact_node_count_{0};
 };
 }  // namespace math_expr::details
 

@@ -265,13 +265,8 @@ class expression
     {
         assert(control_block_);
         assert(control_block_->expr);
-
-        if (control_block_->hot_tree)
-        {
-            return control_block_->hot_tree->value();
-        }
-
-        return details::node_variant_adapter<T>::value(control_block_->expr);
+        assert(control_block_->hot_tree);
+        return control_block_->hot_tree->value();
     }
 
     inline T operator()() const
