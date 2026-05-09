@@ -708,6 +708,23 @@ class hot_expression_tree
         std::vector<branch_slot> slots;
     };
 
+    struct vecondition_data
+    {
+        T* result_vec;
+        const T* consequent_vec;
+        const T* alternative_vec;
+        std::size_t vec_size;
+        node_index_t cond_child;
+        node_index_t consequent_child;
+        node_index_t alternative_child;
+    };
+
+    struct retenv_data
+    {
+        return_envelope_node<T>* fn;
+        node_index_t body_child;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -726,7 +743,7 @@ class hot_expression_tree
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
         vecinit_iota_ncnc_data, vecinit_general_data, vararg_evaluable_data, vec_binop_vecvec_data,
         vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, vecfunc_data, vecvecswap_data,
-        generic_evaluable_data, fallback_subtree_data>;
+        generic_evaluable_data, vecondition_data, retenv_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1762,6 +1779,41 @@ class hot_expression_tree
                 return data.fn->invoke();
             }
 
+            T operator()(const vecondition_data& data) const
+            {
+                const T cond_val = tree.evaluate(data.cond_child);
+                if (is_true(cond_val))
+                {
+                    const T result = tree.evaluate(data.consequent_child);
+                    const T* src = data.consequent_vec;
+                    T* dst = data.result_vec;
+                    for (std::size_t i = 0; i < data.vec_size; ++i) dst[i] = src[i];
+                    return result;
+                }
+                else
+                {
+                    const T result = tree.evaluate(data.alternative_child);
+                    const T* src = data.alternative_vec;
+                    T* dst = data.result_vec;
+                    for (std::size_t i = 0; i < data.vec_size; ++i) dst[i] = src[i];
+                    return result;
+                }
+            }
+
+            T operator()(const retenv_data& data) const
+            {
+                data.fn->reset_state();
+                try
+                {
+                    return tree.evaluate(data.body_child);
+                }
+                catch (const return_exception&)
+                {
+                    *data.fn->retinvk_ptr() = true;
+                    return std::numeric_limits<T>::quiet_NaN();
+                }
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2748,6 +2800,29 @@ class hot_expression_tree
                         data.slots.push_back({*child, desc.write_to});
                     }
                     return emplace(std::move(data));
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecondition_hot_view>)
+                {
+                    auto* cvec = view.fn->consequent_vec_node();
+                    auto* avec = view.fn->alternative_vec_node();
+                    const auto cond_child = append_child(view.fn->condition_node());
+                    const auto con_child = append_child(view.fn->consequent_node());
+                    const auto alt_child = append_child(view.fn->alternative_node());
+                    if (!cond_child.has_value() || !con_child.has_value() || !alt_child.has_value())
+                        return std::nullopt;
+                    return emplace(vecondition_data{view.fn->result_data(), cvec->vds().data(),
+                                                    avec->vds().data(), cvec->size(), *cond_child,
+                                                    *con_child, *alt_child});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::retenv_hot_view>)
+                {
+                    const auto body_child = append_child(view.fn->body_node());
+                    if (!body_child.has_value())
+                        return std::nullopt;
+                    return emplace(retenv_data{view.fn, *body_child});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

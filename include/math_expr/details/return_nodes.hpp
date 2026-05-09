@@ -164,6 +164,16 @@ class return_envelope_node final : public expression_node<T>
         return &return_invoked_;
     }
 
+    void reset_state() const
+    {
+        return_invoked_ = false;
+        results_context_->clear();
+    }
+    expression_node<T>* body_node() const
+    {
+        return body_.first;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(body_, node_delete_list);

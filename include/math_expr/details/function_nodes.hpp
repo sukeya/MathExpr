@@ -2168,6 +2168,31 @@ class conditional_vector_node final : public expression_node<T>, public vector_i
         return expression_node<T>::ndb_t::compute_node_depth(condition_, consequent_, alternative_);
     }
 
+    expression_node<T>* condition_node() const
+    {
+        return condition_.first;
+    }
+    expression_node<T>* consequent_node() const
+    {
+        return consequent_.first;
+    }
+    expression_node<T>* alternative_node() const
+    {
+        return alternative_.first;
+    }
+    vector_node_ptr consequent_vec_node() const
+    {
+        return consequent_node_ptr_;
+    }
+    vector_node_ptr alternative_vec_node() const
+    {
+        return alternative_node_ptr_;
+    }
+    T* result_data() const
+    {
+        return vds_.data();
+    }
+
    private:
     branch_t condition_;
     branch_t consequent_;

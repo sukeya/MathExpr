@@ -106,6 +106,8 @@ class node_variant_adapter
     using vararg_evaluable_node_t = vararg_evaluable_node<T>;
     using vectorize_evaluable_node_t = vectorize_evaluable_node<T>;
     using generic_evaluable_node_t = generic_evaluable_node<T>;
+    using conditional_vector_node_t = conditional_vector_node<T>;
+    using return_envelope_node_t = return_envelope_node<T>;
 
     struct null_view
     {
@@ -665,6 +667,16 @@ class node_variant_adapter
         generic_evaluable_node_t* fn;
     };
 
+    struct vecondition_hot_view
+    {
+        conditional_vector_node_t* fn;
+    };
+
+    struct retenv_hot_view
+    {
+        return_envelope_node_t* fn;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -693,7 +705,7 @@ class node_variant_adapter
         vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, vec_binop_vecvec_hot_view,
         vec_binop_vecval_hot_view, vec_binop_valvec_hot_view, unary_vec_hot_view,
         vararg_evaluable_hot_view, vecfunc_hot_view, vecvecswap_hot_view,
-        generic_evaluable_hot_view, fallback_view>;
+        generic_evaluable_hot_view, vecondition_hot_view, retenv_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1381,6 +1393,30 @@ class node_variant_adapter
                 auto* fn = dynamic_cast<generic_evaluable_node_t*>(node);
                 if (fn && !fn->has_range_params())
                     return generic_evaluable_hot_view{node, fn};
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vecondition:
+            {
+                auto* fn = dynamic_cast<conditional_vector_node_t*>(node);
+                if (nullptr == fn || !fn->valid())
+                    return fallback_view{node};
+                auto* cvec = fn->consequent_vec_node();
+                auto* avec = fn->alternative_vec_node();
+                if (nullptr == cvec || nullptr == avec)
+                    return fallback_view{node};
+                if (cvec->vec_holder().rebaseable() || avec->vec_holder().rebaseable())
+                    return fallback_view{node};
+                if (cvec->size() != avec->size())
+                    return fallback_view{node};
+                return vecondition_hot_view{fn};
+            }
+
+            case expression_node<T>::node_type::e_retenv:
+            {
+                auto* fn = dynamic_cast<return_envelope_node_t*>(node);
+                if (fn && fn->body_node() && fn->valid())
+                    return retenv_hot_view{fn};
                 return fallback_view{node};
             }
 
@@ -2640,6 +2676,43 @@ class node_variant_adapter
                         *desc.write_to = val;
                 }
                 return view.fn->invoke();
+            }
+
+            T operator()(const vecondition_hot_view& view) const
+            {
+                const T cond_val = node_variant_adapter::value(view.fn->condition_node());
+                auto* cvec = view.fn->consequent_vec_node();
+                auto* avec = view.fn->alternative_vec_node();
+                T* result_vec = view.fn->result_data();
+                const std::size_t n = cvec->size();
+                if (is_true(cond_val))
+                {
+                    const T result = node_variant_adapter::value(view.fn->consequent_node());
+                    const T* src = cvec->vds().data();
+                    for (std::size_t i = 0; i < n; ++i) result_vec[i] = src[i];
+                    return result;
+                }
+                else
+                {
+                    const T result = node_variant_adapter::value(view.fn->alternative_node());
+                    const T* src = avec->vds().data();
+                    for (std::size_t i = 0; i < n; ++i) result_vec[i] = src[i];
+                    return result;
+                }
+            }
+
+            T operator()(const retenv_hot_view& view) const
+            {
+                view.fn->reset_state();
+                try
+                {
+                    return node_variant_adapter::value(view.fn->body_node());
+                }
+                catch (const return_exception&)
+                {
+                    *view.fn->retinvk_ptr() = true;
+                    return std::numeric_limits<T>::quiet_NaN();
+                }
             }
 
             T operator()(const fallback_view& view) const
