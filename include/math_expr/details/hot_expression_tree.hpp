@@ -560,6 +560,19 @@ class hot_expression_tree
         node_index_t branch1_child;
     };
 
+    struct assign_vecvec_op_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        core::operators::operator_type read_op;
+        T* vec0_base;
+        T* vec1_base;
+        vector_holder_t* holder0;
+        vector_holder_t* holder1;
+        node_index_t branch0_child;
+        node_index_t branch1_child;
+    };
+
     struct vecinit_zero_data
     {
         T* vec_base;
@@ -626,9 +639,9 @@ class hot_expression_tree
         assign_rbvec_elem_op_rtc_data, assign_rbvec_celem_op_rtc_data, assign_vec_scalar_data,
         assign_vec_scalar_op_data, while_data, while_rtc_data, repeat_until_data,
         repeat_until_rtc_data, for_data, for_rtc_data, switch_data, multi_switch_data,
-        assign_vecvec_data, vecinit_zero_data, vecinit_constfill_data, vecinit_dynfill_data,
-        vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data, vecinit_iota_ncnc_data,
-        fallback_subtree_data>;
+        assign_vecvec_data, assign_vecvec_op_data, vecinit_zero_data, vecinit_constfill_data,
+        vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
+        vecinit_iota_ncnc_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1412,6 +1425,33 @@ class hot_expression_tree
                     vec1 += lud.loop_batch_size;
                 }
                 lud.foreach_remainder([&vec0, &vec1]() { *vec0++ = *vec1++; });
+                return data.vec0_base[0];
+            }
+
+            T operator()(const assign_vecvec_op_data& data) const
+            {
+                tree.evaluate(data.branch0_child);
+                tree.evaluate(data.branch1_child);
+                const std::size_t sz = std::min(data.holder0->size(), data.holder1->size());
+                T* vec0 = data.vec0_base;
+                const T* vec1 = data.vec1_base;
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        { vec0[i] = core::operators::process<T>(data.read_op, vec0[i], vec1[i]); });
+                    vec0 += lud.loop_batch_size;
+                    vec1 += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec0 = core::operators::process<T>(data.read_op, *vec0, *vec1);
+                        ++vec0;
+                        ++vec1;
+                    });
                 return data.vec0_base[0];
             }
 
@@ -2231,6 +2271,22 @@ class hot_expression_tree
                     return emplace(assign_vecvec_data{vec0->vds().data(), vec1->vds().data(),
                                                       &vec0->vec_holder(), &vec1->vec_holder(),
                                                       *branch1});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::assign_vecvec_op_hot_view>)
+                {
+                    auto* vi0 = view.node->as_vector_iface();
+                    auto* vec0_node = vi0->vec();
+                    auto* vi1 = node_variant_adapter_t::branch(view.node, 1)->as_vector_iface();
+                    auto* vec1_node = vi1->vec();
+                    const auto branch0 = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto branch1 = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!branch0.has_value() || !branch1.has_value())
+                        return std::nullopt;
+                    return emplace(assign_vecvec_op_data{
+                        view.read_op, vec0_node->vds().data(), vec1_node->vds().data(),
+                        &vec0_node->vec_holder(), &vec1_node->vec_holder(), *branch0, *branch1});
                 }
                 else if constexpr (std::is_same_v<
                                        view_t,

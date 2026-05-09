@@ -543,6 +543,12 @@ class node_variant_adapter
         assignment_vecvec_node_t* assign;
     };
 
+    struct assign_vecvec_op_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type read_op;
+    };
+
     struct vecinit_zero_hot_view
     {
         expression_ptr node;
@@ -624,10 +630,10 @@ class node_variant_adapter
         assign_rbvec_celem_op_rtc_hot_view, assign_vec_scalar_hot_view,
         assign_vec_scalar_op_hot_view, while_hot_view, while_rtc_hot_view, repeat_until_hot_view,
         repeat_until_rtc_hot_view, for_hot_view, for_rtc_hot_view, switch_hot_view,
-        multi_switch_hot_view, assign_vecvec_hot_view, vecinit_zero_hot_view,
-        vecinit_constfill_hot_view, vecinit_dynfill_hot_view, vecinit_iota_cc_hot_view,
-        vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view, vecinit_iota_ncnc_hot_view,
-        fallback_view>;
+        multi_switch_hot_view, assign_vecvec_hot_view, assign_vecvec_op_hot_view,
+        vecinit_zero_hot_view, vecinit_constfill_hot_view, vecinit_dynfill_hot_view,
+        vecinit_iota_cc_hot_view, vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view,
+        vecinit_iota_ncnc_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1102,6 +1108,17 @@ class node_variant_adapter
                 {
                     if (nullptr != node->as_vector_iface())
                         return assign_vec_scalar_op_hot_view{node, *read_op};
+                }
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vecopvecass:
+            {
+                const auto op = static_cast<binary_node_t*>(node)->operation();
+                if (const auto read_op = compound_to_read_op(op); read_op.has_value())
+                {
+                    if (nullptr != node->as_vector_iface())
+                        return assign_vecvec_op_hot_view{node, *read_op};
                 }
                 return fallback_view{node};
             }
@@ -2175,6 +2192,35 @@ class node_variant_adapter
                 }
                 lud.foreach_remainder([&vec0, &vec1]() { *vec0++ = *vec1++; });
                 return view.assign->vec0_ptr()->vds().data()[0];
+            }
+
+            T operator()(const assign_vecvec_op_hot_view& view) const
+            {
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                auto* vi0 = view.node->as_vector_iface();
+                auto* vi1 = node_variant_adapter::branch(view.node, 1)->as_vector_iface();
+                T* vec0 = vi0->vds().data();
+                const T* vec1 = vi1->vds().data();
+                const std::size_t sz = vi0->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        { vec0[i] = core::operators::process<T>(view.read_op, vec0[i], vec1[i]); });
+                    vec0 += lud.loop_batch_size;
+                    vec1 += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&vec0, &vec1, this, &view]()
+                    {
+                        *vec0 = core::operators::process<T>(view.read_op, *vec0, *vec1);
+                        ++vec0;
+                        ++vec1;
+                    });
+                return vi0->vds().data()[0];
             }
 
             T operator()(const vecinit_zero_hot_view& view) const

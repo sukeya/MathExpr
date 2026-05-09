@@ -204,6 +204,7 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `switch_node` — switch/case chain (base type only; `switch_n_node` variants remain fallback)
 - `multi_switch_node` — multi-match switch (evaluates all matching cases)
 - `assignment_vecvec_node` — whole-vector copy (`v0 := v1`) for the non-ivec path
+- `assignment_vecvec_op_node` — element-wise compound assignment (`v0 += v1`, `v0 -= v1`, etc.)
 - `vector_init_zero_value_node` — zero-fill vector initialisation
 - `vector_init_single_constvalue_node` — constant-fill vector initialisation
 - `vector_init_single_value_node` — dynamic single-value vector fill
@@ -212,7 +213,7 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `vector_init_iota_nconstconst_node` — iota init with dynamic base, baked increment
 - `vector_init_iota_nconstnconst_node` — iota init with both dynamic base and increment
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg function nodes; `assignment_vecvec_op_node`; `assignment_vecvec_node` (src_is_ivec_ path); `vector_initialisation_node` (general-case); `switch_n_node` variants; `return_node`; and break/continue loop variants (which use C++ exceptions for propagation).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg function nodes; `assignment_vecvec_node` (src_is_ivec_ path); `vector_initialisation_node` (general-case); `switch_n_node` variants; `return_node`; and break/continue loop variants (which use C++ exceptions for propagation).
 
 Relevant header:
 
