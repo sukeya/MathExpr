@@ -633,6 +633,13 @@ class hot_expression_tree
         bool single_value;
     };
 
+    struct vararg_evaluable_data
+    {
+        vararg_evaluable_node<T>* fn;
+        mutable std::vector<T> temp_values;
+        std::vector<node_index_t> children;
+    };
+
     struct vec_binop_vecvec_data
     {
         core::operators::operator_type operation;
@@ -689,8 +696,8 @@ class hot_expression_tree
         repeat_until_rtc_data, for_data, for_rtc_data, switch_data, multi_switch_data,
         assign_vecvec_data, assign_vecvec_op_data, vecinit_zero_data, vecinit_constfill_data,
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
-        vecinit_iota_ncnc_data, vecinit_general_data, vec_binop_vecvec_data, vec_binop_vecval_data,
-        vec_binop_valvec_data, unary_vec_data, fallback_subtree_data>;
+        vecinit_iota_ncnc_data, vecinit_general_data, vararg_evaluable_data, vec_binop_vecvec_data,
+        vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1575,6 +1582,13 @@ class hot_expression_tree
                         core::numeric::set_zero_value(data.vec_base + n, data.vec_size - n);
                 }
                 return *data.vec_base;
+            }
+
+            T operator()(const vararg_evaluable_data& data) const
+            {
+                for (std::size_t i = 0; i < data.children.size(); ++i)
+                    data.temp_values[i] = tree.evaluate(data.children[i]);
+                return data.fn->process_values(data.temp_values);
             }
 
             T operator()(const vec_binop_vecvec_data& data) const
@@ -2565,6 +2579,22 @@ class hot_expression_tree
                                 return std::nullopt;
                             data.init_children.push_back(*idx);
                         }
+                    }
+                    return emplace(std::move(data));
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vararg_evaluable_hot_view>)
+                {
+                    const std::size_t n = view.fn->arg_count();
+                    vararg_evaluable_data data{view.fn, std::vector<T>(n, T{}), {}};
+                    data.children.reserve(n);
+                    for (std::size_t i = 0; i < n; ++i)
+                    {
+                        const auto child = append_child(view.fn->arg_at(i));
+                        if (!child.has_value())
+                            return std::nullopt;
+                        data.children.push_back(*child);
                     }
                     return emplace(std::move(data));
                 }

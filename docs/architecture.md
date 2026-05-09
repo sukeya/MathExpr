@@ -217,8 +217,11 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `vec_binop_vecval_node` — element-wise vector-scalar binary operation `out[i] = op(v[i], scalar)` for non-rebaseable vectors
 - `vec_binop_valvec_node` — element-wise scalar-vector binary operation `out[i] = op(scalar, v[i])` for non-rebaseable vectors
 - `unary_vector_node` — element-wise unary vector operation `out[i] = op(v[i])` for non-rebaseable vectors
+- all `switch_n_node<Switch_N>` variants — handled identically to `switch_node` via the shared `arg_list()` accessor from the base class; the typeid restriction has been removed
+- `vararg_node` (RTL vararg: sum, avg, min, max, prod, mand, mor) — children hot-evaluated; result computed via `VarArgFunction::process(std::vector<T>)` through the new `vararg_evaluable_node<T>` base
+- `vararg_function_node` (user-defined vararg) — children hot-evaluated; result dispatched via `ivararg_function<T>::operator()(const std::vector<T>&)` through the same base
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg function nodes; `assignment_vecvec_node` (src_is_ivec_ path); `switch_n_node` variants; `return_node`; break/continue loop variants (which use C++ exceptions for propagation); and rebaseable-vector variants of vector arithmetic nodes.
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic function nodes; `assignment_vecvec_node` (src_is_ivec_ path); `return_node`; break/continue loop variants (which use C++ exceptions for propagation); and rebaseable-vector variants of vector arithmetic nodes.
 
 Relevant header:
 

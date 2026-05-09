@@ -99,8 +99,17 @@ class sf4_var_node final : public expression_node<T>
     const T& v3_;
 };
 
+template <typename T>
+class vararg_evaluable_node : public expression_node<T>
+{
+   public:
+    virtual T process_values(const std::vector<T>& vals) const = 0;
+    virtual std::size_t arg_count() const = 0;
+    virtual expression_node<T>* arg_at(std::size_t i) const = 0;
+};
+
 template <typename T, typename VarArgFunction>
-class vararg_node final : public expression_node<T>
+class vararg_node final : public vararg_evaluable_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
@@ -173,6 +182,21 @@ class vararg_node final : public expression_node<T>
     std::size_t arg_size() const override
     {
         return arg_list_.size();
+    }
+
+    T process_values(const std::vector<T>& vals) const override
+    {
+        return VarArgFunction::process(vals);
+    }
+
+    std::size_t arg_count() const override
+    {
+        return arg_list_.size();
+    }
+
+    expression_node<T>* arg_at(std::size_t i) const override
+    {
+        return (i < arg_list_.size()) ? arg_list_[i].first : nullptr;
     }
 
    private:
@@ -2614,7 +2638,7 @@ class function_N_node<T, IFunction, 0> final : public fixed_function_base_node<T
 };
 
 template <typename T, typename VarArgFunction>
-class vararg_function_node final : public expression_node<T>
+class vararg_function_node final : public vararg_evaluable_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
@@ -2661,6 +2685,21 @@ class vararg_function_node final : public expression_node<T>
     std::size_t node_depth() const override
     {
         return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
+    }
+
+    T process_values(const std::vector<T>& vals) const override
+    {
+        return (*function_)(vals);
+    }
+
+    std::size_t arg_count() const override
+    {
+        return arg_list_.size();
+    }
+
+    expression_node<T>* arg_at(std::size_t i) const override
+    {
+        return (i < arg_list_.size()) ? arg_list_[i] : nullptr;
     }
 
    private:

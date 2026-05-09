@@ -103,6 +103,7 @@ class node_variant_adapter
     using vector_init_iota_ncc_node_t = vector_init_iota_nconstconst_node<T>;
     using vector_init_iota_ncnc_node_t = vector_init_iota_nconstnconst_node<T>;
     using vector_init_general_node_t = vector_initialisation_node<T>;
+    using vararg_evaluable_node_t = vararg_evaluable_node<T>;
 
     struct null_view
     {
@@ -639,6 +640,12 @@ class node_variant_adapter
         core::operators::operator_type operation;
     };
 
+    struct vararg_evaluable_hot_view
+    {
+        expression_ptr node;
+        vararg_evaluable_node_t* fn;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -665,7 +672,8 @@ class node_variant_adapter
         vecinit_zero_hot_view, vecinit_constfill_hot_view, vecinit_dynfill_hot_view,
         vecinit_iota_cc_hot_view, vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view,
         vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, vec_binop_vecvec_hot_view,
-        vec_binop_vecval_hot_view, vec_binop_valvec_hot_view, unary_vec_hot_view, fallback_view>;
+        vec_binop_vecval_hot_view, vec_binop_valvec_hot_view, unary_vec_hot_view,
+        vararg_evaluable_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1179,9 +1187,7 @@ class node_variant_adapter
                 return fallback_view{node};
 
             case expression_node<T>::node_type::e_switch:
-                if (typeid(*node) == typeid(switch_node_t))
-                    return switch_hot_view{node, static_cast<switch_node_t*>(node)};
-                return fallback_view{node};
+                return switch_hot_view{node, static_cast<switch_node_t*>(node)};
 
             case expression_node<T>::node_type::e_mswitch:
                 if (typeid(*node) == typeid(multi_switch_node_t))
@@ -1246,6 +1252,22 @@ class node_variant_adapter
                     auto* n = static_cast<vector_init_general_node_t*>(node);
                     return vecinit_general_hot_view{node, n};
                 }
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vararg:
+            {
+                auto* fn = dynamic_cast<vararg_evaluable_node_t*>(node);
+                if (fn && fn->arg_count() > 0)
+                    return vararg_evaluable_hot_view{node, fn};
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vafunction:
+            {
+                auto* fn = dynamic_cast<vararg_evaluable_node_t*>(node);
+                if (fn && fn->arg_count() > 0)
+                    return vararg_evaluable_hot_view{node, fn};
                 return fallback_view{node};
             }
 
@@ -2395,6 +2417,15 @@ class node_variant_adapter
                                                       view.vinit->vec_size() - n);
                 }
                 return *view.vinit->vec_base();
+            }
+
+            T operator()(const vararg_evaluable_hot_view& view) const
+            {
+                const std::size_t n = view.fn->arg_count();
+                std::vector<T> vals(n);
+                for (std::size_t i = 0; i < n; ++i)
+                    vals[i] = node_variant_adapter::value(view.fn->arg_at(i));
+                return view.fn->process_values(vals);
             }
 
             T operator()(const vec_binop_vecvec_hot_view& view) const
