@@ -213,8 +213,12 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `vector_init_iota_constnconst_node` — iota init with baked base, dynamic increment
 - `vector_init_iota_nconstconst_node` — iota init with dynamic base, baked increment
 - `vector_init_iota_nconstnconst_node` — iota init with both dynamic base and increment
+- `vec_binop_vecvec_node` — element-wise binary vector operation `out[i] = op(v0[i], v1[i])` for non-rebaseable operands
+- `vec_binop_vecval_node` — element-wise vector-scalar binary operation `out[i] = op(v[i], scalar)` for non-rebaseable vectors
+- `vec_binop_valvec_node` — element-wise scalar-vector binary operation `out[i] = op(scalar, v[i])` for non-rebaseable vectors
+- `unary_vector_node` — element-wise unary vector operation `out[i] = op(v[i])` for non-rebaseable vectors
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg function nodes; `assignment_vecvec_node` (src_is_ivec_ path); `switch_n_node` variants; `return_node`; and break/continue loop variants (which use C++ exceptions for propagation).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg function nodes; `assignment_vecvec_node` (src_is_ivec_ path); `switch_n_node` variants; `return_node`; break/continue loop variants (which use C++ exceptions for propagation); and rebaseable-vector variants of vector arithmetic nodes.
 
 Relevant header:
 

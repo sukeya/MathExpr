@@ -615,6 +615,30 @@ class node_variant_adapter
         vector_init_general_node_t* vinit;
     };
 
+    struct vec_binop_vecvec_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type operation;
+    };
+
+    struct vec_binop_vecval_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type operation;
+    };
+
+    struct vec_binop_valvec_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type operation;
+    };
+
+    struct unary_vec_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type operation;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -640,7 +664,8 @@ class node_variant_adapter
         multi_switch_hot_view, assign_vecvec_hot_view, assign_vecvec_op_hot_view,
         vecinit_zero_hot_view, vecinit_constfill_hot_view, vecinit_dynfill_hot_view,
         vecinit_iota_cc_hot_view, vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view,
-        vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, fallback_view>;
+        vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, vec_binop_vecvec_hot_view,
+        vec_binop_vecval_hot_view, vec_binop_valvec_hot_view, unary_vec_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1222,6 +1247,68 @@ class node_variant_adapter
                     return vecinit_general_hot_view{node, n};
                 }
                 return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vecvecarith:
+            {
+                auto* vi = node->as_vector_iface();
+                if (nullptr == vi || vi->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                auto* b0 = node->branch(0);
+                auto* b1 = node->branch(1);
+                if (nullptr == b0 || nullptr == b1)
+                    return fallback_view{node};
+                auto* vi0 = b0->as_vector_iface();
+                auto* vi1 = b1->as_vector_iface();
+                if (nullptr == vi0 || nullptr == vi1)
+                    return fallback_view{node};
+                if (vi0->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                if (vi1->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                return vec_binop_vecvec_hot_view{node,
+                                                 static_cast<binary_node_t*>(node)->operation()};
+            }
+
+            case expression_node<T>::node_type::e_vecvalarith:
+            {
+                auto* vi = node->as_vector_iface();
+                if (nullptr == vi || vi->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                auto* b0 = node->branch(0);
+                auto* b1 = node->branch(1);
+                if (nullptr == b0 || nullptr == b1)
+                    return fallback_view{node};
+                const auto op = static_cast<binary_node_t*>(node)->operation();
+                auto* vi0 = b0->as_vector_iface();
+                auto* vi1 = b1->as_vector_iface();
+                if (vi0 != nullptr && vi1 == nullptr)
+                {
+                    if (vi0->vec()->vec_holder().rebaseable())
+                        return fallback_view{node};
+                    return vec_binop_vecval_hot_view{node, op};
+                }
+                if (vi0 == nullptr && vi1 != nullptr)
+                {
+                    if (vi1->vec()->vec_holder().rebaseable())
+                        return fallback_view{node};
+                    return vec_binop_valvec_hot_view{node, op};
+                }
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vecunaryop:
+            {
+                auto* vi = node->as_vector_iface();
+                if (nullptr == vi || vi->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                auto* b0 = node->branch(0);
+                if (nullptr == b0)
+                    return fallback_view{node};
+                auto* vi0 = b0->as_vector_iface();
+                if (nullptr == vi0 || vi0->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                return unary_vec_hot_view{node, static_cast<unary_node_t*>(node)->operation()};
             }
 
             default:
@@ -2308,6 +2395,136 @@ class node_variant_adapter
                                                       view.vinit->vec_size() - n);
                 }
                 return *view.vinit->vec_base();
+            }
+
+            T operator()(const vec_binop_vecvec_hot_view& view) const
+            {
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                auto* vi = view.node->as_vector_iface();
+                auto* vi0 = node_variant_adapter::branch(view.node, 0)->as_vector_iface();
+                auto* vi1 = node_variant_adapter::branch(view.node, 1)->as_vector_iface();
+                const T* vec0 = vi0->vds().data();
+                const T* vec1 = vi1->vds().data();
+                T* vec_out = vi->vds().data();
+                const std::size_t sz = std::min(vi0->size(), vi1->size());
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        {
+                            vec_out[i] =
+                                core::operators::process<T>(view.operation, vec0[i], vec1[i]);
+                        });
+                    vec0 += lud.loop_batch_size;
+                    vec1 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(view.operation, *vec0, *vec1);
+                        ++vec0;
+                        ++vec1;
+                        ++vec_out;
+                    });
+                return vi->vds().data()[0];
+            }
+
+            T operator()(const vec_binop_vecval_hot_view& view) const
+            {
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                const T scalar =
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                auto* vi = view.node->as_vector_iface();
+                auto* vi0 = node_variant_adapter::branch(view.node, 0)->as_vector_iface();
+                const T* vec0 = vi0->vds().data();
+                T* vec_out = vi->vds().data();
+                const std::size_t sz = vi0->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        {
+                            vec_out[i] =
+                                core::operators::process<T>(view.operation, vec0[i], scalar);
+                        });
+                    vec0 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(view.operation, *vec0, scalar);
+                        ++vec0;
+                        ++vec_out;
+                    });
+                return vi->vds().data()[0];
+            }
+
+            T operator()(const vec_binop_valvec_hot_view& view) const
+            {
+                const T scalar =
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                auto* vi = view.node->as_vector_iface();
+                auto* vi1 = node_variant_adapter::branch(view.node, 1)->as_vector_iface();
+                const T* vec1 = vi1->vds().data();
+                T* vec_out = vi->vds().data();
+                const std::size_t sz = vi1->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec1 + lud.upper_bound;
+                while (vec1 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        {
+                            vec_out[i] =
+                                core::operators::process<T>(view.operation, scalar, vec1[i]);
+                        });
+                    vec1 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(view.operation, scalar, *vec1);
+                        ++vec1;
+                        ++vec_out;
+                    });
+                return vi->vds().data()[0];
+            }
+
+            T operator()(const unary_vec_hot_view& view) const
+            {
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                auto* vi = view.node->as_vector_iface();
+                auto* vi0 = node_variant_adapter::branch(view.node, 0)->as_vector_iface();
+                const T* vec0 = vi0->vds().data();
+                T* vec_out = vi->vds().data();
+                const std::size_t sz = vi0->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        { vec_out[i] = core::operators::process<T>(view.operation, vec0[i]); });
+                    vec0 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(view.operation, *vec0);
+                        ++vec0;
+                        ++vec_out;
+                    });
+                return vi->vds().data()[0];
             }
 
             T operator()(const fallback_view& view) const

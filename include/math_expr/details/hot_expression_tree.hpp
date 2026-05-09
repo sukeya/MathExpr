@@ -633,6 +633,46 @@ class hot_expression_tree
         bool single_value;
     };
 
+    struct vec_binop_vecvec_data
+    {
+        core::operators::operator_type operation;
+        const T* vec0_src;
+        const T* vec1_src;
+        T* vec_out;
+        std::size_t vec_size;
+        node_index_t branch0_child;
+        node_index_t branch1_child;
+    };
+
+    struct vec_binop_vecval_data
+    {
+        core::operators::operator_type operation;
+        const T* vec0_src;
+        T* vec_out;
+        std::size_t vec_size;
+        node_index_t branch0_child;
+        node_index_t branch1_child;
+    };
+
+    struct vec_binop_valvec_data
+    {
+        core::operators::operator_type operation;
+        const T* vec1_src;
+        T* vec_out;
+        std::size_t vec_size;
+        node_index_t branch0_child;
+        node_index_t branch1_child;
+    };
+
+    struct unary_vec_data
+    {
+        core::operators::operator_type operation;
+        const T* vec0_src;
+        T* vec_out;
+        std::size_t vec_size;
+        node_index_t branch0_child;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -649,7 +689,8 @@ class hot_expression_tree
         repeat_until_rtc_data, for_data, for_rtc_data, switch_data, multi_switch_data,
         assign_vecvec_data, assign_vecvec_op_data, vecinit_zero_data, vecinit_constfill_data,
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
-        vecinit_iota_ncnc_data, vecinit_general_data, fallback_subtree_data>;
+        vecinit_iota_ncnc_data, vecinit_general_data, vec_binop_vecvec_data, vec_binop_vecval_data,
+        vec_binop_valvec_data, unary_vec_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1536,6 +1577,121 @@ class hot_expression_tree
                 return *data.vec_base;
             }
 
+            T operator()(const vec_binop_vecvec_data& data) const
+            {
+                tree.evaluate(data.branch0_child);
+                tree.evaluate(data.branch1_child);
+                const T* vec0 = data.vec0_src;
+                const T* vec1 = data.vec1_src;
+                T* vec_out = data.vec_out;
+                core::operators::loop_unroll lud(data.vec_size);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        {
+                            vec_out[i] =
+                                core::operators::process<T>(data.operation, vec0[i], vec1[i]);
+                        });
+                    vec0 += lud.loop_batch_size;
+                    vec1 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(data.operation, *vec0, *vec1);
+                        ++vec0;
+                        ++vec1;
+                        ++vec_out;
+                    });
+                return data.vec_out[0];
+            }
+
+            T operator()(const vec_binop_vecval_data& data) const
+            {
+                tree.evaluate(data.branch0_child);
+                const T scalar = tree.evaluate(data.branch1_child);
+                const T* vec0 = data.vec0_src;
+                T* vec_out = data.vec_out;
+                core::operators::loop_unroll lud(data.vec_size);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        {
+                            vec_out[i] =
+                                core::operators::process<T>(data.operation, vec0[i], scalar);
+                        });
+                    vec0 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(data.operation, *vec0, scalar);
+                        ++vec0;
+                        ++vec_out;
+                    });
+                return data.vec_out[0];
+            }
+
+            T operator()(const vec_binop_valvec_data& data) const
+            {
+                const T scalar = tree.evaluate(data.branch0_child);
+                tree.evaluate(data.branch1_child);
+                const T* vec1 = data.vec1_src;
+                T* vec_out = data.vec_out;
+                core::operators::loop_unroll lud(data.vec_size);
+                const T* upper_bound = vec1 + lud.upper_bound;
+                while (vec1 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        {
+                            vec_out[i] =
+                                core::operators::process<T>(data.operation, scalar, vec1[i]);
+                        });
+                    vec1 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(data.operation, scalar, *vec1);
+                        ++vec1;
+                        ++vec_out;
+                    });
+                return data.vec_out[0];
+            }
+
+            T operator()(const unary_vec_data& data) const
+            {
+                tree.evaluate(data.branch0_child);
+                const T* vec0 = data.vec0_src;
+                T* vec_out = data.vec_out;
+                core::operators::loop_unroll lud(data.vec_size);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        { vec_out[i] = core::operators::process<T>(data.operation, vec0[i]); });
+                    vec0 += lud.loop_batch_size;
+                    vec_out += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec_out = core::operators::process<T>(data.operation, *vec0);
+                        ++vec0;
+                        ++vec_out;
+                    });
+                return data.vec_out[0];
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2411,6 +2567,61 @@ class hot_expression_tree
                         }
                     }
                     return emplace(std::move(data));
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vec_binop_vecvec_hot_view>)
+                {
+                    auto* vi = view.node->as_vector_iface();
+                    auto* vi0 = node_variant_adapter_t::branch(view.node, 0)->as_vector_iface();
+                    auto* vi1 = node_variant_adapter_t::branch(view.node, 1)->as_vector_iface();
+                    const auto branch0 = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto branch1 = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!branch0.has_value() || !branch1.has_value())
+                        return std::nullopt;
+                    const std::size_t sz = std::min(vi0->size(), vi1->size());
+                    return emplace(vec_binop_vecvec_data{view.operation, vi0->vds().data(),
+                                                         vi1->vds().data(), vi->vds().data(), sz,
+                                                         *branch0, *branch1});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vec_binop_vecval_hot_view>)
+                {
+                    auto* vi = view.node->as_vector_iface();
+                    auto* vi0 = node_variant_adapter_t::branch(view.node, 0)->as_vector_iface();
+                    const auto branch0 = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto branch1 = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!branch0.has_value() || !branch1.has_value())
+                        return std::nullopt;
+                    return emplace(vec_binop_vecval_data{view.operation, vi0->vds().data(),
+                                                         vi->vds().data(), vi0->size(), *branch0,
+                                                         *branch1});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vec_binop_valvec_hot_view>)
+                {
+                    auto* vi = view.node->as_vector_iface();
+                    auto* vi1 = node_variant_adapter_t::branch(view.node, 1)->as_vector_iface();
+                    const auto branch0 = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto branch1 = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!branch0.has_value() || !branch1.has_value())
+                        return std::nullopt;
+                    return emplace(vec_binop_valvec_data{view.operation, vi1->vds().data(),
+                                                         vi->vds().data(), vi1->size(), *branch0,
+                                                         *branch1});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::unary_vec_hot_view>)
+                {
+                    auto* vi = view.node->as_vector_iface();
+                    auto* vi0 = node_variant_adapter_t::branch(view.node, 0)->as_vector_iface();
+                    const auto branch0 = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    if (!branch0.has_value())
+                        return std::nullopt;
+                    return emplace(unary_vec_data{view.operation, vi0->vds().data(),
+                                                  vi->vds().data(), vi0->size(), *branch0});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)
