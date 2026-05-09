@@ -18882,18 +18882,18 @@ class parser : public lexer::parser_helper
             else if (core::operators::operator_type::eq == operation)
             {
                 expression_node_ptr result =
-                    node_allocator_->allocate_rc<nulleq_node_t>(branch[b0_null ? 0 : 1], true);
+                    node_allocator_->allocate_rc<nulleq_node_t>(branch[b0_null ? 1 : 0], true);
 
-                details::free_node(*node_allocator_, branch[b0_null ? 1 : 0]);
+                details::free_node(*node_allocator_, branch[b0_null ? 0 : 1]);
 
                 return result;
             }
             else if (core::operators::operator_type::ne == operation)
             {
                 expression_node_ptr result =
-                    node_allocator_->allocate_rc<nulleq_node_t>(branch[b0_null ? 0 : 1], false);
+                    node_allocator_->allocate_rc<nulleq_node_t>(branch[b0_null ? 1 : 0], false);
 
-                details::free_node(*node_allocator_, branch[b0_null ? 1 : 0]);
+                details::free_node(*node_allocator_, branch[b0_null ? 0 : 1]);
 
                 return result;
             }
