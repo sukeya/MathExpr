@@ -758,6 +758,19 @@ class assignment_vecvec_node final : public binary_node<T>, public vector_interf
         return vds_;
     }
 
+    inline bool is_src_ivec() const
+    {
+        return src_is_ivec_;
+    }
+    inline vector_node<T>* vec0_ptr() const
+    {
+        return vec0_node_ptr_;
+    }
+    inline vector_node<T>* vec1_ptr() const
+    {
+        return vec1_node_ptr_;
+    }
+
    private:
     vector_node<T>* vec0_node_ptr_;
     vector_node<T>* vec1_node_ptr_;

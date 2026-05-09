@@ -890,6 +890,11 @@ class switch_node : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
     }
 
+    inline const std::vector<branch_t>& arg_list() const
+    {
+        return arg_list_;
+    }
+
    protected:
     std::vector<branch_t> arg_list_;
 };
@@ -981,6 +986,11 @@ class multi_switch_node final : public expression_node<T>
     std::size_t node_depth() const override final
     {
         return expression_node<T>::ndb_t::compute_node_depth(arg_list_);
+    }
+
+    inline const std::vector<branch_t>& arg_list() const
+    {
+        return arg_list_;
     }
 
    private:

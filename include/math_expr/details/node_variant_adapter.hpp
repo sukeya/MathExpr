@@ -92,6 +92,16 @@ class node_variant_adapter
     using repeat_until_loop_rtc_node_t = repeat_until_loop_rtc_node<T>;
     using for_loop_node_t = for_loop_node<T>;
     using for_loop_rtc_node_t = for_loop_rtc_node<T>;
+    using switch_node_t = switch_node<T>;
+    using multi_switch_node_t = multi_switch_node<T>;
+    using assignment_vecvec_node_t = assignment_vecvec_node<T>;
+    using vector_init_zero_node_t = vector_init_zero_value_node<T>;
+    using vector_init_constfill_node_t = vector_init_single_constvalue_node<T>;
+    using vector_init_dynfill_node_t = vector_init_single_value_node<T>;
+    using vector_init_iota_cc_node_t = vector_init_iota_constconst_node<T>;
+    using vector_init_iota_cnc_node_t = vector_init_iota_constnconst_node<T>;
+    using vector_init_iota_ncc_node_t = vector_init_iota_nconstconst_node<T>;
+    using vector_init_iota_ncnc_node_t = vector_init_iota_nconstnconst_node<T>;
 
     struct null_view
     {
@@ -515,6 +525,83 @@ class node_variant_adapter
         for_loop_rtc_node_t* loop;
     };
 
+    struct switch_hot_view
+    {
+        expression_ptr node;
+        switch_node_t* sw;
+    };
+
+    struct multi_switch_hot_view
+    {
+        expression_ptr node;
+        multi_switch_node_t* sw;
+    };
+
+    struct assign_vecvec_hot_view
+    {
+        expression_ptr node;
+        assignment_vecvec_node_t* assign;
+    };
+
+    struct vecinit_zero_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+    };
+
+    struct vecinit_constfill_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+        T fill_value;
+    };
+
+    struct vecinit_dynfill_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+        expression_ptr init_child;
+    };
+
+    struct vecinit_iota_cc_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+        T base_val;
+        T increment_val;
+    };
+
+    struct vecinit_iota_cnc_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+        T base_val;
+        expression_ptr increment_child;
+    };
+
+    struct vecinit_iota_ncc_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+        expression_ptr base_child;
+        expression_ptr increment_child;
+    };
+
+    struct vecinit_iota_ncnc_hot_view
+    {
+        expression_ptr node;
+        T* vec_base;
+        std::size_t vec_size;
+        expression_ptr base_child;
+        expression_ptr increment_child;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -536,7 +623,11 @@ class node_variant_adapter
         assign_vec_celem_op_rtc_hot_view, assign_rbvec_elem_op_rtc_hot_view,
         assign_rbvec_celem_op_rtc_hot_view, assign_vec_scalar_hot_view,
         assign_vec_scalar_op_hot_view, while_hot_view, while_rtc_hot_view, repeat_until_hot_view,
-        repeat_until_rtc_hot_view, for_hot_view, for_rtc_hot_view, fallback_view>;
+        repeat_until_rtc_hot_view, for_hot_view, for_rtc_hot_view, switch_hot_view,
+        multi_switch_hot_view, assign_vecvec_hot_view, vecinit_zero_hot_view,
+        vecinit_constfill_hot_view, vecinit_dynfill_hot_view, vecinit_iota_cc_hot_view,
+        vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view, vecinit_iota_ncnc_hot_view,
+        fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1037,6 +1128,72 @@ class node_variant_adapter
                 if (typeid(*node) == typeid(for_loop_rtc_node_t))
                     return for_rtc_hot_view{node, static_cast<for_loop_rtc_node_t*>(node)};
                 return fallback_view{node};
+
+            case expression_node<T>::node_type::e_switch:
+                if (typeid(*node) == typeid(switch_node_t))
+                    return switch_hot_view{node, static_cast<switch_node_t*>(node)};
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_mswitch:
+                if (typeid(*node) == typeid(multi_switch_node_t))
+                    return multi_switch_hot_view{node, static_cast<multi_switch_node_t*>(node)};
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_vecvecass:
+            {
+                if (typeid(*node) != typeid(assignment_vecvec_node_t))
+                    return fallback_view{node};
+                auto* n = static_cast<assignment_vecvec_node_t*>(node);
+                if (n->is_src_ivec())
+                    return fallback_view{node};
+                return assign_vecvec_hot_view{node, n};
+            }
+
+            case expression_node<T>::node_type::e_vecinit:
+            {
+                if (typeid(*node) == typeid(vector_init_zero_node_t))
+                {
+                    auto* n = static_cast<vector_init_zero_node_t*>(node);
+                    return vecinit_zero_hot_view{node, n->vec_base(), n->vec_size()};
+                }
+                if (typeid(*node) == typeid(vector_init_constfill_node_t))
+                {
+                    auto* n = static_cast<vector_init_constfill_node_t*>(node);
+                    return vecinit_constfill_hot_view{node, n->vec_base(), n->vec_size(),
+                                                      n->init_value()};
+                }
+                if (typeid(*node) == typeid(vector_init_dynfill_node_t))
+                {
+                    auto* n = static_cast<vector_init_dynfill_node_t*>(node);
+                    return vecinit_dynfill_hot_view{node, n->vec_base(), n->vec_size(),
+                                                    n->init_child()};
+                }
+                if (typeid(*node) == typeid(vector_init_iota_cc_node_t))
+                {
+                    auto* n = static_cast<vector_init_iota_cc_node_t*>(node);
+                    return vecinit_iota_cc_hot_view{node, n->vec_base(), n->vec_size(),
+                                                    n->base_val(), n->increment_val()};
+                }
+                if (typeid(*node) == typeid(vector_init_iota_cnc_node_t))
+                {
+                    auto* n = static_cast<vector_init_iota_cnc_node_t*>(node);
+                    return vecinit_iota_cnc_hot_view{node, n->vec_base(), n->vec_size(),
+                                                     n->base_val(), n->increment_child()};
+                }
+                if (typeid(*node) == typeid(vector_init_iota_ncc_node_t))
+                {
+                    auto* n = static_cast<vector_init_iota_ncc_node_t*>(node);
+                    return vecinit_iota_ncc_hot_view{node, n->vec_base(), n->vec_size(),
+                                                     n->base_child(), n->increment_child()};
+                }
+                if (typeid(*node) == typeid(vector_init_iota_ncnc_node_t))
+                {
+                    auto* n = static_cast<vector_init_iota_ncnc_node_t*>(node);
+                    return vecinit_iota_ncnc_hot_view{node, n->vec_base(), n->vec_size(),
+                                                      n->base_child(), n->increment_child()};
+                }
+                return fallback_view{node};
+            }
 
             default:
                 return fallback_view{node};
@@ -1975,6 +2132,103 @@ class node_variant_adapter
                         result = node_variant_adapter::value(view.loop->body_branch());
                 }
                 return result;
+            }
+
+            T operator()(const switch_hot_view& view) const
+            {
+                const auto& args = view.sw->arg_list();
+                const std::size_t upper_bound = args.size() - 1;
+                for (std::size_t i = 0; i < upper_bound; i += 2)
+                {
+                    if (is_true(node_variant_adapter::value(args[i].first)))
+                        return node_variant_adapter::value(args[i + 1].first);
+                }
+                return node_variant_adapter::value(args[upper_bound].first);
+            }
+
+            T operator()(const multi_switch_hot_view& view) const
+            {
+                const auto& args = view.sw->arg_list();
+                T result{};
+                for (std::size_t i = 0; i + 1 < args.size(); i += 2)
+                {
+                    if (is_true(node_variant_adapter::value(args[i].first)))
+                        result = node_variant_adapter::value(args[i + 1].first);
+                }
+                return result;
+            }
+
+            T operator()(const assign_vecvec_hot_view& view) const
+            {
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                const std::size_t sz = std::min(view.assign->vec0_ptr()->vec_holder().size(),
+                                                view.assign->vec1_ptr()->vec_holder().size());
+                T* vec0 = view.assign->vec0_ptr()->vds().data();
+                T* vec1 = view.assign->vec1_ptr()->vds().data();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch([&vec0, &vec1](unsigned int i) { vec0[i] = vec1[i]; });
+                    vec0 += lud.loop_batch_size;
+                    vec1 += lud.loop_batch_size;
+                }
+                lud.foreach_remainder([&vec0, &vec1]() { *vec0++ = *vec1++; });
+                return view.assign->vec0_ptr()->vds().data()[0];
+            }
+
+            T operator()(const vecinit_zero_hot_view& view) const
+            {
+                core::numeric::set_zero_value(view.vec_base, view.vec_size);
+                return *view.vec_base;
+            }
+
+            T operator()(const vecinit_constfill_hot_view& view) const
+            {
+                for (std::size_t i = 0; i < view.vec_size; ++i)
+                    *(view.vec_base + i) = view.fill_value;
+                return *view.vec_base;
+            }
+
+            T operator()(const vecinit_dynfill_hot_view& view) const
+            {
+                const T v = node_variant_adapter::value(view.init_child);
+                for (std::size_t i = 0; i < view.vec_size; ++i) *(view.vec_base + i) = v;
+                return *view.vec_base;
+            }
+
+            T operator()(const vecinit_iota_cc_hot_view& view) const
+            {
+                T v = view.base_val;
+                for (std::size_t i = 0; i < view.vec_size; ++i, v += view.increment_val)
+                    *(view.vec_base + i) = v;
+                return *view.vec_base;
+            }
+
+            T operator()(const vecinit_iota_cnc_hot_view& view) const
+            {
+                T v = view.base_val;
+                expression_node<T>& increment = *view.increment_child;
+                for (std::size_t i = 0; i < view.vec_size; ++i, v += increment.value())
+                    *(view.vec_base + i) = v;
+                return *view.vec_base;
+            }
+
+            T operator()(const vecinit_iota_ncc_hot_view& view) const
+            {
+                T v = node_variant_adapter::value(view.base_child);
+                const T incr = view.increment_child->value();
+                for (std::size_t i = 0; i < view.vec_size; ++i, v += incr) *(view.vec_base + i) = v;
+                return *view.vec_base;
+            }
+
+            T operator()(const vecinit_iota_ncnc_hot_view& view) const
+            {
+                T v = node_variant_adapter::value(view.base_child);
+                expression_node<T>& increment = *view.increment_child;
+                for (std::size_t i = 0; i < view.vec_size; ++i, v += increment.value())
+                    *(view.vec_base + i) = v;
+                return *view.vec_base;
             }
 
             T operator()(const fallback_view& view) const

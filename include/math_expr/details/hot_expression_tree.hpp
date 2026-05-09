@@ -538,6 +538,80 @@ class hot_expression_tree
         bool has_incrementor;
     };
 
+    struct switch_data
+    {
+        std::vector<std::pair<node_index_t, node_index_t>> cases;
+        node_index_t default_case;
+    };
+
+    struct multi_switch_data
+    {
+        std::vector<std::pair<node_index_t, node_index_t>> cases;
+    };
+
+    struct assign_vecvec_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        T* vec0_base;
+        T* vec1_base;
+        vector_holder_t* holder0;
+        vector_holder_t* holder1;
+        node_index_t branch1_child;
+    };
+
+    struct vecinit_zero_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+    };
+
+    struct vecinit_constfill_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        T fill_value;
+    };
+
+    struct vecinit_dynfill_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        node_index_t init_child;
+    };
+
+    struct vecinit_iota_cc_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        T base_val;
+        T increment_val;
+    };
+
+    struct vecinit_iota_cnc_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        T base_val;
+        node_index_t increment_child;
+    };
+
+    struct vecinit_iota_ncc_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        T increment_val;
+        node_index_t base_child;
+    };
+
+    struct vecinit_iota_ncnc_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        node_index_t base_child;
+        node_index_t increment_child;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -551,7 +625,10 @@ class hot_expression_tree
         assign_rbvec_celem_op_data, assign_vec_elem_op_rtc_data, assign_vec_celem_op_rtc_data,
         assign_rbvec_elem_op_rtc_data, assign_rbvec_celem_op_rtc_data, assign_vec_scalar_data,
         assign_vec_scalar_op_data, while_data, while_rtc_data, repeat_until_data,
-        repeat_until_rtc_data, for_data, for_rtc_data, fallback_subtree_data>;
+        repeat_until_rtc_data, for_data, for_rtc_data, switch_data, multi_switch_data,
+        assign_vecvec_data, vecinit_zero_data, vecinit_constfill_data, vecinit_dynfill_data,
+        vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data, vecinit_iota_ncnc_data,
+        fallback_subtree_data>;
 
     struct node
     {
@@ -1299,6 +1376,99 @@ class hot_expression_tree
                 return result;
             }
 
+            T operator()(const switch_data& data) const
+            {
+                for (const auto& [cond, cons] : data.cases)
+                {
+                    if (is_true(tree.evaluate(cond)))
+                        return tree.evaluate(cons);
+                }
+                return tree.evaluate(data.default_case);
+            }
+
+            T operator()(const multi_switch_data& data) const
+            {
+                T result{};
+                for (const auto& [cond, cons] : data.cases)
+                {
+                    if (is_true(tree.evaluate(cond)))
+                        result = tree.evaluate(cons);
+                }
+                return result;
+            }
+
+            T operator()(const assign_vecvec_data& data) const
+            {
+                tree.evaluate(data.branch1_child);
+                const std::size_t sz = std::min(data.holder0->size(), data.holder1->size());
+                T* vec0 = data.vec0_base;
+                const T* vec1 = data.vec1_base;
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec0 + lud.upper_bound;
+                while (vec0 < upper_bound)
+                {
+                    lud.foreach_batch([&vec0, &vec1](unsigned int i) { vec0[i] = vec1[i]; });
+                    vec0 += lud.loop_batch_size;
+                    vec1 += lud.loop_batch_size;
+                }
+                lud.foreach_remainder([&vec0, &vec1]() { *vec0++ = *vec1++; });
+                return data.vec0_base[0];
+            }
+
+            T operator()(const vecinit_zero_data& data) const
+            {
+                core::numeric::set_zero_value(data.vec_base, data.vec_size);
+                return *data.vec_base;
+            }
+
+            T operator()(const vecinit_constfill_data& data) const
+            {
+                for (std::size_t i = 0; i < data.vec_size; ++i)
+                    *(data.vec_base + i) = data.fill_value;
+                return *data.vec_base;
+            }
+
+            T operator()(const vecinit_dynfill_data& data) const
+            {
+                const T v = tree.evaluate(data.init_child);
+                for (std::size_t i = 0; i < data.vec_size; ++i) *(data.vec_base + i) = v;
+                return *data.vec_base;
+            }
+
+            T operator()(const vecinit_iota_cc_data& data) const
+            {
+                T v = data.base_val;
+                for (std::size_t i = 0; i < data.vec_size; ++i, v += data.increment_val)
+                    *(data.vec_base + i) = v;
+                return *data.vec_base;
+            }
+
+            T operator()(const vecinit_iota_cnc_data& data) const
+            {
+                T v = data.base_val;
+                for (std::size_t i = 0; i < data.vec_size;
+                     ++i, v += tree.evaluate(data.increment_child))
+                    *(data.vec_base + i) = v;
+                return *data.vec_base;
+            }
+
+            T operator()(const vecinit_iota_ncc_data& data) const
+            {
+                T v = tree.evaluate(data.base_child);
+                for (std::size_t i = 0; i < data.vec_size; ++i, v += data.increment_val)
+                    *(data.vec_base + i) = v;
+                return *data.vec_base;
+            }
+
+            T operator()(const vecinit_iota_ncnc_data& data) const
+            {
+                T v = tree.evaluate(data.base_child);
+                for (std::size_t i = 0; i < data.vec_size;
+                     ++i, v += tree.evaluate(data.increment_child))
+                    *(data.vec_base + i) = v;
+                return *data.vec_base;
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2010,6 +2180,118 @@ class hot_expression_tree
                         data.incrementor = *incr;
                     }
                     return emplace(data);
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::switch_hot_view>)
+                {
+                    const auto& args = view.sw->arg_list();
+                    const std::size_t n_pairs = (args.size() - 1) / 2;
+                    switch_data data{};
+                    data.cases.reserve(n_pairs);
+                    for (std::size_t i = 0; i < n_pairs * 2; i += 2)
+                    {
+                        const auto cond = append_child(args[i].first);
+                        const auto cons = append_child(args[i + 1].first);
+                        if (!cond.has_value() || !cons.has_value())
+                            return std::nullopt;
+                        data.cases.push_back({*cond, *cons});
+                    }
+                    const auto def = append_child(args.back().first);
+                    if (!def.has_value())
+                        return std::nullopt;
+                    data.default_case = *def;
+                    return emplace(std::move(data));
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::multi_switch_hot_view>)
+                {
+                    const auto& args = view.sw->arg_list();
+                    multi_switch_data data{};
+                    data.cases.reserve(args.size() / 2);
+                    for (std::size_t i = 0; i + 1 < args.size(); i += 2)
+                    {
+                        const auto cond = append_child(args[i].first);
+                        const auto cons = append_child(args[i + 1].first);
+                        if (!cond.has_value() || !cons.has_value())
+                            return std::nullopt;
+                        data.cases.push_back({*cond, *cons});
+                    }
+                    return emplace(std::move(data));
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::assign_vecvec_hot_view>)
+                {
+                    const auto branch1 = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!branch1.has_value())
+                        return std::nullopt;
+                    auto* vec0 = view.assign->vec0_ptr();
+                    auto* vec1 = view.assign->vec1_ptr();
+                    return emplace(assign_vecvec_data{vec0->vds().data(), vec1->vds().data(),
+                                                      &vec0->vec_holder(), &vec1->vec_holder(),
+                                                      *branch1});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_zero_hot_view>)
+                {
+                    return emplace(vecinit_zero_data{view.vec_base, view.vec_size});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_constfill_hot_view>)
+                {
+                    return emplace(
+                        vecinit_constfill_data{view.vec_base, view.vec_size, view.fill_value});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_dynfill_hot_view>)
+                {
+                    const auto child = append_child(view.init_child);
+                    if (!child.has_value())
+                        return std::nullopt;
+                    return emplace(vecinit_dynfill_data{view.vec_base, view.vec_size, *child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_iota_cc_hot_view>)
+                {
+                    return emplace(vecinit_iota_cc_data{view.vec_base, view.vec_size, view.base_val,
+                                                        view.increment_val});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_iota_cnc_hot_view>)
+                {
+                    const auto incr = append_child(view.increment_child);
+                    if (!incr.has_value())
+                        return std::nullopt;
+                    return emplace(
+                        vecinit_iota_cnc_data{view.vec_base, view.vec_size, view.base_val, *incr});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_iota_ncc_hot_view>)
+                {
+                    const auto base = append_child(view.base_child);
+                    if (!base.has_value())
+                        return std::nullopt;
+                    const T baked_incr = view.increment_child->value();
+                    return emplace(
+                        vecinit_iota_ncc_data{view.vec_base, view.vec_size, baked_incr, *base});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_iota_ncnc_hot_view>)
+                {
+                    const auto base = append_child(view.base_child);
+                    const auto incr = append_child(view.increment_child);
+                    if (!base.has_value() || !incr.has_value())
+                        return std::nullopt;
+                    return emplace(
+                        vecinit_iota_ncnc_data{view.vec_base, view.vec_size, *base, *incr});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

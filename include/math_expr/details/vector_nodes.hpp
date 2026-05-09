@@ -1254,6 +1254,15 @@ class vector_init_zero_value_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+
    private:
     vector_init_zero_value_node(const vector_init_zero_value_node<T>&) = delete;
     vector_init_zero_value_node<T>& operator=(const vector_init_zero_value_node<T>&) = delete;
@@ -1307,6 +1316,19 @@ class vector_init_single_constvalue_node final : public expression_node<T>
     std::size_t node_depth() const override
     {
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline T init_value() const
+    {
+        return single_initialiser_value_;
     }
 
    private:
@@ -1366,6 +1388,19 @@ class vector_init_single_value_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline expression_ptr init_child() const
+    {
+        return initialiser_list_[0];
+    }
+
    private:
     vector_init_single_value_node(const vector_init_single_value_node<T>&) = delete;
     vector_init_single_value_node<T>& operator=(const vector_init_single_value_node<T>&) = delete;
@@ -1423,6 +1458,23 @@ class vector_init_iota_constconst_node final : public expression_node<T>
     std::size_t node_depth() const override
     {
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline T base_val() const
+    {
+        return base_value_;
+    }
+    inline T increment_val() const
+    {
+        return increment_value_;
     }
 
    private:
@@ -1486,6 +1538,23 @@ class vector_init_iota_constnconst_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline T base_val() const
+    {
+        return base_value_;
+    }
+    inline expression_ptr increment_child() const
+    {
+        return initialiser_list_[1];
+    }
+
    private:
     vector_init_iota_constnconst_node(const vector_init_iota_constnconst_node<T>&) = delete;
     vector_init_iota_constnconst_node<T>& operator=(const vector_init_iota_constnconst_node<T>&) =
@@ -1545,6 +1614,23 @@ class vector_init_iota_nconstconst_node final : public expression_node<T>
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
     }
 
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline expression_ptr base_child() const
+    {
+        return initialiser_list_[0];
+    }
+    inline expression_ptr increment_child() const
+    {
+        return initialiser_list_[1];
+    }
+
    private:
     vector_init_iota_nconstconst_node(const vector_init_iota_nconstconst_node<T>&) = delete;
     vector_init_iota_nconstconst_node<T>& operator=(const vector_init_iota_nconstconst_node<T>&) =
@@ -1601,6 +1687,23 @@ class vector_init_iota_nconstnconst_node final : public expression_node<T>
     std::size_t node_depth() const override
     {
         return expression_node<T>::ndb_t::compute_node_depth(initialiser_list_);
+    }
+
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline expression_ptr base_child() const
+    {
+        return initialiser_list_[0];
+    }
+    inline expression_ptr increment_child() const
+    {
+        return initialiser_list_[1];
     }
 
    private:

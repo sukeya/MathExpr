@@ -196,8 +196,23 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `assignment_vec_celem_op_rtc_node` — RTC-checked constant-index vector element compound assignment
 - `assignment_rebasevec_elem_op_rtc_node` — RTC-checked rebase vector element compound assignment
 - `assignment_rebasevec_celem_op_rtc_node` — RTC-checked rebase vector constant-index compound assignment
+- `assignment_vec_node` — whole-vector scalar fill (`v := scalar`)
+- `assignment_vec_op_node` — whole-vector scalar compound fill (`v += scalar`, etc.)
+- `while_loop_node` / `while_loop_rtc_node` — while-loop with and without RTC iteration guard (break/continue variants remain fallback)
+- `repeat_until_loop_node` / `repeat_until_loop_rtc_node` — repeat-until-loop with and without RTC guard
+- `for_loop_node` / `for_loop_rtc_node` — for-loop with and without RTC guard
+- `switch_node` — switch/case chain (base type only; `switch_n_node` variants remain fallback)
+- `multi_switch_node` — multi-match switch (evaluates all matching cases)
+- `assignment_vecvec_node` — whole-vector copy (`v0 := v1`) for the non-ivec path
+- `vector_init_zero_value_node` — zero-fill vector initialisation
+- `vector_init_single_constvalue_node` — constant-fill vector initialisation
+- `vector_init_single_value_node` — dynamic single-value vector fill
+- `vector_init_iota_constconst_node` — iota init with baked base and increment
+- `vector_init_iota_constnconst_node` — iota init with baked base, dynamic increment
+- `vector_init_iota_nconstconst_node` — iota init with dynamic base, baked increment
+- `vector_init_iota_nconstnconst_node` — iota init with both dynamic base and increment
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector whole-array assignment and init nodes; and all control-flow nodes (while, for, switch, return).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg function nodes; `assignment_vecvec_op_node`; `assignment_vecvec_node` (src_is_ivec_ path); `vector_initialisation_node` (general-case); `switch_n_node` variants; `return_node`; and break/continue loop variants (which use C++ exceptions for propagation).
 
 Relevant header:
 
@@ -349,7 +364,7 @@ The following are still not fully replaced:
 
 - the full `expression_node<T>` hierarchy
 - parser-side direct legacy AST synthesis
-- fallback evaluation (via `fallback_subtree_data`) for generic / vararg function nodes, string nodes, vector assignment and init nodes, and all control-flow nodes (while, for, switch, return)
+- fallback evaluation (via `fallback_subtree_data`) for generic / vararg function nodes, string nodes, `assignment_vecvec_op_node`, `assignment_vecvec_node` (src_is_ivec_ path), `vector_initialisation_node` (general-case), `switch_n_node` variants, `return_node`, and break/continue loop variants
 - tree traversal APIs such as `collect_nodes()` as the universal ownership mechanism
 
 ---
