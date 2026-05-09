@@ -309,6 +309,11 @@ class assignment_node final : public binary_node<T>
         return var_node_ptr_ && binary_node<T>::valid();
     }
 
+    inline variable_node<T>* var_node() const
+    {
+        return var_node_ptr_;
+    }
+
    private:
     variable_node<T>* var_node_ptr_;
 };
@@ -343,6 +348,11 @@ class assignment_vec_elem_node final : public binary_node<T>
     inline bool valid() const override
     {
         return vec_node_ptr_ && binary_node<T>::valid();
+    }
+
+    inline vector_elem_node<T>* elem_node_ptr() const
+    {
+        return vec_node_ptr_;
     }
 
    private:
@@ -417,6 +427,11 @@ class assignment_rebasevec_elem_node final : public binary_node<T>
         return rbvec_node_ptr_ && binary_node<T>::valid();
     }
 
+    inline rebasevector_elem_node<T>* rbvec_elem_node_ptr() const
+    {
+        return rbvec_node_ptr_;
+    }
+
    private:
     rebasevector_elem_node<T>* rbvec_node_ptr_;
 };
@@ -487,6 +502,11 @@ class assignment_rebasevec_celem_node final : public binary_node<T>
     inline bool valid() const override
     {
         return rbvec_node_ptr_ && binary_node<T>::valid();
+    }
+
+    inline rebasevector_celem_node<T>* rbvec_celem_node_ptr() const
+    {
+        return rbvec_node_ptr_;
     }
 
    private:

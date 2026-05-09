@@ -78,6 +78,11 @@ class node_variant_adapter
     using rebasevector_celem_node_t = rebasevector_celem_node<T>;
     using rebasevector_elem_rtc_node_t = rebasevector_elem_rtc_node<T>;
     using rebasevector_celem_rtc_node_t = rebasevector_celem_rtc_node<T>;
+    using vector_size_node_t = vector_size_node<T>;
+    using assignment_node_t = assignment_node<T>;
+    using assignment_vec_elem_node_t = assignment_vec_elem_node<T>;
+    using assignment_rebasevec_elem_node_t = assignment_rebasevec_elem_node<T>;
+    using assignment_rebasevec_celem_node_t = assignment_rebasevec_celem_node<T>;
 
     struct null_view
     {
@@ -355,20 +360,68 @@ class node_variant_adapter
         rebasevector_celem_rtc_node_t* rtc;
     };
 
+    struct vecsize_hot_view
+    {
+        expression_ptr node;
+        vector_size_node_t* vecsize;
+    };
+
+    struct assign_hot_view
+    {
+        expression_ptr node;
+        assignment_node_t* assign;
+    };
+
+    struct assign_vec_elem_hot_view
+    {
+        expression_ptr node;
+        assignment_vec_elem_node_t* assign;
+    };
+
+    struct assign_rbvec_elem_hot_view
+    {
+        expression_ptr node;
+        assignment_rebasevec_elem_node_t* assign;
+    };
+
+    struct assign_rbvec_celem_hot_view
+    {
+        expression_ptr node;
+        assignment_rebasevec_celem_node_t* assign;
+    };
+
+    struct assign_op_hot_view
+    {
+        expression_ptr node;
+        variable_node_t* var;
+        core::operators::operator_type read_op;
+    };
+
+    struct assign_vec_elem_op_hot_view
+    {
+        expression_ptr node;
+        vector_elem_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
                      assert_view, sf3ext_view, sf4ext_view, other_view>;
 
-    using hot_variant_type = std::variant<
-        std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
-        trinary_hot_view, sf3_hot_view, sf4_hot_view, fixed_function_hot_view, conditional_hot_view,
-        uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view, unary_branch_hot_view, vov_hot_view,
-        cov_hot_view, voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view,
-        uvouv_hot_view, t0ot1ot2_hot_view, t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view,
-        nulleq_hot_view, vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view,
-        swap_hot_view, vec_elem_rtc_hot_view, vec_celem_rtc_hot_view, rbvec_elem_hot_view,
-        rbvec_celem_hot_view, rbvec_elem_rtc_hot_view, rbvec_celem_rtc_hot_view, fallback_view>;
+    using hot_variant_type =
+        std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
+                     trinary_hot_view, sf3_hot_view, sf4_hot_view, fixed_function_hot_view,
+                     conditional_hot_view, uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view,
+                     unary_branch_hot_view, vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view,
+                     bov_hot_view, cob_hot_view, boc_hot_view, uvouv_hot_view, t0ot1ot2_hot_view,
+                     t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view,
+                     vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view, swap_hot_view,
+                     vec_elem_rtc_hot_view, vec_celem_rtc_hot_view, rbvec_elem_hot_view,
+                     rbvec_celem_hot_view, rbvec_elem_rtc_hot_view, rbvec_celem_rtc_hot_view,
+                     vecsize_hot_view, assign_hot_view, assign_vec_elem_hot_view,
+                     assign_rbvec_elem_hot_view, assign_rbvec_celem_hot_view, assign_op_hot_view,
+                     assign_vec_elem_op_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -458,6 +511,27 @@ class node_variant_adapter
                 return operator_type::frac;
             case node_type::e_trunc:
                 return operator_type::trunc;
+            default:
+                return std::nullopt;
+        }
+    }
+
+    static inline std::optional<core::operators::operator_type> compound_to_read_op(
+        const core::operators::operator_type op)
+    {
+        using op_t = core::operators::operator_type;
+        switch (op)
+        {
+            case op_t::addass:
+                return op_t::add;
+            case op_t::subass:
+                return op_t::sub;
+            case op_t::mulass:
+                return op_t::mul;
+            case op_t::divass:
+                return op_t::div;
+            case op_t::modass:
+                return op_t::mod;
             default:
                 return std::nullopt;
         }
@@ -660,10 +734,45 @@ class node_variant_adapter
                 return fallback_view{node};
 
             case expression_node<T>::node_type::e_binary:
-                if ((nullptr != node->branch(0)) && (nullptr != node->branch(1)) &&
-                    (typeid(*node) == typeid(binary_node_t)))
+                if ((nullptr != node->branch(0)) && (nullptr != node->branch(1)))
                 {
-                    return binary_hot_view{node, static_cast<binary_node_t*>(node)};
+                    if (typeid(*node) == typeid(binary_node_t))
+                    {
+                        return binary_hot_view{node, static_cast<binary_node_t*>(node)};
+                    }
+                    if (auto* assign = dynamic_cast<assignment_node_t*>(node); nullptr != assign)
+                    {
+                        return assign_hot_view{node, assign};
+                    }
+                    if (auto* assign = dynamic_cast<assignment_vec_elem_node_t*>(node);
+                        nullptr != assign)
+                    {
+                        return assign_vec_elem_hot_view{node, assign};
+                    }
+                    if (auto* assign = dynamic_cast<assignment_rebasevec_elem_node_t*>(node);
+                        nullptr != assign)
+                    {
+                        return assign_rbvec_elem_hot_view{node, assign};
+                    }
+                    if (auto* assign = dynamic_cast<assignment_rebasevec_celem_node_t*>(node);
+                        nullptr != assign)
+                    {
+                        return assign_rbvec_celem_hot_view{node, assign};
+                    }
+                    const auto op = static_cast<binary_node_t*>(node)->operation();
+                    if (const auto read_op = compound_to_read_op(op); read_op.has_value())
+                    {
+                        if (is_variable_node(node->branch(0)))
+                        {
+                            return assign_op_hot_view{
+                                node, static_cast<variable_node_t*>(node->branch(0)), *read_op};
+                        }
+                        if (is_vector_elem_node(node->branch(0)))
+                        {
+                            return assign_vec_elem_op_hot_view{
+                                node, static_cast<vector_elem_node_t*>(node->branch(0)), *read_op};
+                        }
+                    }
                 }
                 return fallback_view{node};
 
@@ -724,6 +833,9 @@ class node_variant_adapter
             case expression_node<T>::node_type::e_rbveccelemrtc:
                 return rbvec_celem_rtc_hot_view{node,
                                                 static_cast<rebasevector_celem_rtc_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_vecsize:
+                return vecsize_hot_view{node, static_cast<vector_size_node_t*>(node)};
 
             default:
                 return fallback_view{node};
@@ -1290,6 +1402,70 @@ class node_variant_adapter
                                     ? context.access_ptr
                                     : view.rtc->vec_data();
                 return *result_ptr;
+            }
+
+            T operator()(const vecsize_hot_view& view) const
+            {
+                return static_cast<T>(view.vecsize->vec_holder()->size());
+            }
+
+            T operator()(const assign_hot_view& view) const
+            {
+                T& ref = view.assign->var_node()->ref();
+                ref = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                return ref;
+            }
+
+            T operator()(const assign_vec_elem_hot_view& view) const
+            {
+                const vector_elem_node_t* elem = view.assign->elem_node_ptr();
+                node_variant_adapter::value(elem->vec_branch());
+                const auto idx =
+                    core::numeric::to_uint64(node_variant_adapter::value(elem->index_branch()));
+                T& ref = *(elem->vec_data() + idx);
+                ref = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_elem_hot_view& view) const
+            {
+                const rebasevector_elem_node_t* elem = view.assign->rbvec_elem_node_ptr();
+                node_variant_adapter::value(elem->vec_branch());
+                const auto idx =
+                    core::numeric::to_uint64(node_variant_adapter::value(elem->index_branch()));
+                T& ref = *(elem->holder()->data() + idx);
+                ref = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_celem_hot_view& view) const
+            {
+                const rebasevector_celem_node_t* elem = view.assign->rbvec_celem_node_ptr();
+                node_variant_adapter::value(elem->vec_branch());
+                T& ref = *(elem->holder()->data() + elem->elem_idx());
+                ref = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                return ref;
+            }
+
+            T operator()(const assign_op_hot_view& view) const
+            {
+                T& v = view.var->ref();
+                v = core::operators::process<T>(
+                    view.read_op, v,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return v;
+            }
+
+            T operator()(const assign_vec_elem_op_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                const auto idx = core::numeric::to_uint64(
+                    node_variant_adapter::value(view.elem->index_branch()));
+                T& ref = *(view.elem->vec_data() + idx);
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
             }
 
             T operator()(const fallback_view& view) const

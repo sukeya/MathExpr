@@ -182,8 +182,14 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `rbvec_elem` / `rbvec_celem` — rebase vector element access (base pointer read from holder at evaluation time)
 - `rbvec_elem_rtc` / `rbvec_celem_rtc` — runtime-bounds-checked rebase vector element access
 - `null` nodes — baked to NaN literal at tree-build time (zero-cost at evaluation)
+- `vec_size` — vector size query (reads `holder->size()` at evaluation time without baking)
+- `assignment_node` — scalar variable assignment (`v = rhs`)
+- `assignment_vec_elem_node` — dynamic-index vector element assignment (`v[i] = rhs`)
+- `assignment_rebasevec_elem_node` / `assignment_rebasevec_celem_node` — rebase vector element assignment
+- `assignment_op_node` — scalar compound assignment (`v += rhs`, `v -= rhs`, `v *= rhs`, `v /= rhs`, `v %= rhs`)
+- `assignment_vec_elem_op_node` — vector element compound assignment (`v[i] += rhs`, etc.)
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector assignment, init, and size nodes; and all control-flow nodes (while, for, switch, return).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector whole-array assignment and init nodes; compound rebase-vector element assignment; and all control-flow nodes (while, for, switch, return).
 
 Relevant header:
 
