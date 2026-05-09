@@ -1,0 +1,46 @@
+name: Build benchmark
+
+on: pull_request
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install gcc
+        run: sudo apt install -y gcc
+      - name: Build benchmark
+        run: |
+          cmake --preset benchmark_gcc -B build/bench/gcc
+          cd ./build/bench/gcc && ninja
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install llvm
+        run: bash .github/scripts/install_llvm.sh
+      - name: Build benchmark
+        run: |
+          cmake --preset benchmark_clang -B build/bench/clang
+          cd ./build/bench/clang && ninja
+
+  clang_memory:
+    # libstdc++ and libc++ have uninitialized variables,
+    # so I skip this job temporarily.
+    if: "false"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install llvm
+        run: bash .github/scripts/install_llvm.sh
+      - name: Build benchmark
+        run: |
+          cmake --preset benchmark_clang_memory -B build/bench/clang/memory
+          cd ./build/bench/clang/memory && ninja

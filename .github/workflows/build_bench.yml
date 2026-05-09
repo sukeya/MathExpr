@@ -1,0 +1,46 @@
+name: Build examples
+
+on: pull_request
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install gcc
+        run: sudo apt install -y gcc
+      - name: Build examples
+        run: |
+          cmake --preset examples_gcc -B build/examples/gcc
+          cd ./build/examples/gcc && ninja
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install llvm
+        run: bash .github/scripts/install_llvm.sh
+      - name: Build examples
+        run: |
+          cmake --preset examples_clang -B build/examples/clang
+          cd ./build/examples/clang && ninja
+
+  clang_memory:
+    # libstdc++ and libc++ have uninitialized variables,
+    # so I skip this job temporarily.
+    if: "false"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up
+        run: bash .github/scripts/setup.sh
+      - name: Install llvm
+        run: bash .github/scripts/install_llvm.sh
+      - name: Build examples
+        run: |
+          cmake --preset examples_clang_memory -B build/bench/examples/memory
+          cd ./build/examples/clang/memory && ninja
