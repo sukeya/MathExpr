@@ -6,7 +6,7 @@ jobs:
   gcc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up
         run: bash .github/scripts/setup.sh
       - name: Install gcc
@@ -22,7 +22,7 @@ jobs:
   clang:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up
         run: bash .github/scripts/setup.sh
       - name: Install llvm
@@ -41,7 +41,7 @@ jobs:
     if: "false"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up
         run: bash .github/scripts/setup.sh
       - name: Install llvm
