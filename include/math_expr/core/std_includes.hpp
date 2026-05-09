@@ -50,6 +50,8 @@ limitations under the License.
 #include <limits>
 #include <list>
 #include <map>
+#include <memory>
+#include <optional>
 #include <set>
 #include <source_location>
 #include <stack>
