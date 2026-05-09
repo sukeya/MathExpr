@@ -725,6 +725,23 @@ class hot_expression_tree
         node_index_t body_child;
     };
 
+    struct assert_data
+    {
+        assert_node<T>* fn;
+        node_index_t cond_child;
+    };
+
+    struct return_node_data
+    {
+        struct branch_slot
+        {
+            node_index_t child;
+            T* write_to;
+        };
+        return_node<T>* fn;
+        std::vector<branch_slot> slots;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -743,7 +760,8 @@ class hot_expression_tree
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
         vecinit_iota_ncnc_data, vecinit_general_data, vararg_evaluable_data, vec_binop_vecvec_data,
         vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, vecfunc_data, vecvecswap_data,
-        generic_evaluable_data, vecondition_data, retenv_data, fallback_subtree_data>;
+        generic_evaluable_data, vecondition_data, retenv_data, assert_data, return_node_data,
+        fallback_subtree_data>;
 
     struct node
     {
@@ -1814,6 +1832,25 @@ class hot_expression_tree
                 }
             }
 
+            T operator()(const assert_data& data) const
+            {
+                if (is_true(tree.evaluate(data.cond_child)))
+                    return T(1);
+                return data.fn->execute_failure();
+            }
+
+            T operator()(const return_node_data& data) const
+            {
+                for (const auto& slot : data.slots)
+                {
+                    const T val = tree.evaluate(slot.child);
+                    if (slot.write_to)
+                        *slot.write_to = val;
+                }
+                data.fn->throw_return();
+                return std::numeric_limits<T>::quiet_NaN();
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2823,6 +2860,31 @@ class hot_expression_tree
                     if (!body_child.has_value())
                         return std::nullopt;
                     return emplace(retenv_data{view.fn, *body_child});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::assert_hot_view>)
+                {
+                    const auto cond_child = append_child(view.fn->condition_node());
+                    if (!cond_child.has_value())
+                        return std::nullopt;
+                    return emplace(assert_data{view.fn, *cond_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::return_node_hot_view>)
+                {
+                    const std::size_t n = view.fn->arg_count();
+                    return_node_data data{view.fn, {}};
+                    data.slots.reserve(n);
+                    for (std::size_t i = 0; i < n; ++i)
+                    {
+                        const auto desc = view.fn->arg_info_at(i);
+                        const auto child = append_child(desc.node);
+                        if (!child.has_value())
+                            return std::nullopt;
+                        data.slots.push_back({*child, desc.write_to});
+                    }
+                    return emplace(std::move(data));
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

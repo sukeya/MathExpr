@@ -100,6 +100,14 @@ class return_node final : public generic_function_node<T, null_igenfunc<T>>
         return results_context_;
     }
 
+    void throw_return() const
+    {
+        prepare_typestore_list();
+        using parameter_list_t = typename type_store<T>::parameter_list;
+        results_context_->assign(parameter_list_t(gen_function_t::typestore_list_));
+        throw return_exception();
+    }
+
    private:
     void prepare_typestore_list() const
     {

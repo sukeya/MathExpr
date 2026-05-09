@@ -1976,6 +1976,25 @@ class assert_node final : public expression_node<T>
                  details::is_generally_string_node(assert_message_node_.first)));
     }
 
+    expression_node<T>* condition_node() const
+    {
+        return assert_condition_node_.first;
+    }
+
+    T execute_failure() const
+    {
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        if (assert_message_node_.first)
+        {
+            assert_message_node_.first->value();
+            assert(assert_message_str_base_);
+            context_.message = assert_message_str_base_->str();
+        }
+#endif
+        assert_check_->handle_assert(context_);
+        return T(0);
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(assert_condition_node_, node_delete_list);
