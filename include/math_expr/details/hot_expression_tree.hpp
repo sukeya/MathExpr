@@ -374,17 +374,117 @@ class hot_expression_tree
         node_index_t rhs;
     };
 
-    using node_data_t =
-        std::variant<literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data,
-                     sf4_data, fixed_function_data, uv_data, conditional_data, scand_data,
-                     scor_data, scalar_pow_data, branch_pow_data, unary_branch_data, vov_data,
-                     cov_data, voc_data, vob_data, bov_data, cob_data, boc_data, uvouv_data,
-                     t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data, vararg_multi_data,
-                     vec_celem_data, vec_elem_data, swap_data, vec_elem_rtc_data,
-                     vec_celem_rtc_data, rbvec_elem_data, rbvec_celem_data, rbvec_elem_rtc_data,
-                     rbvec_celem_rtc_data, vecsize_data, assign_data, assign_vec_elem_data,
-                     assign_rbvec_elem_data, assign_rbvec_celem_data, assign_op_data,
-                     assign_vec_elem_op_data, fallback_subtree_data>;
+    struct assign_vec_elem_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t max_vector_index;
+        vector_access_runtime_check<T>* rt_check;
+        node_index_t vec_node;
+        node_index_t index_child;
+        node_index_t rhs;
+    };
+
+    struct assign_rbvec_elem_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        vector_access_runtime_check<T>* rt_check;
+        node_index_t vec_node;
+        node_index_t index_child;
+        node_index_t rhs;
+    };
+
+    struct assign_rbvec_elem_op_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        core::operators::operator_type read_op;
+        node_index_t vec_node;
+        node_index_t index_child;
+        node_index_t rhs;
+    };
+
+    struct assign_rbvec_celem_op_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        std::size_t index;
+        core::operators::operator_type read_op;
+        node_index_t vec_node;
+        node_index_t rhs;
+    };
+
+    struct assign_vec_elem_op_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t max_vector_index;
+        vector_access_runtime_check<T>* rt_check;
+        core::operators::operator_type read_op;
+        node_index_t vec_node;
+        node_index_t index_child;
+        node_index_t rhs;
+    };
+
+    struct assign_vec_celem_op_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t index;
+        std::size_t max_vector_index;
+        vector_access_runtime_check<T>* rt_check;
+        core::operators::operator_type read_op;
+        node_index_t vec_node;
+        node_index_t rhs;
+    };
+
+    struct assign_rbvec_elem_op_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        vector_access_runtime_check<T>* rt_check;
+        core::operators::operator_type read_op;
+        node_index_t vec_node;
+        node_index_t index_child;
+        node_index_t rhs;
+    };
+
+    struct assign_rbvec_celem_op_rtc_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        vector_holder_t* holder;
+        T* vector_base;
+        std::size_t index;
+        vector_access_runtime_check<T>* rt_check;
+        core::operators::operator_type read_op;
+        node_index_t vec_node;
+        node_index_t rhs;
+    };
+
+    using node_data_t = std::variant<
+        literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
+        fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
+        branch_pow_data, unary_branch_data, vov_data, cov_data, voc_data, vob_data, bov_data,
+        cob_data, boc_data, uvouv_data, t0ot1ot2_data, t0ot1ot2ot3_data, nulleq_data,
+        vararg_multi_data, vec_celem_data, vec_elem_data, swap_data, vec_elem_rtc_data,
+        vec_celem_rtc_data, rbvec_elem_data, rbvec_celem_data, rbvec_elem_rtc_data,
+        rbvec_celem_rtc_data, vecsize_data, assign_data, assign_vec_elem_data,
+        assign_rbvec_elem_data, assign_rbvec_celem_data, assign_op_data, assign_vec_elem_op_data,
+        assign_vec_elem_rtc_data, assign_rbvec_elem_rtc_data, assign_rbvec_elem_op_data,
+        assign_rbvec_celem_op_data, assign_vec_elem_op_rtc_data, assign_vec_celem_op_rtc_data,
+        assign_rbvec_elem_op_rtc_data, assign_rbvec_celem_op_rtc_data, fallback_subtree_data>;
 
     struct node
     {
@@ -851,6 +951,163 @@ class hot_expression_tree
                 tree.evaluate(data.vec_node);
                 const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
                 T& ref = *(data.vector_base + idx);
+                ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
+                return ref;
+            }
+
+            T operator()(const assign_vec_elem_rtc_data& data) const
+            {
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                tree.evaluate(data.vec_node);
+                T* ptr;
+                if (idx <= data.max_vector_index)
+                {
+                    ptr = data.holder->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = data.vector_base;
+                    context.end_ptr = data.vector_base + data.holder->size();
+                    context.access_ptr = data.vector_base + idx;
+                    context.type_size = sizeof(T);
+                    ptr = data.rt_check->handle_runtime_violation(context) ? context.access_ptr
+                                                                           : data.vector_base;
+                }
+                T& ref = *ptr;
+                return (ref = tree.evaluate(data.rhs));
+            }
+
+            T operator()(const assign_rbvec_elem_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                T* ptr;
+                if (idx <= data.holder->size() - 1)
+                {
+                    ptr = data.holder->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = data.holder->data();
+                    context.end_ptr = data.holder->data() + data.holder->size();
+                    context.access_ptr = data.holder->data() + idx;
+                    context.type_size = sizeof(T);
+                    ptr = data.rt_check->handle_runtime_violation(context) ? context.access_ptr
+                                                                           : data.holder->data();
+                }
+                T& ref = *ptr;
+                return (ref = tree.evaluate(data.rhs));
+            }
+
+            T operator()(const assign_rbvec_elem_op_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                T& ref = *(data.holder->data() + idx);
+                ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_celem_op_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                T& ref = *(data.holder->data() + data.index);
+                ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
+                return ref;
+            }
+
+            T operator()(const assign_vec_elem_op_rtc_data& data) const
+            {
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                tree.evaluate(data.vec_node);
+                T* ptr;
+                if (idx <= data.max_vector_index)
+                {
+                    ptr = data.holder->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = data.vector_base;
+                    context.end_ptr = data.vector_base + data.holder->size();
+                    context.access_ptr = data.vector_base + idx;
+                    context.type_size = sizeof(T);
+                    ptr = data.rt_check->handle_runtime_violation(context) ? context.access_ptr
+                                                                           : data.vector_base;
+                }
+                T& ref = *ptr;
+                ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
+                return ref;
+            }
+
+            T operator()(const assign_vec_celem_op_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                T* ptr;
+                if (data.index <= data.max_vector_index)
+                {
+                    ptr = data.holder->data() + data.index;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = data.vector_base;
+                    context.end_ptr = data.vector_base + data.holder->size();
+                    context.access_ptr = data.vector_base + data.index;
+                    context.type_size = sizeof(T);
+                    ptr = data.rt_check->handle_runtime_violation(context) ? context.access_ptr
+                                                                           : data.vector_base;
+                }
+                T& ref = *ptr;
+                ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_elem_op_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                const auto idx = core::numeric::to_uint64(tree.evaluate(data.index_child));
+                T* ptr;
+                if (idx <= data.holder->size() - 1)
+                {
+                    ptr = data.holder->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = data.holder->data();
+                    context.end_ptr = data.holder->data() + data.holder->size();
+                    context.access_ptr = data.holder->data() + idx;
+                    context.type_size = sizeof(T);
+                    ptr = data.rt_check->handle_runtime_violation(context) ? context.access_ptr
+                                                                           : data.holder->data();
+                }
+                T& ref = *ptr;
+                ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_celem_op_rtc_data& data) const
+            {
+                tree.evaluate(data.vec_node);
+                T* ptr;
+                if (data.index <= data.holder->size() - 1)
+                {
+                    ptr = data.holder->data() + data.index;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = data.vector_base;
+                    context.end_ptr = data.vector_base + data.holder->size();
+                    context.access_ptr = data.vector_base + data.index;
+                    context.type_size = sizeof(T);
+                    ptr = data.rt_check->handle_runtime_violation(context) ? context.access_ptr
+                                                                           : data.vector_base;
+                }
+                T& ref = *ptr;
                 ref = core::operators::process<T>(data.read_op, ref, tree.evaluate(data.rhs));
                 return ref;
             }
@@ -1354,6 +1611,103 @@ class hot_expression_tree
                         return std::nullopt;
                     return emplace(assign_vec_elem_op_data{view.elem->vec_data(), view.read_op,
                                                            *vec_child, *idx_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_vec_elem_rtc_hot_view>)
+                {
+                    using elem_node_t = typename node_variant_adapter_t::vector_elem_rtc_node_t;
+                    const elem_node_t* elem = view.assign->elem_rtc_node_ptr();
+                    const auto vec_child = append_child(elem->vec_branch());
+                    const auto idx_child = append_child(elem->index_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !idx_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_vec_elem_rtc_data{elem->holder(), elem->vec_data(),
+                                                            elem->max_idx(), elem->rt_check(),
+                                                            *vec_child, *idx_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_rbvec_elem_rtc_hot_view>)
+                {
+                    using elem_node_t =
+                        typename node_variant_adapter_t::rebasevector_elem_rtc_node_t;
+                    const elem_node_t* elem = view.assign->rbvec_elem_rtc_node_ptr();
+                    const auto vec_child = append_child(elem->vec_branch());
+                    const auto idx_child = append_child(elem->index_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !idx_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_rbvec_elem_rtc_data{elem->holder(), elem->rt_check(),
+                                                              *vec_child, *idx_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_rbvec_elem_op_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto idx_child = append_child(view.elem->index_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !idx_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_rbvec_elem_op_data{view.elem->holder(), view.read_op,
+                                                             *vec_child, *idx_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_rbvec_celem_op_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_rbvec_celem_op_data{view.elem->holder(),
+                                                              view.elem->elem_idx(), view.read_op,
+                                                              *vec_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_vec_elem_op_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto idx_child = append_child(view.elem->index_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !idx_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_vec_elem_op_rtc_data{
+                        view.elem->holder(), view.elem->vec_data(), view.elem->max_idx(),
+                        view.elem->rt_check(), view.read_op, *vec_child, *idx_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_vec_celem_op_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_vec_celem_op_rtc_data{
+                        view.elem->holder(), view.elem->vec_data(), view.elem->elem_idx(),
+                        view.elem->max_idx(), view.elem->rt_check(), view.read_op, *vec_child,
+                        *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_rbvec_elem_op_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto idx_child = append_child(view.elem->index_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !idx_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(
+                        assign_rbvec_elem_op_rtc_data{view.elem->holder(), view.elem->rt_check(),
+                                                      view.read_op, *vec_child, *idx_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_rbvec_celem_op_rtc_hot_view>)
+                {
+                    const auto vec_child = append_child(view.elem->vec_branch());
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!vec_child.has_value() || !rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_rbvec_celem_op_rtc_data{
+                        view.elem->holder(), view.elem->vec_data(), view.elem->elem_idx(),
+                        view.elem->rt_check(), view.read_op, *vec_child, *rhs});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

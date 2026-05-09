@@ -188,8 +188,16 @@ The hot-set is intentionally small relative to the full node family count. It cu
 - `assignment_rebasevec_elem_node` / `assignment_rebasevec_celem_node` — rebase vector element assignment
 - `assignment_op_node` — scalar compound assignment (`v += rhs`, `v -= rhs`, `v *= rhs`, `v /= rhs`, `v %= rhs`)
 - `assignment_vec_elem_op_node` — vector element compound assignment (`v[i] += rhs`, etc.)
+- `assignment_vec_elem_rtc_node` — RTC-checked dynamic-index vector element assignment (`v[i] = rhs` with bounds check)
+- `assignment_rebasevec_elem_rtc_node` — RTC-checked rebase vector element assignment (dynamic base + dynamic index + bounds check)
+- `assignment_rebasevec_elem_op_node` — rebase vector element compound assignment (`rb[i] += rhs`, etc.)
+- `assignment_rebasevec_celem_op_node` — rebase vector constant-index compound assignment (`rb[k] += rhs`, etc.)
+- `assignment_vec_elem_op_rtc_node` — RTC-checked dynamic-index vector element compound assignment
+- `assignment_vec_celem_op_rtc_node` — RTC-checked constant-index vector element compound assignment
+- `assignment_rebasevec_elem_op_rtc_node` — RTC-checked rebase vector element compound assignment
+- `assignment_rebasevec_celem_op_rtc_node` — RTC-checked rebase vector constant-index compound assignment
 
-Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector whole-array assignment and init nodes; compound rebase-vector element assignment; and all control-flow nodes (while, for, switch, return).
+Anything outside this set is represented as `fallback_view` and continues to use the legacy node path via `fallback_subtree_data`. Notable remaining exclusions: string nodes; generic / vararg functions; vector whole-array assignment and init nodes; and all control-flow nodes (while, for, switch, return).
 
 Relevant header:
 

@@ -391,6 +391,11 @@ class assignment_vec_elem_rtc_node final : public binary_node<T>
         return vec_node_ptr_ && binary_node<T>::valid();
     }
 
+    inline vector_elem_rtc_node<T>* elem_rtc_node_ptr() const
+    {
+        return vec_node_ptr_;
+    }
+
    private:
     vector_elem_rtc_node<T>* vec_node_ptr_;
 };
@@ -466,6 +471,11 @@ class assignment_rebasevec_elem_rtc_node final : public binary_node<T>
     inline bool valid() const override
     {
         return rbvec_node_ptr_ && binary_node<T>::valid();
+    }
+
+    inline rebasevector_elem_rtc_node<T>* rbvec_elem_rtc_node_ptr() const
+    {
+        return rbvec_node_ptr_;
     }
 
    private:

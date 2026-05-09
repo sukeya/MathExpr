@@ -83,6 +83,8 @@ class node_variant_adapter
     using assignment_vec_elem_node_t = assignment_vec_elem_node<T>;
     using assignment_rebasevec_elem_node_t = assignment_rebasevec_elem_node<T>;
     using assignment_rebasevec_celem_node_t = assignment_rebasevec_celem_node<T>;
+    using assignment_vec_elem_rtc_node_t = assignment_vec_elem_rtc_node<T>;
+    using assignment_rebasevec_elem_rtc_node_t = assignment_rebasevec_elem_rtc_node<T>;
 
     struct null_view
     {
@@ -404,24 +406,80 @@ class node_variant_adapter
         core::operators::operator_type read_op;
     };
 
+    struct assign_vec_elem_rtc_hot_view
+    {
+        expression_ptr node;
+        assignment_vec_elem_rtc_node_t* assign;
+    };
+
+    struct assign_rbvec_elem_rtc_hot_view
+    {
+        expression_ptr node;
+        assignment_rebasevec_elem_rtc_node_t* assign;
+    };
+
+    struct assign_rbvec_elem_op_hot_view
+    {
+        expression_ptr node;
+        rebasevector_elem_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
+    struct assign_rbvec_celem_op_hot_view
+    {
+        expression_ptr node;
+        rebasevector_celem_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
+    struct assign_vec_elem_op_rtc_hot_view
+    {
+        expression_ptr node;
+        vector_elem_rtc_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
+    struct assign_vec_celem_op_rtc_hot_view
+    {
+        expression_ptr node;
+        vector_celem_rtc_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
+    struct assign_rbvec_elem_op_rtc_hot_view
+    {
+        expression_ptr node;
+        rebasevector_elem_rtc_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
+    struct assign_rbvec_celem_op_rtc_hot_view
+    {
+        expression_ptr node;
+        rebasevector_celem_rtc_node_t* elem;
+        core::operators::operator_type read_op;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
                      assert_view, sf3ext_view, sf4ext_view, other_view>;
 
-    using hot_variant_type =
-        std::variant<std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
-                     trinary_hot_view, sf3_hot_view, sf4_hot_view, fixed_function_hot_view,
-                     conditional_hot_view, uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view,
-                     unary_branch_hot_view, vov_hot_view, cov_hot_view, voc_hot_view, vob_hot_view,
-                     bov_hot_view, cob_hot_view, boc_hot_view, uvouv_hot_view, t0ot1ot2_hot_view,
-                     t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view, nulleq_hot_view,
-                     vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view, swap_hot_view,
-                     vec_elem_rtc_hot_view, vec_celem_rtc_hot_view, rbvec_elem_hot_view,
-                     rbvec_celem_hot_view, rbvec_elem_rtc_hot_view, rbvec_celem_rtc_hot_view,
-                     vecsize_hot_view, assign_hot_view, assign_vec_elem_hot_view,
-                     assign_rbvec_elem_hot_view, assign_rbvec_celem_hot_view, assign_op_hot_view,
-                     assign_vec_elem_op_hot_view, fallback_view>;
+    using hot_variant_type = std::variant<
+        std::monostate, literal_view, variable_view, unary_hot_view, binary_hot_view,
+        trinary_hot_view, sf3_hot_view, sf4_hot_view, fixed_function_hot_view, conditional_hot_view,
+        uv_hot_view, scalar_pow_hot_view, branch_pow_hot_view, unary_branch_hot_view, vov_hot_view,
+        cov_hot_view, voc_hot_view, vob_hot_view, bov_hot_view, cob_hot_view, boc_hot_view,
+        uvouv_hot_view, t0ot1ot2_hot_view, t0ot1ot2ot3_hot_view, scand_hot_view, scor_hot_view,
+        nulleq_hot_view, vararg_multi_hot_view, vec_celem_hot_view, vec_elem_hot_view,
+        swap_hot_view, vec_elem_rtc_hot_view, vec_celem_rtc_hot_view, rbvec_elem_hot_view,
+        rbvec_celem_hot_view, rbvec_elem_rtc_hot_view, rbvec_celem_rtc_hot_view, vecsize_hot_view,
+        assign_hot_view, assign_vec_elem_hot_view, assign_rbvec_elem_hot_view,
+        assign_rbvec_celem_hot_view, assign_op_hot_view, assign_vec_elem_op_hot_view,
+        assign_vec_elem_rtc_hot_view, assign_rbvec_elem_rtc_hot_view, assign_rbvec_elem_op_hot_view,
+        assign_rbvec_celem_op_hot_view, assign_vec_elem_op_rtc_hot_view,
+        assign_vec_celem_op_rtc_hot_view, assign_rbvec_elem_op_rtc_hot_view,
+        assign_rbvec_celem_op_rtc_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -759,6 +817,16 @@ class node_variant_adapter
                     {
                         return assign_rbvec_celem_hot_view{node, assign};
                     }
+                    if (auto* assign = dynamic_cast<assignment_vec_elem_rtc_node_t*>(node);
+                        nullptr != assign)
+                    {
+                        return assign_vec_elem_rtc_hot_view{node, assign};
+                    }
+                    if (auto* assign = dynamic_cast<assignment_rebasevec_elem_rtc_node_t*>(node);
+                        nullptr != assign)
+                    {
+                        return assign_rbvec_elem_rtc_hot_view{node, assign};
+                    }
                     const auto op = static_cast<binary_node_t*>(node)->operation();
                     if (const auto read_op = compound_to_read_op(op); read_op.has_value())
                     {
@@ -771,6 +839,42 @@ class node_variant_adapter
                         {
                             return assign_vec_elem_op_hot_view{
                                 node, static_cast<vector_elem_node_t*>(node->branch(0)), *read_op};
+                        }
+                        if (is_rebasevector_elem_node(node->branch(0)))
+                        {
+                            return assign_rbvec_elem_op_hot_view{
+                                node, static_cast<rebasevector_elem_node_t*>(node->branch(0)),
+                                *read_op};
+                        }
+                        if (is_rebasevector_celem_node(node->branch(0)))
+                        {
+                            return assign_rbvec_celem_op_hot_view{
+                                node, static_cast<rebasevector_celem_node_t*>(node->branch(0)),
+                                *read_op};
+                        }
+                        if (is_vector_elem_rtc_node(node->branch(0)))
+                        {
+                            return assign_vec_elem_op_rtc_hot_view{
+                                node, static_cast<vector_elem_rtc_node_t*>(node->branch(0)),
+                                *read_op};
+                        }
+                        if (is_vector_celem_rtc_node(node->branch(0)))
+                        {
+                            return assign_vec_celem_op_rtc_hot_view{
+                                node, static_cast<vector_celem_rtc_node_t*>(node->branch(0)),
+                                *read_op};
+                        }
+                        if (is_rebasevector_elem_rtc_node(node->branch(0)))
+                        {
+                            return assign_rbvec_elem_op_rtc_hot_view{
+                                node, static_cast<rebasevector_elem_rtc_node_t*>(node->branch(0)),
+                                *read_op};
+                        }
+                        if (is_rebasevector_celem_rtc_node(node->branch(0)))
+                        {
+                            return assign_rbvec_celem_op_rtc_hot_view{
+                                node, static_cast<rebasevector_celem_rtc_node_t*>(node->branch(0)),
+                                *read_op};
                         }
                     }
                 }
@@ -1462,6 +1566,189 @@ class node_variant_adapter
                 const auto idx = core::numeric::to_uint64(
                     node_variant_adapter::value(view.elem->index_branch()));
                 T& ref = *(view.elem->vec_data() + idx);
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
+            }
+
+            T operator()(const assign_vec_elem_rtc_hot_view& view) const
+            {
+                const vector_elem_rtc_node_t* elem = view.assign->elem_rtc_node_ptr();
+                node_variant_adapter::value(elem->vec_branch());
+                const auto idx =
+                    core::numeric::to_uint64(node_variant_adapter::value(elem->index_branch()));
+                T* ptr;
+                if (idx <= elem->max_idx())
+                {
+                    ptr = elem->holder()->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = elem->vec_data();
+                    context.end_ptr = elem->vec_data() + elem->holder()->size();
+                    context.access_ptr = elem->vec_data() + idx;
+                    context.type_size = sizeof(T);
+                    ptr = elem->rt_check()->handle_runtime_violation(context) ? context.access_ptr
+                                                                              : elem->vec_data();
+                }
+                T& ref = *ptr;
+                ref = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_elem_rtc_hot_view& view) const
+            {
+                const rebasevector_elem_rtc_node_t* elem = view.assign->rbvec_elem_rtc_node_ptr();
+                node_variant_adapter::value(elem->vec_branch());
+                const auto idx =
+                    core::numeric::to_uint64(node_variant_adapter::value(elem->index_branch()));
+                T* ptr;
+                if (idx <= elem->holder()->size() - 1)
+                {
+                    ptr = elem->holder()->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = elem->holder()->data();
+                    context.end_ptr = elem->holder()->data() + elem->holder()->size();
+                    context.access_ptr = elem->holder()->data() + idx;
+                    context.type_size = sizeof(T);
+                    ptr = elem->rt_check()->handle_runtime_violation(context)
+                              ? context.access_ptr
+                              : elem->holder()->data();
+                }
+                T& ref = *ptr;
+                ref = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_elem_op_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                const auto idx = core::numeric::to_uint64(
+                    node_variant_adapter::value(view.elem->index_branch()));
+                T& ref = *(view.elem->holder()->data() + idx);
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_celem_op_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                T& ref = *(view.elem->holder()->data() + view.elem->elem_idx());
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
+            }
+
+            T operator()(const assign_vec_elem_op_rtc_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                const auto idx = core::numeric::to_uint64(
+                    node_variant_adapter::value(view.elem->index_branch()));
+                T* ptr;
+                if (idx <= view.elem->max_idx())
+                {
+                    ptr = view.elem->holder()->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = view.elem->vec_data();
+                    context.end_ptr = view.elem->vec_data() + view.elem->holder()->size();
+                    context.access_ptr = view.elem->vec_data() + idx;
+                    context.type_size = sizeof(T);
+                    ptr = view.elem->rt_check()->handle_runtime_violation(context)
+                              ? context.access_ptr
+                              : view.elem->vec_data();
+                }
+                T& ref = *ptr;
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
+            }
+
+            T operator()(const assign_vec_celem_op_rtc_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                T* ptr;
+                if (view.elem->elem_idx() <= view.elem->max_idx())
+                {
+                    ptr = view.elem->holder()->data() + view.elem->elem_idx();
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = view.elem->vec_data();
+                    context.end_ptr = view.elem->vec_data() + view.elem->holder()->size();
+                    context.access_ptr = view.elem->vec_data() + view.elem->elem_idx();
+                    context.type_size = sizeof(T);
+                    ptr = view.elem->rt_check()->handle_runtime_violation(context)
+                              ? context.access_ptr
+                              : view.elem->vec_data();
+                }
+                T& ref = *ptr;
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_elem_op_rtc_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                const auto idx = core::numeric::to_uint64(
+                    node_variant_adapter::value(view.elem->index_branch()));
+                T* ptr;
+                if (idx <= view.elem->holder()->size() - 1)
+                {
+                    ptr = view.elem->holder()->data() + idx;
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = view.elem->holder()->data();
+                    context.end_ptr = view.elem->holder()->data() + view.elem->holder()->size();
+                    context.access_ptr = view.elem->holder()->data() + idx;
+                    context.type_size = sizeof(T);
+                    ptr = view.elem->rt_check()->handle_runtime_violation(context)
+                              ? context.access_ptr
+                              : view.elem->holder()->data();
+                }
+                T& ref = *ptr;
+                ref = core::operators::process<T>(
+                    view.read_op, ref,
+                    node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
+                return ref;
+            }
+
+            T operator()(const assign_rbvec_celem_op_rtc_hot_view& view) const
+            {
+                node_variant_adapter::value(view.elem->vec_branch());
+                T* ptr;
+                if (view.elem->elem_idx() <= view.elem->holder()->size() - 1)
+                {
+                    ptr = view.elem->holder()->data() + view.elem->elem_idx();
+                }
+                else
+                {
+                    typename vector_access_runtime_check<T>::violation_context context;
+                    context.base_ptr = view.elem->vec_data();
+                    context.end_ptr = view.elem->vec_data() + view.elem->holder()->size();
+                    context.access_ptr = view.elem->vec_data() + view.elem->elem_idx();
+                    context.type_size = sizeof(T);
+                    ptr = view.elem->rt_check()->handle_runtime_violation(context)
+                              ? context.access_ptr
+                              : view.elem->vec_data();
+                }
+                T& ref = *ptr;
                 ref = core::operators::process<T>(
                     view.read_op, ref,
                     node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
