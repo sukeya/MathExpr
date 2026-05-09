@@ -254,12 +254,26 @@ class vararg_varnode final : public expression_node<T>
     bool initialised_;
 };
 
+template <typename T>
+class vectorize_evaluable_node : public expression_node<T>
+{
+   public:
+    using ivec_ptr = vector_interface<T>*;
+    using proc_fn_t = T (*)(ivec_ptr);
+
+    virtual proc_fn_t proc_fn() const = 0;
+    virtual ivec_ptr ivec() const = 0;
+    virtual expression_node<T>* vec_branch() const = 0;
+};
+
 template <typename T, typename VecFunction>
-class vectorize_node final : public expression_node<T>
+class vectorize_node final : public vectorize_evaluable_node<T>
 {
    public:
     using expression_ptr = expression_node<T>*;
     using branch_t = std::pair<expression_ptr, bool>;
+    using ivec_ptr = typename vectorize_evaluable_node<T>::ivec_ptr;
+    using proc_fn_t = typename vectorize_evaluable_node<T>::proc_fn_t;
 
     explicit vectorize_node(const expression_ptr v) : ivec_ptr_(nullptr)
     {
@@ -288,6 +302,19 @@ class vectorize_node final : public expression_node<T>
         return ivec_ptr_ && v_.first && v_.first->valid();
     }
 
+    proc_fn_t proc_fn() const override
+    {
+        return &VecFunction::process;
+    }
+    ivec_ptr ivec() const override
+    {
+        return ivec_ptr_;
+    }
+    expression_node<T>* vec_branch() const override
+    {
+        return v_.first;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(v_, node_delete_list);
@@ -299,7 +326,7 @@ class vectorize_node final : public expression_node<T>
     }
 
    private:
-    vector_interface<T>* ivec_ptr_;
+    ivec_ptr ivec_ptr_;
     branch_t v_;
 };
 

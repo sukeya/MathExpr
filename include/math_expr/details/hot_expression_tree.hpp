@@ -680,6 +680,14 @@ class hot_expression_tree
         node_index_t branch0_child;
     };
 
+    struct vecfunc_data
+    {
+        using proc_fn_t = T (*)(vector_interface<T>*);
+        proc_fn_t proc_fn;
+        vector_interface<T>* ivec;
+        node_index_t branch_child;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -697,7 +705,8 @@ class hot_expression_tree
         assign_vecvec_data, assign_vecvec_op_data, vecinit_zero_data, vecinit_constfill_data,
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
         vecinit_iota_ncnc_data, vecinit_general_data, vararg_evaluable_data, vec_binop_vecvec_data,
-        vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, fallback_subtree_data>;
+        vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, vecfunc_data,
+        fallback_subtree_data>;
 
     struct node
     {
@@ -1706,6 +1715,12 @@ class hot_expression_tree
                 return data.vec_out[0];
             }
 
+            T operator()(const vecfunc_data& data) const
+            {
+                tree.evaluate(data.branch_child);
+                return data.proc_fn(data.ivec);
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2652,6 +2667,15 @@ class hot_expression_tree
                         return std::nullopt;
                     return emplace(unary_vec_data{view.operation, vi0->vds().data(),
                                                   vi->vds().data(), vi0->size(), *branch0});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::vecfunc_hot_view>)
+                {
+                    const auto branch_child = append_child(view.fn->vec_branch());
+                    if (!branch_child.has_value())
+                        return std::nullopt;
+                    return emplace(
+                        vecfunc_data{view.fn->proc_fn(), view.fn->ivec(), *branch_child});
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

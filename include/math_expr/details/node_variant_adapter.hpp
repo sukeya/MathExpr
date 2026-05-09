@@ -104,6 +104,7 @@ class node_variant_adapter
     using vector_init_iota_ncnc_node_t = vector_init_iota_nconstnconst_node<T>;
     using vector_init_general_node_t = vector_initialisation_node<T>;
     using vararg_evaluable_node_t = vararg_evaluable_node<T>;
+    using vectorize_evaluable_node_t = vectorize_evaluable_node<T>;
 
     struct null_view
     {
@@ -646,6 +647,12 @@ class node_variant_adapter
         vararg_evaluable_node_t* fn;
     };
 
+    struct vecfunc_hot_view
+    {
+        expression_ptr node;
+        vectorize_evaluable_node_t* fn;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -673,7 +680,7 @@ class node_variant_adapter
         vecinit_iota_cc_hot_view, vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view,
         vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, vec_binop_vecvec_hot_view,
         vec_binop_vecval_hot_view, vec_binop_valvec_hot_view, unary_vec_hot_view,
-        vararg_evaluable_hot_view, fallback_view>;
+        vararg_evaluable_hot_view, vecfunc_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1331,6 +1338,14 @@ class node_variant_adapter
                 if (nullptr == vi0 || vi0->vec()->vec_holder().rebaseable())
                     return fallback_view{node};
                 return unary_vec_hot_view{node, static_cast<unary_node_t*>(node)->operation()};
+            }
+
+            case expression_node<T>::node_type::e_vecfunc:
+            {
+                auto* fn = dynamic_cast<vectorize_evaluable_node_t*>(node);
+                if (fn && fn->ivec())
+                    return vecfunc_hot_view{node, fn};
+                return fallback_view{node};
             }
 
             default:
@@ -2556,6 +2571,12 @@ class node_variant_adapter
                         ++vec_out;
                     });
                 return vi->vds().data()[0];
+            }
+
+            T operator()(const vecfunc_hot_view& view) const
+            {
+                node_variant_adapter::value(view.fn->vec_branch());
+                return view.fn->proc_fn()(view.fn->ivec());
             }
 
             T operator()(const fallback_view& view) const
