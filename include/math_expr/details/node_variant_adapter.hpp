@@ -102,6 +102,7 @@ class node_variant_adapter
     using vector_init_iota_cnc_node_t = vector_init_iota_constnconst_node<T>;
     using vector_init_iota_ncc_node_t = vector_init_iota_nconstconst_node<T>;
     using vector_init_iota_ncnc_node_t = vector_init_iota_nconstnconst_node<T>;
+    using vector_init_general_node_t = vector_initialisation_node<T>;
 
     struct null_view
     {
@@ -608,6 +609,12 @@ class node_variant_adapter
         expression_ptr increment_child;
     };
 
+    struct vecinit_general_hot_view
+    {
+        expression_ptr node;
+        vector_init_general_node_t* vinit;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -633,7 +640,7 @@ class node_variant_adapter
         multi_switch_hot_view, assign_vecvec_hot_view, assign_vecvec_op_hot_view,
         vecinit_zero_hot_view, vecinit_constfill_hot_view, vecinit_dynfill_hot_view,
         vecinit_iota_cc_hot_view, vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view,
-        vecinit_iota_ncnc_hot_view, fallback_view>;
+        vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1208,6 +1215,11 @@ class node_variant_adapter
                     auto* n = static_cast<vector_init_iota_ncnc_node_t*>(node);
                     return vecinit_iota_ncnc_hot_view{node, n->vec_base(), n->vec_size(),
                                                       n->base_child(), n->increment_child()};
+                }
+                if (typeid(*node) == typeid(vector_init_general_node_t))
+                {
+                    auto* n = static_cast<vector_init_general_node_t*>(node);
+                    return vecinit_general_hot_view{node, n};
                 }
                 return fallback_view{node};
             }
@@ -2275,6 +2287,27 @@ class node_variant_adapter
                 for (std::size_t i = 0; i < view.vec_size; ++i, v += increment.value())
                     *(view.vec_base + i) = v;
                 return *view.vec_base;
+            }
+
+            T operator()(const vecinit_general_hot_view& view) const
+            {
+                const auto& list = view.vinit->initialiser_list();
+                if (view.vinit->is_single_value())
+                {
+                    const T v = list.empty() ? T(0) : node_variant_adapter::value(list[0]);
+                    for (std::size_t i = 0; i < view.vinit->vec_size(); ++i)
+                        *(view.vinit->vec_base() + i) = v;
+                }
+                else
+                {
+                    const std::size_t n = list.size();
+                    for (std::size_t i = 0; i < n; ++i)
+                        *(view.vinit->vec_base() + i) = node_variant_adapter::value(list[i]);
+                    if (n < view.vinit->vec_size())
+                        core::numeric::set_zero_value(view.vinit->vec_base() + n,
+                                                      view.vinit->vec_size() - n);
+                }
+                return *view.vinit->vec_base();
             }
 
             T operator()(const fallback_view& view) const

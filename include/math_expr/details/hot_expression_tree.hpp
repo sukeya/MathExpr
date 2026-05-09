@@ -625,6 +625,14 @@ class hot_expression_tree
         node_index_t increment_child;
     };
 
+    struct vecinit_general_data
+    {
+        T* vec_base;
+        std::size_t vec_size;
+        std::vector<node_index_t> init_children;
+        bool single_value;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -641,7 +649,7 @@ class hot_expression_tree
         repeat_until_rtc_data, for_data, for_rtc_data, switch_data, multi_switch_data,
         assign_vecvec_data, assign_vecvec_op_data, vecinit_zero_data, vecinit_constfill_data,
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
-        vecinit_iota_ncnc_data, fallback_subtree_data>;
+        vecinit_iota_ncnc_data, vecinit_general_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1509,6 +1517,25 @@ class hot_expression_tree
                 return *data.vec_base;
             }
 
+            T operator()(const vecinit_general_data& data) const
+            {
+                if (data.single_value)
+                {
+                    const T v =
+                        data.init_children.empty() ? T(0) : tree.evaluate(data.init_children[0]);
+                    for (std::size_t i = 0; i < data.vec_size; ++i) *(data.vec_base + i) = v;
+                }
+                else
+                {
+                    const std::size_t n = data.init_children.size();
+                    for (std::size_t i = 0; i < n; ++i)
+                        *(data.vec_base + i) = tree.evaluate(data.init_children[i]);
+                    if (n < data.vec_size)
+                        core::numeric::set_zero_value(data.vec_base + n, data.vec_size - n);
+                }
+                return *data.vec_base;
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2348,6 +2375,42 @@ class hot_expression_tree
                         return std::nullopt;
                     return emplace(
                         vecinit_iota_ncnc_data{view.vec_base, view.vec_size, *base, *incr});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecinit_general_hot_view>)
+                {
+                    auto* n = view.vinit;
+                    const bool single_value = n->is_single_value();
+                    vecinit_general_data data{n->vec_base(), n->vec_size(), {}, single_value};
+                    const auto& list = n->initialiser_list();
+                    if (single_value)
+                    {
+                        if (!list.empty())
+                        {
+                            const bool is_zero =
+                                details::is_constant_node(list[0]) && T(0) == list[0]->value();
+                            if (!is_zero)
+                            {
+                                const auto child = append_child(list[0]);
+                                if (!child.has_value())
+                                    return std::nullopt;
+                                data.init_children.push_back(*child);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        data.init_children.reserve(list.size());
+                        for (auto* child : list)
+                        {
+                            const auto idx = append_child(child);
+                            if (!idx.has_value())
+                                return std::nullopt;
+                            data.init_children.push_back(*idx);
+                        }
+                    }
+                    return emplace(std::move(data));
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

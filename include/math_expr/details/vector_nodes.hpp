@@ -1193,6 +1193,23 @@ class vector_initialisation_node final : public expression_node<T>
         return vector_base_;
     }
 
+    inline T* vec_base() const
+    {
+        return vector_base_;
+    }
+    inline std::size_t vec_size() const
+    {
+        return size_;
+    }
+    inline bool is_single_value() const
+    {
+        return single_value_initialse_;
+    }
+    inline const std::vector<expression_ptr>& initialiser_list() const
+    {
+        return initialiser_list_;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(initialiser_list_, node_delete_list);
