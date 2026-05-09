@@ -197,6 +197,15 @@ class while_loop_node : public expression_node<T>
                loop_body_.first->valid();
     }
 
+    inline expression_ptr condition_branch() const
+    {
+        return condition_.first;
+    }
+    inline expression_ptr body_branch() const
+    {
+        return loop_body_.first;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(condition_, node_delete_list);
@@ -240,6 +249,11 @@ class while_loop_rtc_node final : public while_loop_node<T>, public loop_runtime
         }
 
         return result;
+    }
+
+    inline loop_runtime_checker* rt_checker()
+    {
+        return this;
     }
 
     using parent_t::valid;
@@ -287,6 +301,15 @@ class repeat_until_loop_node : public expression_node<T>
                loop_body_.first->valid();
     }
 
+    inline expression_ptr condition_branch() const
+    {
+        return condition_.first;
+    }
+    inline expression_ptr body_branch() const
+    {
+        return loop_body_.first;
+    }
+
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
     {
         expression_node<T>::ndb_t::collect(condition_, node_delete_list);
@@ -331,6 +354,11 @@ class repeat_until_loop_rtc_node final : public repeat_until_loop_node<T>,
         } while (is_false(parent_t::condition_.first) && loop_runtime_checker::check());
 
         return result;
+    }
+
+    inline loop_runtime_checker* rt_checker()
+    {
+        return this;
     }
 
     using parent_t::valid;
@@ -392,6 +420,23 @@ class for_loop_node : public expression_node<T>
     inline bool valid() const override
     {
         return condition_.first && loop_body_.first;
+    }
+
+    inline expression_ptr initialiser_branch() const
+    {
+        return initialiser_.first;
+    }
+    inline expression_ptr condition_branch() const
+    {
+        return condition_.first;
+    }
+    inline expression_ptr incrementor_branch() const
+    {
+        return incrementor_.first;
+    }
+    inline expression_ptr body_branch() const
+    {
+        return loop_body_.first;
     }
 
     void collect_nodes(typename expression_node<T>::noderef_list_t& node_delete_list) override
@@ -457,6 +502,11 @@ class for_loop_rtc_node final : public for_loop_node<T>, public loop_runtime_che
         }
 
         return result;
+    }
+
+    inline loop_runtime_checker* rt_checker()
+    {
+        return this;
     }
 
     using parent_t::valid;

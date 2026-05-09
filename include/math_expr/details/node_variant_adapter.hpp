@@ -85,6 +85,13 @@ class node_variant_adapter
     using assignment_rebasevec_celem_node_t = assignment_rebasevec_celem_node<T>;
     using assignment_vec_elem_rtc_node_t = assignment_vec_elem_rtc_node<T>;
     using assignment_rebasevec_elem_rtc_node_t = assignment_rebasevec_elem_rtc_node<T>;
+    using assignment_vec_node_t = assignment_vec_node<T>;
+    using while_loop_node_t = while_loop_node<T>;
+    using while_loop_rtc_node_t = while_loop_rtc_node<T>;
+    using repeat_until_loop_node_t = repeat_until_loop_node<T>;
+    using repeat_until_loop_rtc_node_t = repeat_until_loop_rtc_node<T>;
+    using for_loop_node_t = for_loop_node<T>;
+    using for_loop_rtc_node_t = for_loop_rtc_node<T>;
 
     struct null_view
     {
@@ -460,6 +467,54 @@ class node_variant_adapter
         core::operators::operator_type read_op;
     };
 
+    struct assign_vec_scalar_hot_view
+    {
+        expression_ptr node;
+        assignment_vec_node_t* assign;
+    };
+
+    struct assign_vec_scalar_op_hot_view
+    {
+        expression_ptr node;
+        core::operators::operator_type read_op;
+    };
+
+    struct while_hot_view
+    {
+        expression_ptr node;
+        while_loop_node_t* loop;
+    };
+
+    struct while_rtc_hot_view
+    {
+        expression_ptr node;
+        while_loop_rtc_node_t* loop;
+    };
+
+    struct repeat_until_hot_view
+    {
+        expression_ptr node;
+        repeat_until_loop_node_t* loop;
+    };
+
+    struct repeat_until_rtc_hot_view
+    {
+        expression_ptr node;
+        repeat_until_loop_rtc_node_t* loop;
+    };
+
+    struct for_hot_view
+    {
+        expression_ptr node;
+        for_loop_node_t* loop;
+    };
+
+    struct for_rtc_hot_view
+    {
+        expression_ptr node;
+        for_loop_rtc_node_t* loop;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -479,7 +534,9 @@ class node_variant_adapter
         assign_vec_elem_rtc_hot_view, assign_rbvec_elem_rtc_hot_view, assign_rbvec_elem_op_hot_view,
         assign_rbvec_celem_op_hot_view, assign_vec_elem_op_rtc_hot_view,
         assign_vec_celem_op_rtc_hot_view, assign_rbvec_elem_op_rtc_hot_view,
-        assign_rbvec_celem_op_rtc_hot_view, fallback_view>;
+        assign_rbvec_celem_op_rtc_hot_view, assign_vec_scalar_hot_view,
+        assign_vec_scalar_op_hot_view, while_hot_view, while_rtc_hot_view, repeat_until_hot_view,
+        repeat_until_rtc_hot_view, for_hot_view, for_rtc_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -940,6 +997,46 @@ class node_variant_adapter
 
             case expression_node<T>::node_type::e_vecsize:
                 return vecsize_hot_view{node, static_cast<vector_size_node_t*>(node)};
+
+            case expression_node<T>::node_type::e_vecvalass:
+                if (typeid(*node) == typeid(assignment_vec_node_t))
+                    return assign_vec_scalar_hot_view{node,
+                                                      static_cast<assignment_vec_node_t*>(node)};
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_vecopvalass:
+            {
+                const auto op = static_cast<binary_node_t*>(node)->operation();
+                if (const auto read_op = compound_to_read_op(op); read_op.has_value())
+                {
+                    if (nullptr != node->as_vector_iface())
+                        return assign_vec_scalar_op_hot_view{node, *read_op};
+                }
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_while:
+                if (typeid(*node) == typeid(while_loop_node_t))
+                    return while_hot_view{node, static_cast<while_loop_node_t*>(node)};
+                if (typeid(*node) == typeid(while_loop_rtc_node_t))
+                    return while_rtc_hot_view{node, static_cast<while_loop_rtc_node_t*>(node)};
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_repeat:
+                if (typeid(*node) == typeid(repeat_until_loop_node_t))
+                    return repeat_until_hot_view{node,
+                                                 static_cast<repeat_until_loop_node_t*>(node)};
+                if (typeid(*node) == typeid(repeat_until_loop_rtc_node_t))
+                    return repeat_until_rtc_hot_view{
+                        node, static_cast<repeat_until_loop_rtc_node_t*>(node)};
+                return fallback_view{node};
+
+            case expression_node<T>::node_type::e_for:
+                if (typeid(*node) == typeid(for_loop_node_t))
+                    return for_hot_view{node, static_cast<for_loop_node_t*>(node)};
+                if (typeid(*node) == typeid(for_loop_rtc_node_t))
+                    return for_rtc_hot_view{node, static_cast<for_loop_rtc_node_t*>(node)};
+                return fallback_view{node};
 
             default:
                 return fallback_view{node};
@@ -1753,6 +1850,131 @@ class node_variant_adapter
                     view.read_op, ref,
                     node_variant_adapter::value(node_variant_adapter::branch(view.node, 1)));
                 return ref;
+            }
+
+            T operator()(const assign_vec_scalar_hot_view& view) const
+            {
+                const T v = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                T* vec = view.assign->vds().data();
+                const std::size_t sz = view.assign->vec_holder_ptr()->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec + lud.upper_bound;
+                while (vec < upper_bound)
+                {
+                    lud.foreach_batch([v, &vec](unsigned int i) { vec[i] = v; });
+                    vec += lud.loop_batch_size;
+                }
+                lud.foreach_remainder([&vec, v]() { *vec++ = v; });
+                return view.assign->vds().data()[0];
+            }
+
+            T operator()(const assign_vec_scalar_op_hot_view& view) const
+            {
+                auto* vi = view.node->as_vector_iface();
+                const T v = node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                T* vec = vi->vds().data();
+                const std::size_t sz = vi->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec + lud.upper_bound;
+                while (vec < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        { vec[i] = core::operators::process<T>(view.read_op, vec[i], v); });
+                    vec += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&vec, v, this, &view]()
+                    {
+                        *vec = core::operators::process<T>(view.read_op, *vec, v);
+                        ++vec;
+                    });
+                return vi->vds().data()[0];
+            }
+
+            T operator()(const while_hot_view& view) const
+            {
+                T result{};
+                while (is_true(node_variant_adapter::value(view.loop->condition_branch())))
+                    result = node_variant_adapter::value(view.loop->body_branch());
+                return result;
+            }
+
+            T operator()(const while_rtc_hot_view& view) const
+            {
+                T result{};
+                view.loop->rt_checker()->reset();
+                while (is_true(node_variant_adapter::value(view.loop->condition_branch())) &&
+                       view.loop->rt_checker()->check())
+                    result = node_variant_adapter::value(view.loop->body_branch());
+                return result;
+            }
+
+            T operator()(const repeat_until_hot_view& view) const
+            {
+                T result{};
+                do
+                {
+                    result = node_variant_adapter::value(view.loop->body_branch());
+                } while (is_false(node_variant_adapter::value(view.loop->condition_branch())));
+                return result;
+            }
+
+            T operator()(const repeat_until_rtc_hot_view& view) const
+            {
+                T result{};
+                view.loop->rt_checker()->reset(1);
+                do
+                {
+                    result = node_variant_adapter::value(view.loop->body_branch());
+                } while (is_false(node_variant_adapter::value(view.loop->condition_branch())) &&
+                         view.loop->rt_checker()->check());
+                return result;
+            }
+
+            T operator()(const for_hot_view& view) const
+            {
+                T result{};
+                if (view.loop->initialiser_branch())
+                    node_variant_adapter::value(view.loop->initialiser_branch());
+                if (view.loop->incrementor_branch())
+                {
+                    while (is_true(node_variant_adapter::value(view.loop->condition_branch())))
+                    {
+                        result = node_variant_adapter::value(view.loop->body_branch());
+                        node_variant_adapter::value(view.loop->incrementor_branch());
+                    }
+                }
+                else
+                {
+                    while (is_true(node_variant_adapter::value(view.loop->condition_branch())))
+                        result = node_variant_adapter::value(view.loop->body_branch());
+                }
+                return result;
+            }
+
+            T operator()(const for_rtc_hot_view& view) const
+            {
+                T result{};
+                view.loop->rt_checker()->reset();
+                if (view.loop->initialiser_branch())
+                    node_variant_adapter::value(view.loop->initialiser_branch());
+                if (view.loop->incrementor_branch())
+                {
+                    while (is_true(node_variant_adapter::value(view.loop->condition_branch())) &&
+                           view.loop->rt_checker()->check())
+                    {
+                        result = node_variant_adapter::value(view.loop->body_branch());
+                        node_variant_adapter::value(view.loop->incrementor_branch());
+                    }
+                }
+                else
+                {
+                    while (is_true(node_variant_adapter::value(view.loop->condition_branch())) &&
+                           view.loop->rt_checker()->check())
+                        result = node_variant_adapter::value(view.loop->body_branch());
+                }
+                return result;
             }
 
             T operator()(const fallback_view& view) const

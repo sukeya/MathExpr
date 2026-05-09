@@ -603,6 +603,11 @@ class assignment_vec_node final : public binary_node<T>, public vector_interface
                binary_node<T>::valid();
     }
 
+    inline vector_holder<T>* vec_holder_ptr() const
+    {
+        return &vec_node_ptr_->vec_holder();
+    }
+
     std::size_t size() const override
     {
         return vec_node_ptr_->vec_holder().size();
@@ -1147,6 +1152,11 @@ class assignment_vec_op_node final : public binary_node<T>, public vector_interf
     const vds_t& vds() const override
     {
         return vds_;
+    }
+
+    inline vector_holder<T>* vec_holder_ptr() const
+    {
+        return &vec_node_ptr_->vec_holder();
     }
 
     bool side_effect() const override

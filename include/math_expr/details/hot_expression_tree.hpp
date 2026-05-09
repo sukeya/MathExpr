@@ -473,6 +473,71 @@ class hot_expression_tree
         node_index_t rhs;
     };
 
+    struct assign_vec_scalar_data
+    {
+        using vector_holder_t = vector_holder<T>;
+
+        T* vector_base;
+        vector_holder_t* holder;
+        node_index_t rhs;
+    };
+
+    struct assign_vec_scalar_op_data
+    {
+        using vector_iface_t = vector_interface<T>;
+
+        vector_iface_t* iface;
+        core::operators::operator_type read_op;
+        node_index_t rhs;
+    };
+
+    struct while_data
+    {
+        node_index_t condition;
+        node_index_t body;
+    };
+
+    struct while_rtc_data
+    {
+        loop_runtime_checker* checker;
+        node_index_t condition;
+        node_index_t body;
+    };
+
+    struct repeat_until_data
+    {
+        node_index_t condition;
+        node_index_t body;
+    };
+
+    struct repeat_until_rtc_data
+    {
+        loop_runtime_checker* checker;
+        node_index_t condition;
+        node_index_t body;
+    };
+
+    struct for_data
+    {
+        node_index_t condition;
+        node_index_t body;
+        node_index_t initialiser;
+        node_index_t incrementor;
+        bool has_initialiser;
+        bool has_incrementor;
+    };
+
+    struct for_rtc_data
+    {
+        loop_runtime_checker* checker;
+        node_index_t condition;
+        node_index_t body;
+        node_index_t initialiser;
+        node_index_t incrementor;
+        bool has_initialiser;
+        bool has_incrementor;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -484,7 +549,9 @@ class hot_expression_tree
         assign_rbvec_elem_data, assign_rbvec_celem_data, assign_op_data, assign_vec_elem_op_data,
         assign_vec_elem_rtc_data, assign_rbvec_elem_rtc_data, assign_rbvec_elem_op_data,
         assign_rbvec_celem_op_data, assign_vec_elem_op_rtc_data, assign_vec_celem_op_rtc_data,
-        assign_rbvec_elem_op_rtc_data, assign_rbvec_celem_op_rtc_data, fallback_subtree_data>;
+        assign_rbvec_elem_op_rtc_data, assign_rbvec_celem_op_rtc_data, assign_vec_scalar_data,
+        assign_vec_scalar_op_data, while_data, while_rtc_data, repeat_until_data,
+        repeat_until_rtc_data, for_data, for_rtc_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1112,6 +1179,126 @@ class hot_expression_tree
                 return ref;
             }
 
+            T operator()(const assign_vec_scalar_data& data) const
+            {
+                const T v = tree.evaluate(data.rhs);
+                T* vec = data.vector_base;
+                const std::size_t sz = data.holder->size();
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec + lud.upper_bound;
+                while (vec < upper_bound)
+                {
+                    lud.foreach_batch([v, &vec](unsigned int i) { vec[i] = v; });
+                    vec += lud.loop_batch_size;
+                }
+                lud.foreach_remainder([&vec, v]() { *vec++ = v; });
+                return data.vector_base[0];
+            }
+
+            T operator()(const assign_vec_scalar_op_data& data) const
+            {
+                const T v = tree.evaluate(data.rhs);
+                T* const vec_base = data.iface->vds().data();
+                const std::size_t sz = data.iface->size();
+                T* vec = vec_base;
+                core::operators::loop_unroll lud(sz);
+                const T* upper_bound = vec + lud.upper_bound;
+                while (vec < upper_bound)
+                {
+                    lud.foreach_batch(
+                        [&](unsigned int i)
+                        { vec[i] = core::operators::process<T>(data.read_op, vec[i], v); });
+                    vec += lud.loop_batch_size;
+                }
+                lud.foreach_remainder(
+                    [&]()
+                    {
+                        *vec = core::operators::process<T>(data.read_op, *vec, v);
+                        ++vec;
+                    });
+                return vec_base[0];
+            }
+
+            T operator()(const while_data& data) const
+            {
+                T result{};
+                while (is_true(tree.evaluate(data.condition))) result = tree.evaluate(data.body);
+                return result;
+            }
+
+            T operator()(const while_rtc_data& data) const
+            {
+                T result{};
+                data.checker->reset();
+                while (is_true(tree.evaluate(data.condition)) && data.checker->check())
+                    result = tree.evaluate(data.body);
+                return result;
+            }
+
+            T operator()(const repeat_until_data& data) const
+            {
+                T result{};
+                do
+                {
+                    result = tree.evaluate(data.body);
+                } while (is_false(tree.evaluate(data.condition)));
+                return result;
+            }
+
+            T operator()(const repeat_until_rtc_data& data) const
+            {
+                T result{};
+                data.checker->reset(1);
+                do
+                {
+                    result = tree.evaluate(data.body);
+                } while (is_false(tree.evaluate(data.condition)) && data.checker->check());
+                return result;
+            }
+
+            T operator()(const for_data& data) const
+            {
+                T result{};
+                if (data.has_initialiser)
+                    tree.evaluate(data.initialiser);
+                if (data.has_incrementor)
+                {
+                    while (is_true(tree.evaluate(data.condition)))
+                    {
+                        result = tree.evaluate(data.body);
+                        tree.evaluate(data.incrementor);
+                    }
+                }
+                else
+                {
+                    while (is_true(tree.evaluate(data.condition)))
+                        result = tree.evaluate(data.body);
+                }
+                return result;
+            }
+
+            T operator()(const for_rtc_data& data) const
+            {
+                T result{};
+                data.checker->reset();
+                if (data.has_initialiser)
+                    tree.evaluate(data.initialiser);
+                if (data.has_incrementor)
+                {
+                    while (is_true(tree.evaluate(data.condition)) && data.checker->check())
+                    {
+                        result = tree.evaluate(data.body);
+                        tree.evaluate(data.incrementor);
+                    }
+                }
+                else
+                {
+                    while (is_true(tree.evaluate(data.condition)) && data.checker->check())
+                        result = tree.evaluate(data.body);
+                }
+                return result;
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -1708,6 +1895,121 @@ class hot_expression_tree
                     return emplace(assign_rbvec_celem_op_rtc_data{
                         view.elem->holder(), view.elem->vec_data(), view.elem->elem_idx(),
                         view.elem->rt_check(), view.read_op, *vec_child, *rhs});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::assign_vec_scalar_hot_view>)
+                {
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_vec_scalar_data{view.assign->vds().data(),
+                                                          view.assign->vec_holder_ptr(), *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t, typename node_variant_adapter_t::
+                                                              assign_vec_scalar_op_hot_view>)
+                {
+                    auto* vi = view.node->as_vector_iface();
+                    const auto rhs = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!rhs.has_value())
+                        return std::nullopt;
+                    return emplace(assign_vec_scalar_op_data{vi, view.read_op, *rhs});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::while_hot_view>)
+                {
+                    const auto condition = append_child(view.loop->condition_branch());
+                    const auto body = append_child(view.loop->body_branch());
+                    if (!condition.has_value() || !body.has_value())
+                        return std::nullopt;
+                    return emplace(while_data{*condition, *body});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::while_rtc_hot_view>)
+                {
+                    const auto condition = append_child(view.loop->condition_branch());
+                    const auto body = append_child(view.loop->body_branch());
+                    if (!condition.has_value() || !body.has_value())
+                        return std::nullopt;
+                    return emplace(while_rtc_data{view.loop->rt_checker(), *condition, *body});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::repeat_until_hot_view>)
+                {
+                    const auto condition = append_child(view.loop->condition_branch());
+                    const auto body = append_child(view.loop->body_branch());
+                    if (!condition.has_value() || !body.has_value())
+                        return std::nullopt;
+                    return emplace(repeat_until_data{*condition, *body});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::repeat_until_rtc_hot_view>)
+                {
+                    const auto condition = append_child(view.loop->condition_branch());
+                    const auto body = append_child(view.loop->body_branch());
+                    if (!condition.has_value() || !body.has_value())
+                        return std::nullopt;
+                    return emplace(
+                        repeat_until_rtc_data{view.loop->rt_checker(), *condition, *body});
+                }
+                else if constexpr (std::is_same_v<view_t,
+                                                  typename node_variant_adapter_t::for_hot_view>)
+                {
+                    const auto condition = append_child(view.loop->condition_branch());
+                    const auto body = append_child(view.loop->body_branch());
+                    if (!condition.has_value() || !body.has_value())
+                        return std::nullopt;
+                    for_data data{};
+                    data.condition = *condition;
+                    data.body = *body;
+                    data.has_initialiser = (view.loop->initialiser_branch() != nullptr);
+                    data.has_incrementor = (view.loop->incrementor_branch() != nullptr);
+                    if (data.has_initialiser)
+                    {
+                        const auto init = append_child(view.loop->initialiser_branch());
+                        if (!init.has_value())
+                            return std::nullopt;
+                        data.initialiser = *init;
+                    }
+                    if (data.has_incrementor)
+                    {
+                        const auto incr = append_child(view.loop->incrementor_branch());
+                        if (!incr.has_value())
+                            return std::nullopt;
+                        data.incrementor = *incr;
+                    }
+                    return emplace(data);
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t, typename node_variant_adapter_t::for_rtc_hot_view>)
+                {
+                    const auto condition = append_child(view.loop->condition_branch());
+                    const auto body = append_child(view.loop->body_branch());
+                    if (!condition.has_value() || !body.has_value())
+                        return std::nullopt;
+                    for_rtc_data data{};
+                    data.checker = view.loop->rt_checker();
+                    data.condition = *condition;
+                    data.body = *body;
+                    data.has_initialiser = (view.loop->initialiser_branch() != nullptr);
+                    data.has_incrementor = (view.loop->incrementor_branch() != nullptr);
+                    if (data.has_initialiser)
+                    {
+                        const auto init = append_child(view.loop->initialiser_branch());
+                        if (!init.has_value())
+                            return std::nullopt;
+                        data.initialiser = *init;
+                    }
+                    if (data.has_incrementor)
+                    {
+                        const auto incr = append_child(view.loop->incrementor_branch());
+                        if (!incr.has_value())
+                            return std::nullopt;
+                        data.incrementor = *incr;
+                    }
+                    return emplace(data);
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)
