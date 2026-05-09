@@ -688,6 +688,26 @@ class hot_expression_tree
         node_index_t branch_child;
     };
 
+    struct vecvecswap_data
+    {
+        T* vec0;
+        T* vec1;
+        std::size_t vec_size;
+        node_index_t branch0_child;
+        node_index_t branch1_child;
+    };
+
+    struct generic_evaluable_data
+    {
+        struct branch_slot
+        {
+            node_index_t child;
+            T* write_to;
+        };
+        generic_evaluable_node<T>* fn;
+        std::vector<branch_slot> slots;
+    };
+
     using node_data_t = std::variant<
         literal_data, variable_data, unary_data, binary_data, trinary_data, sf3_data, sf4_data,
         fixed_function_data, uv_data, conditional_data, scand_data, scor_data, scalar_pow_data,
@@ -705,8 +725,8 @@ class hot_expression_tree
         assign_vecvec_data, assign_vecvec_op_data, vecinit_zero_data, vecinit_constfill_data,
         vecinit_dynfill_data, vecinit_iota_cc_data, vecinit_iota_cnc_data, vecinit_iota_ncc_data,
         vecinit_iota_ncnc_data, vecinit_general_data, vararg_evaluable_data, vec_binop_vecvec_data,
-        vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, vecfunc_data,
-        fallback_subtree_data>;
+        vec_binop_vecval_data, vec_binop_valvec_data, unary_vec_data, vecfunc_data, vecvecswap_data,
+        generic_evaluable_data, fallback_subtree_data>;
 
     struct node
     {
@@ -1721,6 +1741,27 @@ class hot_expression_tree
                 return data.proc_fn(data.ivec);
             }
 
+            T operator()(const vecvecswap_data& data) const
+            {
+                tree.evaluate(data.branch0_child);
+                tree.evaluate(data.branch1_child);
+                T* v0 = data.vec0;
+                T* v1 = data.vec1;
+                for (std::size_t i = 0; i < data.vec_size; ++i) std::swap(v0[i], v1[i]);
+                return data.vec1[0];
+            }
+
+            T operator()(const generic_evaluable_data& data) const
+            {
+                for (const auto& slot : data.slots)
+                {
+                    const T val = tree.evaluate(slot.child);
+                    if (slot.write_to)
+                        *slot.write_to = val;
+                }
+                return data.fn->invoke();
+            }
+
             T operator()(const fallback_subtree_data& data) const
             {
                 return node_variant_adapter_t::value(data.node);
@@ -2676,6 +2717,37 @@ class hot_expression_tree
                         return std::nullopt;
                     return emplace(
                         vecfunc_data{view.fn->proc_fn(), view.fn->ivec(), *branch_child});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::vecvecswap_hot_view>)
+                {
+                    auto* vi0 = node_variant_adapter_t::branch(view.node, 0)->as_vector_iface();
+                    auto* vi1 = node_variant_adapter_t::branch(view.node, 1)->as_vector_iface();
+                    auto* vi = view.node->as_vector_iface();
+                    const auto b0 = append_child(node_variant_adapter_t::branch(view.node, 0));
+                    const auto b1 = append_child(node_variant_adapter_t::branch(view.node, 1));
+                    if (!b0.has_value() || !b1.has_value())
+                        return std::nullopt;
+                    return emplace(vecvecswap_data{vi0->vds().data(), vi1->vds().data(), vi->size(),
+                                                   *b0, *b1});
+                }
+                else if constexpr (std::is_same_v<
+                                       view_t,
+                                       typename node_variant_adapter_t::generic_evaluable_hot_view>)
+                {
+                    const std::size_t n = view.fn->arg_count();
+                    generic_evaluable_data data{view.fn, {}};
+                    data.slots.reserve(n);
+                    for (std::size_t i = 0; i < n; ++i)
+                    {
+                        const auto desc = view.fn->arg_info_at(i);
+                        const auto child = append_child(desc.node);
+                        if (!child.has_value())
+                            return std::nullopt;
+                        data.slots.push_back({*child, desc.write_to});
+                    }
+                    return emplace(std::move(data));
                 }
                 else if constexpr (std::is_same_v<view_t,
                                                   typename node_variant_adapter_t::fallback_view>)

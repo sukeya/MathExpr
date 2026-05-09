@@ -2743,8 +2743,25 @@ class vararg_function_node final : public vararg_evaluable_node<T>
     mutable std::vector<T> value_list_;
 };
 
+template <typename T>
+class generic_evaluable_node
+{
+   public:
+    struct arg_descriptor
+    {
+        expression_node<T>* node;
+        T* write_to;
+    };
+
+    virtual ~generic_evaluable_node() = default;
+    virtual bool has_range_params() const = 0;
+    virtual std::size_t arg_count() const = 0;
+    virtual arg_descriptor arg_info_at(std::size_t i) const = 0;
+    virtual T invoke() const = 0;
+};
+
 template <typename T, typename GenericFunction>
-class generic_function_node : public expression_node<T>
+class generic_function_node : public expression_node<T>, public generic_evaluable_node<T>
 {
    public:
     using type_store_t = type_store<T>;
@@ -2927,6 +2944,33 @@ class generic_function_node : public expression_node<T>
     inline bool valid() const override
     {
         return function_;
+    }
+
+    bool has_range_params() const override
+    {
+        return !range_param_list_.empty();
+    }
+
+    std::size_t arg_count() const override
+    {
+        return branch_.size();
+    }
+
+    typename generic_evaluable_node<T>::arg_descriptor arg_info_at(
+        const std::size_t i) const override
+    {
+        const type_store_t& ts = typestore_list_[i];
+        if (ts.type == type_store_t::store_type::e_scalar)
+        {
+            if (const auto* p = std::get_if<T*>(&ts.data); p && (*p == &expr_as_vec1_store_[i]))
+                return {branch_[i].first, &expr_as_vec1_store_[i]};
+        }
+        return {branch_[i].first, nullptr};
+    }
+
+    T invoke() const override
+    {
+        return (*function_)(typename GenericFunction::parameter_list_t(typestore_list_));
     }
 
    protected:
@@ -3117,6 +3161,13 @@ class multimode_genfunction_node final : public generic_function_node<T, Generic
     inline typename expression_node<T>::node_type type() const override final
     {
         return expression_node<T>::node_type::e_genfunction;
+    }
+
+    T invoke() const override
+    {
+        return (*gen_function_t::function_)(
+            param_seq_index_,
+            typename GenericFunction::parameter_list_t(gen_function_t::typestore_list_));
     }
 
    private:

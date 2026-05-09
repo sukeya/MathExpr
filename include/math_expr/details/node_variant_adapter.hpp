@@ -105,6 +105,7 @@ class node_variant_adapter
     using vector_init_general_node_t = vector_initialisation_node<T>;
     using vararg_evaluable_node_t = vararg_evaluable_node<T>;
     using vectorize_evaluable_node_t = vectorize_evaluable_node<T>;
+    using generic_evaluable_node_t = generic_evaluable_node<T>;
 
     struct null_view
     {
@@ -653,6 +654,17 @@ class node_variant_adapter
         vectorize_evaluable_node_t* fn;
     };
 
+    struct vecvecswap_hot_view
+    {
+        expression_ptr node;
+    };
+
+    struct generic_evaluable_hot_view
+    {
+        expression_ptr node;
+        generic_evaluable_node_t* fn;
+    };
+
     using variant_type =
         std::variant<std::monostate, null_view, literal_view, variable_view, string_view,
                      unary_view, binary_view, function_view, vararg_view, multi_vararg_view,
@@ -680,7 +692,8 @@ class node_variant_adapter
         vecinit_iota_cc_hot_view, vecinit_iota_cnc_hot_view, vecinit_iota_ncc_hot_view,
         vecinit_iota_ncnc_hot_view, vecinit_general_hot_view, vec_binop_vecvec_hot_view,
         vec_binop_vecval_hot_view, vec_binop_valvec_hot_view, unary_vec_hot_view,
-        vararg_evaluable_hot_view, vecfunc_hot_view, fallback_view>;
+        vararg_evaluable_hot_view, vecfunc_hot_view, vecvecswap_hot_view,
+        generic_evaluable_hot_view, fallback_view>;
 
     static inline std::optional<core::operators::operator_type> unary_branch_operation(
         const typename expression_node<T>::node_type type)
@@ -1345,6 +1358,29 @@ class node_variant_adapter
                 auto* fn = dynamic_cast<vectorize_evaluable_node_t*>(node);
                 if (fn && fn->ivec())
                     return vecfunc_hot_view{node, fn};
+                return fallback_view{node};
+            }
+
+            case expression_node<T>::node_type::e_vecvecswap:
+            {
+                auto* b0 = node->branch(0);
+                auto* b1 = node->branch(1);
+                if (nullptr == b0 || nullptr == b1)
+                    return fallback_view{node};
+                auto* vi0 = b0->as_vector_iface();
+                auto* vi1 = b1->as_vector_iface();
+                if (nullptr == vi0 || nullptr == vi1)
+                    return fallback_view{node};
+                if (vi0->vec()->vec_holder().rebaseable() || vi1->vec()->vec_holder().rebaseable())
+                    return fallback_view{node};
+                return vecvecswap_hot_view{node};
+            }
+
+            case expression_node<T>::node_type::e_genfunction:
+            {
+                auto* fn = dynamic_cast<generic_evaluable_node_t*>(node);
+                if (fn && !fn->has_range_params())
+                    return generic_evaluable_hot_view{node, fn};
                 return fallback_view{node};
             }
 
@@ -2577,6 +2613,33 @@ class node_variant_adapter
             {
                 node_variant_adapter::value(view.fn->vec_branch());
                 return view.fn->proc_fn()(view.fn->ivec());
+            }
+
+            T operator()(const vecvecswap_hot_view& view) const
+            {
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 0));
+                node_variant_adapter::value(node_variant_adapter::branch(view.node, 1));
+                auto* vi0 = node_variant_adapter::branch(view.node, 0)->as_vector_iface();
+                auto* vi1 = node_variant_adapter::branch(view.node, 1)->as_vector_iface();
+                auto* vi = view.node->as_vector_iface();
+                T* v0 = vi0->vds().data();
+                T* v1 = vi1->vds().data();
+                const std::size_t n = vi->size();
+                for (std::size_t i = 0; i < n; ++i) std::swap(v0[i], v1[i]);
+                return vi1->vds().data()[0];
+            }
+
+            T operator()(const generic_evaluable_hot_view& view) const
+            {
+                const std::size_t n = view.fn->arg_count();
+                for (std::size_t i = 0; i < n; ++i)
+                {
+                    const auto desc = view.fn->arg_info_at(i);
+                    const T val = node_variant_adapter::value(desc.node);
+                    if (desc.write_to)
+                        *desc.write_to = val;
+                }
+                return view.fn->invoke();
             }
 
             T operator()(const fallback_view& view) const
