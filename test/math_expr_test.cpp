@@ -13860,6 +13860,469 @@ TEST_CASE("Arithmetic parser regressions remain stable", "[parser][regression]")
     }
 }
 
+TEST_CASE("Control-flow parser delegation remains stable", "[parser][control-flow]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 5> programs = {{
+        {"if (1 < 2) { 1 + 2; 7; } else 9", numeric_type(7)},
+        {"(1 < 2 ? 5 : 8)", numeric_type(5)},
+        {"var x := 1; while (x < 4) { x += 1; }; x", numeric_type(4)},
+        {"var x := 0; repeat x += 2; until (x >= 6); x", numeric_type(6)},
+        {"var total := 0; for (var i := 0; i < 4; i += 1) { total += i; }; total", numeric_type(6)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Switch parser delegation remains stable", "[parser][switch]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"switch { case 0 : 1; case 2 - 2 : 3; default : 9; }", numeric_type(9)},
+        {"[*] { case 1 > 2 : 4; case 3 > 2 : 8; }", numeric_type(8)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Vararg parser delegation remains stable", "[parser][vararg]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 3> programs = {{
+        {"sum(1,2,3,4)", numeric_type(10)},
+        {"avg(2,4,6,8)", numeric_type(5)},
+        {"~{1; 2; 7;}", numeric_type(7)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Sequence parser delegation remains stable", "[parser][sequence]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"~(1,2,7)", numeric_type(7)},
+        {"~{1;2;9;}", numeric_type(9)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Range parser delegation remains stable", "[parser][range]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"'0123456789'[2:5] == '2345'", numeric_type(1)},
+        {"'0123456789'[4:] == '456789'", numeric_type(1)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("String range parser delegation remains stable", "[parser][string-range]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"'01234567890123456789'[3:3] == '3'[:]", numeric_type(1)},
+        {"'01234567890123456789'[0:9] == '0123456789'[:]", numeric_type(1)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Vector index parser delegation remains stable", "[parser][vector-index]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"var v[3] := {1,2,3}; v[2]", numeric_type(3)},
+        {"var v[3] := {1,2,3}; (v + 1)[1]", numeric_type(3)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Function call parser delegation remains stable", "[parser][function-call]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+        {"sin(0)", numeric_type(0)},
+        {"not(0)", numeric_type(1)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Dynamic function parser delegation remains stable", "[parser][dynamic-function]")
+{
+    SECTION("vararg dispatch stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        vararg_func<numeric_type> function;
+
+        REQUIRE(symbol_table.add_function("vf", function));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("vf()", parser, expression);
+        CHECK(expression.value() == numeric_type(0));
+
+        test_support::require_compiles<numeric_type>("vf(1,2)", parser, expression);
+        CHECK(expression.value() == numeric_type(1));
+    }
+
+    SECTION("generic dispatch stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        gen_func<numeric_type> function;
+        std::string text = "abc123";
+
+        REQUIRE(symbol_table.add_function("gf", function));
+        REQUIRE(symbol_table.add_stringvar("s", text));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("gf(1,s)", parser, expression);
+        CHECK(expression.value() == numeric_type(0));
+        CHECK(function.scalar_count == 1);
+        CHECK(function.string_count == 1);
+    }
+
+    SECTION("overload dispatch stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        overload_func<numeric_type> function("T:T|S:S");
+        numeric_type x = numeric_type(3);
+
+        REQUIRE(symbol_table.add_function("of", function));
+        REQUIRE(symbol_table.add_variable("x", x));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("of(x)", parser, expression);
+        CHECK(expression.value() == numeric_type(1));
+        CHECK(function.current_ps_index == 0);
+        CHECK(function.current_param_seq == "T");
+    }
+}
+
+TEST_CASE("Special-case parser delegation remains stable", "[parser][special-case]")
+{
+    SECTION("null and loop-control statements stay stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 3> programs = {{
+            {"null == null", numeric_type(1)},
+            {"for (var i := 0; i < 5; i += 1) { if (i < 2) continue; else break[i]; }",
+             numeric_type(2)},
+            {"for (var i := 0; i < 10; i += 1) { if (i > 2) { break[i * 7]; } }", numeric_type(21)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("invalid special function tokens stay guarded")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compile_fails("$fA0(1,2,3)", parser, expression);
+    }
+}
+
+TEST_CASE("Entity parser delegation remains stable", "[parser][entity]")
+{
+    SECTION("const strings and registered strings stay stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        std::string text = "abc123";
+
+        REQUIRE(symbol_table.add_stringvar("s", text));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("'hello'[]", parser, expression);
+        CHECK(expression.value() == numeric_type(5));
+
+        test_support::require_compiles<numeric_type>("s[1:2] == 'bc'[:]", parser, expression);
+        CHECK(expression.value() == numeric_type(1));
+    }
+
+    SECTION("vector symbols stay stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+            {"var v[3] := {1,2,3}; v[]", numeric_type(3)},
+            {"var v[3] := {1,2,3}; v[1]", numeric_type(2)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+}
+
+TEST_CASE("Symbol resolution parser delegation remains stable", "[parser][symbol-resolution]")
+{
+    SECTION("registered variables and functions stay stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        numeric_type x = numeric_type(2);
+
+        REQUIRE(symbol_table.add_constants());
+        REQUIRE(symbol_table.add_variable("x", x));
+        REQUIRE(symbol_table.add_function("inc", increment_symbol_table_probe));
+        expression.register_symbol_table(symbol_table);
+
+        test_support::require_compiles<numeric_type>("x + inc(2)", parser, expression);
+        CHECK(expression.value() == numeric_type(5));
+    }
+
+    SECTION("unknown symbol resolver stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+        math_expr::symbol_table<numeric_type> symbol_table;
+        my_usr<numeric_type> resolver;
+
+        REQUIRE(symbol_table.add_constants());
+        expression.register_symbol_table(symbol_table);
+
+        resolver.next_value(true);
+        parser.enable_unknown_symbol_resolver(&resolver);
+
+        test_support::require_compiles<numeric_type>("v0 + c1", parser, expression);
+        CHECK(expression.value() == numeric_type(3));
+    }
+}
+
+TEST_CASE("Symbol parser delegation remains stable", "[parser][symbol]")
+{
+    SECTION("builtin dispatch stays stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 4> programs = {{
+            {"true", numeric_type(1)},
+            {"not(0)", numeric_type(1)},
+            {"sum(1,2,3)", numeric_type(6)},
+            {"var x := 2; x", numeric_type(2)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("missing symbol without symtab stays guarded")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compile_fails("missing_symbol", parser, expression);
+    }
+}
+
+TEST_CASE("Statement parser delegation remains stable", "[parser][statement]")
+{
+    SECTION("swap stays stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
+            {"var x := 1; var y := 2; swap(x,y); x + y", numeric_type(3)},
+            {"var v[2] := {1,2}; swap(v[0],v[1]); v[0] * 10 + v[1]", numeric_type(21)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("return stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles<numeric_type>("return[1,2]; 7", parser, expression);
+        static_cast<void>(expression.value());
+        CHECK(expression.return_invoked());
+        REQUIRE(expression.results().count() == 2);
+    }
+
+    SECTION("assert stays stable without a registered handler")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles<numeric_type>("assert(1,'ok','id') == null", parser,
+                                                     expression);
+        CHECK(expression.value() == numeric_type(1));
+    }
+}
+
+TEST_CASE("Definition parser delegation remains stable", "[parser][definition]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 5> programs = {{
+        {"var x := 2; x", numeric_type(2)},
+        {"const var c := 5; c", numeric_type(5)},
+        {"var x{}; x", numeric_type(0)},
+        {"var s := 'abc'; s[]", numeric_type(3)},
+        {"var v[3] := {1,2,3}; v[1]", numeric_type(2)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Vector definition parser delegation remains stable", "[parser][vector-definition]")
+{
+    const std::array<std::pair<std::string, numeric_type>, 4> programs = {{
+        {"var v[3] := [1]; v[0] + v[1] + v[2]", numeric_type(3)},
+        {"var v[3] := [1:2]; v[0] + 10 * v[1] + 100 * v[2]", numeric_type(531)},
+        {"var src[3] := {1,2,3}; var dst[3] := src; dst[2]", numeric_type(3)},
+        {"var v[3] := null; v[0] + v[1] + v[2]", numeric_type(0)},
+    }};
+
+    for (const auto& [program, expected] : programs)
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles(program, parser, expression);
+        CAPTURE(program);
+        CHECK(expression.value() == expected);
+    }
+}
+
+TEST_CASE("Branch parser delegation remains stable", "[parser][branch]")
+{
+    SECTION("grouping and unary operators stay stable")
+    {
+        const std::array<std::pair<std::string, numeric_type>, 4> programs = {{
+            {"(2)(3)", numeric_type(6)},
+            {"{2}{3}", numeric_type(6)},
+            {"-(1 + 2)", numeric_type(-3)},
+            {"+(1 + 2)", numeric_type(3)},
+        }};
+
+        for (const auto& [program, expected] : programs)
+        {
+            math_expr::expression<numeric_type> expression;
+            math_expr::parser<numeric_type> parser;
+
+            test_support::require_compiles(program, parser, expression);
+            CAPTURE(program);
+            CHECK(expression.value() == expected);
+        }
+    }
+
+    SECTION("ternary stays stable")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compiles("1 ? 2 : 3", parser, expression);
+        CHECK(expression.value() == numeric_type(2));
+    }
+
+    SECTION("missing operator remains guarded")
+    {
+        math_expr::expression<numeric_type> expression;
+        math_expr::parser<numeric_type> parser;
+
+        test_support::require_compile_fails("1 2", parser, expression);
+    }
+}
+
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());

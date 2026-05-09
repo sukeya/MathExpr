@@ -58,9 +58,32 @@ limitations under the License.
 #include "math_expr/details/return_nodes.hpp"
 #include "math_expr/details/vector_nodes.hpp"
 #include "math_expr/parser_dependent_entity_collector.hpp"
+#include "math_expr/parser/fold_passes.hpp"
+#include "math_expr/parser/parser_state.hpp"
 #include "math_expr/parser_settings.hpp"
 #include "math_expr/parser_symbol_types.hpp"
+#include "math_expr/parser/symtab_store.hpp"
 #include "math_expr/parser_unknown_symbol_resolver.hpp"
+#include "math_expr/parser/expression_table.hpp"
+#include "math_expr/parser/rtl_wiring.hpp"
+#include "math_expr/parser/scope_manager.hpp"
+#include "math_expr/parser/control_flow_parser.hpp"
+#include "math_expr/parser/branch_parser.hpp"
+#include "math_expr/parser/definition_parser.hpp"
+#include "math_expr/parser/dynamic_function_parser.hpp"
+#include "math_expr/parser/entity_parser.hpp"
+#include "math_expr/parser/function_call_parser.hpp"
+#include "math_expr/parser/range_parser.hpp"
+#include "math_expr/parser/sequence_parser.hpp"
+#include "math_expr/parser/special_case_parser.hpp"
+#include "math_expr/parser/statement_parser.hpp"
+#include "math_expr/parser/symbol_parser.hpp"
+#include "math_expr/parser/symbol_resolution_parser.hpp"
+#include "math_expr/parser/string_range_parser.hpp"
+#include "math_expr/parser/switch_parser.hpp"
+#include "math_expr/parser/vararg_parser.hpp"
+#include "math_expr/parser/vector_definition_parser.hpp"
+#include "math_expr/parser/vector_index_parser.hpp"
 
 namespace math_expr
 {
@@ -81,25 +104,6 @@ template <typename T>
 class parser : public lexer::parser_helper
 {
    private:
-    enum class precedence_level
-    {
-        e_level00,
-        e_level01,
-        e_level02,
-        e_level03,
-        e_level04,
-        e_level05,
-        e_level06,
-        e_level07,
-        e_level08,
-        e_level09,
-        e_level10,
-        e_level11,
-        e_level12,
-        e_level13,
-        e_level14
-    };
-
     using cref_t = const T&;
     using const_t = const T;
     using F = ifunction<T>;
@@ -171,6 +175,7 @@ class parser : public lexer::parser_helper
     using expression_t = expression<T>;
     using symbol_table_t = symbol_table<T>;
     using symbol_table_list_t = typename expression<T>::symtab_list_t;
+    using symtab_store_t = math_expr::symtab_store<T>;
     using vector_holder_t = details::vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
 
@@ -218,380 +223,15 @@ class parser : public lexer::parser_helper
     using vococov_t = details::T0oT1oT2oT3_define<T, cref_t, const_t, const_t, cref_t>;
 
     using results_context_t = results_context<T>;
+    using expression_table_t = math_expr::expression_table<token_t>;
+    using precedence_level = typename expression_table_t::precedence_level;
+    using expression_state_t = typename expression_table_t::state_t;
+    static constexpr precedence_level default_precedence = precedence_level::e_level00;
+    using scope_element = math_expr::scope_element<T>;
+    using scope_element_manager = math_expr::scope_element_manager<T>;
+    using scope_handler = math_expr::scope_handler<T>;
 
     using prsrhlpr_t = parser_helper;
-
-    struct scope_element
-    {
-        enum class element_type
-        {
-            e_none,
-            e_literal,
-            e_variable,
-            e_vector,
-            e_vecelem,
-            e_string
-        };
-
-        using vector_holder_t = details::vector_holder<T>;
-        using literal_node_ptr = literal_node_t*;
-        using variable_node_ptr = variable_node_t*;
-        using vector_holder_ptr = vector_holder_t*;
-        using expression_node_ptr = expression_node_t*;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        using stringvar_node_ptr = stringvar_node_t*;
-#endif
-
-        scope_element()
-            : name("???"),
-              size(std::numeric_limits<std::size_t>::max()),
-              index(std::numeric_limits<std::size_t>::max()),
-              depth(std::numeric_limits<std::size_t>::max()),
-              ref_count(0),
-              ip_index(0),
-              type(element_type::e_none),
-              active(false),
-              var_node(nullptr),
-              vec_node(nullptr)
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-              ,
-              str_node(nullptr)
-#endif
-        {
-        }
-
-        bool operator<(const scope_element& se) const
-        {
-            if (ip_index < se.ip_index)
-                return true;
-            else if (ip_index > se.ip_index)
-                return false;
-            else if (depth < se.depth)
-                return true;
-            else if (depth > se.depth)
-                return false;
-            else if (index < se.index)
-                return true;
-            else if (index > se.index)
-                return false;
-            else
-                return (name < se.name);
-        }
-
-        void clear()
-        {
-            name = "???";
-            size = std::numeric_limits<std::size_t>::max();
-            index = std::numeric_limits<std::size_t>::max();
-            depth = std::numeric_limits<std::size_t>::max();
-            type = element_type::e_none;
-            active = false;
-            ref_count = 0;
-            ip_index = 0;
-            scalar_data.reset();
-            vector_data.reset();
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            str_data.reset();
-#endif
-            var_node = nullptr;
-            vec_node = nullptr;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            str_node = nullptr;
-#endif
-        }
-
-        std::string name;
-        std::size_t size;
-        std::size_t index;
-        std::size_t depth;
-        std::size_t ref_count;
-        std::size_t ip_index;
-        element_type type;
-        bool active;
-        std::unique_ptr<T> scalar_data;
-        std::unique_ptr<T[]> vector_data;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        std::unique_ptr<std::string> str_data;
-#endif
-        expression_node_ptr var_node;
-        vector_holder_ptr vec_node;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        stringvar_node_ptr str_node;
-#endif
-    };
-
-    class scope_element_manager
-    {
-       public:
-        using expression_node_ptr = expression_node_t*;
-        using variable_node_ptr = variable_node_t*;
-        using parser_t = parser<T>;
-
-        scope_element_manager()
-            : parser_(nullptr), input_param_cnt_(0), total_local_symb_size_bytes_(0)
-        {
-        }
-
-        inline void set_parser(parser_t& p)
-        {
-            parser_ = &p;
-        }
-
-        inline std::size_t size() const
-        {
-            return element_.size();
-        }
-
-        inline bool empty() const
-        {
-            return element_.empty();
-        }
-
-        inline scope_element& get_element(const std::size_t& index)
-        {
-            if (index < element_.size())
-                return element_[index];
-            else
-                return null_element_;
-        }
-
-        inline scope_element& get_element(
-            const std::string& var_name,
-            const std::size_t index = std::numeric_limits<std::size_t>::max())
-        {
-            const std::size_t current_depth = ref_parser().state_.scope_depth;
-
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.depth > current_depth)
-                    continue;
-                else if (core::imatch(se.name, var_name) && (se.index == index))
-                    return se;
-            }
-
-            return null_element_;
-        }
-
-        inline scope_element& get_active_element(
-            const std::string& var_name,
-            const std::size_t index = std::numeric_limits<std::size_t>::max())
-        {
-            const std::size_t current_depth = ref_parser().state_.scope_depth;
-
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.depth > current_depth)
-                    continue;
-                else if (core::imatch(se.name, var_name) && (se.index == index) && (se.active))
-                    return se;
-            }
-
-            return null_element_;
-        }
-
-        inline bool add_element(scope_element&& se)
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& cse = element_[i];
-
-                if (core::imatch(cse.name, se.name) && (cse.depth <= se.depth) &&
-                    (cse.index == se.index) && (cse.size == se.size) && (cse.type == se.type) &&
-                    (cse.active))
-                    return false;
-            }
-
-            switch (se.type)
-            {
-                case scope_element::element_type::e_variable:
-                    total_local_symb_size_bytes_ += sizeof(T);
-                    break;
-
-                case scope_element::element_type::e_literal:
-                    total_local_symb_size_bytes_ += sizeof(T);
-                    break;
-
-                case scope_element::element_type::e_vector:
-                    total_local_symb_size_bytes_ += sizeof(T) * se.size;
-                    break;
-
-                default:
-                    break;
-            }
-
-            element_.push_back(std::move(se));
-            std::sort(element_.begin(), element_.end());
-
-            return true;
-        }
-
-        inline void deactivate(const std::size_t& scope_depth)
-        {
-            core::debug_print("deactivate() - Scope depth: %d\n",
-                              static_cast<int>(ref_parser().state_.scope_depth));
-
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.active && (se.depth >= scope_depth))
-                {
-                    core::debug_print("deactivate() - element[%02d] '%s'\n", static_cast<int>(i),
-                                      se.name.c_str());
-
-                    se.active = false;
-                }
-            }
-        }
-
-        inline void free_element(scope_element& se)
-        {
-            core::debug_print("free_element() - se[%s]\n", se.name.c_str());
-
-            switch (se.type)
-            {
-                case scope_element::element_type::e_literal:
-                    delete se.var_node;
-                    break;
-
-                case scope_element::element_type::e_variable:
-                    delete se.var_node;
-                    break;
-
-                case scope_element::element_type::e_vector:
-                    delete se.vec_node;
-                    break;
-
-                case scope_element::element_type::e_vecelem:
-                    delete se.var_node;
-                    break;
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                case scope_element::element_type::e_string:
-                    delete se.str_node;
-                    break;
-#endif
-
-                default:
-                    return;
-            }
-
-            se.clear();
-        }
-
-        inline void cleanup()
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                free_element(element_[i]);
-            }
-
-            element_.clear();
-
-            input_param_cnt_ = 0;
-            total_local_symb_size_bytes_ = 0;
-        }
-
-        inline std::size_t total_local_symb_size_bytes() const
-        {
-            return total_local_symb_size_bytes_;
-        }
-
-        inline std::size_t next_ip_index()
-        {
-            return ++input_param_cnt_;
-        }
-
-        inline expression_node_ptr get_variable(const T& v)
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.active && se.var_node && details::is_variable_node(se.var_node))
-                {
-                    variable_node_ptr vn = reinterpret_cast<variable_node_ptr>(se.var_node);
-
-                    if (&(vn->ref()) == (&v))
-                    {
-                        return se.var_node;
-                    }
-                }
-            }
-
-            return expression_node_ptr(0);
-        }
-
-        inline std::string get_vector_name(const T* data)
-        {
-            for (std::size_t i = 0; i < element_.size(); ++i)
-            {
-                scope_element& se = element_[i];
-
-                if (se.active && se.vec_node && (se.vec_node->data() == data))
-                {
-                    return se.name;
-                }
-            }
-
-            return "neo-vector";
-        }
-
-       private:
-        scope_element_manager(const scope_element_manager&) = delete;
-        scope_element_manager& operator=(const scope_element_manager&) = delete;
-
-        inline parser_t& ref_parser()
-        {
-            assert(parser_);
-            return *parser_;
-        }
-
-        parser_t* parser_;
-        std::vector<scope_element> element_;
-        scope_element null_element_;
-        std::size_t input_param_cnt_;
-        std::size_t total_local_symb_size_bytes_;
-    };
-
-    class scope_handler
-    {
-       public:
-        using parser_t = parser<T>;
-
-        explicit scope_handler(parser<T>& p) : parser_(p)
-        {
-            parser_.state_.scope_depth++;
-            if constexpr (::math_expr::core::build_options::kEnableDebugging)
-            {
-                const std::string depth(2 * parser_.state_.scope_depth, '-');
-                core::debug_print("%s> Scope Depth: %02d\n", depth.c_str(),
-                                  static_cast<int>(parser_.state_.scope_depth));
-            }
-        }
-
-        ~scope_handler()
-        {
-            parser_.sem_.deactivate(parser_.state_.scope_depth);
-            parser_.state_.scope_depth--;
-            if constexpr (::math_expr::core::build_options::kEnableDebugging)
-            {
-                const std::string depth(2 * parser_.state_.scope_depth, '-');
-                core::debug_print("<%s Scope Depth: %02d\n", depth.c_str(),
-                                  static_cast<int>(parser_.state_.scope_depth));
-            }
-        }
-
-       private:
-        scope_handler(const scope_handler&) = delete;
-        scope_handler& operator=(const scope_handler&) = delete;
-
-        parser_t& parser_;
-    };
 
     template <typename T_>
     struct halfopen_range_policy
@@ -753,578 +393,6 @@ class parser : public lexer::parser_helper
         bool limit_exceeded_;
     };
 
-    struct symtab_store
-    {
-        symbol_table_list_t symtab_list_;
-
-        using local_data_t = typename symbol_table_t::local_data_t;
-        using variable_ptr = typename symbol_table_t::variable_ptr;
-        using function_ptr = typename symbol_table_t::function_ptr;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        using stringvar_ptr = typename symbol_table_t::stringvar_ptr;
-#endif
-        using vector_holder_ptr = typename symbol_table_t::vector_holder_ptr;
-        using vararg_function_ptr = typename symbol_table_t::vararg_function_ptr;
-        using generic_function_ptr = typename symbol_table_t::generic_function_ptr;
-
-        struct variable_context
-        {
-            variable_context() : symbol_table(0), variable(0) {}
-
-            const symbol_table_t* symbol_table;
-            variable_ptr variable;
-        };
-
-        struct vector_context
-        {
-            vector_context() : symbol_table(0), vector_holder(0) {}
-
-            const symbol_table_t* symbol_table;
-            vector_holder_ptr vector_holder;
-        };
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        struct string_context
-        {
-            string_context() : symbol_table(0), str_var(0) {}
-
-            const symbol_table_t* symbol_table;
-            stringvar_ptr str_var;
-        };
-#endif
-
-        inline bool empty() const
-        {
-            return symtab_list_.empty();
-        }
-
-        inline void clear()
-        {
-            symtab_list_.clear();
-        }
-
-        inline bool valid() const
-        {
-            if (!empty())
-            {
-                for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-                {
-                    if (symtab_list_[i].valid())
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
-        inline bool valid_symbol(const std::string& symbol) const
-        {
-            if (!symtab_list_.empty())
-                return symtab_list_[0].valid_symbol(symbol);
-            else
-                return false;
-        }
-
-        inline bool valid_function_name(const std::string& symbol) const
-        {
-            if (!symtab_list_.empty())
-                return symtab_list_[0].valid_function(symbol);
-            else
-                return false;
-        }
-
-        inline variable_context get_variable_context(const std::string& variable_name) const
-        {
-            variable_context result;
-
-            if (valid_symbol(variable_name))
-            {
-                for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-                {
-                    if (!symtab_list_[i].valid())
-                    {
-                        continue;
-                    }
-
-                    result.variable = local_data(i).variable_store.get(variable_name);
-                    if (result.variable)
-                    {
-                        result.symbol_table = &symtab_list_[i];
-                        break;
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        inline variable_ptr get_variable(const std::string& variable_name) const
-        {
-            if (!valid_symbol(variable_name))
-                return nullptr;
-
-            variable_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).variable_store.get(variable_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        inline variable_ptr get_variable(const T& var_ref) const
-        {
-            variable_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).variable_store.get_from_varptr(&var_ref);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline string_context get_string_context(const std::string& string_name) const
-        {
-            string_context result;
-
-            if (!valid_symbol(string_name))
-                return result;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                {
-                    continue;
-                }
-
-                result.str_var = local_data(i).stringvar_store.get(string_name);
-
-                if (result.str_var)
-                {
-                    result.symbol_table = &symtab_list_[i];
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        inline stringvar_ptr get_stringvar(const std::string& string_name) const
-        {
-            if (!valid_symbol(string_name))
-                return nullptr;
-
-            stringvar_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).stringvar_store.get(string_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-#endif
-
-        inline function_ptr get_function(const std::string& function_name) const
-        {
-            if (!valid_function_name(function_name))
-                return nullptr;
-
-            function_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).function_store.get(function_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        inline vararg_function_ptr get_vararg_function(
-            const std::string& vararg_function_name) const
-        {
-            if (!valid_function_name(vararg_function_name))
-                return nullptr;
-
-            vararg_function_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).vararg_function_store.get(vararg_function_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        inline generic_function_ptr get_generic_function(const std::string& function_name) const
-        {
-            if (!valid_function_name(function_name))
-                return nullptr;
-
-            generic_function_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).generic_function_store.get(function_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        inline generic_function_ptr get_string_function(const std::string& function_name) const
-        {
-            if (!valid_function_name(function_name))
-                return nullptr;
-
-            generic_function_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).string_function_store.get(function_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        inline generic_function_ptr get_overload_function(const std::string& function_name) const
-        {
-            if (!valid_function_name(function_name))
-                return nullptr;
-
-            generic_function_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else
-                    result = local_data(i).overload_function_store.get(function_name);
-
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        inline vector_context get_vector_context(const std::string& vector_name) const
-        {
-            vector_context result;
-            if (!valid_symbol(vector_name))
-                return result;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                {
-                    continue;
-                }
-
-                result.vector_holder = local_data(i).vector_store.get(vector_name);
-
-                if (result.vector_holder)
-                {
-                    result.symbol_table = &symtab_list_[i];
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        inline vector_holder_ptr get_vector(const std::string& vector_name) const
-        {
-            if (!valid_symbol(vector_name))
-                return nullptr;
-
-            vector_holder_ptr result = nullptr;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                {
-                    continue;
-                }
-
-                result = local_data(i).vector_store.get(vector_name);
-
-                if (result)
-                {
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        inline bool is_constant_node(const std::string& symbol_name) const
-        {
-            if (!valid_symbol(symbol_name))
-                return false;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                {
-                    continue;
-                }
-
-                if (local_data(i).variable_store.is_constant(symbol_name))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline bool is_constant_string(const std::string& symbol_name) const
-        {
-            if (!valid_symbol(symbol_name))
-                return false;
-
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (!local_data(i).stringvar_store.symbol_exists(symbol_name))
-                    continue;
-                else if (local_data(i).stringvar_store.is_constant(symbol_name))
-                    return true;
-            }
-
-            return false;
-        }
-#endif
-
-        inline bool symbol_exists(const std::string& symbol) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                {
-                    continue;
-                }
-
-                if (symtab_list_[i].symbol_exists(symbol))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        inline bool is_variable(const std::string& variable_name) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (symtab_list_[i].local_data().variable_store.symbol_exists(variable_name))
-                    return true;
-            }
-
-            return false;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline bool is_stringvar(const std::string& stringvar_name) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (symtab_list_[i].local_data().stringvar_store.symbol_exists(stringvar_name))
-                    return true;
-            }
-
-            return false;
-        }
-
-        inline bool is_conststr_stringvar(const std::string& symbol_name) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (symtab_list_[i].local_data().stringvar_store.symbol_exists(symbol_name))
-                {
-                    return (local_data(i).stringvar_store.symbol_exists(symbol_name) ||
-                            local_data(i).stringvar_store.is_constant(symbol_name));
-                }
-            }
-
-            return false;
-        }
-#endif
-
-        inline bool is_function(const std::string& function_name) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (local_data(i).vararg_function_store.symbol_exists(function_name))
-                    return true;
-            }
-
-            return false;
-        }
-
-        inline bool is_vararg_function(const std::string& vararg_function_name) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (local_data(i).vararg_function_store.symbol_exists(vararg_function_name))
-                    return true;
-            }
-
-            return false;
-        }
-
-        inline bool is_vector(const std::string& vector_name) const
-        {
-            for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-            {
-                if (!symtab_list_[i].valid())
-                    continue;
-                else if (local_data(i).vector_store.symbol_exists(vector_name))
-                    return true;
-            }
-
-            return false;
-        }
-
-        inline std::string get_variable_name(const expression_node_ptr& ptr) const
-        {
-            return local_data().variable_store.entity_name(ptr);
-        }
-
-        inline std::string get_vector_name(const vector_holder_ptr& ptr) const
-        {
-            return local_data().vector_store.entity_name(ptr);
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline std::string get_stringvar_name(const expression_node_ptr& ptr) const
-        {
-            return local_data().stringvar_store.entity_name(ptr);
-        }
-
-        inline std::string get_conststr_stringvar_name(const expression_node_ptr& ptr) const
-        {
-            return local_data().stringvar_store.entity_name(ptr);
-        }
-#endif
-
-        inline local_data_t& local_data(const std::size_t& index = 0)
-        {
-            return symtab_list_[index].local_data();
-        }
-
-        inline const local_data_t& local_data(const std::size_t& index = 0) const
-        {
-            return symtab_list_[index].local_data();
-        }
-
-        inline symbol_table_t& get_symbol_table(const std::size_t& index = 0)
-        {
-            return symtab_list_[index];
-        }
-    };
-
-    struct parser_state
-    {
-        parser_state() : type_check_enabled(true)
-        {
-            reset();
-        }
-
-        void reset()
-        {
-            parsing_return_stmt = false;
-            parsing_break_stmt = false;
-            parsing_assert_stmt = false;
-            return_stmt_present = false;
-            side_effect_present = false;
-            scope_depth = 0;
-            stack_depth = 0;
-            parsing_loop_stmt_count = 0;
-        }
-
-        void activate_side_effect(const std::string& source)
-        {
-            if (!side_effect_present)
-            {
-                side_effect_present = true;
-
-                if constexpr (::math_expr::core::build_options::kEnableDebugging)
-                {
-                    core::debug_print("activate_side_effect() - caller: %s\n", source.c_str());
-                }
-            }
-        }
-
-        bool parsing_return_stmt;
-        bool parsing_break_stmt;
-        bool parsing_assert_stmt;
-        bool return_stmt_present;
-        bool side_effect_present;
-        bool type_check_enabled;
-        std::size_t scope_depth;
-        std::size_t stack_depth;
-        std::size_t parsing_loop_stmt_count;
-    };
-
    public:
     using unknown_symbol_resolver = math_expr::unknown_symbol_resolver<T>;
     using collect_type = math_expr::collect_types;
@@ -1347,15 +415,11 @@ class parser : public lexer::parser_helper
           compilation_check_ptr_(nullptr),
           assert_check_(nullptr)
     {
-        sem_.set_parser(*this);
+        sem_.set_scope_depth(state_.scope_depth);
         init_precompilation();
 
-        details::load_operations_map(base_ops_map_);
-        load_unary_operations_map(unary_op_map_);
-        load_binary_operations_map(binary_op_map_);
-        load_inv_binary_operations_map(inv_binary_op_map_);
-        load_sf3_map(sf3_map_);
-        load_sf4_map(sf4_map_);
+        math_expr::rtl_wiring<T>::load(base_ops_map_, unary_op_map_, binary_op_map_,
+                                       inv_binary_op_map_, sf3_map_, sf4_map_);
 
         expression_generator_.init_synthesize_map();
         expression_generator_.set_parser(*this);
@@ -1994,33 +1058,7 @@ class parser : public lexer::parser_helper
         return result;
     }
 
-    static constexpr precedence_level default_precedence = precedence_level::e_level00;
-
-    struct state_t
-    {
-        inline void set(const precedence_level& l, const precedence_level& r,
-                        const core::operators::operator_type& o, const token_t& tkn = token_t())
-        {
-            left = l;
-            right = r;
-            operation = o;
-            token = tkn;
-        }
-
-        inline void reset()
-        {
-            left = precedence_level::e_level00;
-            right = precedence_level::e_level00;
-            operation = core::operators::operator_type::default_op;
-        }
-
-        precedence_level left;
-        precedence_level right;
-        core::operators::operator_type operation;
-        token_t token;
-    };
-
-    inline void push_current_state(const state_t current_state)
+    inline void push_current_state(const expression_state_t current_state)
     {
         current_state_stack_.push_back(current_state);
     }
@@ -2033,9 +1071,9 @@ class parser : public lexer::parser_helper
         }
     }
 
-    inline state_t current_state() const
+    inline expression_state_t current_state() const
     {
-        return (!current_state_stack_.empty()) ? current_state_stack_.back() : state_t();
+        return (!current_state_stack_.empty()) ? current_state_stack_.back() : expression_state_t();
     }
 
     inline bool halt_compilation_check()
@@ -2087,197 +1125,11 @@ class parser : public lexer::parser_helper
 
         bool break_loop = false;
 
-        state_t current_state;
+        expression_state_t current_state;
 
         for (;;)
         {
-            current_state.reset();
-
-            switch (current_token().type)
-            {
-                case token_t::e_assign:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::assign, current_token());
-                    break;
-                case token_t::e_addass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::addass, current_token());
-                    break;
-                case token_t::e_subass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::subass, current_token());
-                    break;
-                case token_t::e_mulass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::mulass, current_token());
-                    break;
-                case token_t::e_divass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::divass, current_token());
-                    break;
-                case token_t::e_modass:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::modass, current_token());
-                    break;
-                case token_t::e_swap:
-                    current_state.set(precedence_level::e_level00, precedence_level::e_level00,
-                                      core::operators::operator_type::swap, current_token());
-                    break;
-                case token_t::e_lt:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::lt, current_token());
-                    break;
-                case token_t::e_lte:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::lte, current_token());
-                    break;
-                case token_t::e_eq:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::eq, current_token());
-                    break;
-                case token_t::e_ne:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::ne, current_token());
-                    break;
-                case token_t::e_gte:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::gte, current_token());
-                    break;
-                case token_t::e_gt:
-                    current_state.set(precedence_level::e_level05, precedence_level::e_level06,
-                                      core::operators::operator_type::gt, current_token());
-                    break;
-                case token_t::e_add:
-                    current_state.set(precedence_level::e_level07, precedence_level::e_level08,
-                                      core::operators::operator_type::add, current_token());
-                    break;
-                case token_t::e_sub:
-                    current_state.set(precedence_level::e_level07, precedence_level::e_level08,
-                                      core::operators::operator_type::sub, current_token());
-                    break;
-                case token_t::e_div:
-                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                      core::operators::operator_type::div, current_token());
-                    break;
-                case token_t::e_mul:
-                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                      core::operators::operator_type::mul, current_token());
-                    break;
-                case token_t::e_mod:
-                    current_state.set(precedence_level::e_level10, precedence_level::e_level11,
-                                      core::operators::operator_type::mod, current_token());
-                    break;
-                case token_t::e_pow:
-                    current_state.set(precedence_level::e_level12, precedence_level::e_level12,
-                                      core::operators::operator_type::pow, current_token());
-                    break;
-                default:
-                    if (token_t::e_symbol == current_token().type)
-                    {
-                        static constexpr std::string_view s_and = "and";
-                        static constexpr std::string_view s_nand = "nand";
-                        static constexpr std::string_view s_or = "or";
-                        static constexpr std::string_view s_nor = "nor";
-                        static constexpr std::string_view s_xor = "xor";
-                        static constexpr std::string_view s_xnor = "xnor";
-                        static constexpr std::string_view s_in = "in";
-                        static constexpr std::string_view s_like = "like";
-                        static constexpr std::string_view s_ilike = "ilike";
-                        static constexpr std::string_view s_and1 = "&";
-                        static constexpr std::string_view s_or1 = "|";
-                        static constexpr std::string_view s_not = "not";
-
-                        if (core::imatch(current_token().value, s_and))
-                        {
-                            current_state.set(
-                                precedence_level::e_level03, precedence_level::e_level04,
-                                core::operators::operator_type::logical_and, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_and1))
-                        {
-                            current_state.set(precedence_level::e_level03,
-                                              precedence_level::e_level04,
-                                              ::math_expr::core::build_options::kDisableScAndOr
-                                                  ? core::operators::operator_type::logical_and
-                                                  : core::operators::operator_type::scand,
-                                              current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_nand))
-                        {
-                            current_state.set(
-                                precedence_level::e_level03, precedence_level::e_level04,
-                                core::operators::operator_type::nand, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_or))
-                        {
-                            current_state.set(
-                                precedence_level::e_level01, precedence_level::e_level02,
-                                core::operators::operator_type::logical_or, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_or1))
-                        {
-                            current_state.set(precedence_level::e_level01,
-                                              precedence_level::e_level02,
-                                              ::math_expr::core::build_options::kDisableScAndOr
-                                                  ? core::operators::operator_type::logical_or
-                                                  : core::operators::operator_type::scor,
-                                              current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_nor))
-                        {
-                            current_state.set(precedence_level::e_level01,
-                                              precedence_level::e_level02,
-                                              core::operators::operator_type::nor, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_xor))
-                        {
-                            current_state.set(
-                                precedence_level::e_level01, precedence_level::e_level02,
-                                core::operators::operator_type::logical_xor, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_xnor))
-                        {
-                            current_state.set(
-                                precedence_level::e_level01, precedence_level::e_level02,
-                                core::operators::operator_type::xnor, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_in))
-                        {
-                            current_state.set(precedence_level::e_level04,
-                                              precedence_level::e_level04,
-                                              core::operators::operator_type::in, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_like))
-                        {
-                            current_state.set(
-                                precedence_level::e_level04, precedence_level::e_level04,
-                                core::operators::operator_type::like, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_ilike))
-                        {
-                            current_state.set(
-                                precedence_level::e_level04, precedence_level::e_level04,
-                                core::operators::operator_type::ilike, current_token());
-                            break;
-                        }
-                        else if (core::imatch(current_token().value, s_not))
-                        {
-                            break;
-                        }
-                    }
-
-                    break_loop = true;
-            }
+            break_loop = !expression_table_t::resolve(current_token(), current_state);
 
             if (break_loop)
             {
@@ -2686,202 +1538,1864 @@ class parser : public lexer::parser_helper
         std::size_t& v_;
     };
 
+    struct control_flow_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit control_flow_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              brkcnt_list(parser.brkcnt_list_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool token_is(const std::string& symbol,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(symbol, mode);
+        }
+
+        inline bool token_is_loop(const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_loop(mode);
+        }
+
+        inline bool token_is_arithmetic_opr(
+            const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_arithmetic_opr(mode);
+        }
+
+        inline bool token_is_right_bracket(
+            const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_right_bracket(mode);
+        }
+
+        inline bool token_is_ineq_opr(const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is_ineq_opr(mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline bool peek_token_is(const std::string& symbol) const
+        {
+            return parser_.peek_token_is(symbol);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
+                                                        const bool wrap_sequence = false)
+        {
+            return parser_.parse_multi_sequence(source, wrap_sequence);
+        }
+
+        template <typename Sequence1, typename Sequence2>
+        inline expression_node_ptr simplify(Sequence1& expression_list, Sequence2& side_effect_list)
+        {
+            return parser_.simplify(expression_list, side_effect_list);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr conditional(expression_node_ptr condition,
+                                               expression_node_ptr consequent,
+                                               expression_node_ptr alternative)
+        {
+            return parser_.expression_generator_.conditional(condition, consequent, alternative);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline expression_node_ptr conditional_string(expression_node_ptr condition,
+                                                      expression_node_ptr consequent,
+                                                      expression_node_ptr alternative)
+        {
+            return parser_.expression_generator_.conditional_string(condition, consequent,
+                                                                    alternative);
+        }
+#endif
+
+        inline expression_node_ptr conditional_vector(expression_node_ptr condition,
+                                                      expression_node_ptr consequent,
+                                                      expression_node_ptr alternative)
+        {
+            return parser_.expression_generator_.conditional_vector(condition, consequent,
+                                                                    alternative);
+        }
+
+        inline expression_node_ptr while_loop(expression_node_ptr condition,
+                                              expression_node_ptr branch,
+                                              const bool break_or_continue_present)
+        {
+            return parser_.expression_generator_.while_loop(condition, branch,
+                                                            break_or_continue_present);
+        }
+
+        inline expression_node_ptr repeat_until_loop(expression_node_ptr condition,
+                                                     expression_node_ptr branch,
+                                                     const bool break_or_continue_present)
+        {
+            return parser_.expression_generator_.repeat_until_loop(condition, branch,
+                                                                   break_or_continue_present);
+        }
+
+        inline expression_node_ptr for_loop(expression_node_ptr initialiser,
+                                            expression_node_ptr condition,
+                                            expression_node_ptr incrementor,
+                                            expression_node_ptr loop_body,
+                                            const bool break_or_continue_present)
+        {
+            return parser_.expression_generator_.for_loop(initialiser, condition, incrementor,
+                                                          loop_body, break_or_continue_present);
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+        inline expression_node_ptr make_variable_node(T& value)
+        {
+            return node_allocator.template allocate<variable_node_t>(value);
+        }
+
+        inline void handle_brkcnt_scope_exit()
+        {
+            parser_.handle_brkcnt_scope_exit();
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        std::deque<bool>& brkcnt_list;
+        details::node_allocator& node_allocator;
+    };
+
+    struct switch_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit switch_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
+                                                        const bool wrap_sequence = false)
+        {
+            return parser_.parse_multi_sequence(source, wrap_sequence);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr switch_statement(std::vector<expression_node_ptr>& arg_list,
+                                                    const bool default_statement_present)
+        {
+            return parser_.expression_generator_.switch_statement(arg_list,
+                                                                  default_statement_present);
+        }
+
+        inline expression_node_ptr multi_switch_statement(
+            std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.multi_switch_statement(arg_list);
+        }
+
+        inline expression_node_ptr make_nan_literal()
+        {
+            return node_allocator.template allocate_c<literal_node_t>(
+                std::numeric_limits<T>::quiet_NaN());
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
+    struct vararg_context
+    {
+        explicit vararg_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type)
+        {
+            return parser_.token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_multi_sequence()
+        {
+            return parser_.parse_multi_sequence();
+        }
+
+        inline expression_node_ptr parse_multi_switch_statement()
+        {
+            return parser_.parse_multi_switch_statement();
+        }
+
+        inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
+        {
+            return parser_.check_block_statement_closure(expression);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline expression_node_ptr vararg_function(const core::operators::operator_type operation,
+                                                   std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.vararg_function(operation, arg_list);
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
+    struct sequence_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit sequence_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        template <typename Sequence1, typename Sequence2>
+        inline expression_node_ptr simplify(Sequence1& expression_list, Sequence2& side_effect_list,
+                                            const bool specialise_on_final_type = false)
+        {
+            return parser_.simplify(expression_list, side_effect_list, specialise_on_final_type);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        details::node_allocator& node_allocator;
+    };
+
+    struct range_context
+    {
+        explicit range_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type)
+        {
+            return parser_.token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+    struct string_range_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using range_t = typename parser<T>::range_t;
+
+        explicit string_range_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
+        {
+            return parser_.parse_range(rp, skip_lsqr);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline expression_node_ptr make_string_size_node(expression_node_ptr expression)
+        {
+            return node_allocator.template allocate<details::string_nodes::string_size_node<T>>(
+                expression);
+        }
+
+        inline expression_node_ptr string_range(expression_node_ptr expression, range_t& rp)
+        {
+            return parser_.expression_generator_(expression, rp);
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline bool errors_empty() const
+        {
+            return parser_.error_list_.empty();
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+#endif
+
+    struct vector_index_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using vector_interface_t = details::vector_interface<T>;
+
+        explicit vector_index_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              sem(parser.sem_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr synthesize_vector_element(const std::string& vector_name,
+                                                             vector_holder_ptr vec,
+                                                             expression_node_ptr vec_node,
+                                                             expression_node_ptr index_expr)
+        {
+            return parser_.synthesize_vector_element(vector_name, vec, vec_node, index_expr);
+        }
+
+        inline bool errors_empty() const
+        {
+            return parser_.error_list_.empty();
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        scope_element_manager& sem;
+        details::node_allocator& node_allocator;
+    };
+
+    struct entity_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using range_t = typename parser<T>::range_t;
+        using scope_element_t = math_expr::scope_element<T>;
+        using symbol_table_t = typename parser<T>::symbol_table_t;
+        using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
+        using string_context_t = typename symtab_store_t::string_context;
+        using vector_context_t = typename symtab_store_t::vector_context;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
+#endif
+
+        explicit entity_context(parser<T>& parser)
+            : parser_(parser),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
+        {
+            return parser_.parse_range(rp, skip_lsqr);
+        }
+
+        inline expression_node_ptr parse_vector_index(const std::string& vector_name = "")
+        {
+            return parser_.parse_vector_index(vector_name);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline scope_element_t& get_active_element(const std::string& symbol)
+        {
+            return sem.get_active_element(symbol);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline string_context_t get_string_context(const std::string& symbol) const
+        {
+            return symtab_store.get_string_context(symbol);
+        }
+
+        inline bool is_conststr_stringvar(const std::string& symbol) const
+        {
+            return symtab_store.is_conststr_stringvar(symbol);
+        }
+
+        inline bool is_constant_string(const std::string& symbol) const
+        {
+            return symtab_store.is_constant_string(symbol);
+        }
+
+        inline expression_node_ptr make_string_literal(const std::string& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_const_string_range(const std::string& value, range_t& range)
+        {
+            return parser_.expression_generator_(value, range);
+        }
+
+        inline expression_node_ptr make_string_range(stringvar_node_ptr node, range_t& range)
+        {
+            return parser_.expression_generator_(node->ref(), range);
+        }
+
+        inline expression_node_ptr make_stringvar_size_node(stringvar_node_ptr node)
+        {
+            return node_allocator.template allocate<details::string_nodes::stringvar_size_node<T>>(
+                node->ref());
+        }
+
+        inline void lodge_immutable_string_symbol(const lexer::token& token, core::char_cptr begin,
+                                                  const std::size_t size)
+        {
+            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(begin, size));
+        }
+#endif
+
+        inline vector_context_t get_vector_context(const std::string& vector_name) const
+        {
+            return symtab_store.get_vector_context(vector_name);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_vector_node(vector_holder_ptr vector_holder)
+        {
+            return node_allocator.template allocate<vector_node_t>(vector_holder);
+        }
+
+        inline expression_node_ptr make_vector_size_node(vector_holder_ptr vector_holder)
+        {
+            return node_allocator.template allocate<vector_size_node_t>(vector_holder);
+        }
+
+        inline expression_node_ptr synthesize_vector_element(const std::string& vector_name,
+                                                             vector_holder_ptr vector_holder,
+                                                             expression_node_ptr vector_node,
+                                                             expression_node_ptr index_expr)
+        {
+            return parser_.synthesize_vector_element(vector_name, vector_holder, vector_node,
+                                                     index_expr);
+        }
+
+        inline void lodge_immutable_vector_symbol(const lexer::token& token, const T* begin,
+                                                  const std::size_t size)
+        {
+            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(begin, size));
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        parser<T>& parser_;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        details::node_allocator& node_allocator;
+    };
+
+    struct function_call_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using base_ops_map_t = typename parser<T>::base_ops_map_t;
+
+        explicit function_call_context(parser<T>& parser)
+            : parser_(parser),
+              state(parser.state_),
+              base_ops_map(parser.base_ops_map_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        template <std::size_t N>
+        inline expression_node_ptr function(ifunction<T>* function,
+                                            expression_node_ptr (&branch)[N])
+        {
+            return parser_.expression_generator_.function(function, branch);
+        }
+
+        inline expression_node_ptr function(ifunction<T>* function)
+        {
+            return parser_.expression_generator_.function(function);
+        }
+
+        template <std::size_t N>
+        inline expression_node_ptr base_operation(const core::operators::operator_type operation,
+                                                  expression_node_ptr (&branch)[N])
+        {
+            return parser_.expression_generator_(operation, branch);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        parser<T>& parser_;
+        parser_state& state;
+        base_ops_map_t& base_ops_map;
+        details::node_allocator& node_allocator;
+    };
+
+    struct symbol_resolution_context
+    {
+        using scope_element_t = math_expr::scope_element<T>;
+        using symbol_table_t = typename parser<T>::symbol_table_t;
+        using variable_context_t = typename symtab_store_t::variable_context;
+        using unknown_symbol_resolver_t = typename parser<T>::unknown_symbol_resolver;
+
+        explicit symbol_resolution_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              resolve_unknown_symbol(parser.resolve_unknown_symbol_),
+              unknown_symbol_resolver(parser.unknown_symbol_resolver_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline variable_context_t get_variable_context(const std::string& symbol) const
+        {
+            return symtab_store.get_variable_context(symbol);
+        }
+
+        inline bool is_constant_node(const std::string& symbol) const
+        {
+            return symtab_store.is_constant_node(symbol);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline void lodge_immutable_variable_symbol(const lexer::token& token, const T& value)
+        {
+            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(value));
+        }
+
+        inline bool post_variable_process(const std::string& symbol)
+        {
+            return parser_.post_variable_process(symbol);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline bool scope_empty() const
+        {
+            return sem.empty();
+        }
+
+        inline scope_element_t& get_active_element(const std::string& symbol)
+        {
+            return sem.get_active_element(symbol);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline bool is_stringvar(const std::string& symbol) const
+        {
+            return symtab_store.is_stringvar(symbol);
+        }
+
+        inline expression_node_ptr parse_string()
+        {
+            return parser_.parse_string();
+        }
+
+        inline igeneric_function<T>* get_string_function(const std::string& symbol) const
+        {
+            return symtab_store.get_string_function(symbol);
+        }
+
+        inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function,
+                                                              const std::string& function_name)
+        {
+            return parser_.parse_string_function_call(function, function_name);
+        }
+
+        inline igeneric_function<T>* get_overload_function(const std::string& symbol) const
+        {
+            return symtab_store.get_overload_function(symbol);
+        }
+
+        inline expression_node_ptr parse_overload_function_call(igeneric_function<T>* function,
+                                                                const std::string& function_name)
+        {
+            return parser_.parse_overload_function_call(function, function_name);
+        }
+#endif
+
+        inline expression_node_ptr parse_vector()
+        {
+            return parser_.parse_vector();
+        }
+
+        inline ifunction<T>* get_function(const std::string& symbol) const
+        {
+            return symtab_store.get_function(symbol);
+        }
+
+        inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
+                                                             const std::string& function_name)
+        {
+            return parser_.parse_function_invocation(function, function_name);
+        }
+
+        inline ivararg_function<T>* get_vararg_function(const std::string& symbol) const
+        {
+            return symtab_store.get_vararg_function(symbol);
+        }
+
+        inline expression_node_ptr parse_vararg_function_call(ivararg_function<T>* function,
+                                                              const std::string& function_name)
+        {
+            return parser_.parse_vararg_function_call(function, function_name);
+        }
+
+        inline igeneric_function<T>* get_generic_function(const std::string& symbol) const
+        {
+            return symtab_store.get_generic_function(symbol);
+        }
+
+        inline expression_node_ptr parse_generic_function_call(igeneric_function<T>* function,
+                                                               const std::string& function_name)
+        {
+            return parser_.parse_generic_function_call(function, function_name);
+        }
+
+        inline bool is_vector(const std::string& symbol) const
+        {
+            return symtab_store.is_vector(symbol);
+        }
+
+        inline symbol_table_t& get_symbol_table()
+        {
+            return symtab_store.get_symbol_table();
+        }
+
+        inline expression_node_ptr get_variable(const std::string& symbol) const
+        {
+            return symtab_store.get_variable(symbol);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        bool& resolve_unknown_symbol;
+        unknown_symbol_resolver_t*& unknown_symbol_resolver;
+    };
+
+    struct symbol_context
+    {
+        explicit symbol_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline bool valid_vararg_operation(const std::string& symbol) const
+        {
+            return parser_.valid_vararg_operation(symbol);
+        }
+
+        inline bool valid_base_operation(const std::string& symbol) const
+        {
+            return parser_.valid_base_operation(symbol);
+        }
+
+        inline expression_node_ptr parse_vararg_function()
+        {
+            return parser_.parse_vararg_function();
+        }
+
+        inline expression_node_ptr parse_not_statement()
+        {
+            return parser_.parse_not_statement();
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr parse_base_operation()
+        {
+            return parser_.parse_base_operation();
+        }
+
+        inline expression_node_ptr parse_conditional_statement()
+        {
+            return parser_.parse_conditional_statement();
+        }
+
+        inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
+        {
+            return parser_.check_block_statement_closure(expression);
+        }
+
+        inline expression_node_ptr parse_while_loop()
+        {
+            return parser_.parse_while_loop();
+        }
+
+        inline expression_node_ptr parse_repeat_until_loop()
+        {
+            return parser_.parse_repeat_until_loop();
+        }
+
+        inline expression_node_ptr parse_for_loop()
+        {
+            return parser_.parse_for_loop();
+        }
+
+        inline expression_node_ptr parse_switch_statement()
+        {
+            return parser_.parse_switch_statement();
+        }
+
+        inline expression_node_ptr parse_special_function()
+        {
+            return parser_.parse_special_function();
+        }
+
+        inline expression_node_ptr parse_null_statement()
+        {
+            return parser_.parse_null_statement();
+        }
+
+#ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
+        inline expression_node_ptr parse_break_statement()
+        {
+            return parser_.parse_break_statement();
+        }
+
+        inline expression_node_ptr parse_continue_statement()
+        {
+            return parser_.parse_continue_statement();
+        }
+#endif
+
+        inline expression_node_ptr parse_define_var_statement()
+        {
+            return parser_.parse_define_var_statement();
+        }
+
+        inline expression_node_ptr parse_define_constvar_statement()
+        {
+            return parser_.parse_define_constvar_statement();
+        }
+
+        inline expression_node_ptr parse_swap_statement()
+        {
+            return parser_.parse_swap_statement();
+        }
+
+#ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
+        inline expression_node_ptr parse_return_statement()
+        {
+            return parser_.parse_return_statement();
+        }
+#endif
+
+        inline expression_node_ptr parse_assert_statement()
+        {
+            return parser_.parse_assert_statement();
+        }
+
+        inline bool symtab_valid() const
+        {
+            return symtab_store.valid();
+        }
+
+        inline bool scope_empty() const
+        {
+            return sem.empty();
+        }
+
+        inline expression_node_ptr parse_symtab_symbol()
+        {
+            return parser_.parse_symtab_symbol();
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+    };
+
+    struct statement_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using variable_node_ptr = details::variable_node<T>*;
+        using scope_element_t = math_expr::scope_element<T>;
+
+        explicit statement_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              retparam_list(parser.dec_.retparam_list_),
+              assert_check(parser.assert_check_),
+              assert_ids(parser.assert_ids_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_vector()
+        {
+            return parser_.parse_vector();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline bool is_variable(const std::string& symbol) const
+        {
+            return symtab_store.is_variable(symbol);
+        }
+
+        inline expression_node_ptr get_variable(const std::string& symbol) const
+        {
+            return symtab_store.get_variable(symbol);
+        }
+
+        inline const scope_element_t& get_element(const std::string& symbol) const
+        {
+            return sem.get_element(symbol);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline variable_node_ptr as_variable_node(expression_node_ptr node) const
+        {
+            return static_cast<variable_node_ptr>(node->as_variable_node());
+        }
+
+        inline expression_node_ptr make_swap_node(variable_node_ptr v0, variable_node_ptr v1)
+        {
+            return node_allocator.template allocate<details::swap_node<T>>(v0, v1);
+        }
+
+        inline expression_node_ptr make_swap_generic_node(expression_node_ptr variable0,
+                                                          expression_node_ptr variable1)
+        {
+            return node_allocator.template allocate<details::swap_generic_node<T>>(variable0,
+                                                                                   variable1);
+        }
+
+        inline expression_node_ptr return_call(std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.return_call(arg_list);
+        }
+
+        inline expression_node_ptr assert_call(
+            expression_node_ptr& assert_condition, expression_node_ptr& assert_message,
+            const math_expr::assert_check::assert_context& assert_context)
+        {
+            return parser_.expression_generator_.assert_call(assert_condition, assert_message,
+                                                             assert_context);
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+        inline std::string lexer_substr(const std::size_t begin, const std::size_t end) const
+        {
+            return parser_.lexer().substr(begin, end);
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        std::vector<std::string>& retparam_list;
+        assert_check_ptr assert_check;
+        std::set<std::string>& assert_ids;
+        details::node_allocator& node_allocator;
+    };
+
+    struct definition_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using scope_element_t = math_expr::scope_element<T>;
+        using variable_node_ptr = typename parser<T>::variable_node_t*;
+        using literal_node_ptr = typename parser<T>::literal_node_t*;
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
+#endif
+
+        explicit definition_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool token_is(const std::string& symbol)
+        {
+            return parser_.token_is(symbol);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline expression_node_ptr parse_define_vector_statement(const std::string& var_name)
+        {
+            return parser_.parse_define_vector_statement(var_name);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline scope_element_t& get_element(const std::string& symbol)
+        {
+            return sem.get_element(symbol);
+        }
+
+        inline bool add_element(scope_element_t&& se)
+        {
+            return sem.add_element(std::move(se));
+        }
+
+        inline void free_element(scope_element_t& se)
+        {
+            sem.free_element(se);
+        }
+
+        inline std::size_t total_local_symb_size_bytes() const
+        {
+            return sem.total_local_symb_size_bytes();
+        }
+
+        inline std::size_t max_total_local_symbol_size_bytes() const
+        {
+            return settings.max_total_local_symbol_size_bytes();
+        }
+
+        inline std::size_t next_ip_index()
+        {
+            return sem.next_ip_index();
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline variable_node_ptr make_variable_node(T& value)
+        {
+            return static_cast<variable_node_ptr>(
+                node_allocator.template allocate<variable_node_t>(value));
+        }
+
+        inline literal_node_ptr make_literal_node(const T& value)
+        {
+            return static_cast<literal_node_ptr>(
+                node_allocator.template allocate<literal_node_t>(value));
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline stringvar_node_ptr make_stringvar_node(std::string& value)
+        {
+            return new stringvar_node_t(value);
+        }
+#endif
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_assignment(expression_node_ptr lhs, expression_node_ptr rhs)
+        {
+            expression_node_ptr branch[2] = {lhs, rhs};
+            return parser_.expression_generator_(core::operators::operator_type::assign, branch);
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        details::node_allocator& node_allocator;
+    };
+
+    struct vector_definition_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using scope_element_t = math_expr::scope_element<T>;
+        using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
+        using vector_node_t = typename parser<T>::vector_node_t;
+
+        explicit vector_definition_context(parser<T>& parser)
+            : parser_(parser),
+              settings(parser.settings_),
+              state(parser.state_),
+              sem(parser.sem_),
+              symtab_store(parser.symtab_store_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool token_is(const token_t::token_type type, const std::string& value,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, value, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline bool is_constant_node(expression_node_ptr node) const
+        {
+            return details::is_constant_node(node);
+        }
+
+        inline std::size_t max_local_vector_size() const
+        {
+            return settings.max_local_vector_size();
+        }
+
+        inline std::size_t total_local_symb_size_bytes() const
+        {
+            return sem.total_local_symb_size_bytes();
+        }
+
+        inline std::size_t max_total_local_symbol_size_bytes() const
+        {
+            return settings.max_total_local_symbol_size_bytes();
+        }
+
+        inline scope_element_t& get_element(const std::string& symbol)
+        {
+            return sem.get_element(symbol);
+        }
+
+        inline const scope_element_t& get_active_element(const std::string& symbol) const
+        {
+            return sem.get_active_element(symbol);
+        }
+
+        inline bool add_element(scope_element_t&& se)
+        {
+            return sem.add_element(std::move(se));
+        }
+
+        inline void free_element(scope_element_t& se)
+        {
+            sem.free_element(se);
+        }
+
+        inline void lodge_symbol(const std::string& symbol, const symbol_type st)
+        {
+            parser_.lodge_symbol(symbol, st);
+        }
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        inline vector_holder_ptr make_vector_holder(T* data, std::size_t size)
+        {
+            return new typename scope_element_t::vector_holder_t(data, size);
+        }
+
+        inline expression_node_ptr make_assign_vector(expression_node_ptr lhs,
+                                                      expression_node_ptr rhs)
+        {
+            return parser_.expression_generator_(core::operators::operator_type::assign, lhs, rhs);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        parser<T>& parser_;
+        settings_store& settings;
+        parser_state& state;
+        scope_element_manager& sem;
+        symtab_store_t& symtab_store;
+        details::node_allocator& node_allocator;
+    };
+
+    struct branch_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using precedence_level = typename parser<T>::precedence_level;
+
+        explicit branch_context(parser<T>& parser)
+            : parser_(parser), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline bool peek_token_is(const token_t::token_type type) const
+        {
+            return parser_.peek_token_is(type);
+        }
+
+        inline expression_node_ptr parse_expression(
+            const precedence_level precedence = precedence_level::e_level00)
+        {
+            return parser_.parse_expression(precedence);
+        }
+
+        inline expression_node_ptr parse_symbol()
+        {
+            return parser_.parse_symbol();
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline expression_node_ptr parse_const_string()
+        {
+            return parser_.parse_const_string();
+        }
+#endif
+
+        inline expression_node_ptr parse_ternary_conditional_statement(
+            expression_node_ptr condition)
+        {
+            return parser_.parse_ternary_conditional_statement(condition);
+        }
+
+        inline bool parse_pending_string_rangesize(expression_node_ptr& expression)
+        {
+            return parser_.parse_pending_string_rangesize(expression);
+        }
+
+        inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
+        {
+            parser_.parse_pending_vector_index_operator(expression);
+        }
+
+        inline bool simplify_unary_negation_branch(expression_node_ptr& expression)
+        {
+            return parser_.simplify_unary_negation_branch(expression);
+        }
+
+        inline bool commutative_check_enabled() const
+        {
+            return parser_.settings_.commutative_check_enabled();
+        }
+
+        inline void insert_front(const token_t::token_type type)
+        {
+            parser_.lexer().insert_front(type);
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr make_numeric_literal(const T& value)
+        {
+            return parser_.expression_generator_(value);
+        }
+
+        inline expression_node_ptr make_unary_operator(
+            const core::operators::operator_type operation, expression_node_ptr branch)
+        {
+            return parser_.expression_generator_(operation, branch);
+        }
+
+        parser<T>& parser_;
+        details::node_allocator& node_allocator;
+    };
+
+    struct special_case_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+
+        explicit special_case_context(parser<T>& parser)
+            : parser_(parser),
+              state(parser.state_),
+              brkcnt_list(parser.brkcnt_list_),
+              node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        template <std::size_t N>
+        inline expression_node_ptr special_function(const core::operators::operator_type operation,
+                                                    expression_node_ptr (&branch)[N])
+        {
+            return parser_.expression_generator_.special_function(operation, branch);
+        }
+
+        inline expression_node_ptr make_null_node()
+        {
+            return node_allocator.template allocate<details::null_node<T>>();
+        }
+
+#ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
+        inline expression_node_ptr make_break_node(expression_node_ptr return_expr)
+        {
+            return node_allocator.template allocate<details::break_node<T>>(return_expr);
+        }
+
+        inline expression_node_ptr make_continue_node()
+        {
+            return node_allocator.template allocate<details::continue_node<T>>();
+        }
+#endif
+
+        inline void activate_side_effect(const std::string& source)
+        {
+            state.activate_side_effect(source);
+        }
+
+        parser<T>& parser_;
+        parser_state& state;
+        std::deque<bool>& brkcnt_list;
+        details::node_allocator& node_allocator;
+    };
+
+    class type_checker;
+
+    struct dynamic_function_context
+    {
+        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
+        using type_checker_t = type_checker;
+
+        explicit dynamic_function_context(parser<T>& parser)
+            : parser_(parser), state(parser.state_), node_allocator(parser.node_allocator_)
+        {
+        }
+
+        inline const token_t& current_token() const
+        {
+            return parser_.current_token();
+        }
+
+        inline void next_token()
+        {
+            parser_.next_token();
+        }
+
+        inline bool token_is(const token_t::token_type type,
+                             const token_advance_mode mode = token_advance_mode::e_advance)
+        {
+            return parser_.token_is(type, mode);
+        }
+
+        inline expression_node_ptr parse_expression()
+        {
+            return parser_.parse_expression();
+        }
+
+        inline void set_error(const parser_error::type& error)
+        {
+            parser_.set_error(error);
+        }
+
+        static inline expression_node_ptr error_node()
+        {
+            return parser<T>::error_node();
+        }
+
+        inline void free_node(expression_node_ptr& node)
+        {
+            details::free_node(node_allocator, node);
+        }
+
+        inline expression_node_ptr vararg_function_call(ivararg_function<T>* function,
+                                                        std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.vararg_function_call(function, arg_list);
+        }
+
+        inline expression_node_ptr generic_function_call(igeneric_function<T>* function,
+                                                         std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.generic_function_call(function, arg_list);
+        }
+
+        inline expression_node_ptr generic_function_call(igeneric_function<T>* function,
+                                                         std::vector<expression_node_ptr>& arg_list,
+                                                         std::size_t param_seq_index)
+        {
+            return parser_.expression_generator_.generic_function_call(function, arg_list,
+                                                                       param_seq_index);
+        }
+
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        inline expression_node_ptr string_function_call(igeneric_function<T>* function,
+                                                        std::vector<expression_node_ptr>& arg_list)
+        {
+            return parser_.expression_generator_.string_function_call(function, arg_list);
+        }
+
+        inline expression_node_ptr string_function_call(igeneric_function<T>* function,
+                                                        std::vector<expression_node_ptr>& arg_list,
+                                                        std::size_t param_seq_index)
+        {
+            return parser_.expression_generator_.string_function_call(function, arg_list,
+                                                                      param_seq_index);
+        }
+#endif
+
+        parser<T>& parser_;
+        parser_state& state;
+        details::node_allocator& node_allocator;
+    };
+
     inline expression_node_ptr parse_function_invocation(ifunction<T>* function,
                                                          const std::string& function_name)
     {
-        expression_node_ptr func_node = nullptr;
-
-        switch (function->param_count)
-        {
-            case 0:
-                func_node = parse_function_call_0(function, function_name);
-                break;
-            case 1:
-                func_node = parse_function_call<1>(function, function_name);
-                break;
-            case 2:
-                func_node = parse_function_call<2>(function, function_name);
-                break;
-            case 3:
-                func_node = parse_function_call<3>(function, function_name);
-                break;
-            case 4:
-                func_node = parse_function_call<4>(function, function_name);
-                break;
-            case 5:
-                func_node = parse_function_call<5>(function, function_name);
-                break;
-            case 6:
-                func_node = parse_function_call<6>(function, function_name);
-                break;
-            case 7:
-                func_node = parse_function_call<7>(function, function_name);
-                break;
-            case 8:
-                func_node = parse_function_call<8>(function, function_name);
-                break;
-            case 9:
-                func_node = parse_function_call<9>(function, function_name);
-                break;
-            case 10:
-                func_node = parse_function_call<10>(function, function_name);
-                break;
-            case 11:
-                func_node = parse_function_call<11>(function, function_name);
-                break;
-            case 12:
-                func_node = parse_function_call<12>(function, function_name);
-                break;
-            case 13:
-                func_node = parse_function_call<13>(function, function_name);
-                break;
-            case 14:
-                func_node = parse_function_call<14>(function, function_name);
-                break;
-            case 15:
-                func_node = parse_function_call<15>(function, function_name);
-                break;
-            case 16:
-                func_node = parse_function_call<16>(function, function_name);
-                break;
-            case 17:
-                func_node = parse_function_call<17>(function, function_name);
-                break;
-            case 18:
-                func_node = parse_function_call<18>(function, function_name);
-                break;
-            case 19:
-                func_node = parse_function_call<19>(function, function_name);
-                break;
-            case 20:
-                func_node = parse_function_call<20>(function, function_name);
-                break;
-            default:
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR021 - Invalid number of parameters for function: '" + function_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        if (func_node)
-            return func_node;
-        else
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR022 - Failed to generate call to function: '" + function_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
+        function_call_context context(*this);
+        return parser_function_call<T>::parse_function_invocation(context, function, function_name);
     }
 
     template <std::size_t NumberofParameters>
     inline expression_node_ptr parse_function_call(ifunction<T>* function,
                                                    const std::string& function_name)
     {
-        if constexpr (0 == NumberofParameters)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR023 - Expecting ifunction '" + function_name +
-                                     "' to have non-zero parameter count",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else
-        {
-            expression_node_ptr branch[NumberofParameters];
-            expression_node_ptr result = error_node();
-
-            std::fill_n(branch, NumberofParameters, nullptr);
-
-            scoped_delete<expression_node_t, NumberofParameters> sd((*this), branch);
-
-            next_token();
-
-            if (!token_is(token_t::e_lbracket))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR024 - Expecting argument list for function: '" + function_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-
-            for (int i = 0; i < static_cast<int>(NumberofParameters); ++i)
-            {
-                branch[i] = parse_expression();
-
-                if (nullptr == branch[i])
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR025 - Failed to parse argument " + core::to_str(i) +
-                                             " for function: '" + function_name + "'",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-                else if (i < static_cast<int>(NumberofParameters - 1))
-                {
-                    if (!token_is(token_t::e_comma))
-                    {
-                        set_error(
-                            make_error(parser_error::error_mode::e_syntax, current_token(),
-                                       "ERR026 - Invalid number of arguments for function: '" +
-                                           function_name + "'",
-                                       core::error_location()));
-
-                        return error_node();
-                    }
-                }
-            }
-
-            if (!token_is(token_t::e_rbracket))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR027 - Invalid number of arguments for function: '" + function_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else
-                result = expression_generator_.function(function, branch);
-
-            sd.delete_ptr = (nullptr == result);
-
-            return result;
-        }
+        function_call_context context(*this);
+        return parser_function_call<T>::template parse_function_call<NumberofParameters>(
+            context, function, function_name);
     }
 
     inline expression_node_ptr parse_function_call_0(ifunction<T>* function,
                                                      const std::string& function_name)
     {
-        expression_node_ptr result = expression_generator_.function(function);
-
-        state_.side_effect_present = function->has_side_effects();
-
-        next_token();
-
-        if (token_is(token_t::e_lbracket) && !token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR028 - Expecting '()' to proceed call to function: '" + function_name + "'",
-                core::error_location()));
-
-            free_node(node_allocator_, result);
-
-            return error_node();
-        }
-        else
-            return result;
+        function_call_context context(*this);
+        return parser_function_call<T>::parse_function_call_0(context, function, function_name);
     }
 
     template <std::size_t MaxNumberofParameters>
@@ -2889,608 +3403,39 @@ class parser : public lexer::parser_helper
         expression_node_ptr (&param_list)[MaxNumberofParameters],
         const std::string& function_name = "")
     {
-        std::fill_n(param_list, MaxNumberofParameters, nullptr);
-
-        scoped_delete<expression_node_t, MaxNumberofParameters> sd((*this), param_list);
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR029 - Expected a '(' at start of function call to '" +
-                                     function_name + "', instead got: '" + current_token().value +
-                                     "'",
-                                 core::error_location()));
-
-            return 0;
-        }
-
-        if (token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR030 - Expected at least one input parameter for function call '" +
-                               function_name + "'",
-                           core::error_location()));
-
-            return 0;
-        }
-
-        std::size_t param_index = 0;
-
-        for (; param_index < MaxNumberofParameters; ++param_index)
-        {
-            param_list[param_index] = parse_expression();
-
-            if (nullptr == param_list[param_index])
-                return 0;
-            else if (token_is(token_t::e_rbracket))
-            {
-                sd.delete_ptr = false;
-                break;
-            }
-            else if (token_is(token_t::e_comma))
-                continue;
-            else
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR031 - Expected a ',' between function input parameters, instead got: '" +
-                        current_token().value + "'",
-                    core::error_location()));
-
-                return 0;
-            }
-        }
-
-        if (sd.delete_ptr)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR032 - Invalid number of input parameters passed to function '" +
-                               function_name + "'",
-                           core::error_location()));
-
-            return 0;
-        }
-
-        return (param_index + 1);
+        function_call_context context(*this);
+        return parser_function_call<T>::template parse_base_function_call<MaxNumberofParameters>(
+            context, param_list, function_name);
     }
 
     inline expression_node_ptr parse_base_operation()
     {
-        using map_range_t = std::pair<base_ops_map_t::iterator, base_ops_map_t::iterator>;
-
-        const std::string operation_name = current_token().value;
-        const token_t diagnostic_token = current_token();
-
-        map_range_t itr_range = base_ops_map_.equal_range(operation_name);
-
-        if (0 == std::distance(itr_range.first, itr_range.second))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
-                                 "ERR033 - No entry found for base operation: " + operation_name,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        static constexpr std::size_t MaxNumberofParameters = 4;
-        expression_node_ptr param_list[MaxNumberofParameters] = {0};
-
-        const std::size_t parameter_count = parse_base_function_call(param_list, operation_name);
-
-        if ((parameter_count > 0) && (parameter_count <= MaxNumberofParameters))
-        {
-            for (base_ops_map_t::iterator itr = itr_range.first; itr != itr_range.second; ++itr)
-            {
-                const core::operators::base_operation_t& operation = itr->second;
-
-                if (operation.num_params == parameter_count)
-                {
-                    switch (parameter_count)
-                    {
-#define BASE_OPR_CASE(N)                                          \
-    case N:                                                       \
-    {                                                             \
-        expression_node_ptr pl##N[N] = {0};                       \
-        std::copy(param_list, param_list + N, pl##N);             \
-        lodge_symbol(operation_name, symbol_type::e_st_function); \
-        return expression_generator_(operation.type, pl##N);      \
-    }
-
-                        BASE_OPR_CASE(1);
-                        BASE_OPR_CASE(2);
-                        BASE_OPR_CASE(3);
-                        BASE_OPR_CASE(4);
-#undef BASE_OPR_CASE
-                    }
-                }
-            }
-        }
-
-        for (std::size_t i = 0; i < MaxNumberofParameters; ++i)
-        {
-            free_node(node_allocator_, param_list[i]);
-        }
-
-        set_error(make_error(parser_error::error_mode::e_syntax, diagnostic_token,
-                             "ERR034 - Invalid number of input parameters for call to function: '" +
-                                 operation_name + "'",
-                             core::error_location()));
-
-        return error_node();
+        function_call_context context(*this);
+        return parser_function_call<T>::parse_base_operation(context);
     }
 
     inline expression_node_ptr parse_conditional_statement_01(expression_node_ptr condition)
     {
-        // Parse: [if][(][condition][,][consequent][,][alternative][)]
-
-        expression_node_ptr consequent = error_node();
-        expression_node_ptr alternative = error_node();
-
-        bool result = true;
-
-        if (!token_is(token_t::e_comma))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR035 - Expected ',' between if-statement condition and consequent",
-                           core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (consequent = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR036 - Failed to parse consequent for if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (!token_is(token_t::e_comma))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR037 - Expected ',' between if-statement consequent and alternative",
-                           core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (alternative = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR038 - Failed to parse alternative for if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR039 - Expected ')' at the end of if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consq_is_str = is_generally_string_node(consequent);
-            const bool alter_is_str = is_generally_string_node(alternative);
-
-            if (consq_is_str || alter_is_str)
-            {
-                if (consq_is_str && alter_is_str)
-                {
-                    expression_node_ptr result_node = expression_generator_.conditional_string(
-                        condition, consequent, alternative);
-
-                    if (result_node && result_node->valid())
-                    {
-                        return result_node;
-                    }
-
-                    set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                                         "ERR040 - Failed to synthesize node: conditional_string",
-                                         core::error_location()));
-
-                    free_node(node_allocator_, result_node);
-                    return error_node();
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR041 - Return types of if-statement differ: string/non-string",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-#endif
-
-        if (result)
-        {
-            const bool consq_is_vec = is_ivector_node(consequent);
-            const bool alter_is_vec = is_ivector_node(alternative);
-
-            if (consq_is_vec || alter_is_vec)
-            {
-                if (consq_is_vec && alter_is_vec)
-                {
-                    return expression_generator_.conditional_vector(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR042 - Return types of if-statement differ: vector/non-vector",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, consequent);
-            free_node(node_allocator_, alternative);
-
-            return error_node();
-        }
-        else
-            return expression_generator_.conditional(condition, consequent, alternative);
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_conditional_statement_01(context, condition);
     }
 
     inline expression_node_ptr parse_conditional_statement_02(expression_node_ptr condition)
     {
-        expression_node_ptr consequent = error_node();
-        expression_node_ptr alternative = error_node();
-
-        bool result = true;
-
-        if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            if (nullptr == (consequent = parse_multi_sequence("if-statement-01")))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR043 - Failed to parse body of consequent for if-statement",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!settings_.commutative_check_enabled() &&
-                     !token_is("else", prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_loop(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_arithmetic_opr(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_right_bracket(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is_ineq_opr(prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
-                     !token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR044 - Expected ';' at the end of the consequent for if-statement (1)",
-                    core::error_location()));
-
-                result = false;
-            }
-        }
-        else
-        {
-            if (settings_.commutative_check_enabled() &&
-                token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                next_token();
-            }
-
-            if (nullptr != (consequent = parse_expression()))
-            {
-                if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR045 - Expected ';' at the end of the consequent for if-statement (2)",
-                        core::error_location()));
-
-                    result = false;
-                }
-            }
-            else
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR046 - Failed to parse body of consequent for if-statement",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (result)
-        {
-            if (core::imatch(current_token().value, "else") ||
-                (token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold) &&
-                 peek_token_is("else")))
-            {
-                next_token();
-
-                if (core::imatch(current_token().value, "else"))
-                {
-                    next_token();
-                }
-
-                if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    if (nullptr == (alternative = parse_multi_sequence("else-statement-01")))
-                    {
-                        set_error(make_error(
-                            parser_error::error_mode::e_syntax, current_token(),
-                            "ERR047 - Failed to parse body of the 'else' for if-statement",
-                            core::error_location()));
-
-                        result = false;
-                    }
-                }
-                else if (core::imatch(current_token().value, "if"))
-                {
-                    if (nullptr == (alternative = parse_conditional_statement()))
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR048 - Failed to parse body of if-else statement",
-                                             core::error_location()));
-
-                        result = false;
-                    }
-                }
-                else if (nullptr != (alternative = parse_expression()))
-                {
-                    if (!token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold) &&
-                        !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                        !token_is(token_t::e_eof))
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR049 - Expected ';' at the end of the 'else-if' "
-                                             "for the if-statement",
-                                             core::error_location()));
-
-                        result = false;
-                    }
-                }
-                else
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR050 - Failed to parse body of the 'else' for if-statement",
-                                   core::error_location()));
-
-                    result = false;
-                }
-            }
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consq_is_str = is_generally_string_node(consequent);
-            const bool alter_is_str = is_generally_string_node(alternative);
-
-            if (consq_is_str || alter_is_str)
-            {
-                if (consq_is_str && alter_is_str)
-                {
-                    return expression_generator_.conditional_string(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR051 - Return types of if-statement differ: string/non-string",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-#endif
-
-        if (result)
-        {
-            const bool consq_is_vec = is_ivector_node(consequent);
-            const bool alter_is_vec = is_ivector_node(alternative);
-
-            if (consq_is_vec || alter_is_vec)
-            {
-                if (consq_is_vec && alter_is_vec)
-                {
-                    return expression_generator_.conditional_vector(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR052 - Return types of if-statement differ: vector/non-vector",
-                               core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, consequent);
-            free_node(node_allocator_, alternative);
-
-            return error_node();
-        }
-        else
-            return expression_generator_.conditional(condition, consequent, alternative);
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_conditional_statement_02(context, condition);
     }
 
     inline expression_node_ptr parse_conditional_statement()
     {
-        expression_node_ptr condition = error_node();
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR053 - Expected '(' at start of if-statement, instead got: '" +
-                                     current_token().value + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR054 - Failed to parse condition for if-statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (token_is(token_t::e_comma, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            // if (x,y,z)
-            return parse_conditional_statement_01(condition);
-        }
-        else if (token_is(token_t::e_rbracket))
-        {
-            /*
-               00. if (x) y;
-               01. if (x) y; else z;
-               02. if (x) y; else {z0; ... zn;}
-               03. if (x) y; else if (z) w;
-               04. if (x) y; else if (z) w; else u;
-               05. if (x) y; else if (z) w; else {u0; ... un;}
-               06. if (x) y; else if (z) {w0; ... wn;}
-               07. if (x) {y0; ... yn;}
-               08. if (x) {y0; ... yn;} else z;
-               09. if (x) {y0; ... yn;} else {z0; ... zn;};
-               10. if (x) {y0; ... yn;} else if (z) w;
-               11. if (x) {y0; ... yn;} else if (z) w; else u;
-               12. if (x) {y0; ... nex;} else if (z) w; else {u0 ... un;}
-               13. if (x) {y0; ... yn;} else if (z) {w0; ... wn;}
-            */
-            return parse_conditional_statement_02(condition);
-        }
-
-        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                             "ERR055 - Invalid if-statement", core::error_location()));
-
-        free_node(node_allocator_, condition);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_conditional_statement(context);
     }
 
     inline expression_node_ptr parse_ternary_conditional_statement(expression_node_ptr condition)
     {
-        // Parse: [condition][?][consequent][:][alternative]
-        expression_node_ptr consequent = error_node();
-        expression_node_ptr alternative = error_node();
-
-        bool result = true;
-
-        if (nullptr == condition)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR056 - Encountered invalid condition branch for ternary if-statement",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_ternary))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR057 - Expected '?' after condition of ternary if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (consequent = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR058 - Failed to parse consequent for ternary if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-        else if (!token_is(token_t::e_colon))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR059 - Expected ':' between ternary if-statement consequent and alternative",
-                core::error_location()));
-
-            result = false;
-        }
-        else if (nullptr == (alternative = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR060 - Failed to parse alternative for ternary if-statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consq_is_str = is_generally_string_node(consequent);
-            const bool alter_is_str = is_generally_string_node(alternative);
-
-            if (consq_is_str || alter_is_str)
-            {
-                if (consq_is_str && alter_is_str)
-                {
-                    return expression_generator_.conditional_string(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR061 - Return types of ternary differ: string/non-string",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-#endif
-
-        if (result)
-        {
-            const bool consq_is_vec = is_ivector_node(consequent);
-            const bool alter_is_vec = is_ivector_node(alternative);
-
-            if (consq_is_vec || alter_is_vec)
-            {
-                if (consq_is_vec && alter_is_vec)
-                {
-                    return expression_generator_.conditional_vector(condition, consequent,
-                                                                    alternative);
-                }
-
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR062 - Return types of ternary differ: vector/non-vector",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, consequent);
-            free_node(node_allocator_, alternative);
-
-            return error_node();
-        }
-        else
-            return expression_generator_.conditional(condition, consequent, alternative);
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_ternary_conditional_statement(context, condition);
     }
 
     inline expression_node_ptr parse_not_statement()
@@ -3515,849 +3460,45 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_while_loop()
     {
-        // Parse: [while][(][test expr][)][{][expression][}]
-        expression_node_ptr condition = error_node();
-        expression_node_ptr branch = error_node();
-        expression_node_ptr result_node = error_node();
-
-        bool result = true;
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR064 - Expected '(' at start of while-loop condition statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR065 - Failed to parse condition for while-loop",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR066 - Expected ')' at end of while-loop condition statement",
-                                 core::error_location()));
-
-            result = false;
-        }
-
-        brkcnt_list_.push_front(false);
-
-        if (result)
-        {
-            scoped_inc_dec sid(state_.parsing_loop_stmt_count);
-
-            if (nullptr == (branch = parse_multi_sequence("while-loop", true)))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR067 - Failed to parse body of while-loop"));
-                result = false;
-            }
-            else if (nullptr == (result_node = expression_generator_.while_loop(
-                                     condition, branch, brkcnt_list_.front())))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR068 - Failed to synthesize while-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        handle_brkcnt_scope_exit();
-
-        if (!result)
-        {
-            free_node(node_allocator_, branch);
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, result_node);
-
-            return error_node();
-        }
-
-        if (result_node && result_node->valid())
-        {
-            return result_node;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR069 - Failed to synthesize 'valid' while-loop",
-                             core::error_location()));
-
-        free_node(node_allocator_, result_node);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_while_loop(context);
     }
 
     inline expression_node_ptr parse_repeat_until_loop()
     {
-        // Parse: [repeat][{][expression][}][until][(][test expr][)]
-        expression_node_ptr condition = error_node();
-        expression_node_ptr branch = error_node();
-        next_token();
-
-        std::vector<expression_node_ptr> arg_list;
-        std::vector<bool> side_effect_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        brkcnt_list_.push_front(false);
-
-        if (core::imatch(current_token().value, "until"))
-        {
-            next_token();
-            branch = node_allocator_.allocate<details::null_node<T>>();
-        }
-        else
-        {
-            const token_t::token_type separator = token_t::e_eof;
-
-            scope_handler sh(*this);
-
-            scoped_bool_or_restorer sbr(state_.side_effect_present);
-
-            scoped_inc_dec sid(state_.parsing_loop_stmt_count);
-
-            for (;;)
-            {
-                state_.side_effect_present = false;
-
-                expression_node_ptr arg = parse_expression();
-
-                if (nullptr == arg)
-                    return error_node();
-                else
-                {
-                    arg_list.push_back(arg);
-                    side_effect_list.push_back(state_.side_effect_present);
-                }
-
-                if (core::imatch(current_token().value, "until"))
-                {
-                    next_token();
-                    break;
-                }
-
-                const bool is_next_until =
-                    peek_token_is(token_t::e_symbol) && peek_token_is("until");
-
-                if (!token_is(separator) && is_next_until)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR070 - Expected '" + token_t::to_str(separator) +
-                                             "' in body of repeat until loop",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                if (core::imatch(current_token().value, "until"))
-                {
-                    next_token();
-                    break;
-                }
-            }
-
-            branch = simplify(arg_list, side_effect_list);
-
-            svd.delete_ptr = (nullptr == branch);
-
-            if (svd.delete_ptr)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR071 - Failed to parse body of repeat until loop",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR072 - Expected '(' before condition statement of repeat until loop",
-                           core::error_location()));
-
-            free_node(node_allocator_, branch);
-            return error_node();
-        }
-        else if (nullptr == (condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR073 - Failed to parse condition for repeat until loop",
-                                 core::error_location()));
-
-            free_node(node_allocator_, branch);
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR074 - Expected ')' after condition of repeat until loop",
-                                 core::error_location()));
-
-            free_node(node_allocator_, branch);
-            free_node(node_allocator_, condition);
-
-            return error_node();
-        }
-
-        expression_node_ptr result_node =
-            expression_generator_.repeat_until_loop(condition, branch, brkcnt_list_.front());
-
-        if (nullptr == result_node)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR075 - Failed to synthesize repeat until loop",
-                                 core::error_location()));
-
-            free_node(node_allocator_, condition);
-
-            return error_node();
-        }
-
-        handle_brkcnt_scope_exit();
-
-        if (result_node && result_node->valid())
-        {
-            return result_node;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR076 - Failed to synthesize 'valid' repeat until loop",
-                             core::error_location()));
-
-        free_node(node_allocator_, result_node);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_repeat_until_loop(context);
     }
 
     inline expression_node_ptr parse_for_loop()
     {
-        expression_node_ptr initialiser = error_node();
-        expression_node_ptr condition = error_node();
-        expression_node_ptr incrementor = error_node();
-        expression_node_ptr loop_body = error_node();
-
-        scope_element* se = nullptr;
-        bool result = true;
-
-        next_token();
-
-        scope_handler sh(*this);
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR077 - Expected '(' at start of for-loop",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (!token_is(token_t::e_eof))
-        {
-            if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold) &&
-                core::imatch(current_token().value, "var"))
-            {
-                next_token();
-
-                if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR078 - Expected a variable at the start of initialiser "
-                                         "section of for-loop",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-                else if (!peek_token_is(token_t::e_assign))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR079 - Expected variable assignment of initialiser section of for-loop",
-                        core::error_location()));
-
-                    return error_node();
-                }
-
-                const std::string loop_counter_symbol = current_token().value;
-
-                se = &sem_.get_element(loop_counter_symbol);
-
-                if ((se->name == loop_counter_symbol) && se->active)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR080 - For-loop variable '" + loop_counter_symbol +
-                                             "' is being shadowed by a previous declaration",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-                else if (!symtab_store_.is_variable(loop_counter_symbol))
-                {
-                    if (!se->active && (se->name == loop_counter_symbol) &&
-                        (se->type == scope_element::element_type::e_variable))
-                    {
-                        se->active = true;
-                        se->ref_count++;
-                    }
-                    else
-                    {
-                        scope_element nse;
-                        nse.name = loop_counter_symbol;
-                        nse.active = true;
-                        nse.ref_count = 1;
-                        nse.type = scope_element::element_type::e_variable;
-                        nse.depth = state_.scope_depth;
-                        nse.scalar_data = std::make_unique<T>(T(0));
-                        nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
-
-                        if (!sem_.add_element(std::move(nse)))
-                        {
-                            set_error(make_error(parser_error::error_mode::e_syntax,
-                                                 current_token(),
-                                                 "ERR081 - Failed to add new local variable '" +
-                                                     loop_counter_symbol + "' to SEM",
-                                                 core::error_location()));
-
-                            sem_.free_element(nse);
-
-                            result = false;
-                        }
-                        else
-                        {
-                            core::debug_print(
-                                "parse_for_loop() - INFO - Added new local variable: %s\n",
-                                nse.name.c_str());
-
-                            state_.activate_side_effect("parse_for_loop()");
-                        }
-                    }
-                }
-            }
-
-            if (nullptr == (initialiser = parse_expression()))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR082 - Failed to parse initialiser of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!token_is(token_t::e_eof))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR083 - Expected ';' after initialiser of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!token_is(token_t::e_eof))
-        {
-            if (nullptr == (condition = parse_expression()))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR084 - Failed to parse condition of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!token_is(token_t::e_eof))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR085 - Expected ';' after condition section of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            if (nullptr == (incrementor = parse_expression()))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR086 - Failed to parse incrementor of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-            else if (!token_is(token_t::e_rbracket))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR087 - Expected ')' after incrementor section of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (result)
-        {
-            brkcnt_list_.push_front(false);
-
-            scoped_inc_dec sid(state_.parsing_loop_stmt_count);
-
-            if (nullptr == (loop_body = parse_multi_sequence("for-loop", true)))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR088 - Failed to parse body of for-loop",
-                                     core::error_location()));
-
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            if (se)
-            {
-                se->ref_count--;
-            }
-
-            free_node(node_allocator_, initialiser);
-            free_node(node_allocator_, condition);
-            free_node(node_allocator_, incrementor);
-            free_node(node_allocator_, loop_body);
-            return error_node();
-        }
-
-        expression_node_ptr result_node = expression_generator_.for_loop(
-            initialiser, condition, incrementor, loop_body, brkcnt_list_.front());
-        handle_brkcnt_scope_exit();
-
-        if (result_node && result_node->valid())
-        {
-            return result_node;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR089 - Failed to synthesize 'valid' for-loop",
-                             core::error_location()));
-
-        free_node(node_allocator_, result_node);
-
-        return error_node();
+        control_flow_context context(*this);
+        return parser_control_flow<T>::parse_for_loop(context);
     }
 
     inline expression_node_ptr parse_switch_statement()
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        if (!core::imatch(current_token().value, "switch"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR090 - Expected keyword 'switch'", core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        if (!token_is(token_t::e_lcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR091 - Expected '{' for call to switch statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr default_statement = error_node();
-
-        scoped_expression_delete defstmt_delete((*this), default_statement);
-
-        for (;;)
-        {
-            if (core::imatch("case", current_token().value))
-            {
-                next_token();
-
-                expression_node_ptr condition = parse_expression();
-
-                if (nullptr == condition)
-                    return error_node();
-                else if (!token_is(token_t::e_colon))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR092 - Expected ':' for case of switch statement",
-                                         core::error_location()));
-
-                    free_node(node_allocator_, condition);
-
-                    return error_node();
-                }
-
-                expression_node_ptr consequent =
-                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                        ? parse_multi_sequence("switch-consequent")
-                        : parse_expression();
-
-                if (nullptr == consequent)
-                {
-                    free_node(node_allocator_, condition);
-
-                    return error_node();
-                }
-                else if (!token_is(token_t::e_eof))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR093 - Expected ';' at end of case for switch statement",
-                                   core::error_location()));
-
-                    free_node(node_allocator_, condition);
-                    free_node(node_allocator_, consequent);
-
-                    return error_node();
-                }
-
-                // Can we optimise away the case statement?
-                if (is_constant_node(condition) && is_false(condition))
-                {
-                    free_node(node_allocator_, condition);
-                    free_node(node_allocator_, consequent);
-                }
-                else
-                {
-                    arg_list.push_back(condition);
-                    arg_list.push_back(consequent);
-                }
-            }
-            else if (core::imatch("default", current_token().value))
-            {
-                if (nullptr != default_statement)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR094 - Multiple default cases for switch statement",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                next_token();
-
-                if (!token_is(token_t::e_colon))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR095 - Expected ':' for default of switch statement",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                default_statement =
-                    (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                        ? parse_multi_sequence("switch-default")
-                        : parse_expression();
-
-                if (nullptr == default_statement)
-                    return error_node();
-                else if (!token_is(token_t::e_eof))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR096 - Expected ';' at end of default for switch statement",
-                                   core::error_location()));
-
-                    return error_node();
-                }
-            }
-            else if (token_is(token_t::e_rcrlbracket))
-                break;
-            else
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR097 - Expected '}' at end of switch statement",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        const bool default_statement_present = (nullptr != default_statement);
-
-        if (default_statement_present)
-        {
-            arg_list.push_back(default_statement);
-        }
-        else
-        {
-            arg_list.push_back(
-                node_allocator_.allocate_c<literal_node_t>(std::numeric_limits<T>::quiet_NaN()));
-        }
-
-        expression_node_ptr result =
-            expression_generator_.switch_statement(arg_list, (nullptr != default_statement));
-
-        svd.delete_ptr = (nullptr == result);
-        defstmt_delete.delete_ptr = (nullptr == result);
-
-        return result;
+        switch_context context(*this);
+        return parser_switch<T>::parse_switch_statement(context);
     }
 
     inline expression_node_ptr parse_multi_switch_statement()
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        if (!core::imatch(current_token().value, "[*]"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR098 - Expected token '[*]'", core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        if (!token_is(token_t::e_lcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR099 - Expected '{' for call to [*] statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        for (;;)
-        {
-            if (!core::imatch("case", current_token().value))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR100 - Expected a 'case' statement for multi-switch",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            next_token();
-
-            expression_node_ptr condition = parse_expression();
-
-            if (nullptr == condition)
-                return error_node();
-
-            if (!token_is(token_t::e_colon))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR101 - Expected ':' for case of [*] statement",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            expression_node_ptr consequent =
-                (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-                    ? parse_multi_sequence("multi-switch-consequent")
-                    : parse_expression();
-
-            if (nullptr == consequent)
-                return error_node();
-
-            if (!token_is(token_t::e_eof))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR102 - Expected ';' at end of case for [*] statement",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            // Can we optimise away the case statement?
-            if (is_constant_node(condition) && is_false(condition))
-            {
-                free_node(node_allocator_, condition);
-                free_node(node_allocator_, consequent);
-            }
-            else
-            {
-                arg_list.push_back(condition);
-                arg_list.push_back(consequent);
-            }
-
-            if (token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                break;
-            }
-        }
-
-        if (!token_is(token_t::e_rcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR103 - Expected '}' at end of [*] statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const expression_node_ptr result = expression_generator_.multi_switch_statement(arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        switch_context context(*this);
+        return parser_switch<T>::parse_multi_switch_statement(context);
     }
 
     inline expression_node_ptr parse_vararg_function()
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        core::operators::operator_type opt_type = core::operators::operator_type::default_op;
-        const std::string symbol = current_token().value;
-
-        if (core::imatch(symbol, "~"))
-        {
-            next_token();
-            return check_block_statement_closure(parse_multi_sequence());
-        }
-        else if (core::imatch(symbol, "[*]"))
-        {
-            return check_block_statement_closure(parse_multi_switch_statement());
-        }
-        else if (core::imatch(symbol, "avg"))
-            opt_type = core::operators::operator_type::avg;
-        else if (core::imatch(symbol, "mand"))
-            opt_type = core::operators::operator_type::mand;
-        else if (core::imatch(symbol, "max"))
-            opt_type = core::operators::operator_type::max;
-        else if (core::imatch(symbol, "min"))
-            opt_type = core::operators::operator_type::min;
-        else if (core::imatch(symbol, "mor"))
-            opt_type = core::operators::operator_type::mor;
-        else if (core::imatch(symbol, "mul"))
-            opt_type = core::operators::operator_type::prod;
-        else if (core::imatch(symbol, "sum"))
-            opt_type = core::operators::operator_type::sum;
-        else
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR104 - Unsupported built-in vararg function: " + symbol,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        lodge_symbol(symbol, symbol_type::e_st_function);
-
-        next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR105 - Expected '(' for call to vararg function: " + symbol,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR106 - vararg function: " + symbol + " requires at least one input parameter",
-                core::error_location()));
-
-            return error_node();
-        }
-
-        for (;;)
-        {
-            expression_node_ptr arg = parse_expression();
-
-            if (nullptr == arg)
-                return error_node();
-            else
-                arg_list.push_back(arg);
-
-            if (token_is(token_t::e_rbracket))
-                break;
-            else if (!token_is(token_t::e_comma))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR107 - Expected ',' for call to vararg function: " + symbol,
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        const expression_node_ptr result =
-            expression_generator_.vararg_function(opt_type, arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-        return result;
+        vararg_context context(*this);
+        return parser_vararg<T>::parse_vararg_function(context);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_string_range_statement(expression_node_ptr& expression)
     {
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR108 - Expected '[' as start of string range definition",
-                                 core::error_location()));
-
-            free_node(node_allocator_, expression);
-
-            return error_node();
-        }
-        else if (token_is(token_t::e_rsqrbracket))
-        {
-            return node_allocator_.allocate<details::string_nodes::string_size_node<T>>(expression);
-        }
-
-        range_t rp;
-
-        if (!parse_range(rp, true))
-        {
-            free_node(node_allocator_, expression);
-
-            return error_node();
-        }
-
-        expression_node_ptr result = expression_generator_(expression, rp);
-
-        if (nullptr == result)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR109 - Failed to generate string range node",
-                                 core::error_location()));
-
-            free_node(node_allocator_, expression);
-            rp.free();
-        }
-
-        rp.clear();
-
-        if (result && result->valid())
-        {
-            return result;
-        }
-
-        set_error(make_error(parser_error::error_mode::e_synthesis, current_token(),
-                             "ERR110 - Failed to synthesize node: string_range_node",
-                             core::error_location()));
-
-        free_node(node_allocator_, result);
-        rp.free();
-        return error_node();
+        string_range_context context(*this);
+        return parser_string_range<T>::parse_string_range_statement(context, expression);
     }
 #else
     inline expression_node_ptr parse_string_range_statement(expression_node_ptr&)
@@ -4368,63 +3509,18 @@ class parser : public lexer::parser_helper
 
     inline bool parse_pending_string_rangesize(expression_node_ptr& expression)
     {
-        // Allow no more than 100 range calls, eg: s[][][]...[][]
-        const std::size_t max_rangesize_parses = 100;
-
-        std::size_t i = 0;
-
-        while ((nullptr != expression) && (i++ < max_rangesize_parses) && error_list_.empty() &&
-               is_generally_string_node(expression) &&
-               token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            expression = parse_string_range_statement(expression);
-        }
-
-        return (i > 1);
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        string_range_context context(*this);
+        return parser_string_range<T>::parse_pending_string_rangesize(context, expression);
+#else
+        return false;
+#endif
     }
 
     inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
     {
-        if ((nullptr != expression) && error_list_.empty() && is_ivector_node(expression))
-        {
-            if (settings_.commutative_check_enabled() &&
-                token_is(token_t::e_mul, prsrhlpr_t::token_advance_mode::e_hold) &&
-                peek_token_is(token_t::e_lsqrbracket))
-            {
-                token_is(token_t::e_mul);
-                token_is(token_t::e_lsqrbracket);
-            }
-            else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                token_is(token_t::e_lsqrbracket);
-            }
-            else if (token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                     peek_token_is(token_t::e_lsqrbracket))
-            {
-                token_is(token_t::e_rbracket);
-                token_is(token_t::e_lsqrbracket);
-            }
-            else
-                return;
-
-            details::vector_interface<T>* vi = expression->as_vector_iface();
-
-            if (vi)
-            {
-                details::vector_holder<T>& vec = vi->vec()->vec_holder();
-                const std::string vector_name = sem_.get_vector_name(vec.data());
-                expression_node_ptr index = parse_vector_index(vector_name);
-
-                if (index)
-                {
-                    expression = synthesize_vector_element(vector_name, &vec, expression, index);
-                    return;
-                }
-            }
-
-            free_node(node_allocator_, expression);
-            expression = error_node();
-        }
+        vector_index_context context(*this);
+        parser_vector_index<T>::parse_pending_vector_index_operator(context, expression);
     }
 
     template <typename Allocator1, typename Allocator2,
@@ -4507,253 +3603,14 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_multi_sequence(const std::string& source = "",
                                                     const bool enforce_crlbrackets = false)
     {
-        token_t::token_type open_bracket = token_t::e_lcrlbracket;
-        token_t::token_type close_bracket = token_t::e_rcrlbracket;
-        token_t::token_type separator = token_t::e_eof;
-
-        if (!token_is(open_bracket))
-        {
-            if (!enforce_crlbrackets && token_is(token_t::e_lbracket))
-            {
-                open_bracket = token_t::e_lbracket;
-                close_bracket = token_t::e_rbracket;
-                separator = token_t::e_comma;
-            }
-            else
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR111 - Expected '" + token_t::to_str(open_bracket) +
-                                   "' for call to multi-sequence" +
-                                   ((!source.empty()) ? std::string(" section of " + source) : ""),
-                               core::error_location()));
-
-                return error_node();
-            }
-        }
-        else if (token_is(close_bracket))
-        {
-            return node_allocator_.allocate<details::null_node<T>>();
-        }
-
-        std::vector<expression_node_ptr> arg_list;
-        std::vector<bool> side_effect_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        scope_handler sh(*this);
-
-        scoped_bool_or_restorer sbr(state_.side_effect_present);
-
-        for (;;)
-        {
-            state_.side_effect_present = false;
-
-            expression_node_ptr arg = parse_expression();
-
-            if (nullptr == arg)
-                return error_node();
-            else
-            {
-                arg_list.push_back(arg);
-                side_effect_list.push_back(state_.side_effect_present);
-            }
-
-            if (token_is(close_bracket))
-                break;
-
-            const bool is_next_close = peek_token_is(close_bracket);
-
-            if (!token_is(separator) && is_next_close)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR112 - Expected '" +
-                                         lexer::token::seperator_to_str(separator) +
-                                         "' for call to multi-sequence section of " + source,
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            if (token_is(close_bracket))
-                break;
-        }
-
-        expression_node_ptr result = simplify(arg_list, side_effect_list, source.empty());
-
-        svd.delete_ptr = (nullptr == result);
-        return result;
+        sequence_context context(*this);
+        return parser_sequence<T>::parse_multi_sequence(context, source, enforce_crlbrackets);
     }
 
     inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
     {
-        // Examples of valid ranges:
-        // 1. [1:5]     -> [1,5)
-        // 2. [ :5]     -> [0,5)
-        // 3. [1: ]     -> [1,end)
-        // 4. [x:y]     -> [x,y) where x <= y
-        // 5. [x+1:y/2] -> [x+1,y/2) where x+1 <= y/2
-        // 6. [ :y]     -> [0,y) where 0 <= y
-        // 7. [x: ]     -> [x,end) where x <= end
-
-        rp.clear();
-
-        if (!skip_lsqr && !token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR113 - Expected '[' for start of range",
-                                 core::error_location()));
-
-            return false;
-        }
-
-        if (token_is(token_t::e_colon))
-        {
-            rp.n0_c.first = true;
-            rp.n0_c.second = 0;
-            rp.cache.first = 0;
-        }
-        else
-        {
-            expression_node_ptr r0 = parse_expression();
-
-            if (nullptr == r0)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR114 - Failed parse begin section of range",
-                                     core::error_location()));
-
-                return false;
-            }
-            else if (is_constant_node(r0))
-            {
-                const T r0_value = r0->value();
-
-                if (r0_value >= T(0))
-                {
-                    rp.n0_c.first = true;
-                    rp.n0_c.second = static_cast<std::size_t>(core::numeric::to_int64(r0_value));
-                    rp.cache.first = rp.n0_c.second;
-                }
-
-                free_node(node_allocator_, r0);
-
-                if (r0_value < T(0))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR115 - Range lower bound less than zero! Constraint: r0 >= 0",
-                                   core::error_location()));
-
-                    return false;
-                }
-            }
-            else
-            {
-                rp.n0_e.first = true;
-                rp.n0_e.second = r0;
-            }
-
-            if (!token_is(token_t::e_colon))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR116 - Expected ':' for break  in range",
-                                     core::error_location()));
-
-                rp.free();
-
-                return false;
-            }
-        }
-
-        if (token_is(token_t::e_rsqrbracket))
-        {
-            rp.n1_c.first = true;
-            rp.n1_c.second = std::numeric_limits<std::size_t>::max();
-        }
-        else
-        {
-            expression_node_ptr r1 = parse_expression();
-
-            if (nullptr == r1)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR117 - Failed parse end section of range",
-                                     core::error_location()));
-
-                rp.free();
-
-                return false;
-            }
-            else if (is_constant_node(r1))
-            {
-                const T r1_value = r1->value();
-
-                if (r1_value >= T(0))
-                {
-                    rp.n1_c.first = true;
-                    rp.n1_c.second = static_cast<std::size_t>(core::numeric::to_int64(r1_value));
-                    rp.cache.second = rp.n1_c.second;
-                }
-
-                free_node(node_allocator_, r1);
-
-                if (r1_value < T(0))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR118 - Range upper bound less than zero! Constraint: r1 >= 0",
-                                   core::error_location()));
-
-                    rp.free();
-
-                    return false;
-                }
-            }
-            else
-            {
-                rp.n1_e.first = true;
-                rp.n1_e.second = r1;
-            }
-
-            if (!token_is(token_t::e_rsqrbracket))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR119 - Expected ']' for start of range",
-                                     core::error_location()));
-
-                rp.free();
-
-                return false;
-            }
-        }
-
-        if (rp.const_range())
-        {
-            std::size_t r0 = 0;
-            std::size_t r1 = 0;
-
-            bool rp_result = false;
-
-            try
-            {
-                rp_result = rp(r0, r1);
-            }
-            catch (std::runtime_error&)
-            {
-            }
-
-            if (!rp_result || (r0 > r1))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR120 - Invalid range, Constraint: r0 <= r1",
-                                     core::error_location()));
-
-                return false;
-            }
-        }
-
-        return true;
+        range_context context(*this);
+        return parser_range<T>::parse_range(context, rp, skip_lsqr);
     }
 
     inline void lodge_symbol(const std::string& symbol, const symbol_type st)
@@ -4764,98 +3621,8 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_string()
     {
-        const std::string symbol = current_token().value;
-
-        using strvar_node_t = details::string_nodes::stringvar_node<T>*;
-
-        expression_node_ptr result = error_node();
-        strvar_node_t const_str_node = static_cast<strvar_node_t>(0);
-
-        scope_element& se = sem_.get_active_element(symbol);
-
-        if (scope_element::element_type::e_string == se.type)
-        {
-            se.active = true;
-            result = se.str_node;
-            lodge_symbol(symbol, symbol_type::e_st_local_string);
-        }
-        else
-        {
-            using str_ctxt_t = typename symtab_store::string_context;
-            str_ctxt_t str_ctx = symtab_store_.get_string_context(symbol);
-
-            if ((nullptr == str_ctx.str_var) || !symtab_store_.is_conststr_stringvar(symbol))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR121 - Unknown string symbol", core::error_location()));
-
-                return error_node();
-            }
-
-            assert(str_ctx.str_var != nullptr);
-            assert(str_ctx.symbol_table != nullptr);
-
-            result = str_ctx.str_var;
-
-            if (symtab_store_.is_constant_string(symbol))
-            {
-                const_str_node = static_cast<strvar_node_t>(result);
-                result = expression_generator_(const_str_node->str());
-            }
-            else if (symbol_table_t::symtab_mutability_type::e_immutable ==
-                     str_ctx.symbol_table->mutability())
-            {
-                lodge_immutable_symbol(current_token(), make_memory_range(str_ctx.str_var->base(),
-                                                                          str_ctx.str_var->size()));
-            }
-
-            lodge_symbol(symbol, symbol_type::e_st_string);
-        }
-
-        if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            next_token();
-
-            if (peek_token_is(token_t::e_rsqrbracket))
-            {
-                next_token();
-                next_token();
-
-                if (const_str_node)
-                {
-                    free_node(node_allocator_, result);
-
-                    return expression_generator_(T(const_str_node->size()));
-                }
-                else
-                    return node_allocator_.allocate<details::string_nodes::stringvar_size_node<T>>(
-                        static_cast<details::string_nodes::stringvar_node<T>*>(result)->ref());
-            }
-
-            range_t rp;
-
-            if (!parse_range(rp))
-            {
-                free_node(node_allocator_, result);
-
-                return error_node();
-            }
-            else if (const_str_node)
-            {
-                free_node(node_allocator_, result);
-                result = expression_generator_(const_str_node->ref(), rp);
-            }
-            else
-                result = expression_generator_(
-                    static_cast<details::string_nodes::stringvar_node<T>*>(result)->ref(), rp);
-
-            if (result)
-                rp.clear();
-        }
-        else
-            next_token();
-
-        return result;
+        entity_context context(*this);
+        return parser_entity<T>::parse_string(context);
     }
 #else
     inline expression_node_ptr parse_string()
@@ -4867,67 +3634,8 @@ class parser : public lexer::parser_helper
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_const_string()
     {
-        const std::string const_str = current_token().value;
-        expression_node_ptr result = expression_generator_(const_str);
-
-        if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            next_token();
-
-            if (peek_token_is(token_t::e_rsqrbracket))
-            {
-                next_token();
-                next_token();
-
-                free_node(node_allocator_, result);
-
-                return expression_generator_(T(const_str.size()));
-            }
-
-            range_t rp;
-
-            if (!parse_range(rp))
-            {
-                free_node(node_allocator_, result);
-                rp.free();
-
-                return error_node();
-            }
-
-            free_node(node_allocator_, result);
-
-            if (rp.n1_c.first && (rp.n1_c.second == std::numeric_limits<std::size_t>::max()))
-            {
-                rp.n1_c.second = const_str.size() - 1;
-                rp.cache.second = rp.n1_c.second;
-            }
-
-            if ((rp.n0_c.first && (rp.n0_c.second >= const_str.size())) ||
-                (rp.n1_c.first && (rp.n1_c.second >= const_str.size())))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR122 - Overflow in range for string: '" + const_str + "'[" +
-                        (rp.n0_c.first ? core::to_str(static_cast<int>(rp.n0_c.second)) : "?") +
-                        ":" +
-                        (rp.n1_c.first ? core::to_str(static_cast<int>(rp.n1_c.second)) : "?") +
-                        "]",
-                    core::error_location()));
-
-                rp.free();
-
-                return error_node();
-            }
-
-            result = expression_generator_(const_str, rp);
-
-            if (result)
-                rp.clear();
-        }
-        else
-            next_token();
-
-        return result;
+        entity_context context(*this);
+        return parser_entity<T>::parse_const_string(context);
     }
 #else
     inline expression_node_ptr parse_const_string()
@@ -4938,94 +3646,14 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_vector_index(const std::string& vector_name = "")
     {
-        expression_node_ptr index_expr = error_node();
-
-        if (nullptr == (index_expr = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR123 - Failed to parse index for vector: '" + vector_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR124 - Expected ']' for index of vector: '" + vector_name + "'",
-                                 core::error_location()));
-
-            free_node(node_allocator_, index_expr);
-
-            return error_node();
-        }
-
-        return index_expr;
+        vector_index_context context(*this);
+        return parser_vector_index<T>::parse_vector_index(context, vector_name);
     }
 
     inline expression_node_ptr parse_vector()
     {
-        const std::string vector_name = current_token().value;
-
-        vector_holder_ptr vec = vector_holder_ptr(0);
-
-        const scope_element& se = sem_.get_active_element(vector_name);
-
-        if (!core::imatch(se.name, vector_name) || (se.depth > state_.scope_depth) ||
-            (scope_element::element_type::e_vector != se.type))
-        {
-            using vec_ctxt_t = typename symtab_store::vector_context;
-            vec_ctxt_t vec_ctx = symtab_store_.get_vector_context(vector_name);
-
-            if (nullptr == vec_ctx.vector_holder)
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR125 - Symbol '" + vector_name + " not a vector",
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            assert(nullptr != vec_ctx.vector_holder);
-            assert(nullptr != vec_ctx.symbol_table);
-
-            vec = vec_ctx.vector_holder;
-
-            if (symbol_table_t::symtab_mutability_type::e_immutable ==
-                vec_ctx.symbol_table->mutability())
-            {
-                lodge_immutable_symbol(current_token(),
-                                       make_memory_range(vec->data(), vec->size()));
-            }
-        }
-        else
-        {
-            vec = se.vec_node;
-        }
-
-        assert(nullptr != vec);
-
-        next_token();
-
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            return node_allocator_.allocate<vector_node_t>(vec);
-        }
-        else if (token_is(token_t::e_rsqrbracket))
-        {
-            return (vec->rebaseable()) ? node_allocator_.allocate<vector_size_node_t>(vec)
-                                       : expression_generator_(T(vec->size()));
-        }
-
-        expression_node_ptr index_expr = parse_vector_index(vector_name);
-
-        if (index_expr)
-        {
-            expression_node_ptr vec_node = node_allocator_.allocate<vector_node_t>(vec);
-
-            return synthesize_vector_element(vector_name, vec, vec_node, index_expr);
-        }
-
-        return error_node();
+        entity_context context(*this);
+        return parser_entity<T>::parse_vector(context);
     }
 
     inline expression_node_ptr synthesize_vector_element(const std::string& vector_name,
@@ -5062,90 +3690,9 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_vararg_function_call(ivararg_function<T>* vararg_function,
                                                           const std::string& vararg_function_name)
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        if (token_is(token_t::e_lbracket))
-        {
-            if (token_is(token_t::e_rbracket))
-            {
-                if (!vararg_function->allow_zero_parameters())
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR127 - Zero parameter call to vararg function: " +
-                                             vararg_function_name + " not allowed",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-            else
-            {
-                for (;;)
-                {
-                    expression_node_ptr arg = parse_expression();
-
-                    if (nullptr == arg)
-                        return error_node();
-                    else
-                        arg_list.push_back(arg);
-
-                    if (token_is(token_t::e_rbracket))
-                        break;
-                    else if (!token_is(token_t::e_comma))
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR128 - Expected ',' for call to vararg function: " +
-                                                 vararg_function_name,
-                                             core::error_location()));
-
-                        return error_node();
-                    }
-                }
-            }
-        }
-        else if (!vararg_function->allow_zero_parameters())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR129 - Zero parameter call to vararg function: " +
-                                     vararg_function_name + " not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (arg_list.size() < vararg_function->min_num_args())
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR130 - Invalid number of parameters to call to vararg function: " +
-                    vararg_function_name + ", require at least " +
-                    core::to_str(static_cast<int>(vararg_function->min_num_args())) + " parameters",
-                core::error_location()));
-
-            return error_node();
-        }
-        else if (arg_list.size() > vararg_function->max_num_args())
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR131 - Invalid number of parameters to call to vararg function: " +
-                    vararg_function_name + ", require no more than " +
-                    core::to_str(static_cast<int>(vararg_function->max_num_args())) + " parameters",
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result =
-            expression_generator_.vararg_function_call(vararg_function, arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_vararg_function_call(context, vararg_function,
+                                                                      vararg_function_name);
     }
 
     class type_checker
@@ -5404,106 +3951,9 @@ class parser : public lexer::parser_helper
     inline expression_node_ptr parse_generic_function_call(igeneric_function<T>* function,
                                                            const std::string& function_name)
     {
-        std::vector<expression_node_ptr> arg_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        next_token();
-
-        std::string param_type_list;
-
-        type_checker tc((*this), function_name, function->parameter_sequence,
-                        type_checker::e_string);
-
-        if (tc.invalid())
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR136 - Type checker instantiation failure for generic function: " +
-                               function_name,
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        if (token_is(token_t::e_lbracket))
-        {
-            if (token_is(token_t::e_rbracket))
-            {
-                if (!function->allow_zero_parameters() && !tc.allow_zero_parameters())
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR137 - Zero parameter call to generic function: " +
-                                             function_name + " not allowed",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-            else
-            {
-                for (;;)
-                {
-                    expression_node_ptr arg = parse_expression();
-
-                    if (nullptr == arg)
-                        return error_node();
-
-                    if (is_ivector_node(arg))
-                        param_type_list += 'V';
-                    else if (is_generally_string_node(arg))
-                        param_type_list += 'S';
-                    else  // Everything else is assumed to be a scalar returning expression
-                        param_type_list += 'T';
-
-                    arg_list.push_back(arg);
-
-                    if (token_is(token_t::e_rbracket))
-                        break;
-                    else if (!token_is(token_t::e_comma))
-                    {
-                        set_error(make_error(
-                            parser_error::error_mode::e_syntax, current_token(),
-                            "ERR138 - Expected ',' for call to generic function: " + function_name,
-                            core::error_location()));
-
-                        return error_node();
-                    }
-                }
-            }
-        }
-        else if (!function->parameter_sequence.empty() && function->allow_zero_parameters() &&
-                 !tc.allow_zero_parameters())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR139 - Zero parameter call to generic function: " +
-                                     function_name + " not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        std::size_t param_seq_index = 0;
-
-        if (state_.type_check_enabled && !tc.verify(param_type_list, param_seq_index))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR140 - Invalid input parameter sequence for call to generic function: " +
-                    function_name,
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result =
-            (tc.paramseq_count() <= 1)
-                ? expression_generator_.generic_function_call(function, arg_list)
-                : expression_generator_.generic_function_call(function, arg_list, param_seq_index);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_generic_function_call(context, function,
+                                                                       function_name);
     }
 
     inline bool parse_igeneric_function_params(std::string& param_type_list,
@@ -5512,1701 +3962,104 @@ class parser : public lexer::parser_helper
                                                igeneric_function<T>* function,
                                                const type_checker& tc)
     {
-        if (token_is(token_t::e_lbracket))
-        {
-            if (token_is(token_t::e_rbracket))
-            {
-                if (!function->allow_zero_parameters() && !tc.allow_zero_parameters())
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR141 - Zero parameter call to generic function: " +
-                                             function_name + " not allowed",
-                                         core::error_location()));
-
-                    return false;
-                }
-            }
-            else
-            {
-                for (;;)
-                {
-                    expression_node_ptr arg = parse_expression();
-
-                    if (nullptr == arg)
-                        return false;
-
-                    if (is_ivector_node(arg))
-                        param_type_list += 'V';
-                    else if (is_generally_string_node(arg))
-                        param_type_list += 'S';
-                    else  // Everything else is a scalar returning expression
-                        param_type_list += 'T';
-
-                    arg_list.push_back(arg);
-
-                    if (token_is(token_t::e_rbracket))
-                        break;
-                    else if (!token_is(token_t::e_comma))
-                    {
-                        set_error(make_error(
-                            parser_error::error_mode::e_syntax, current_token(),
-                            "ERR142 - Expected ',' for call to string function: " + function_name,
-                            core::error_location()));
-
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-        else
-            return false;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_igeneric_function_params(
+            context, param_type_list, arg_list, function_name, function, tc);
     }
 
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function,
                                                           const std::string& function_name)
     {
-        // Move pass the function name
-        next_token();
-
-        std::string param_type_list;
-
-        type_checker tc((*this), function_name, function->parameter_sequence,
-                        type_checker::e_string);
-
-        if ((!function->parameter_sequence.empty()) && (0 == tc.paramseq_count()))
-        {
-            return error_node();
-        }
-
-        std::vector<expression_node_ptr> arg_list;
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        if (!parse_igeneric_function_params(param_type_list, arg_list, function_name, function, tc))
-        {
-            return error_node();
-        }
-
-        std::size_t param_seq_index = 0;
-
-        if (!tc.verify(param_type_list, param_seq_index))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR143 - Invalid input parameter sequence for call to string function: " +
-                    function_name,
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result =
-            (tc.paramseq_count() <= 1)
-                ? expression_generator_.string_function_call(function, arg_list)
-                : expression_generator_.string_function_call(function, arg_list, param_seq_index);
-
-        svd.delete_ptr = (nullptr == result);
-
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_string_function_call(context, function,
+                                                                      function_name);
     }
 
     inline expression_node_ptr parse_overload_function_call(igeneric_function<T>* function,
                                                             const std::string& function_name)
     {
-        // Move pass the function name
-        next_token();
-
-        std::string param_type_list;
-
-        type_checker tc((*this), function_name, function->parameter_sequence,
-                        type_checker::e_overload);
-
-        if ((!function->parameter_sequence.empty()) && (0 == tc.paramseq_count()))
-        {
-            return error_node();
-        }
-
-        std::vector<expression_node_ptr> arg_list;
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        if (!parse_igeneric_function_params(param_type_list, arg_list, function_name, function, tc))
-        {
-            return error_node();
-        }
-
-        std::size_t param_seq_index = 0;
-
-        if (!tc.verify(param_type_list, param_seq_index))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR144 - Invalid input parameter sequence for call to overloaded function: " +
-                    function_name,
-                core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr result = error_node();
-
-        if (type_checker::e_numeric == tc.return_type(param_seq_index))
-        {
-            if (tc.paramseq_count() <= 1)
-                result = expression_generator_.generic_function_call(function, arg_list);
-            else
-                result = expression_generator_.generic_function_call(function, arg_list,
-                                                                     param_seq_index);
-        }
-        else if (type_checker::e_string == tc.return_type(param_seq_index))
-        {
-            if (tc.paramseq_count() <= 1)
-                result = expression_generator_.string_function_call(function, arg_list);
-            else
-                result =
-                    expression_generator_.string_function_call(function, arg_list, param_seq_index);
-        }
-        else
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR145 - Invalid return type for call to overloaded function: " + function_name,
-                core::error_location()));
-        }
-
-        svd.delete_ptr = (nullptr == result);
-        return result;
+        dynamic_function_context context(*this);
+        return parser_dynamic_function<T>::parse_overload_function_call(context, function,
+                                                                        function_name);
     }
 #endif
 
-    template <typename Type, std::size_t NumberOfParameters>
-    struct parse_special_function_impl
-    {
-        static inline expression_node_ptr process(parser<Type>& p,
-                                                  const core::operators::operator_type opt_type,
-                                                  const std::string& sf_name)
-        {
-            expression_node_ptr branch[NumberOfParameters];
-            expression_node_ptr result = error_node();
-
-            std::fill_n(branch, NumberOfParameters, nullptr);
-
-            scoped_delete<expression_node_t, NumberOfParameters> sd(p, branch);
-
-            p.next_token();
-
-            if (!p.token_is(token_t::e_lbracket))
-            {
-                p.set_error(
-                    make_error(parser_error::error_mode::e_syntax, p.current_token(),
-                               "ERR146 - Expected '(' for special function '" + sf_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            for (std::size_t i = 0; i < NumberOfParameters; ++i)
-            {
-                branch[i] = p.parse_expression();
-
-                if (nullptr == branch[i])
-                {
-                    return p.error_node();
-                }
-                else if (i < (NumberOfParameters - 1))
-                {
-                    if (!p.token_is(token_t::e_comma))
-                    {
-                        p.set_error(make_error(
-                            parser_error::error_mode::e_syntax, p.current_token(),
-                            "ERR147 - Expected ',' before next parameter of special function '" +
-                                sf_name + "'",
-                            core::error_location()));
-
-                        return p.error_node();
-                    }
-                }
-            }
-
-            if (!p.token_is(token_t::e_rbracket))
-            {
-                p.set_error(make_error(
-                    parser_error::error_mode::e_syntax, p.current_token(),
-                    "ERR148 - Invalid number of parameters for special function '" + sf_name + "'",
-                    core::error_location()));
-
-                return p.error_node();
-            }
-            else
-                result = p.expression_generator_.special_function(opt_type, branch);
-
-            sd.delete_ptr = (nullptr == result);
-
-            return result;
-        }
-    };
-
     inline expression_node_ptr parse_special_function()
     {
-        const std::string sf_name = current_token().value;
-
-        // Expect: $fDD(expr0,expr1,expr2) or $fDD(expr0,expr1,expr2,expr3)
-        if (!core::is_digit(sf_name[2]) || !core::is_digit(sf_name[3]))
-        {
-            set_error(make_error(parser_error::error_mode::e_token, current_token(),
-                                 "ERR149 - Invalid special function[1]: " + sf_name,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const int id = (sf_name[2] - '0') * 10 + (sf_name[3] - '0');
-
-        if (id >= static_cast<int>(core::operators::operator_type::sffinal))
-        {
-            set_error(make_error(parser_error::error_mode::e_token, current_token(),
-                                 "ERR150 - Invalid special function[2]: " + sf_name,
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const int sf_3_to_4 = static_cast<int>(core::operators::operator_type::sf48);
-        const core::operators::operator_type opt_type =
-            static_cast<core::operators::operator_type>(id + 1000);
-        const std::size_t NumberOfParameters = (id < (sf_3_to_4 - 1000)) ? 3U : 4U;
-
-        switch (NumberOfParameters)
-        {
-            case 3:
-                return parse_special_function_impl<T, 3>::process((*this), opt_type, sf_name);
-            case 4:
-                return parse_special_function_impl<T, 4>::process((*this), opt_type, sf_name);
-            default:
-                return error_node();
-        }
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_special_function(context);
     }
 
     inline expression_node_ptr parse_null_statement()
     {
-        next_token();
-        return node_allocator_.allocate<details::null_node<T>>();
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_null_statement(context);
     }
 
 #ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
     inline expression_node_ptr parse_break_statement()
     {
-        if (state_.parsing_break_stmt)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR151 - Invoking 'break' within a break call is not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (0 == state_.parsing_loop_stmt_count)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR152 - Invalid use of 'break', allowed only in the scope of a loop",
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_bool_negator sbn(state_.parsing_break_stmt);
-
-        if (!brkcnt_list_.empty())
-        {
-            next_token();
-
-            brkcnt_list_.front() = true;
-
-            expression_node_ptr return_expr = error_node();
-
-            if (token_is(token_t::e_lsqrbracket))
-            {
-                if (nullptr == (return_expr = parse_expression()))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR153 - Failed to parse return expression for 'break' statement",
-                        core::error_location()));
-
-                    return error_node();
-                }
-                else if (!token_is(token_t::e_rsqrbracket))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR154 - Expected ']' at the completion of break's return expression",
-                        core::error_location()));
-
-                    free_node(node_allocator_, return_expr);
-
-                    return error_node();
-                }
-            }
-
-            state_.activate_side_effect("parse_break_statement()");
-
-            return node_allocator_.allocate<details::break_node<T>>(return_expr);
-        }
-        else
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR155 - Invalid use of 'break', allowed only in the scope of a loop",
-                           core::error_location()));
-        }
-
-        return error_node();
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_break_statement(context);
     }
 
     inline expression_node_ptr parse_continue_statement()
     {
-        if (0 == state_.parsing_loop_stmt_count)
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR156 - Invalid use of 'continue', allowed only in the scope of a loop",
-                core::error_location()));
-
-            return error_node();
-        }
-        else
-        {
-            next_token();
-
-            brkcnt_list_.front() = true;
-            state_.activate_side_effect("parse_continue_statement()");
-
-            return node_allocator_.allocate<details::continue_node<T>>();
-        }
+        special_case_context context(*this);
+        return parser_special_case<T>::parse_continue_statement(context);
     }
 #endif
 
     inline expression_node_ptr parse_define_vector_statement(const std::string& vec_name)
     {
-        expression_node_ptr size_expression_node = error_node();
-
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR157 - Expected '[' as part of vector size definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (size_expression_node = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR158 - Failed to determine size of vector '" + vec_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!is_constant_node(size_expression_node))
-        {
-            const bool is_rebaseble_vector =
-                (size_expression_node->type() ==
-                 details::expression_node<T>::node_type::e_vecsize) &&
-                static_cast<details::vector_size_node<T>*>(size_expression_node)
-                    ->vec_holder()
-                    ->rebaseable();
-
-            free_node(node_allocator_, size_expression_node);
-
-            const std::string error_msg =
-                (is_rebaseble_vector)
-                    ? std::string(
-                          "Rebasable/Resizable vector cannot be used to define the size of vector")
-                    : std::string("Expected a constant literal number as size of vector");
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR159 - " + error_msg + " '" + vec_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const T vector_size = size_expression_node->value();
-
-        free_node(node_allocator_, size_expression_node);
-
-        const std::size_t max_vector_size = settings_.max_local_vector_size();
-
-        if ((vector_size <= T(0)) ||
-            std::not_equal_to<T>()(T(0), vector_size - core::numeric::trunc(vector_size)) ||
-            (static_cast<std::size_t>(vector_size) > max_vector_size))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR160 - Invalid vector size. Must be an integer in the "
-                           "range [0," +
-                               core::to_str(static_cast<std::size_t>(max_vector_size)) +
-                               "], size: " + core::to_str(core::numeric::to_int32(vector_size)),
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        typename symbol_table_t::vector_holder_ptr vec_holder =
-            typename symbol_table_t::vector_holder_ptr(0);
-
-        const std::size_t vec_size = static_cast<std::size_t>(core::numeric::to_int32(vector_size));
-        const std::size_t predicted_total_lclsymb_size =
-            sizeof(T) * vec_size + sem_.total_local_symb_size_bytes();
-
-        if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR161 - Adding vector '" + vec_name + "' of size " +
-                                     core::to_str(vec_size) +
-                                     " bytes "
-                                     "will exceed max total local symbol size of: " +
-                                     core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                     " bytes, "
-                                     "current total size: " +
-                                     core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        scope_element& se = sem_.get_element(vec_name);
-
-        if (se.name == vec_name)
-        {
-            if (se.active)
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR162 - Illegal redefinition of local vector: '" + vec_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-            else if ((se.size == vec_size) && (scope_element::element_type::e_vector == se.type))
-            {
-                vec_holder = se.vec_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == vec_holder)
-        {
-            scope_element nse;
-            nse.name = vec_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_vector;
-            nse.depth = state_.scope_depth;
-            nse.size = vec_size;
-            nse.vector_data = std::make_unique<T[]>(vec_size);
-            nse.vec_node =
-                new typename scope_element::vector_holder_t(nse.vector_data.get(), nse.size);
-
-            core::numeric::set_zero_value(nse.vector_data.get(), vec_size);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR163 - Failed to add new local vector '" + vec_name + "' to SEM",
-                               core::error_location()));
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            vec_holder = nse.vec_node;
-
-            core::debug_print(
-                "parse_define_vector_statement() - INFO - Added new local vector: %s[%d]\n",
-                nse.name.c_str(), static_cast<int>(nse.size));
-        }
-
-        state_.activate_side_effect("parse_define_vector_statement()");
-
-        lodge_symbol(vec_name, symbol_type::e_st_local_vector);
-
-        std::vector<expression_node_ptr> vec_initilizer_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), vec_initilizer_list);
-
-        bool single_value_initialiser = false;
-        bool range_value_initialiser = false;
-        bool vec_to_vec_initialiser = false;
-        bool null_initialisation = false;
-
-        if (!token_is(token_t::e_rsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR164 - Expected ']' as part of vector size definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            if (!token_is(token_t::e_assign))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR165 - Expected ':=' as part of vector definition",
-                                     core::error_location()));
-
-                return error_node();
-            }
-            else if (token_is(token_t::e_lsqrbracket))
-            {
-                expression_node_ptr initialiser_component = parse_expression();
-
-                if (nullptr == initialiser_component)
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR166 - Failed to parse first component of vector "
-                                         "initialiser for vector: " +
-                                             vec_name,
-                                         core::error_location()));
-
-                    return error_node();
-                }
-
-                vec_initilizer_list.push_back(initialiser_component);
-
-                if (token_is(token_t::e_colon))
-                {
-                    initialiser_component = parse_expression();
-
-                    if (nullptr == initialiser_component)
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR167 - Failed to parse second component of vector "
-                                             "initialiser for vector: " +
-                                                 vec_name,
-                                             core::error_location()));
-
-                        return error_node();
-                    }
-
-                    vec_initilizer_list.push_back(initialiser_component);
-                }
-
-                if (!token_is(token_t::e_rsqrbracket))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR168 - Expected ']' to close single value vector initialiser",
-                                   core::error_location()));
-
-                    return error_node();
-                }
-
-                switch (vec_initilizer_list.size())
-                {
-                    case 1:
-                        single_value_initialiser = true;
-                        break;
-                    case 2:
-                        range_value_initialiser = true;
-                        break;
-                }
-            }
-            else if (!token_is(token_t::e_lcrlbracket))
-            {
-                expression_node_ptr initialiser = error_node();
-
-                // Is this a vector to vector assignment and initialisation?
-                if (token_t::e_symbol == current_token().type)
-                {
-                    // Is it a locally defined vector?
-                    const scope_element& lcl_se = sem_.get_active_element(current_token().value);
-
-                    if (scope_element::element_type::e_vector == lcl_se.type)
-                    {
-                        if (nullptr != (initialiser = parse_expression()))
-                            vec_initilizer_list.push_back(initialiser);
-                        else
-                            return error_node();
-                    }
-                    // Are we dealing with a user defined vector?
-                    else if (symtab_store_.is_vector(current_token().value))
-                    {
-                        lodge_symbol(current_token().value, symbol_type::e_st_vector);
-
-                        if (nullptr != (initialiser = parse_expression()))
-                            vec_initilizer_list.push_back(initialiser);
-                        else
-                            return error_node();
-                    }
-                    // Are we dealing with a null initialisation vector definition?
-                    else if (token_is(token_t::e_symbol, "null"))
-                        null_initialisation = true;
-                }
-
-                if (!null_initialisation)
-                {
-                    if (nullptr == initialiser)
-                    {
-                        set_error(
-                            make_error(parser_error::error_mode::e_syntax, current_token(),
-                                       "ERR169 - Expected '{' as part of vector initialiser list",
-                                       core::error_location()));
-
-                        return error_node();
-                    }
-                    else
-                        vec_to_vec_initialiser = true;
-                }
-            }
-            else if (!token_is(token_t::e_rcrlbracket))
-            {
-                for (;;)
-                {
-                    expression_node_ptr initialiser = parse_expression();
-
-                    if (nullptr == initialiser)
-                    {
-                        set_error(
-                            make_error(parser_error::error_mode::e_syntax, current_token(),
-                                       "ERR170 - Expected '{' as part of vector initialiser list",
-                                       core::error_location()));
-
-                        return error_node();
-                    }
-                    else
-                        vec_initilizer_list.push_back(initialiser);
-
-                    if (token_is(token_t::e_rcrlbracket))
-                        break;
-
-                    const bool is_next_close = peek_token_is(token_t::e_rcrlbracket);
-
-                    if (!token_is(token_t::e_comma) && is_next_close)
-                    {
-                        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                             "ERR171 - Expected ',' between vector initialisers",
-                                             core::error_location()));
-
-                        return error_node();
-                    }
-
-                    if (token_is(token_t::e_rcrlbracket))
-                        break;
-                }
-            }
-
-            if (!token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-                !token_is(token_t::e_rsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR172 - Expected ';' at end of vector definition",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-
-            if (!single_value_initialiser && !range_value_initialiser &&
-                (T(vec_initilizer_list.size()) > vector_size))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR173 - Initialiser list larger than the number of elements "
-                                     "in the vector: '" +
-                                         vec_name + "'",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        expression_node_ptr result = error_node();
-
-        if ((vec_initilizer_list.size() == 1) && single_value_initialiser)
-        {
-            if (details::is_constant_node(vec_initilizer_list[0]))
-            {
-                // vector_init_zero_value_node   var v[10] := [0]
-                if (T(0) == vec_initilizer_list[0]->value())
-                {
-                    result = node_allocator_.allocate<details::vector_init_zero_value_node<T>>(
-                        (*vec_holder)[0], vec_size, vec_initilizer_list);
-                }
-                else
-                {
-                    // vector_init_single_constvalue_node   var v[10] := [123]
-                    result =
-                        node_allocator_.allocate<details::vector_init_single_constvalue_node<T>>(
-                            (*vec_holder)[0], vec_size, vec_initilizer_list);
-                }
-            }
-            else
-            {
-                // vector_init_single_value_node   var v[10] := [123 + (x / y)]
-                result = node_allocator_.allocate<details::vector_init_single_value_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-        }
-        else if ((vec_initilizer_list.size() == 2) && range_value_initialiser)
-        {
-            bool base_const = details::is_constant_node(vec_initilizer_list[0]);
-            bool inc_const = details::is_constant_node(vec_initilizer_list[1]);
-
-            if (base_const && inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [1 : 3.5]
-                result = node_allocator_.allocate<details::vector_init_iota_constconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-            else if (base_const && !inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [1 : x + y]
-                result = node_allocator_.allocate<details::vector_init_iota_constnconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-            else if (!base_const && inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [x + y : 3]
-                result = node_allocator_.allocate<details::vector_init_iota_nconstconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-            else if (!base_const && !inc_const)
-            {
-                // vector_init_single_value_node   var v[10] := [x + y :  z / w]
-                result = node_allocator_.allocate<details::vector_init_iota_nconstnconst_node<T>>(
-                    (*vec_holder)[0], vec_size, vec_initilizer_list);
-            }
-        }
-        else if (null_initialisation)
-            result = expression_generator_(T(0.0));
-        else if (vec_to_vec_initialiser)
-        {
-            expression_node_ptr vec_node = node_allocator_.allocate<vector_node_t>(vec_holder);
-
-            result = expression_generator_(core::operators::operator_type::assign, vec_node,
-                                           vec_initilizer_list[0]);
-        }
-        else
-        {
-            result = node_allocator_.allocate<details::vector_initialisation_node<T>>(
-                (*vec_holder)[0], vec_size, vec_initilizer_list, single_value_initialiser);
-        }
-
-        svd.delete_ptr = false;
-
-        if (result && result->valid())
-        {
-            return result;
-        }
-
-        details::free_node(node_allocator_, result);
-
-        set_error(
-            make_error(parser_error::error_mode::e_synthesis, current_token(),
-                       "ERR174 - Failed to generate initialisation node for vector: " + vec_name,
-                       core::error_location()));
-
-        return error_node();
+        vector_definition_context context(*this);
+        return parser_vector_definition<T>::parse_define_vector_statement(context, vec_name);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     inline expression_node_ptr parse_define_string_statement(
         const std::string& str_name, expression_node_ptr initialisation_expression)
     {
-        stringvar_node_t* str_node = nullptr;
-
-        scope_element& se = sem_.get_element(str_name);
-
-        if (se.name == str_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR175 - Illegal redefinition of local variable: '" + str_name + "'",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_string == se.type)
-            {
-                str_node = se.str_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == str_node)
-        {
-            scope_element nse;
-            nse.name = str_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_string;
-            nse.depth = state_.scope_depth;
-            nse.str_data = std::make_unique<std::string>();
-            nse.str_node = new stringvar_node_t(*nse.str_data);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR176 - Failed to add new local string variable '" + str_name + "' to SEM",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            str_node = nse.str_node;
-
-            core::debug_print(
-                "parse_define_string_statement() - INFO - Added new local string variable: %s\n",
-                nse.name.c_str());
-        }
-
-        lodge_symbol(str_name, symbol_type::e_st_local_string);
-
-        state_.activate_side_effect("parse_define_string_statement()");
-
-        expression_node_ptr branch[2] = {0};
-
-        branch[0] = str_node;
-        branch[1] = initialisation_expression;
-
-        return expression_generator_(core::operators::operator_type::assign, branch);
+        definition_context context(*this);
+        return parser_definition<T>::parse_define_string_statement(context, str_name,
+                                                                   initialisation_expression);
     }
-#else
-    inline expression_node_ptr parse_define_string_statement(const std::string&,
-                                                             expression_node_ptr)
-    {
-        return error_node();
-    }
-#endif
 
     inline bool local_variable_is_shadowed(const std::string& symbol)
     {
-        const scope_element& se = sem_.get_element(symbol);
-        return (se.name == symbol) && se.active;
+        definition_context context(*this);
+        return parser_definition<T>::local_variable_is_shadowed(context, symbol);
     }
 
     inline expression_node_ptr parse_define_var_statement()
     {
-        if (settings_.vardef_disabled())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR177 - Illegal variable definition", core::error_location()));
-
-            return error_node();
-        }
-        else if (!core::imatch(current_token().value, "var"))
-        {
-            return error_node();
-        }
-        else
-            next_token();
-
-        const std::string var_name = current_token().value;
-
-        expression_node_ptr initialisation_expression = error_node();
-
-        if (!token_is(token_t::e_symbol))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR178 - Expected a symbol for variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (core::is_reserved_symbol(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR179 - Illegal redefinition of reserved keyword: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (symtab_store_.symbol_exists(var_name))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR180 - Illegal redefinition of variable '" + var_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (local_variable_is_shadowed(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR181 - Illegal redefinition of local variable: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (token_is(token_t::e_lsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            return parse_define_vector_statement(var_name);
-        }
-        else if (token_is(token_t::e_lcrlbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            return parse_uninitialised_var_statement(var_name);
-        }
-        else if (token_is(token_t::e_assign))
-        {
-            if (nullptr == (initialisation_expression = parse_expression()))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR182 - Failed to parse initialisation expression for variable '" +
-                                   var_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        if (!token_is(token_t::e_rbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-            !token_is(token_t::e_rcrlbracket, prsrhlpr_t::token_advance_mode::e_hold) &&
-            !token_is(token_t::e_rsqrbracket, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR183 - Expected ';' after variable '" + var_name + "' definition",
-                               core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-        }
-
-        if ((nullptr != initialisation_expression) &&
-            details::is_generally_string_node(initialisation_expression))
-        {
-            return parse_define_string_statement(var_name, initialisation_expression);
-        }
-
-        expression_node_ptr var_node = nullptr;
-
-        scope_element& se = sem_.get_element(var_name);
-
-        if (se.name == var_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR184 - Illegal redefinition of local variable: '" + var_name + "'",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_variable == se.type)
-            {
-                var_node = se.var_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == var_node)
-        {
-            const std::size_t predicted_total_lclsymb_size =
-                sizeof(T) + sem_.total_local_symb_size_bytes();
-
-            if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR185 - Adding variable '" + var_name +
-                                   "' "
-                                   "will exceed max total local symbol size of: " +
-                                   core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                   " bytes, "
-                                   "current total size: " +
-                                   core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                return error_node();
-            }
-
-            scope_element nse;
-            nse.name = var_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_variable;
-            nse.depth = state_.scope_depth;
-            nse.scalar_data = std::make_unique<T>(T(0));
-            nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR186 - Failed to add new local variable '" + var_name + "' to SEM",
-                    core::error_location()));
-
-                free_node(node_allocator_, initialisation_expression);
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            var_node = nse.var_node;
-
-            core::debug_print(
-                "parse_define_var_statement() - INFO - Added new local variable: %s\n",
-                nse.name.c_str());
-        }
-
-        state_.activate_side_effect("parse_define_var_statement()");
-
-        lodge_symbol(var_name, symbol_type::e_st_local_variable);
-
-        expression_node_ptr branch[2] = {0};
-
-        branch[0] = var_node;
-        branch[1] =
-            initialisation_expression ? initialisation_expression : expression_generator_(T(0));
-
-        return expression_generator_(core::operators::operator_type::assign, branch);
+        definition_context context(*this);
+        return parser_definition<T>::parse_define_var_statement(context);
     }
 
     inline expression_node_ptr parse_define_constvar_statement()
     {
-        if (settings_.vardef_disabled())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR187 - Illegal const variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is("const"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR188 - Expected 'const' keyword for const-variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is("var"))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR189 - Expected 'var' keyword for const-variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const std::string var_name = current_token().value;
-
-        expression_node_ptr initialisation_expression = error_node();
-
-        if (!token_is(token_t::e_symbol))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR190 - Expected a symbol for const-variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (core::is_reserved_symbol(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR191 - Illegal redefinition of reserved keyword: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (symtab_store_.symbol_exists(var_name))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR192 - Illegal redefinition of variable '" + var_name + "'",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (local_variable_is_shadowed(var_name))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR193 - Illegal redefinition of local variable: '" + var_name + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_assign))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR194 - Expected assignment operator after const-variable: '" +
-                                     var_name + "' definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (nullptr == (initialisation_expression = parse_expression()))
-        {
-            set_error(make_error(
-                parser_error::error_mode::e_syntax, current_token(),
-                "ERR195 - Failed to parse initialisation expression for const-variable: '" +
-                    var_name + "'",
-                core::error_location()));
-
-            return error_node();
-        }
-
-        if (!details::is_literal_node(initialisation_expression))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR196 - initialisation expression for const-variable: '" +
-                                     var_name + "' must be a constant/literal",
-                                 core::error_location()));
-
-            free_node(node_allocator_, initialisation_expression);
-
-            return error_node();
-        }
-
-        assert(initialisation_expression);
-
-        const T init_value = initialisation_expression->value();
-
-        free_node(node_allocator_, initialisation_expression);
-
-        expression_node_ptr var_node = nullptr;
-
-        scope_element& se = sem_.get_element(var_name);
-
-        if (se.name == var_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR197 - Illegal redefinition of local variable: '" + var_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_literal == se.type)
-            {
-                var_node = se.var_node;
-                se.active = true;
-                se.depth = state_.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == var_node)
-        {
-            const std::size_t predicted_total_lclsymb_size =
-                sizeof(T) + sem_.total_local_symb_size_bytes();
-
-            if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR198 - Adding variable '" + var_name +
-                                   "' "
-                                   "will exceed max total local symbol size of: " +
-                                   core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                   " bytes, "
-                                   "current total size: " +
-                                   core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            scope_element nse;
-            nse.name = var_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_literal;
-            nse.depth = state_.scope_depth;
-            nse.var_node = node_allocator_.allocate<literal_node_t>(init_value);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR199 - Failed to add new local const-variable '" + var_name + "' to SEM",
-                    core::error_location()));
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            var_node = nse.var_node;
-
-            core::debug_print(
-                "parse_define_constvar_statement() - INFO - Added new local const-variable: %s\n",
-                nse.name.c_str());
-        }
-
-        state_.activate_side_effect("parse_define_constvar_statement()");
-
-        lodge_symbol(var_name, symbol_type::e_st_local_variable);
-
-        return expression_generator_(var_node->value());
+        definition_context context(*this);
+        return parser_definition<T>::parse_define_constvar_statement(context);
     }
 
     inline expression_node_ptr parse_uninitialised_var_statement(const std::string& var_name)
     {
-        if (!token_is(token_t::e_lcrlbracket) || !token_is(token_t::e_rcrlbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR200 - Expected a '{}' for uninitialised var definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_eof, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR201 - Expected ';' after uninitialised variable definition",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr var_node = nullptr;
-
-        scope_element& se = sem_.get_element(var_name);
-
-        if (se.name == var_name)
-        {
-            if (se.active)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR202 - Illegal redefinition of local variable: '" + var_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else if (scope_element::element_type::e_variable == se.type)
-            {
-                var_node = se.var_node;
-                se.active = true;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == var_node)
-        {
-            const std::size_t predicted_total_lclsymb_size =
-                sizeof(T) + sem_.total_local_symb_size_bytes();
-
-            if (predicted_total_lclsymb_size > settings().max_total_local_symbol_size_bytes())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR203 - Adding variable '" + var_name +
-                                   "' "
-                                   "will exceed max total local symbol size of: " +
-                                   core::to_str(settings().max_total_local_symbol_size_bytes()) +
-                                   " bytes, "
-                                   "current total size: " +
-                                   core::to_str(sem_.total_local_symb_size_bytes()) + " bytes",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            scope_element nse;
-            nse.name = var_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = scope_element::element_type::e_variable;
-            nse.depth = state_.scope_depth;
-            nse.ip_index = sem_.next_ip_index();
-            nse.scalar_data = std::make_unique<T>(T(0));
-            nse.var_node = node_allocator_.allocate<variable_node_t>(*nse.scalar_data);
-
-            if (!sem_.add_element(std::move(nse)))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR204 - Failed to add new local variable '" + var_name + "' to SEM",
-                    core::error_location()));
-
-                sem_.free_element(nse);
-
-                return error_node();
-            }
-
-            assert(sem_.total_local_symb_size_bytes() <=
-                   settings().max_total_local_symbol_size_bytes());
-
-            core::debug_print(
-                "parse_uninitialised_var_statement() - INFO - Added new local variable: %s\n",
-                nse.name.c_str());
-        }
-
-        lodge_symbol(var_name, symbol_type::e_st_local_variable);
-
-        state_.activate_side_effect("parse_uninitialised_var_statement()");
-
-        return expression_generator_(T(0));
+        definition_context context(*this);
+        return parser_definition<T>::parse_uninitialised_var_statement(context, var_name);
     }
 
     inline expression_node_ptr parse_swap_statement()
     {
-        if (!core::imatch(current_token().value, "swap"))
-        {
-            return error_node();
-        }
-        else
-            next_token();
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR205 - Expected '(' at start of swap statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        expression_node_ptr variable0 = error_node();
-        expression_node_ptr variable1 = error_node();
-
-        bool variable0_generated = false;
-        bool variable1_generated = false;
-
-        const std::string var0_name = current_token().value;
-
-        if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR206 - Expected a symbol for variable or vector element definition",
-                           core::error_location()));
-
-            return error_node();
-        }
-        else if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            if (nullptr == (variable0 = parse_vector()))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR207 - First parameter to swap is an invalid vector element: '" +
-                                   var0_name + "'",
-                               core::error_location()));
-
-                return error_node();
-            }
-
-            variable0_generated = true;
-        }
-        else
-        {
-            if (symtab_store_.is_variable(var0_name))
-            {
-                variable0 = symtab_store_.get_variable(var0_name);
-            }
-
-            const scope_element& se = sem_.get_element(var0_name);
-
-            if ((se.active) && (se.name == var0_name) &&
-                (scope_element::element_type::e_variable == se.type))
-            {
-                variable0 = se.var_node;
-            }
-
-            lodge_symbol(var0_name, symbol_type::e_st_variable);
-
-            if (nullptr == variable0)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR208 - First parameter to swap is an invalid variable: '" + var0_name + "'",
-                    core::error_location()));
-
-                return error_node();
-            }
-            else
-                next_token();
-        }
-
-        if (!token_is(token_t::e_comma))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR209 - Expected ',' between parameters to swap",
-                                 core::error_location()));
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            return error_node();
-        }
-
-        const std::string var1_name = current_token().value;
-
-        if (!token_is(token_t::e_symbol, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR210 - Expected a symbol for variable or vector element definition",
-                           core::error_location()));
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            return error_node();
-        }
-        else if (peek_token_is(token_t::e_lsqrbracket))
-        {
-            if (nullptr == (variable1 = parse_vector()))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR211 - Second parameter to swap is an invalid vector element: '" +
-                                   var1_name + "'",
-                               core::error_location()));
-
-                if (variable0_generated)
-                {
-                    free_node(node_allocator_, variable0);
-                }
-
-                return error_node();
-            }
-
-            variable1_generated = true;
-        }
-        else
-        {
-            if (symtab_store_.is_variable(var1_name))
-            {
-                variable1 = symtab_store_.get_variable(var1_name);
-            }
-
-            const scope_element& se = sem_.get_element(var1_name);
-
-            if ((se.active) && (se.name == var1_name) &&
-                (scope_element::element_type::e_variable == se.type))
-            {
-                variable1 = se.var_node;
-            }
-
-            lodge_symbol(var1_name, symbol_type::e_st_variable);
-
-            if (nullptr == variable1)
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR212 - Second parameter to swap is an invalid variable: '" + var1_name + "'",
-                    core::error_location()));
-
-                if (variable0_generated)
-                {
-                    free_node(node_allocator_, variable0);
-                }
-
-                return error_node();
-            }
-            else
-                next_token();
-        }
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR213 - Expected ')' at end of swap statement",
-                                 core::error_location()));
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            if (variable1_generated)
-            {
-                free_node(node_allocator_, variable1);
-            }
-
-            return error_node();
-        }
-
-        using variable_node_ptr = details::variable_node<T>*;
-
-        variable_node_ptr v0 = variable_node_ptr(0);
-        variable_node_ptr v1 = variable_node_ptr(0);
-
-        expression_node_ptr result = error_node();
-
-        if ((nullptr != (v0 = static_cast<variable_node_ptr>(variable0->as_variable_node()))) &&
-            (nullptr != (v1 = static_cast<variable_node_ptr>(variable1->as_variable_node()))))
-        {
-            result = node_allocator_.allocate<details::swap_node<T>>(v0, v1);
-
-            if (variable0_generated)
-            {
-                free_node(node_allocator_, variable0);
-            }
-
-            if (variable1_generated)
-            {
-                free_node(node_allocator_, variable1);
-            }
-        }
-        else
-            result = node_allocator_.allocate<details::swap_generic_node<T>>(variable0, variable1);
-
-        state_.activate_side_effect("parse_swap_statement()");
-
-        return result;
+        statement_context context(*this);
+        return parser_statement<T>::parse_swap_statement(context);
     }
 
 #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
     inline expression_node_ptr parse_return_statement()
     {
-        if (state_.parsing_return_stmt)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR214 - Return call within a return call is not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_bool_negator sbn(state_.parsing_return_stmt);
-
-        std::vector<expression_node_ptr> arg_list;
-
-        scoped_vec_delete<expression_node_t> svd((*this), arg_list);
-
-        if (!core::imatch(current_token().value, "return"))
-        {
-            return error_node();
-        }
-        else
-            next_token();
-
-        if (!token_is(token_t::e_lsqrbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR215 - Expected '[' at start of return statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else if (!token_is(token_t::e_rsqrbracket))
-        {
-            for (;;)
-            {
-                expression_node_ptr arg = parse_expression();
-
-                if (nullptr == arg)
-                    return error_node();
-
-                arg_list.push_back(arg);
-
-                if (token_is(token_t::e_rsqrbracket))
-                    break;
-                else if (!token_is(token_t::e_comma))
-                {
-                    set_error(
-                        make_error(parser_error::error_mode::e_syntax, current_token(),
-                                   "ERR216 - Expected ',' between values during call to return",
-                                   core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-        else if (settings_.zero_return_disabled())
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR217 - Zero parameter return statement not allowed",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const lexer::token prev_token = current_token();
-
-        if (token_is(token_t::e_rsqrbracket))
-        {
-            if (!arg_list.empty())
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, prev_token,
-                                     "ERR218 - Invalid ']' found during return call",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        std::string ret_param_type_list;
-
-        for (std::size_t i = 0; i < arg_list.size(); ++i)
-        {
-            if (nullptr == arg_list[i])
-                return error_node();
-            else if (is_ivector_node(arg_list[i]))
-                ret_param_type_list += 'V';
-            else if (is_generally_string_node(arg_list[i]))
-                ret_param_type_list += 'S';
-            else
-                ret_param_type_list += 'T';
-        }
-
-        dec_.retparam_list_.push_back(ret_param_type_list);
-
-        expression_node_ptr result = expression_generator_.return_call(arg_list);
-
-        svd.delete_ptr = (nullptr == result);
-
-        state_.return_stmt_present = true;
-
-        state_.activate_side_effect("parse_return_statement()");
-
-        return result;
+        statement_context context(*this);
+        return parser_statement<T>::parse_return_statement(context);
     }
 #else
     inline expression_node_ptr parse_return_statement()
@@ -7217,256 +4070,21 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_assert_statement()
     {
-        assert(core::imatch(current_token().value, "assert"));
-
-        if (state_.parsing_assert_stmt)
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_syntax, current_token(),
-                           "ERR219 - Assert statement within an assert statement is not allowed",
-                           core::error_location()));
-
-            return error_node();
-        }
-
-        scoped_bool_negator sbn(state_.parsing_assert_stmt);
-
-        next_token();
-
-        std::vector<expression_node_ptr> assert_arg_list(3, error_node());
-        scoped_vec_delete<expression_node_t> svd((*this), assert_arg_list);
-
-        expression_node_ptr& assert_condition = assert_arg_list[0];
-        expression_node_ptr& assert_message = assert_arg_list[1];
-        expression_node_ptr& assert_id = assert_arg_list[2];
-
-        if (!token_is(token_t::e_lbracket))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR220 - Expected '(' at start of assert statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const token_t start_token = current_token();
-
-        // Parse the assert condition
-        if (nullptr == (assert_condition = parse_expression()))
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR221 - Failed to parse condition for assert statement",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        const token_t end_token = current_token();
-
-        if (!token_is(token_t::e_rbracket))
-        {
-            if (!token_is(token_t::e_comma))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR222 - Expected ',' between condition and message for assert statement",
-                    core::error_location()));
-
-                return error_node();
-            }
-            // Parse the assert message
-            else if ((nullptr == (assert_message = parse_expression())) ||
-                     !details::is_generally_string_node(assert_message))
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_syntax, current_token(),
-                    "ERR223 - " +
-                        (assert_message
-                             ? std::string("Expected string for assert message")
-                             : std::string("Failed to parse message for assert statement")),
-                    core::error_location()));
-
-                return error_node();
-            }
-            else if (!token_is(token_t::e_rbracket))
-            {
-                if (!token_is(token_t::e_comma))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR224 - Expected ',' between message and ID for assert statement",
-                        core::error_location()));
-
-                    return error_node();
-                }
-                // Parse assert ID
-                else if ((nullptr == (assert_id = parse_expression())) ||
-                         !details::is_const_string_node(assert_id))
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR225 - " + (assert_id
-                                           ? std::string("Expected literal string for assert ID")
-                                           : std::string("Failed to parse string for assert ID")),
-                        core::error_location()));
-
-                    return error_node();
-                }
-                else if (!token_is(token_t::e_rbracket))
-                {
-                    set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                         "ERR226 - Expected ')' at start of assert statement",
-                                         core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        math_expr::assert_check::assert_context context;
-        context.condition = lexer().substr(start_token.position, end_token.position);
-        context.offet = start_token.position;
-
-        if (nullptr == assert_check_)
-        {
-            core::debug_print(
-                "parse_assert_statement() - assert functionality is disabled. assert "
-                "condition: %s\n",
-                context.condition.c_str());
-
-            return new details::null_node<T>();
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (assert_message && details::is_const_string_node(assert_message))
-        {
-            auto* sbn_msg = assert_message->as_string_base();
-            assert(sbn_msg);
-            context.message = sbn_msg->str();
-        }
-
-        if (assert_id && details::is_const_string_node(assert_id))
-        {
-            auto* sbn_id = assert_id->as_string_base();
-            assert(sbn_id);
-            context.id = sbn_id->str();
-
-            if (assert_ids_.end() != assert_ids_.find(context.id))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR227 - Duplicate assert ID: " + context.id,
-                                     core::error_location()));
-
-                return error_node();
-            }
-
-            assert_ids_.insert(context.id);
-            free_node(node_allocator_, assert_id);
-        }
-#endif
-
-        expression_node_ptr result_node =
-            expression_generator_.assert_call(assert_condition, assert_message, context);
-
-        core::debug_print("parse_assert_statement() - assert condition: [%s]\n",
-                          context.condition.c_str());
-        core::debug_print("parse_assert_statement() - assert message:   [%s]\n",
-                          context.message.c_str());
-        core::debug_print("parse_assert_statement() - assert id:        [%s]\n",
-                          context.id.c_str());
-        core::debug_print("parse_assert_statement() - assert offset:    [%d]\n",
-                          static_cast<int>(context.offet));
-
-        if (nullptr == result_node)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR228 - Failed to synthesize assert", core::error_location()));
-
-            return error_node();
-        }
-
-        svd.delete_ptr = false;
-        return result_node;
+        statement_context context(*this);
+        return parser_statement<T>::parse_assert_statement(context);
     }
 
     inline bool post_variable_process(const std::string& symbol)
     {
-        if (peek_token_is(token_t::e_lbracket) || peek_token_is(token_t::e_lcrlbracket) ||
-            peek_token_is(token_t::e_lsqrbracket))
-        {
-            if (!settings_.commutative_check_enabled())
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR229 - Invalid sequence of variable '" + symbol + "' and bracket",
-                               core::error_location()));
-
-                return false;
-            }
-
-            lexer().insert_front(token_t::e_mul);
-        }
-
-        return true;
+        branch_context context(*this);
+        return parser_branch<T>::post_variable_process(context, symbol);
     }
 
     inline bool post_bracket_process(const typename token_t::token_type& token,
                                      expression_node_ptr& branch)
     {
-        bool implied_mul = false;
-
-        if (details::is_generally_string_node(branch))
-            return true;
-
-        if (details::is_ivector_node(branch))
-            return true;
-
-        const lexer::parser_helper::token_advance_mode hold =
-            prsrhlpr_t::token_advance_mode::e_hold;
-
-        switch (token)
-        {
-            case token_t::e_lcrlbracket:
-                implied_mul = token_is(token_t::e_lbracket, hold) ||
-                              token_is(token_t::e_lcrlbracket, hold) ||
-                              token_is(token_t::e_lsqrbracket, hold);
-                break;
-
-            case token_t::e_lbracket:
-                implied_mul = token_is(token_t::e_lbracket, hold) ||
-                              token_is(token_t::e_lcrlbracket, hold) ||
-                              token_is(token_t::e_lsqrbracket, hold);
-                break;
-
-            case token_t::e_lsqrbracket:
-                implied_mul = token_is(token_t::e_lbracket, hold) ||
-                              token_is(token_t::e_lcrlbracket, hold) ||
-                              token_is(token_t::e_lsqrbracket, hold);
-                break;
-
-            default:
-                return true;
-        }
-
-        if (implied_mul)
-        {
-            if (!settings_.commutative_check_enabled())
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR230 - Invalid sequence of brackets",
-                                     core::error_location()));
-
-                return false;
-            }
-            else if (token_t::e_eof != current_token().type)
-            {
-                lexer().insert_front(current_token().type);
-                lexer().insert_front(token_t::e_mul);
-                next_token();
-            }
-        }
-
-        return true;
+        branch_context context(*this);
+        return parser_branch<T>::post_bracket_process(context, token, branch);
     }
 
     using interval_t = typename interval_container_t<std::uintptr_t>::interval_t;
@@ -7499,457 +4117,20 @@ class parser : public lexer::parser_helper
 
     inline expression_node_ptr parse_symtab_symbol()
     {
-        const std::string symbol = current_token().value;
-
-        // Are we dealing with a variable or a special constant?
-        using var_ctxt_t = typename symtab_store::variable_context;
-        var_ctxt_t var_ctx = symtab_store_.get_variable_context(symbol);
-
-        if (var_ctx.variable)
-        {
-            assert(var_ctx.symbol_table);
-
-            expression_node_ptr result_variable = var_ctx.variable;
-
-            if (symtab_store_.is_constant_node(symbol))
-            {
-                result_variable = expression_generator_(var_ctx.variable->value());
-            }
-            else if (symbol_table_t::symtab_mutability_type::e_immutable ==
-                     var_ctx.symbol_table->mutability())
-            {
-                lodge_immutable_symbol(current_token(), make_memory_range(var_ctx.variable->ref()));
-                result_variable = var_ctx.variable;
-            }
-
-            if (!post_variable_process(symbol))
-                return error_node();
-
-            lodge_symbol(symbol, symbol_type::e_st_variable);
-
-            next_token();
-
-            return result_variable;
-        }
-
-        // Are we dealing with a locally defined variable, vector or string?
-        if (!sem_.empty())
-        {
-            scope_element& se = sem_.get_active_element(symbol);
-
-            if (se.active && core::imatch(se.name, symbol))
-            {
-                if ((scope_element::element_type::e_variable == se.type) ||
-                    (scope_element::element_type::e_literal == se.type))
-                {
-                    se.active = true;
-                    lodge_symbol(symbol, symbol_type::e_st_local_variable);
-
-                    if (!post_variable_process(symbol))
-                        return error_node();
-
-                    next_token();
-
-                    return (scope_element::element_type::e_variable == se.type)
-                               ? se.var_node
-                               : expression_generator_(se.var_node->value());
-                }
-                else if (scope_element::element_type::e_vector == se.type)
-                {
-                    return parse_vector();
-                }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                else if (scope_element::element_type::e_string == se.type)
-                {
-                    return parse_string();
-                }
-#endif
-            }
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        // Are we dealing with a string variable?
-        if (symtab_store_.is_stringvar(symbol))
-        {
-            return parse_string();
-        }
-#endif
-
-        {
-            // Are we dealing with a function?
-            ifunction<T>* function = symtab_store_.get_function(symbol);
-
-            if (function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr func_node = parse_function_invocation(function, symbol);
-
-                if (func_node)
-                    return func_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR231 - Failed to generate node for function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        {
-            // Are we dealing with a vararg function?
-            ivararg_function<T>* vararg_function = symtab_store_.get_vararg_function(symbol);
-
-            if (vararg_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr vararg_func_node =
-                    parse_vararg_function_call(vararg_function, symbol);
-
-                if (vararg_func_node)
-                    return vararg_func_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR232 - Failed to generate node for vararg function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        {
-            // Are we dealing with a vararg generic function?
-            igeneric_function<T>* generic_function = symtab_store_.get_generic_function(symbol);
-
-            if (generic_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr genericfunc_node =
-                    parse_generic_function_call(generic_function, symbol);
-
-                if (genericfunc_node)
-                    return genericfunc_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR233 - Failed to generate node for generic function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        {
-            // Are we dealing with a vararg string returning function?
-            igeneric_function<T>* string_function = symtab_store_.get_string_function(symbol);
-
-            if (string_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr stringfunc_node =
-                    parse_string_function_call(string_function, symbol);
-
-                if (stringfunc_node)
-                    return stringfunc_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR234 - Failed to generate node for string function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-
-        {
-            // Are we dealing with a vararg overloaded scalar/string returning function?
-            igeneric_function<T>* overload_function = symtab_store_.get_overload_function(symbol);
-
-            if (overload_function)
-            {
-                lodge_symbol(symbol, symbol_type::e_st_function);
-
-                expression_node_ptr overloadfunc_node =
-                    parse_overload_function_call(overload_function, symbol);
-
-                if (overloadfunc_node)
-                    return overloadfunc_node;
-                else
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_syntax, current_token(),
-                        "ERR235 - Failed to generate node for overload function: '" + symbol + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-            }
-        }
-#endif
-
-        // Are we dealing with a vector?
-        if (symtab_store_.is_vector(symbol))
-        {
-            lodge_symbol(symbol, symbol_type::e_st_vector);
-            return parse_vector();
-        }
-
-        if (core::is_reserved_symbol(symbol))
-        {
-            if (settings_.function_enabled(symbol) || !core::is_base_function(symbol))
-            {
-                set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                     "ERR236 - Invalid use of reserved symbol '" + symbol + "'",
-                                     core::error_location()));
-
-                return error_node();
-            }
-        }
-
-        // Should we handle unknown symbols?
-        if (resolve_unknown_symbol_ && unknown_symbol_resolver_)
-        {
-            if (!(settings_.rsrvd_sym_usr_disabled() && core::is_reserved_symbol(symbol)))
-            {
-                symbol_table_t& symtab = symtab_store_.get_symbol_table();
-
-                std::string error_message;
-
-                if (unknown_symbol_resolver::usr_mode::e_usrmode_default ==
-                    unknown_symbol_resolver_->mode)
-                {
-                    T default_value = T(0);
-
-                    typename unknown_symbol_resolver::usr_symbol_type usr_symbol_type =
-                        unknown_symbol_resolver::usr_symbol_type::e_usr_unknown_type;
-
-                    if (unknown_symbol_resolver_->process(symbol, usr_symbol_type, default_value,
-                                                          error_message))
-                    {
-                        bool create_result = false;
-
-                        switch (usr_symbol_type)
-                        {
-                            case unknown_symbol_resolver::usr_symbol_type::e_usr_variable_type:
-                                create_result = symtab.create_variable(symbol, default_value);
-                                break;
-
-                            case unknown_symbol_resolver::usr_symbol_type::e_usr_constant_type:
-                                create_result = symtab.add_constant(symbol, default_value);
-                                break;
-
-                            default:
-                                create_result = false;
-                        }
-
-                        if (create_result)
-                        {
-                            expression_node_ptr var = symtab_store_.get_variable(symbol);
-
-                            if (var)
-                            {
-                                if (symtab_store_.is_constant_node(symbol))
-                                {
-                                    var = expression_generator_(var->value());
-                                }
-
-                                lodge_symbol(symbol, symbol_type::e_st_variable);
-
-                                if (!post_variable_process(symbol))
-                                    return error_node();
-
-                                next_token();
-
-                                return var;
-                            }
-                        }
-                    }
-
-                    set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
-                                         "ERR237 - Failed to create variable: '" + symbol + "'" +
-                                             (error_message.empty() ? "" : " - " + error_message),
-                                         core::error_location()));
-                }
-                else if (unknown_symbol_resolver::usr_mode::e_usrmode_extended ==
-                         unknown_symbol_resolver_->mode)
-                {
-                    if (unknown_symbol_resolver_->process(symbol, symtab, error_message))
-                    {
-                        expression_node_ptr result = parse_symtab_symbol();
-
-                        if (result)
-                        {
-                            return result;
-                        }
-                    }
-
-                    set_error(make_error(parser_error::error_mode::e_symtab, current_token(),
-                                         "ERR238 - Failed to resolve symbol: '" + symbol + "'" +
-                                             (error_message.empty() ? "" : " - " + error_message),
-                                         core::error_location()));
-                }
-
-                return error_node();
-            }
-        }
-
-        set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                             "ERR239 - Undefined symbol: '" + symbol + "'",
-                             core::error_location()));
-
-        return error_node();
+        symbol_resolution_context context(*this);
+        return parser_symbol_resolution<T>::parse_symtab_symbol(context);
     }
 
     inline expression_node_ptr check_block_statement_closure(expression_node_ptr expression)
     {
-        if (expression && ((current_token().type == token_t::e_symbol) ||
-                           (current_token().type == token_t::e_number)))
-        {
-            free_node(node_allocator_, expression);
-
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR240 - Invalid syntax '" + current_token().value +
-                                     "' possible missing operator or context",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        return expression;
+        branch_context context(*this);
+        return parser_branch<T>::check_block_statement_closure(context, expression);
     }
 
     inline expression_node_ptr parse_symbol()
     {
-        static constexpr std::string_view symbol_if = "if";
-        static constexpr std::string_view symbol_while = "while";
-        static constexpr std::string_view symbol_repeat = "repeat";
-        static constexpr std::string_view symbol_for = "for";
-        static constexpr std::string_view symbol_switch = "switch";
-        static constexpr std::string_view symbol_null = "null";
-        static constexpr std::string_view symbol_break = "break";
-        static constexpr std::string_view symbol_continue = "continue";
-        static constexpr std::string_view symbol_var = "var";
-        static constexpr std::string_view symbol_const = "const";
-        static constexpr std::string_view symbol_swap = "swap";
-        static constexpr std::string_view symbol_return = "return";
-        static constexpr std::string_view symbol_not = "not";
-        static constexpr std::string_view symbol_assert = "assert";
-        static constexpr std::string_view symbol_true = "true";
-        static constexpr std::string_view symbol_false = "false";
-
-        const std::string symbol = current_token().value;
-
-        if (valid_vararg_operation(symbol))
-        {
-            return parse_vararg_function();
-        }
-        else if (core::imatch(symbol, symbol_not))
-        {
-            return parse_not_statement();
-        }
-        else if (core::imatch(symbol, symbol_true))
-        {
-            next_token();
-            return expression_generator_(core::numeric::true_v<T>);
-        }
-        else if (core::imatch(symbol, symbol_false))
-        {
-            next_token();
-            return expression_generator_(core::numeric::false_v<T>);
-        }
-        else if (valid_base_operation(symbol))
-        {
-            return parse_base_operation();
-        }
-        else if (core::imatch(symbol, symbol_if) && settings_.control_struct_enabled(symbol))
-        {
-            return parse_conditional_statement();
-        }
-        else if (core::imatch(symbol, symbol_while) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_while_loop());
-        }
-        else if (core::imatch(symbol, symbol_repeat) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_repeat_until_loop());
-        }
-        else if (core::imatch(symbol, symbol_for) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_for_loop());
-        }
-        else if (core::imatch(symbol, symbol_switch) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_switch_statement());
-        }
-        else if (core::is_valid_sf_symbol(symbol))
-        {
-            return parse_special_function();
-        }
-        else if (core::imatch(symbol, symbol_null))
-        {
-            return parse_null_statement();
-        }
-#ifndef MATH_EXPR_DISABLE_BREAK_CONTINUE
-        else if (core::imatch(symbol, symbol_break))
-        {
-            return parse_break_statement();
-        }
-        else if (core::imatch(symbol, symbol_continue))
-        {
-            return parse_continue_statement();
-        }
-#endif
-        else if (core::imatch(symbol, symbol_var))
-        {
-            return parse_define_var_statement();
-        }
-        else if (core::imatch(symbol, symbol_const))
-        {
-            return parse_define_constvar_statement();
-        }
-        else if (core::imatch(symbol, symbol_swap))
-        {
-            return parse_swap_statement();
-        }
-#ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
-        else if (core::imatch(symbol, symbol_return) && settings_.control_struct_enabled(symbol))
-        {
-            return check_block_statement_closure(parse_return_statement());
-        }
-#endif
-        else if (core::imatch(symbol, symbol_assert))
-        {
-            return parse_assert_statement();
-        }
-        else if (symtab_store_.valid() || !sem_.empty())
-        {
-            return parse_symtab_symbol();
-        }
-        else
-        {
-            set_error(
-                make_error(parser_error::error_mode::e_symtab, current_token(),
-                           "ERR241 - Unknown variable or function encountered. Symbol table(s) "
-                           "is either invalid or does not contain symbol: '" +
-                               symbol + "'",
-                           core::error_location()));
-
-            return error_node();
-        }
+        symbol_context context(*this);
+        return parser_symbol<T>::parse_symbol(context);
     }
 
     inline expression_node_ptr parse_branch(
@@ -7961,181 +4142,8 @@ class parser : public lexer::parser_helper
         {
             return error_node();
         }
-
-        expression_node_ptr branch = error_node();
-
-        if (token_t::e_number == current_token().type)
-        {
-            T numeric_value = T(0);
-
-            if (core::numeric::string_to_real(current_token().value, numeric_value))
-            {
-                expression_node_ptr literal_exp = expression_generator_(numeric_value);
-
-                if (nullptr == literal_exp)
-                {
-                    set_error(make_error(
-                        parser_error::error_mode::e_numeric, current_token(),
-                        "ERR242 - Failed generate node for scalar: '" + current_token().value + "'",
-                        core::error_location()));
-
-                    return error_node();
-                }
-
-                next_token();
-                branch = literal_exp;
-            }
-            else
-            {
-                set_error(make_error(
-                    parser_error::error_mode::e_numeric, current_token(),
-                    "ERR243 - Failed to convert '" + current_token().value + "' to a number",
-                    core::error_location()));
-
-                return error_node();
-            }
-        }
-        else if (token_t::e_symbol == current_token().type)
-        {
-            branch = parse_symbol();
-        }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        else if (token_t::e_string == current_token().type)
-        {
-            branch = parse_const_string();
-        }
-#endif
-        else if (token_t::e_lbracket == current_token().type)
-        {
-            next_token();
-
-            if (nullptr == (branch = parse_expression()))
-            {
-                return error_node();
-            }
-
-            token_is(token_t::e_eof);
-
-            if (!token_is(token_t::e_rbracket))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR244 - Expected ')' instead of: '" + current_token().value + "'",
-                               core::error_location()));
-
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (!post_bracket_process(token_t::e_lbracket, branch))
-            {
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-
-            parse_pending_vector_index_operator(branch);
-        }
-        else if (token_t::e_lsqrbracket == current_token().type)
-        {
-            next_token();
-
-            if (nullptr == (branch = parse_expression()))
-                return error_node();
-            else if (!token_is(token_t::e_rsqrbracket))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR245 - Expected ']' instead of: '" + current_token().value + "'",
-                               core::error_location()));
-
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (!post_bracket_process(token_t::e_lsqrbracket, branch))
-            {
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-        }
-        else if (token_t::e_lcrlbracket == current_token().type)
-        {
-            next_token();
-
-            if (nullptr == (branch = parse_expression()))
-                return error_node();
-            else if (!token_is(token_t::e_rcrlbracket))
-            {
-                set_error(
-                    make_error(parser_error::error_mode::e_syntax, current_token(),
-                               "ERR246 - Expected '}' instead of: '" + current_token().value + "'",
-                               core::error_location()));
-
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (!post_bracket_process(token_t::e_lcrlbracket, branch))
-            {
-                details::free_node(node_allocator_, branch);
-
-                return error_node();
-            }
-        }
-        else if (token_t::e_sub == current_token().type)
-        {
-            next_token();
-            branch = parse_expression(precedence_level::e_level11);
-
-            if (branch &&
-                !(details::is_neg_unary_node(branch) && simplify_unary_negation_branch(branch)))
-            {
-                expression_node_ptr result =
-                    expression_generator_(core::operators::operator_type::neg, branch);
-
-                if (nullptr == result)
-                {
-                    details::free_node(node_allocator_, branch);
-
-                    return error_node();
-                }
-                else
-                    branch = result;
-            }
-        }
-        else if (token_t::e_add == current_token().type)
-        {
-            next_token();
-            branch = parse_expression(precedence_level::e_level13);
-        }
-        else if (token_t::e_eof == current_token().type)
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR247 - Premature end of expression[1]",
-                                 core::error_location()));
-
-            return error_node();
-        }
-        else
-        {
-            set_error(make_error(parser_error::error_mode::e_syntax, current_token(),
-                                 "ERR248 - Premature end of expression[2]",
-                                 core::error_location()));
-
-            return error_node();
-        }
-
-        if (branch && (precedence_level::e_level00 == precedence) &&
-            token_is(token_t::e_ternary, prsrhlpr_t::token_advance_mode::e_hold))
-        {
-            branch = parse_ternary_conditional_statement(branch);
-        }
-
-        parse_pending_string_rangesize(branch);
-
-        return branch;
+        branch_context context(*this);
+        return parser_branch<T>::parse_branch(context, precedence);
     }
 
     /**
@@ -8157,6 +4165,7 @@ class parser : public lexer::parser_helper
             expression_node_ptr (&branch)[2]);
         using synthesize_map_t = std::map<std::string, synthesize_functor_t>;
         using parser_t = typename math_expr::parser<Type>;
+        using fold_passes_t = math_expr::fold_passes<Type>;
         using vtype = const Type&;
         using ctype = const Type;
 
@@ -9708,7 +5717,7 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (is_constant_foldable(arg_list))
+            else if (fold_passes_t::is_constant_foldable(arg_list))
                 return const_optimise_switch(arg_list);
 
             switch ((arg_list.size() - 1) / 2)
@@ -9743,7 +5752,7 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (is_constant_foldable(arg_list))
+            else if (fold_passes_t::is_constant_foldable(arg_list))
                 return const_optimise_mswitch(arg_list);
             else
                 return node_allocator_->allocate<details::multi_switch_node<Type>>(arg_list);
@@ -10016,7 +6025,7 @@ class parser : public lexer::parser_helper
         {
             if (!all_nodes_valid(branch))
                 return error_node();
-            else if (is_constant_foldable(branch))
+            else if (fold_passes_t::is_constant_foldable(branch))
                 return const_optimise_sf3(operation, branch);
             else if (all_nodes_variables(branch))
                 return varnode_optimise_sf3(operation, branch);
@@ -10245,7 +6254,7 @@ class parser : public lexer::parser_helper
         {
             if (!all_nodes_valid(branch))
                 return error_node();
-            else if (is_constant_foldable(branch))
+            else if (fold_passes_t::is_constant_foldable(branch))
                 return const_optimise_sf4(operation, branch);
             else if (all_nodes_variables(branch))
                 return varnode_optimise_sf4(operation, branch);
@@ -10421,7 +6430,7 @@ class parser : public lexer::parser_helper
 
                 return error_node();
             }
-            else if (is_constant_foldable(arg_list))
+            else if (fold_passes_t::is_constant_foldable(arg_list))
                 return const_optimise_varargfunc(operation, arg_list);
             else if ((1 == arg_list.size()) && details::is_ivector_node(arg_list[0]))
                 return vectorize_func(operation, arg_list);
@@ -10561,7 +6570,8 @@ class parser : public lexer::parser_helper
 
             expression_node_ptr result = node_allocator_->allocate<alloc_type>(vaf, arg_list);
 
-            if (!arg_list.empty() && !vaf->has_side_effects() && is_constant_foldable(arg_list))
+            if (!arg_list.empty() && !vaf->has_side_effects() &&
+                fold_passes_t::is_constant_foldable(arg_list))
             {
                 const Type v = result->value();
                 details::free_node(*node_allocator_, result);
@@ -10618,7 +6628,7 @@ class parser : public lexer::parser_helper
             assert(genfunc_node_ptr);
 
             if (!arg_list.empty() && !gf->has_side_effects() &&
-                parser_->state_.type_check_enabled && is_constant_foldable(arg_list))
+                parser_->state_.type_check_enabled && fold_passes_t::is_constant_foldable(arg_list))
             {
                 genfunc_node_ptr->init_branches();
 
@@ -10686,7 +6696,8 @@ class parser : public lexer::parser_helper
 
             assert(strfunc_node_ptr);
 
-            if (!arg_list.empty() && !gf->has_side_effects() && is_constant_foldable(arg_list))
+            if (!arg_list.empty() && !gf->has_side_effects() &&
+                fold_passes_t::is_constant_foldable(arg_list))
             {
                 strfunc_node_ptr->init_branches();
 
@@ -10949,35 +6960,6 @@ class parser : public lexer::parser_helper
         }
 
        private:
-        template <std::size_t N, typename NodePtr>
-        inline bool is_constant_foldable(NodePtr (&b)[N]) const
-        {
-            for (std::size_t i = 0; i < N; ++i)
-            {
-                if (nullptr == b[i])
-                    return false;
-                else if (!details::is_constant_node(b[i]))
-                    return false;
-            }
-
-            return true;
-        }
-
-        template <typename NodePtr, typename Allocator,
-                  template <typename, typename> class Sequence>
-        inline bool is_constant_foldable(const Sequence<NodePtr, Allocator>& b) const
-        {
-            for (std::size_t i = 0; i < b.size(); ++i)
-            {
-                if (nullptr == b[i])
-                    return false;
-                else if (!details::is_constant_node(b[i]))
-                    return false;
-            }
-
-            return true;
-        }
-
         void lodge_assignment(symbol_type cst, expression_node_ptr node)
         {
             parser_->state_.activate_side_effect("lodge_assignment()");
@@ -18965,7 +14947,7 @@ class parser : public lexer::parser_helper
                 expression_node_ptr expression_point =
                     node_allocator_->allocate<NodeType>(operation, branch);
 
-                if (is_constant_foldable<N>(branch))
+                if (fold_passes_t::is_constant_foldable(branch))
                 {
                     const Type v = expression_point->value();
                     details::free_node(*node_allocator_, expression_point);
@@ -19014,7 +14996,7 @@ class parser : public lexer::parser_helper
             else
                 func_node_ptr->init_branches(branch);
 
-            if (is_constant_foldable<N>(branch) && !f->has_side_effects())
+            if (fold_passes_t::is_constant_foldable(branch) && !f->has_side_effects())
             {
                 Type v = expression_point->value();
                 details::free_node(*node_allocator_, expression_point);
@@ -19124,269 +15106,6 @@ class parser : public lexer::parser_helper
         results_context_ = 0;
     }
 
-    inline void load_unary_operations_map(unary_op_map_t& m)
-    {
-#define REGISTER_UNARY_OP(Op, UnaryFunctor) m.insert(std::make_pair(Op, UnaryFunctor<T>::process))
-
-        REGISTER_UNARY_OP(core::operators::operator_type::abs, details::abs_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::acos, details::acos_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::acosh, details::acosh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::asin, details::asin_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::asinh, details::asinh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::atanh, details::atanh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::ceil, details::ceil_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::cos, details::cos_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::cosh, details::cosh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::exp, details::exp_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::expm1, details::expm1_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::floor, details::floor_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log, details::log_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log10, details::log10_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log2, details::log2_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::log1p, details::log1p_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::neg, details::neg_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::pos, details::pos_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::round, details::round_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sin, details::sin_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sinc, details::sinc_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sinh, details::sinh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sqrt, details::sqrt_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::tan, details::tan_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::tanh, details::tanh_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::cot, details::cot_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sec, details::sec_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::csc, details::csc_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::r2d, details::r2d_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::d2r, details::d2r_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::d2g, details::d2g_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::g2d, details::g2d_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::notl, details::notl_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::sgn, details::sgn_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::erf, details::erf_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::erfc, details::erfc_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::ncdf, details::ncdf_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::frac, details::frac_op);
-        REGISTER_UNARY_OP(core::operators::operator_type::trunc, details::trunc_op);
-#undef REGISTER_UNARY_OP
-    }
-
-    inline void load_binary_operations_map(binary_op_map_t& m)
-    {
-        using value_type = typename binary_op_map_t::value_type;
-
-#define REGISTER_BINARY_OP(Op, BinaryFunctor) m.insert(value_type(Op, BinaryFunctor<T>::process))
-
-        REGISTER_BINARY_OP(core::operators::operator_type::add, details::add_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::sub, details::sub_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mul, details::mul_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::div, details::div_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mod, details::mod_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::pow, details::pow_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lt, details::lt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lte, details::lte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gt, details::gt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gte, details::gte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::eq, details::eq_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::ne, details::ne_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_and, details::and_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nand, details::nand_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_or, details::or_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nor, details::nor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_xor, details::xor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::xnor, details::xnor_op);
-#undef REGISTER_BINARY_OP
-    }
-
-    inline void load_inv_binary_operations_map(inv_binary_op_map_t& m)
-    {
-        using value_type = typename inv_binary_op_map_t::value_type;
-
-#define REGISTER_BINARY_OP(Op, BinaryFunctor) m.insert(value_type(BinaryFunctor<T>::process, Op))
-
-        REGISTER_BINARY_OP(core::operators::operator_type::add, details::add_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::sub, details::sub_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mul, details::mul_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::div, details::div_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::mod, details::mod_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::pow, details::pow_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lt, details::lt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::lte, details::lte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gt, details::gt_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::gte, details::gte_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::eq, details::eq_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::ne, details::ne_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_and, details::and_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nand, details::nand_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_or, details::or_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::nor, details::nor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::logical_xor, details::xor_op);
-        REGISTER_BINARY_OP(core::operators::operator_type::xnor, details::xnor_op);
-#undef REGISTER_BINARY_OP
-    }
-
-    inline void load_sf3_map(sf3_map_t& sf3_map)
-    {
-        using pair_t = std::pair<trinary_functor_t, core::operators::operator_type>;
-
-#define REGISTER_SF3(Op)                     \
-    sf3_map[details::sf##Op##_op<T>::id()] = \
-        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
-
-        REGISTER_SF3(00);
-        REGISTER_SF3(01);
-        REGISTER_SF3(02);
-        REGISTER_SF3(03);
-        REGISTER_SF3(04);
-        REGISTER_SF3(05);
-        REGISTER_SF3(06);
-        REGISTER_SF3(07);
-        REGISTER_SF3(08);
-        REGISTER_SF3(09);
-        REGISTER_SF3(10);
-        REGISTER_SF3(11);
-        REGISTER_SF3(12);
-        REGISTER_SF3(13);
-        REGISTER_SF3(14);
-        REGISTER_SF3(15);
-        REGISTER_SF3(16);
-        REGISTER_SF3(17);
-        REGISTER_SF3(18);
-        REGISTER_SF3(19);
-        REGISTER_SF3(20);
-        REGISTER_SF3(21);
-        REGISTER_SF3(22);
-        REGISTER_SF3(23);
-        REGISTER_SF3(24);
-        REGISTER_SF3(25);
-        REGISTER_SF3(26);
-        REGISTER_SF3(27);
-        REGISTER_SF3(28);
-        REGISTER_SF3(29);
-        REGISTER_SF3(30);
-#undef REGISTER_SF3
-
-#define REGISTER_SF3_EXTID(Id, Op) \
-    sf3_map[Id] = pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op);
-
-        REGISTER_SF3_EXTID("(t-t)-t", 23)  // (t-t)-t --> t-(t+t)
-#undef REGISTER_SF3_EXTID
-    }
-
-    inline void load_sf4_map(sf4_map_t& sf4_map)
-    {
-        using pair_t = std::pair<quaternary_functor_t, core::operators::operator_type>;
-
-#define REGISTER_SF4(Op)                     \
-    sf4_map[details::sf##Op##_op<T>::id()] = \
-        pair_t(details::sf##Op##_op<T>::process, core::operators::operator_type::sf##Op)
-
-        REGISTER_SF4(48);
-        REGISTER_SF4(49);
-        REGISTER_SF4(50);
-        REGISTER_SF4(51);
-        REGISTER_SF4(52);
-        REGISTER_SF4(53);
-        REGISTER_SF4(54);
-        REGISTER_SF4(55);
-        REGISTER_SF4(56);
-        REGISTER_SF4(57);
-        REGISTER_SF4(58);
-        REGISTER_SF4(59);
-        REGISTER_SF4(60);
-        REGISTER_SF4(61);
-        REGISTER_SF4(62);
-        REGISTER_SF4(63);
-        REGISTER_SF4(64);
-        REGISTER_SF4(65);
-        REGISTER_SF4(66);
-        REGISTER_SF4(67);
-        REGISTER_SF4(68);
-        REGISTER_SF4(69);
-        REGISTER_SF4(70);
-        REGISTER_SF4(71);
-        REGISTER_SF4(72);
-        REGISTER_SF4(73);
-        REGISTER_SF4(74);
-        REGISTER_SF4(75);
-        REGISTER_SF4(76);
-        REGISTER_SF4(77);
-        REGISTER_SF4(78);
-        REGISTER_SF4(79);
-        REGISTER_SF4(80);
-        REGISTER_SF4(81);
-        REGISTER_SF4(82);
-        REGISTER_SF4(83);
-#undef REGISTER_SF4
-
-#define REGISTER_SF4EXT(Op)                     \
-    sf4_map[details::sfext##Op##_op<T>::id()] = \
-        pair_t(details::sfext##Op##_op<T>::process, core::operators::operator_type::sf4ext##Op)
-
-        REGISTER_SF4EXT(00);
-        REGISTER_SF4EXT(01);
-        REGISTER_SF4EXT(02);
-        REGISTER_SF4EXT(03);
-        REGISTER_SF4EXT(04);
-        REGISTER_SF4EXT(05);
-        REGISTER_SF4EXT(06);
-        REGISTER_SF4EXT(07);
-        REGISTER_SF4EXT(08);
-        REGISTER_SF4EXT(09);
-        REGISTER_SF4EXT(10);
-        REGISTER_SF4EXT(11);
-        REGISTER_SF4EXT(12);
-        REGISTER_SF4EXT(13);
-        REGISTER_SF4EXT(14);
-        REGISTER_SF4EXT(15);
-        REGISTER_SF4EXT(16);
-        REGISTER_SF4EXT(17);
-        REGISTER_SF4EXT(18);
-        REGISTER_SF4EXT(19);
-        REGISTER_SF4EXT(20);
-        REGISTER_SF4EXT(21);
-        REGISTER_SF4EXT(22);
-        REGISTER_SF4EXT(23);
-        REGISTER_SF4EXT(24);
-        REGISTER_SF4EXT(25);
-        REGISTER_SF4EXT(26);
-        REGISTER_SF4EXT(27);
-        REGISTER_SF4EXT(28);
-        REGISTER_SF4EXT(29);
-        REGISTER_SF4EXT(30);
-        REGISTER_SF4EXT(31);
-        REGISTER_SF4EXT(32);
-        REGISTER_SF4EXT(33);
-        REGISTER_SF4EXT(34);
-        REGISTER_SF4EXT(35);
-        REGISTER_SF4EXT(36);
-        REGISTER_SF4EXT(37);
-        REGISTER_SF4EXT(38);
-        REGISTER_SF4EXT(39);
-        REGISTER_SF4EXT(40);
-        REGISTER_SF4EXT(41);
-        REGISTER_SF4EXT(42);
-        REGISTER_SF4EXT(43);
-        REGISTER_SF4EXT(44);
-        REGISTER_SF4EXT(45);
-        REGISTER_SF4EXT(46);
-        REGISTER_SF4EXT(47);
-        REGISTER_SF4EXT(48);
-        REGISTER_SF4EXT(49);
-        REGISTER_SF4EXT(50);
-        REGISTER_SF4EXT(51);
-        REGISTER_SF4EXT(52);
-        REGISTER_SF4EXT(53);
-        REGISTER_SF4EXT(54);
-        REGISTER_SF4EXT(55);
-        REGISTER_SF4EXT(56);
-        REGISTER_SF4EXT(57);
-        REGISTER_SF4EXT(58);
-        REGISTER_SF4EXT(59);
-        REGISTER_SF4EXT(60);
-        REGISTER_SF4EXT(61);
-#undef REGISTER_SF4EXT
-    }
-
     inline results_context_t& results_ctx()
     {
         if (nullptr == results_context_)
@@ -19438,7 +15157,7 @@ class parser : public lexer::parser_helper
     settings_store settings_;
     expression_generator<T> expression_generator_;
     details::node_allocator node_allocator_;
-    symtab_store symtab_store_;
+    symtab_store_t symtab_store_;
     dependent_entity_collector dec_;
     std::deque<parser_error::type> error_list_;
     std::deque<bool> brkcnt_list_;
@@ -19455,7 +15174,7 @@ class parser : public lexer::parser_helper
     sf4_map_t sf4_map_;
     std::string synthesis_error_;
     scope_element_manager sem_;
-    std::vector<state_t> current_state_stack_;
+    std::vector<expression_state_t> current_state_stack_;
 
     immutable_memory_map_t immutable_memory_map_;
     immutable_symtok_map_t immutable_symtok_map_;
