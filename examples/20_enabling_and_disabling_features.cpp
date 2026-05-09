@@ -23,12 +23,14 @@
 
 #include "math_expr.hpp"
 
-struct vector_access_rtc : public math_expr::vector_access_runtime_check
+template <typename T>
+struct vector_access_rtc : public math_expr::vector_access_runtime_check<T>
 {
     using map_t = std::map<void*, std::string>;
+    using violation_context = typename math_expr::vector_access_runtime_check<T>::violation_context;
     map_t vector_map;
 
-    bool handle_runtime_violation(violation_context& context)
+    bool handle_runtime_violation(violation_context& context) override
     {
         const map_t::iterator itr = vector_map.find(static_cast<void*>(context.base_ptr));
         const std::string vector_name = (itr != vector_map.end()) ? itr->second : "Unknown";
@@ -61,7 +63,7 @@ void vector_overflow_example()
     T v0[5] = {0, 1, 2, 3, 4};
     T v1[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-    vector_access_rtc vec_rtc;
+    vector_access_rtc<T> vec_rtc;
 
     vec_rtc.vector_map[v0] = "v0";
     vec_rtc.vector_map[v1] = "v1";

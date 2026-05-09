@@ -1,4 +1,4 @@
-name: Test
+name: Build benchmark
 
 on: pull_request
 
@@ -11,13 +11,10 @@ jobs:
         run: bash .github/scripts/setup.sh
       - name: Install gcc
         run: sudo apt install -y gcc
-      - name: Build tests
+      - name: Build benchmark
         run: |
-          cmake --preset test_gcc -B build/debug/gcc
-          cd ./build/debug/gcc && ninja
-      - name: Run tests
-        run: |
-          cd ./build/debug/gcc && ctest
+          cmake --preset benchmark_gcc -B build/bench/gcc
+          cd ./build/bench/gcc && ninja
 
   clang:
     runs-on: ubuntu-latest
@@ -27,13 +24,10 @@ jobs:
         run: bash .github/scripts/setup.sh
       - name: Install llvm
         run: bash .github/scripts/install_llvm.sh
-      - name: Build tests
+      - name: Build benchmark
         run: |
-          cmake --preset test_clang -B build/debug/clang
-          cd ./build/debug/clang && ninja
-      - name: Run tests
-        run: |
-          cd ./build/debug/clang && ctest
+          cmake --preset benchmark_clang -B build/bench/clang
+          cd ./build/bench/clang && ninja
 
   clang_memory:
     # libstdc++ and libc++ have uninitialized variables,
@@ -46,10 +40,7 @@ jobs:
         run: bash .github/scripts/setup.sh
       - name: Install llvm
         run: bash .github/scripts/install_llvm.sh
-      - name: Build tests
+      - name: Build benchmark
         run: |
-          cmake --preset test_clang_memory -B build/debug/clang/memory
-          cd ./build/debug/clang/memory && ninja
-      - name: Run tests
-        run: |
-          cd ./build/debug/clang/memory && ctest
+          cmake --preset benchmark_clang_memory -B build/bench/clang/memory
+          cd ./build/bench/clang/memory && ninja
