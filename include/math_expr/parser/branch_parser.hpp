@@ -176,12 +176,6 @@ class parser_branch
         {
             branch = ctx.parse_symbol();
         }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        else if (token_t::e_string == ctx.current_token().type)
-        {
-            branch = ctx.parse_const_string();
-        }
-#endif
         else if (token_t::e_lbracket == ctx.current_token().type)
         {
             ctx.next_token();

@@ -97,21 +97,8 @@ class parser_symbol_resolution
                 {
                     return ctx.parse_vector();
                 }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                else if (Context::scope_element_t::element_type::e_string == se.type)
-                {
-                    return ctx.parse_string();
-                }
-#endif
             }
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (ctx.is_stringvar(symbol))
-        {
-            return ctx.parse_string();
-        }
-#endif
 
         if (ifunction<T>* function = ctx.get_function(symbol))
         {
@@ -160,40 +147,6 @@ class parser_symbol_resolution
                 core::error_location()));
             return Context::error_node();
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (igeneric_function<T>* function = ctx.get_string_function(symbol))
-        {
-            ctx.lodge_symbol(symbol, symbol_type::e_st_function);
-
-            expression_node_ptr function_node = ctx.parse_string_function_call(function, symbol);
-
-            if (function_node)
-                return function_node;
-
-            ctx.set_error(parser_error::make_error(
-                parser_error::error_mode::e_syntax, ctx.current_token(),
-                "ERR234 - Failed to generate node for string function: '" + symbol + "'",
-                core::error_location()));
-            return Context::error_node();
-        }
-
-        if (igeneric_function<T>* function = ctx.get_overload_function(symbol))
-        {
-            ctx.lodge_symbol(symbol, symbol_type::e_st_function);
-
-            expression_node_ptr function_node = ctx.parse_overload_function_call(function, symbol);
-
-            if (function_node)
-                return function_node;
-
-            ctx.set_error(parser_error::make_error(
-                parser_error::error_mode::e_syntax, ctx.current_token(),
-                "ERR235 - Failed to generate node for overload function: '" + symbol + "'",
-                core::error_location()));
-            return Context::error_node();
-        }
-#endif
 
         if (ctx.is_vector(symbol))
         {

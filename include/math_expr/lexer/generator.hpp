@@ -360,13 +360,6 @@ class generator
             scan_special_function();
             return;
         }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        else if ('\'' == c)
-        {
-            scan_string();
-            return;
-        }
-#endif
         else if ('~' == c)
         {
             token_t t;
@@ -625,106 +618,6 @@ class generator
 
         return;
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline void scan_string()
-    {
-        core::char_cptr initial_itr = s_itr_ + 1;
-        token_t t;
-
-        if (std::distance(s_itr_, s_end_) < 2)
-        {
-            t.set_error(token::e_err_string, s_itr_, s_end_, base_itr_);
-            token_list_.push_back(t);
-
-            return;
-        }
-
-        ++s_itr_;
-
-        bool escaped_found = false;
-        bool escaped = false;
-
-        while (!is_end(s_itr_))
-        {
-            if (!core::is_valid_string_char(*s_itr_))
-            {
-                t.set_error(token::e_err_string, initial_itr, s_itr_, base_itr_);
-                token_list_.push_back(t);
-
-                return;
-            }
-            else if (!escaped && ('\\' == *s_itr_))
-            {
-                escaped_found = true;
-                escaped = true;
-                ++s_itr_;
-
-                continue;
-            }
-            else if (!escaped)
-            {
-                if ('\'' == *s_itr_)
-                    break;
-            }
-            else if (escaped)
-            {
-                if (!is_end(s_itr_) && ('0' == *(s_itr_)) && ((s_itr_ + 4) <= s_end_))
-                {
-                    const bool x_separator = ('X' == std::toupper(*(s_itr_ + 1)));
-
-                    const bool both_digits =
-                        core::is_hex_digit(*(s_itr_ + 2)) && core::is_hex_digit(*(s_itr_ + 3));
-
-                    if (!(x_separator && both_digits))
-                    {
-                        t.set_error(token::e_err_string, initial_itr, s_itr_, base_itr_);
-                        token_list_.push_back(t);
-
-                        return;
-                    }
-                    else
-                        s_itr_ += 3;
-                }
-
-                escaped = false;
-            }
-
-            ++s_itr_;
-        }
-
-        if (is_end(s_itr_))
-        {
-            t.set_error(token::e_err_string, initial_itr, s_itr_, base_itr_);
-            token_list_.push_back(t);
-
-            return;
-        }
-
-        if (!escaped_found)
-            t.set_string(initial_itr, s_itr_, base_itr_);
-        else
-        {
-            std::string parsed_string(initial_itr, s_itr_);
-
-            if (!core::cleanup_escapes(parsed_string))
-            {
-                t.set_error(token::e_err_string, initial_itr, s_itr_, base_itr_);
-                token_list_.push_back(t);
-
-                return;
-            }
-
-            t.set_string(parsed_string,
-                         static_cast<std::size_t>(std::distance(base_itr_, initial_itr)));
-        }
-
-        token_list_.push_back(t);
-        ++s_itr_;
-
-        return;
-    }
-#endif
 
    private:
     token_list_t token_list_;

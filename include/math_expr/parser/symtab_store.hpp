@@ -48,9 +48,6 @@ struct symtab_store
     using vector_holder_t = details::vector_holder<T>;
     using vector_holder_ptr = vector_holder_t*;
     using function_ptr = ifunction<T>*;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    using stringvar_ptr = details::string_nodes::stringvar_node<T>*;
-#endif
     using vararg_function_ptr = ivararg_function<T>*;
     using generic_function_ptr = igeneric_function<T>*;
 
@@ -69,16 +66,6 @@ struct symtab_store
         const symbol_table_t* symbol_table;
         vector_holder_ptr vector_holder;
     };
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    struct string_context
-    {
-        string_context() : symbol_table(nullptr), str_var(nullptr) {}
-
-        const symbol_table_t* symbol_table;
-        stringvar_ptr str_var;
-    };
-#endif
 
     inline bool empty() const
     {
@@ -157,45 +144,6 @@ struct symtab_store
 
         return result;
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline string_context get_string_context(const std::string& string_name) const
-    {
-        string_context result;
-
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-
-            result.str_var = symtab_list_[i].get_stringvar(string_name);
-            if (result.str_var)
-            {
-                result.symbol_table = &symtab_list_[i];
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    inline stringvar_ptr get_stringvar(const std::string& string_name) const
-    {
-        stringvar_ptr result = nullptr;
-
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-
-            result = symtab_list_[i].get_stringvar(string_name);
-            if (result)
-                break;
-        }
-
-        return result;
-    }
-#endif
 
     inline function_ptr get_function(const std::string& function_name) const
     {
@@ -333,21 +281,6 @@ struct symtab_store
         return false;
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool is_constant_string(const std::string& symbol_name) const
-    {
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-            if (symtab_list_[i].is_constant_string(symbol_name))
-                return true;
-        }
-
-        return false;
-    }
-#endif
-
     inline bool symbol_exists(const std::string& symbol) const
     {
         for (std::size_t i = 0; i < symtab_list_.size(); ++i)
@@ -374,34 +307,6 @@ struct symtab_store
 
         return false;
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool is_stringvar(const std::string& stringvar_name) const
-    {
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-            if (symtab_list_[i].is_stringvar(stringvar_name))
-                return true;
-        }
-
-        return false;
-    }
-
-    inline bool is_conststr_stringvar(const std::string& symbol_name) const
-    {
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-            if (symtab_list_[i].is_conststr_stringvar(symbol_name))
-                return true;
-        }
-
-        return false;
-    }
-#endif
 
     inline bool is_function(const std::string& function_name) const
     {
@@ -471,38 +376,6 @@ struct symtab_store
 
         return std::string();
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline std::string get_stringvar_name(const expression_node_ptr& ptr) const
-    {
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-
-            std::string name = symtab_list_[i].get_stringvar_name(ptr);
-            if (!name.empty())
-                return name;
-        }
-
-        return std::string();
-    }
-
-    inline std::string get_conststr_stringvar_name(const expression_node_ptr& ptr) const
-    {
-        for (std::size_t i = 0; i < symtab_list_.size(); ++i)
-        {
-            if (!symtab_list_[i].valid())
-                continue;
-
-            std::string name = symtab_list_[i].get_conststr_stringvar_name(ptr);
-            if (!name.empty())
-                return name;
-        }
-
-        return std::string();
-    }
-#endif
 
     inline symbol_table_t& get_symbol_table(const std::size_t& index = 0)
     {

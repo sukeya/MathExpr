@@ -389,34 +389,6 @@ class parser_statement
             return ctx.make_null_node();
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (assert_message && details::is_const_string_node(assert_message))
-        {
-            auto* message_base = assert_message->as_string_base();
-            assert(message_base);
-            assert_context.message = message_base->str();
-        }
-
-        if (assert_id && details::is_const_string_node(assert_id))
-        {
-            auto* id_base = assert_id->as_string_base();
-            assert(id_base);
-            assert_context.id = id_base->str();
-
-            if (ctx.assert_ids.end() != ctx.assert_ids.find(assert_context.id))
-            {
-                ctx.set_error(parser_error::make_error(
-                    parser_error::error_mode::e_syntax, ctx.current_token(),
-                    "ERR227 - Duplicate assert ID: " + assert_context.id, core::error_location()));
-
-                return Context::error_node();
-            }
-
-            ctx.assert_ids.insert(assert_context.id);
-            ctx.free_node(assert_id);
-        }
-#endif
-
         expression_node_ptr result_node =
             ctx.assert_call(assert_condition, assert_message, assert_context);
 
