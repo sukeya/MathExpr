@@ -2107,9 +2107,9 @@ class parser : public lexer::parser_helper
         using scope_element_t = math_expr::scope_element<T>;
         using symbol_table_t = typename parser<T>::symbol_table_t;
         using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
-        using string_context_t = typename symtab_store_t::string_context;
         using vector_context_t = typename symtab_store_t::vector_context;
 #ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+        using string_context_t = typename symtab_store_t::string_context;
         using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
 #endif
 

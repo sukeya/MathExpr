@@ -1743,6 +1743,7 @@ struct test_ab
     T result;
 };
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 template <typename T>
 bool run_test02()
 {
@@ -2727,6 +2728,7 @@ bool run_test02()
 
     return true;
 }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
 template <typename T>
 bool run_test03()
@@ -2917,7 +2919,9 @@ bool run_test03()
                 std::vector<T> v(10, T(1.234));
 
                 symbol_table.add_variable("x", x);
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
                 symbol_table.add_stringvar("s", s);
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
                 symbol_table.add_vector("v", v);
 
                 if (parser.compile(invalid_expr[i], expression))
@@ -2941,7 +2945,9 @@ bool run_test03()
             parser_t parser;
 
             symbol_table.add_variable("x", x);
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             symbol_table.add_stringvar("s", s);
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
             symbol_table.add_vector("v", v);
 
             for (std::size_t i = 0; i < invalid_expr_size; ++i)
@@ -3697,10 +3703,12 @@ bool run_test10()
     T xx = T(3.3);
     T yy = T(4.4);
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     std::string i_s = "A String";
     std::string j_s = "Another String";
     std::string ii_s = "A String";
     std::string jj_s = "Another String";
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     struct test
     {
@@ -3715,6 +3723,7 @@ bool run_test10()
                 return false;
         }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         static inline bool string(math_expr::symbol_table<T>& symbol_table,
                                   const std::string& string_name, const std::string& str)
         {
@@ -3726,6 +3735,7 @@ bool run_test10()
             else
                 return false;
         }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
     };
 
     {
@@ -3833,6 +3843,7 @@ bool run_test10()
             }
         }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         for (std::size_t r = 0; r < rounds; ++r)
         {
             symbol_table.add_stringvar("i", i_s);
@@ -3902,6 +3913,7 @@ bool run_test10()
                 return false;
             }
         }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
         for (std::size_t r = 0; r < rounds; ++r)
         {
@@ -3993,6 +4005,7 @@ bool run_test10()
             }
         }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         for (std::size_t r = 0; r < rounds; ++r)
         {
             symbol_table.add_stringvar("i", i_s);
@@ -4088,6 +4101,7 @@ bool run_test10()
                 return false;
             }
         }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
     }
 
     {
@@ -4151,6 +4165,7 @@ bool run_test10()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         T a = T(1);
         T b = T(2);
@@ -4211,7 +4226,9 @@ bool run_test10()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         T a = T(1);
         T b = T(2);
@@ -4274,6 +4291,7 @@ bool run_test10()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     {
         math_expr::symbol_table<T> symbol_table0;
@@ -4295,6 +4313,7 @@ bool run_test10()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         T a = T(1);
         T b = T(2);
@@ -4330,6 +4349,7 @@ bool run_test10()
             expression.register_symbol_table(symbol_table1);
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     {
         const std::string expression =
@@ -4553,6 +4573,7 @@ bool run_test10()
             "var x:= 2; var y := 3; (abs(x + 0)/-abs(y - 0))  == -(2/3) ",
             "var x := 1; var y := 2; swap(x,y); (x == 2) and (y == 1)",
             "var x := 1; var y := 2; x <=> y     ; (x    == 2) and (y    == 1)",
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             "var x := 'abc'; x == 'abc'                        ",
             "var x := 'abc'; var y := '123'; x != y            ",
             "var x := 'abc'; var y := x + '123'; y == 'abc123' ",
@@ -4564,6 +4585,7 @@ bool run_test10()
             "~{var x := 3} + ~{var x := '1234'; x[]}             == 7",
             "~{var x := '123'; x[]} + ~{~{var x := 4}}           == 7",
             "~{~{var x := 3}} + ~{var x := '1234'; x[]}          == 7",
+#endif
             "var v[2] := {1,2}; swap(v[0],v[1]); (v[0] == 2) and (v[1] == 1)",
             "var v[2] := {1,2}; v[0] <=> v[1]  ; (v[0] == 2) and (v[1] == 1)",
             "var x := 1; var y := 2; ~(swap(x,y),(x == 2) and (y == 1))",
@@ -4842,6 +4864,7 @@ bool run_test10()
             "0 == (for (var i := 0; i < 10; i += 1) { ~{continue; break[7]; i += i} })",
             "1 == (for (var i := 0; i < 10; i += 1) { ~{break[i += 1]; continue; i += i} })",
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             "var s := 'abc';  s == ~{'abc'     } ",
             "var s := 'abc';  s == ~{s         } ",
             "var s := 'abc';  s == ~{'ab' + 'c'} ",
@@ -4850,6 +4873,7 @@ bool run_test10()
             "var s := 'abc';  ~{'ab' + 'c'} == s ",
             "var s := 'abc';  ~{1 + 2; 'abc' + s; s} == s ",
             "var s := 'abc';  ~{1 + 2; var x := 'ab'; x + 'c'} == s ",
+#endif
 
             "var x[10^6] := null; var y[10^7] := null; 0 * (min(x) + min(y)) + x[] + y[] == 10^7 + "
             "10^6",
@@ -6500,7 +6524,9 @@ bool run_test18()
         math_expr::symbol_table<T> symbol_table;
         symbol_table.remove_variable("x", true);
         symbol_table.remove_variable("x", false);
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         symbol_table.remove_stringvar("x");
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
         symbol_table.remove_function("x");
         symbol_table.remove_vararg_function("x");
         symbol_table.remove_vector("x");
@@ -6521,6 +6547,7 @@ bool run_test18()
             }
         }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
         {
             std::string x;
             const bool result1 = symbol_table.add_stringvar("x", x);
@@ -6532,6 +6559,7 @@ bool run_test18()
                 printf("run_test18() - Failed sym_tab add/remove [2]\n");
             }
         }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
         {
             std::vector<T> x(10, T(0));
@@ -6670,6 +6698,7 @@ bool run_test18()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         using symbol_table_t = math_expr::symbol_table<T>;
         using expression_t = math_expr::expression<T>;
@@ -6776,7 +6805,9 @@ bool run_test18()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         using symbol_table_t = math_expr::symbol_table<T>;
         using expression_t = math_expr::expression<T>;
@@ -6947,7 +6978,9 @@ bool run_test18()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         bool error_found = false;
 
@@ -7071,7 +7104,9 @@ bool run_test18()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         bool error_found = false;
 
@@ -7187,6 +7222,7 @@ bool run_test18()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     {
         bool error_found = false;
@@ -7846,6 +7882,7 @@ bool run_test18()
             "var v[5] := {3,1,2,4,5}; var r[5] := {1,2,3,4,5}; sort(v,0,2); sum(v == r) == v[]",
             "var v[5] := {1,2,5,3,4}; var r[5] := {1,2,3,4,5}; sort(v,2,4); sum(v == r) == v[]",
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
             "var v[5] := {1,3,5,2,4}; var r[5] := {1,2,3,4,5}; sort(v,'ascending'); sum(v == r) == "
             "v[]",
             "var v[5] := {1,3,5,2,4}; var r[5] := {1,2,3,4,5}; sort(v,'aScEnDiNg'); sum(v == r) == "
@@ -7871,6 +7908,7 @@ bool run_test18()
             "r) == v[]",
             "var v[5] := {1,2,5,3,4}; var r[5] := {1,2,5,4,3}; sort(v,'descending',2,4); sum(v == "
             "r) == v[]",
+#endif
 
             "var v[9] := {7,8,9,1,2,3,4,5,6}; nth_element(v,trunc(v[] / 2)); v[v[] / 2] == 5",
             "var v[9] := {7,8,9,1,2,3,4,5,6}; nth_element(v,trunc(v[] / 3)); v[v[] / 3] == 4",
@@ -8053,6 +8091,7 @@ bool run_test18()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         using expression_t = math_expr::expression<T>;
 
@@ -8195,7 +8234,9 @@ bool run_test18()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         using expression_t = math_expr::expression<T>;
 
@@ -8341,6 +8382,7 @@ bool run_test18()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     {
         using symbol_table_t = math_expr::symbol_table<T>;
@@ -9331,6 +9373,7 @@ bool run_test19()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         const std::pair<std::string, std::string> test_funcprog[] = {
             std::make_pair(" var s := depth_to_str(depth);         "
@@ -9673,6 +9716,7 @@ bool run_test19()
             }
         }
     }
+#endif
 
     {
         symbol_table_t symbol_table;
@@ -9989,6 +10033,7 @@ bool run_test20()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         T var;
         std::string str;
@@ -10197,6 +10242,7 @@ bool run_test20()
         if (!result)
             return result;
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     return true;
 }
@@ -10308,6 +10354,7 @@ bool run_test21()
 
     bool error_found = false;
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         T x = T(1.1);
         T y = T(2.2);
@@ -10397,6 +10444,7 @@ bool run_test21()
             return false;
         }
     }
+#endif
 
     {
         T x = T(1.1);
@@ -10496,6 +10544,7 @@ bool run_test21()
         }
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         T x = 1.0;
         T y = 2.0;
@@ -10593,7 +10642,9 @@ bool run_test21()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         const std::string invalid_expressions[] = {
             "x := 1",
@@ -10676,6 +10727,7 @@ bool run_test21()
             }
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     {
         T x = 1.1;
@@ -12033,6 +12085,9 @@ struct assert_handler final : public math_expr::assert_check
 template <typename T>
 bool run_test22()
 {
+#ifdef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+    return true;
+#endif
     using symbol_table_t = math_expr::symbol_table<T>;
     using expression_t = math_expr::expression<T>;
     using parser_t = math_expr::parser<T>;
@@ -13323,6 +13378,7 @@ bool run_test23()
     using expression_t = math_expr::expression<T>;
     using parser_t = math_expr::parser<T>;
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     {
         const std::string file_path = test_support::make_temp_file_path("file_write_read");
         std::string path = file_path;
@@ -13487,6 +13543,7 @@ bool run_test23()
             return false;
         }
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     return true;
 }
@@ -13936,6 +13993,7 @@ TEST_CASE("Sequence parser delegation remains stable", "[parser][sequence]")
     }
 }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 TEST_CASE("Range parser delegation remains stable", "[parser][range]")
 {
     const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
@@ -13953,7 +14011,9 @@ TEST_CASE("Range parser delegation remains stable", "[parser][range]")
         CHECK(expression.value() == expected);
     }
 }
+#endif
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 TEST_CASE("String range parser delegation remains stable", "[parser][string-range]")
 {
     const std::array<std::pair<std::string, numeric_type>, 2> programs = {{
@@ -13971,6 +14031,7 @@ TEST_CASE("String range parser delegation remains stable", "[parser][string-rang
         CHECK(expression.value() == expected);
     }
 }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
 TEST_CASE("Vector index parser delegation remains stable", "[parser][vector-index]")
 {
@@ -14027,6 +14088,7 @@ TEST_CASE("Dynamic function parser delegation remains stable", "[parser][dynamic
         CHECK(expression.value() == numeric_type(1));
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     SECTION("generic dispatch stays stable")
     {
         math_expr::expression<numeric_type> expression;
@@ -14044,7 +14106,9 @@ TEST_CASE("Dynamic function parser delegation remains stable", "[parser][dynamic
         CHECK(function.scalar_count == 1);
         CHECK(function.string_count == 1);
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     SECTION("overload dispatch stays stable")
     {
         math_expr::expression<numeric_type> expression;
@@ -14062,6 +14126,7 @@ TEST_CASE("Dynamic function parser delegation remains stable", "[parser][dynamic
         CHECK(function.current_ps_index == 0);
         CHECK(function.current_param_seq == "T");
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 }
 
 TEST_CASE("Special-case parser delegation remains stable", "[parser][special-case]")
@@ -14097,6 +14162,7 @@ TEST_CASE("Special-case parser delegation remains stable", "[parser][special-cas
 
 TEST_CASE("Entity parser delegation remains stable", "[parser][entity]")
 {
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     SECTION("const strings and registered strings stay stable")
     {
         math_expr::expression<numeric_type> expression;
@@ -14113,6 +14179,7 @@ TEST_CASE("Entity parser delegation remains stable", "[parser][entity]")
         test_support::require_compiles<numeric_type>("s[1:2] == 'bc'[:]", parser, expression);
         CHECK(expression.value() == numeric_type(1));
     }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
     SECTION("vector symbols stay stable")
     {
@@ -14231,6 +14298,7 @@ TEST_CASE("Statement parser delegation remains stable", "[parser][statement]")
         REQUIRE(expression.results().count() == 2);
     }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
     SECTION("assert stays stable without a registered handler")
     {
         math_expr::expression<numeric_type> expression;
@@ -14240,17 +14308,27 @@ TEST_CASE("Statement parser delegation remains stable", "[parser][statement]")
                                                      expression);
         CHECK(expression.value() == numeric_type(1));
     }
+#endif
 }
 
 TEST_CASE("Definition parser delegation remains stable", "[parser][definition]")
 {
-    const std::array<std::pair<std::string, numeric_type>, 5> programs = {{
-        {"var x := 2; x", numeric_type(2)},
-        {"const var c := 5; c", numeric_type(5)},
-        {"var x{}; x", numeric_type(0)},
-        {"var s := 'abc'; s[]", numeric_type(3)},
-        {"var v[3] := {1,2,3}; v[1]", numeric_type(2)},
-    }};
+    const std::array<std::pair<std::string, numeric_type>,
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+                     5
+#else
+                     4
+#endif
+                     >
+        programs = {{
+            {"var x := 2; x", numeric_type(2)},
+            {"const var c := 5; c", numeric_type(5)},
+            {"var x{}; x", numeric_type(0)},
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+            {"var s := 'abc'; s[]", numeric_type(3)},
+#endif
+            {"var v[3] := {1,2,3}; v[1]", numeric_type(2)},
+        }};
 
     for (const auto& [program, expected] : programs)
     {
@@ -14323,10 +14401,12 @@ TEST_CASE("Branch parser delegation remains stable", "[parser][branch]")
     }
 }
 
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
 TEST_CASE("String semantics regressions remain stable", "[string][regression]")
 {
     REQUIRE(run_test02<numeric_type>());
 }
+#endif  // MATH_EXPR_DISABLE_STRING_CAPABILITIES
 
 TEST_CASE("Diagnostics and invalid expressions stay guarded", "[diagnostics][parser][limits]")
 {

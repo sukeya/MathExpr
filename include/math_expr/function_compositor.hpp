@@ -901,7 +901,10 @@ class function_compositor
 
     inline bool symbol_used(const std::string& symbol) const
     {
-        return (symbol_table_.is_variable(symbol) || symbol_table_.is_stringvar(symbol) ||
+        return (symbol_table_.is_variable(symbol) ||
+#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
+                symbol_table_.is_stringvar(symbol) ||
+#endif
                 symbol_table_.is_function(symbol) || symbol_table_.is_vector(symbol) ||
                 symbol_table_.is_vararg_function(symbol));
     }
