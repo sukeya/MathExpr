@@ -463,7 +463,7 @@ struct xor_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::node_type::e_nor;
+        return expression_node<T>::node_type::e_xor;
     }
     static inline core::operators::operator_type operation()
     {
@@ -482,7 +482,7 @@ struct xnor_op : public opr_base<T>
     }
     static inline typename expression_node<T>::node_type type()
     {
-        return expression_node<T>::node_type::e_nor;
+        return expression_node<T>::node_type::e_xnor;
     }
     static inline core::operators::operator_type operation()
     {
