@@ -1210,20 +1210,6 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
     {
         switch (length)
         {
-#ifdef math_expr_use_lut
-
-#define MATH_EXPR_PROCESS_DIGIT                           \
-    if ((digit = details::digit_table[(int)*itr++]) < 10) \
-        result = result * 10 + (digit);                   \
-    else                                                  \
-    {                                                     \
-        return_result = false;                            \
-        break;                                            \
-    }                                                     \
-    [[fallthrough]];
-
-#else
-
 #define MATH_EXPR_PROCESS_DIGIT          \
     if ((digit = (*itr++ - zero)) < 10)  \
         result = result * T(10) + digit; \
@@ -1233,8 +1219,6 @@ inline bool string_to_type_converter_impl_ref(Iterator& itr, const Iterator end,
         break;                           \
     }                                    \
     [[fallthrough]];
-
-#endif
 
             case 4:
                 MATH_EXPR_PROCESS_DIGIT;
@@ -1335,6 +1319,25 @@ inline bool valid_exponent(const int exponent)
 }
 
 template <typename Iterator, typename T>
+T parse_digit(Iterator& itr, Iterator end, T d, const ::math_expr::core::char_t zero)
+{
+    while (end != itr)
+    {
+        int digit = *itr - zero;
+        if (0 <= digit && digit < 10)
+        {
+            d = d * T(10) + digit;
+        }
+        else
+        {
+            break;
+        }
+        ++itr;
+    }
+    return d;
+}
+
+template <typename Iterator, typename T>
 inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 {
     ::math_expr::core::numeric::details::validate_supported_real_type<T>();
@@ -1356,30 +1359,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
     bool instate = false;
 
-    static constexpr ::math_expr::core::char_t zero = static_cast<::math_expr::core::uchar_t>('0');
-
-#define PARSE_DIGIT_1(d)              \
-    if ((digit = (*itr - zero)) < 10) \
-    {                                 \
-        d = d * T(10) + digit;        \
-    }                                 \
-    else                              \
-    {                                 \
-        break;                        \
-    }                                 \
-    if (end == ++itr)                 \
-        break;
-
-#define PARSE_DIGIT_2(d)              \
-    if ((digit = (*itr - zero)) < 10) \
-    {                                 \
-        d = d * T(10) + digit;        \
-    }                                 \
-    else                              \
-    {                                 \
-        break;                        \
-    }                                 \
-    ++itr;
+    static constexpr ::math_expr::core::char_t zero = '0';
 
     if ('.' != (*itr))
     {
@@ -1387,13 +1367,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
         while ((end != itr) && (zero == (*itr))) ++itr;
 
-        while (end != itr)
-        {
-            unsigned int digit;
-            PARSE_DIGIT_1(d);
-            PARSE_DIGIT_1(d);
-            PARSE_DIGIT_2(d);
-        }
+        d = parse_digit(itr, end, d, zero);
 
         if (curr != itr)
             instate = true;
@@ -1408,13 +1382,7 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
             const Iterator curr = ++itr;
             T tmp_d = T(0);
 
-            while (end != itr)
-            {
-                unsigned int digit;
-                PARSE_DIGIT_1(tmp_d);
-                PARSE_DIGIT_1(tmp_d);
-                PARSE_DIGIT_2(tmp_d);
-            }
+            tmp_d = parse_digit(itr, end, tmp_d, zero);
 
             if (curr != itr)
             {
@@ -1427,9 +1395,6 @@ inline bool string_to_real(Iterator& itr_external, const Iterator end, T& t)
 
                 d += compute_pow10(tmp_d, frac_exponent);
             }
-
-#undef PARSE_DIGIT_1
-#undef PARSE_DIGIT_2
         }
 
         if (end != itr)
