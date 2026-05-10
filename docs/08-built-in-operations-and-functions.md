@@ -85,7 +85,7 @@
 | sgn | Sign of x, -1 where x < 0, +1 where x > 0, else zero. (eg: sgn(x)) |
 | sqrt | Square root of x, where x >= 0. (eg: sqrt(x)) |
 | sum | Sum of all the inputs. (eg: sum(x,y,z,w,u,v,t) == (x + y + z + w + u + v + t)) |
-| swap, <=> | Swap the values of the variables x and y and return the current value of y. (eg: swap(x,y) or x <=> y) |
+| swap | Swap the values of the variables x and y and return the current value of y. (eg: swap(x,y)) |
 | trunc | Integer portion of x. (eg: trunc(x)) |
 
 ## Trigonometry Functions

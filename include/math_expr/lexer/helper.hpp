@@ -221,15 +221,6 @@ class operator_joiner final : public token_joiner
 
             return true;
         }
-        // '<= >' --> '<=>'
-        else if ((t0.type == lexer::token::e_lte) && (t1.type == lexer::token::e_gt))
-        {
-            t.type = lexer::token::e_swap;
-            t.value = "<=>";
-            t.position = t0.position;
-
-            return true;
-        }
         // '+ -' --> '-'
         else if ((t0.type == lexer::token::e_add) && (t1.type == lexer::token::e_sub))
         {

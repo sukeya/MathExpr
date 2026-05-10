@@ -37,7 +37,7 @@ void bubble_sort()
         "    {                                         "
         "       if (v[i - 1] > v[i])                   "
         "       {                                      "
-        "          v[i - 1] <=> v[i];                  "
+        "          swap(v[i - 1], v[i]);               "
         "          new_upper_bound := i;               "
         "       };                                     "
         "    };                                        "

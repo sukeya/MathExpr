@@ -146,8 +146,12 @@ class parser_statement
         typename Context::variable_node_ptr v1 = nullptr;
         expression_node_ptr result = Context::error_node();
 
-        if ((nullptr != (v0 = ctx.as_variable_node(variable0))) &&
-            (nullptr != (v1 = ctx.as_variable_node(variable1))))
+        if (details::is_ivector_node(variable0) && details::is_ivector_node(variable1))
+        {
+            result = ctx.make_swap_vecvec_node(variable0, variable1);
+        }
+        else if ((nullptr != (v0 = ctx.as_variable_node(variable0))) &&
+                 (nullptr != (v1 = ctx.as_variable_node(variable1))))
         {
             result = ctx.make_swap_node(v0, v1);
 
@@ -419,6 +423,17 @@ class parser_statement
     static inline bool parse_swap_operand(Context& ctx, expression_node_ptr& variable,
                                           bool& generated, const bool first)
     {
+        if (ctx.token_is(token_t::e_lbracket, Context::token_advance_mode::e_hold))
+        {
+            variable = ctx.parse_expression();
+
+            if (Context::error_node() == variable)
+                return false;
+
+            generated = true;
+            return true;
+        }
+
         const std::string var_name = ctx.current_token().value;
 
         if (!ctx.token_is(token_t::e_symbol, Context::token_advance_mode::e_hold))
@@ -452,6 +467,34 @@ class parser_statement
 
             generated = true;
             return true;
+        }
+
+        {
+            const typename Context::scope_element_t& se = ctx.get_element(var_name);
+
+            if (se.active && (se.name == var_name) &&
+                (Context::scope_element_t::element_type::e_vector == se.type))
+            {
+                variable = ctx.make_vector_node(se.vec_node);
+                ctx.lodge_symbol(var_name, symbol_type::e_st_local_vector);
+                generated = true;
+                ctx.next_token();
+                return true;
+            }
+        }
+
+        if (ctx.is_vector(var_name))
+        {
+            const typename Context::vector_context_t vec_ctx = ctx.get_vector_context(var_name);
+
+            if (nullptr != vec_ctx.vector_holder)
+            {
+                variable = ctx.make_vector_node(vec_ctx.vector_holder);
+                ctx.lodge_symbol(var_name, symbol_type::e_st_vector);
+                generated = true;
+                ctx.next_token();
+                return true;
+            }
         }
 
         if (ctx.is_variable(var_name))
