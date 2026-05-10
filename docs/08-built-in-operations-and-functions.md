@@ -26,7 +26,7 @@
 | OPERATOR | DEFINITION |
 | --- | --- |
 | ==, = | True only if x is strictly equal to y. (eg: x == y) |
-| <>, != | True only if x does not equal y. (eg: x <> y or x != y) |
+| != | True only if x does not equal y. (eg: x != y) |
 | < | True only if x is less than y. (eg: x < y) |
 | <= | True only if x is less than or equal to y. (eg: x <= y) |
 | > | True only if x is greater than y. (eg: x > y) |

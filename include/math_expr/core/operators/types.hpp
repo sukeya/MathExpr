@@ -340,8 +340,6 @@ inline std::string to_str(const operator_type opr)
             return "=";
         case operator_type::ne:
             return "!=";
-        case operator_type::nequal:
-            return "<>";
         case operator_type::gte:
             return ">=";
         case operator_type::gt:
