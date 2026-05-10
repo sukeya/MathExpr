@@ -71,8 +71,10 @@ expression.value();
 1. iota (15) sumk
 1. axpy (17) axpby
 1. axpyz (19) axpbyz
-1. axpbz (21) dot
-1. dotk (23) diff
-1. select (25) min/max_elementwise
+1. axpbsy (21) axpbsyz
+1. axpbz (23) dot
+1. dotk (25) diff
+1. threshold_above (27) threshold_below
+1. select (29) min/max_elementwise
 
 [Previous](21-compilation-errors.md) | [Index](index.md) | [Next](23-helpers-and-utils.md)

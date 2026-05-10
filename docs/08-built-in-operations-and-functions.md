@@ -25,8 +25,8 @@
 
 | OPERATOR | DEFINITION |
 | --- | --- |
-| == or = | True only if x is strictly equal to y. (eg: x == y) |
-| <> or != | True only if x does not equal y. (eg: x <> y or x != y) |
+| ==, = | True only if x is strictly equal to y. (eg: x == y) |
+| <>, != | True only if x does not equal y. (eg: x <> y or x != y) |
 | < | True only if x is less than y. (eg: x < y) |
 | <= | True only if x is less than or equal to y. (eg: x <= y) |
 | > | True only if x is greater than y. (eg: x > y) |
@@ -34,49 +34,21 @@
 
 ## Boolean Operations
 
-```text
-+----------+---------------------------------------------------------+
 | OPERATOR | DEFINITION                                              |
-+----------+---------------------------------------------------------+
+| --- | --- |
 | true     | True state or any value other than zero (typically 1).  |
-+----------+---------------------------------------------------------+
 | false    | False state, value of exactly zero.                     |
-+----------+---------------------------------------------------------+
-| and      | Logical AND, True only if x and y are both true.        |
-|          | (eg: x and y)                                           |
-+----------+---------------------------------------------------------+
-| mand     | Multi-input logical AND, True only if all inputs are    |
-|          | true. Left to right short-circuiting of expressions.    |
-|          | (eg: mand(x > y, z < w, u or v, w and x))               |
-+----------+---------------------------------------------------------+
-| mor      | Multi-input logical OR, True if at least one of the     |
-|          | inputs are true. Left to right short-circuiting of      |
-|          | expressions.  (eg: mor(x > y, z < w, u or v, w and x))  |
-+----------+---------------------------------------------------------+
-| nand     | Logical NAND, True only if either x or y is false.      |
-|          | (eg: x nand y)                                          |
-+----------+---------------------------------------------------------+
-| nor      | Logical NOR, True only if the result of x or y is false |
-|          | (eg: x nor y)                                           |
-+----------+---------------------------------------------------------+
-| not      | Logical NOT, Negate the logical sense of the input.     |
-|          | (eg: not(x and y) == x nand y)                          |
-+----------+---------------------------------------------------------+
+| and      | Logical AND, True only if x and y are both true. (eg: x and y) |
+| mand     | Multi-input logical AND, True only if all inputs are true. Left to right short-circuiting of expressions. (eg: mand(x > y, z < w, u or v, w and x)) |
+| mor      | Multi-input logical OR, True if at least one of the inputs are true. Left to right short-circuiting of expressions. (eg: mor(x > y, z < w, u or v, w and x)) |
+| nand     | Logical NAND, True only if either x or y is false. (eg: x nand y) |
+| nor      | Logical NOR, True only if the result of x or y is false (eg: x nor y) |
+| not      | Logical NOT, Negate the logical sense of the input. (eg: not(x and y) == x nand y) |
 | or       | Logical OR, True if either x or y is true. (eg: x or y) |
-+----------+---------------------------------------------------------+
-| xor      | Logical XOR, True only if the logical states of x and y |
-|          | differ.  (eg: x xor y)                                  |
-+----------+---------------------------------------------------------+
-| xnor     | Logical XNOR, True iff the biconditional of x and y is  |
-|          | satisfied.  (eg: x xnor y)                              |
-+----------+---------------------------------------------------------+
-| &        | Similar to AND but with left to right expression short  |
-|          | circuiting optimisation.  (eg: (x & y) == (y and x))    |
-+----------+---------------------------------------------------------+
-| |        | Similar to OR but with left to right expression short   |
-|          | circuiting optimisation.  (eg: (x | y) == (y or x))     |
-+----------+---------------------------------------------------------+
-```
+| xor      | Logical XOR, True only if the logical states of x and y differ.  (eg: x xor y) |
+| xnor     | Logical XNOR, True iff the biconditional of x and y is satisfied.  (eg: x xnor y) |
+| &        | Similar to AND but with left to right expression short circuiting optimisation.  (eg: (x & y) == (y and x)) |
+| \|        | Similar to OR but with left to right expression short circuiting optimisation.  (eg: (x \| y) == (y or x)) |
 
 ## General Purpose Functions
 
@@ -113,7 +85,7 @@
 | sgn | Sign of x, -1 where x < 0, +1 where x > 0, else zero. (eg: sgn(x)) |
 | sqrt | Square root of x, where x >= 0. (eg: sqrt(x)) |
 | sum | Sum of all the inputs. (eg: sum(x,y,z,w,u,v,t) == (x + y + z + w + u + v + t)) |
-| swap / <=> | Swap the values of the variables x and y and return the current value of y. (eg: swap(x,y) or x <=> y) |
+| swap, <=> | Swap the values of the variables x and y and return the current value of y. (eg: swap(x,y) or x <=> y) |
 | trunc | Integer portion of x. (eg: trunc(x)) |
 
 ## Trigonometry Functions
@@ -146,12 +118,12 @@
 
 | FUNCTION | DEFINITION |
 | --- | --- |
-| = , == / !=, <> / <=, >= / < , > | All common equality/inequality operators are applicable to strings and are applied in a case sensitive manner. In the following example x, y and z are of type string. (eg: not((x <= 'AbC') and ('1x2y3z' <> y)) or (z == x) |
+| = , ==, !=, <>, <=, >=, < , > | All common equality/inequality operators are applicable to strings and are applied in a case sensitive manner. <br> In the following example x, y and z are of type string. (eg: not((x <= 'AbC') and ('1x2y3z' <> y)) or (z == x) |
 | in | True only if x is a substring of y. (eg: x in y or 'abc' in 'abcdefgh') |
-| like | True only if the string x matches the pattern y. Available wildcard characters are '*' and '?' denoting zero or more and zero or one matches respectively. (eg: x like y or 'abcdefgh' like 'a?d*h') |
-| ilike | True only if the string x matches the pattern y in a case insensitive manner. Available wildcard characters are '*' and '?' denoting zero or more and zero or one matches respectively. (eg: x ilike y or 'a1B2c3D4e5F6g7H' ilike 'a?d*h') |
-| [r0:r1] | The closed interval[r0,r1] of the specified string. eg: Given a string x with a value of 'abcdefgh' then: 1. x[1:4] == 'bcde' 2. x[ :4] == x[:8 / 2] == 'abcde' 3. x[2 + 1: ] == x[3:] =='defgh' 4. x[ : ] == x[:] == 'abcdefgh' 5. x[4/2:3+1] == x[2:4] == 'cde' Note: Both r0 and r1 are assumed to be integers, where r0 <= r1. They may also be the result of an expression, in the event they have fractional components truncation shall be performed. (eg: 1.67 --> 1) |
-| := | Assign the value of x to y. Where y is a mutable string or string range and x is either a string or a string range. eg: 1. y := x 2. y := 'abc' 3. y := x[:i + j] 4. y := '0123456789'[2:7] 5. y := '0123456789'[2i + 1:7] 6. y := (x := '0123456789'[2:7]) 7. y[i:j] := x 8. y[i:j] := (x + 'abcdefg'[8 / 4:5])[m:n] Note: For options 7 and 8 the shorter of the two ranges will denote the number characters that are to be copied. |
+| like | True only if the string x matches the pattern y. Available wildcard characters are '\*' and '?' denoting zero or more and zero or one matches respectively. (eg: x like y or 'abcdefgh' like 'a?d*h') |
+| ilike | True only if the string x matches the pattern y in a case insensitive manner. Available wildcard characters are '\*' and '?' denoting zero or more and zero or one matches respectively. (eg: x ilike y or 'a1B2c3D4e5F6g7H' ilike 'a?d*h') |
+| [r0:r1] | The closed interval[r0,r1] of the specified string. <br> eg: Given a string x with a value of 'abcdefgh', then: <ol><li>x[1:4] == 'bcde'</li><li>x[ :4] == x[:8 / 2] == 'abcde'</li><li>x[2 + 1: ] == x[3:] =='defgh'</li><li>x[ : ] == x[:] == 'abcdefgh'</li><li>x[4/2:3+1] == x[2:4] == 'cde'</li></ol>Note: Both r0 and r1 are assumed to be integers, where r0 <= r1. They may also be the result of an expression, in the event they have fractional components truncation shall be performed. (eg: 1.67 --> 1) |
+| := | Assign the value of x to y. Where y is a mutable string or string range and x is either a string or a string range. eg: <ol><li>y := x</li><li>y := 'abc'</li><li>y := x[:i + j]</li><li>y := '0123456789'[2:7]</li><li>y := '0123456789'[2i + 1:7]</li><li>y := (x := '0123456789'[2:7])</li><li>y[i:j] := x</li><li>y[i:j] := (x + 'abcdefg'[8 / 4:5])[m:n]</li></ol> Note: For options 7 and 8 the shorter of the two ranges will denote the number characters that are to be copied. |
 | + | Concatenation of x and y. Where x and y are strings or string ranges. eg 1. x + y 2. x + 'abc' 3. x + y[:i + j] 4. x[i:j] + y[2:3] + '0123456789'[2:7] 5. 'abc' + x + y 6. 'abc' + '1234567' 7. (x + 'a1B2c3D4' + y)[i:2j] |
 | += | Append to x the value of y. Where x is a mutable string and y is either a string or a string range. eg: 1. x += y 2. x += 'abc' 3. x += y[:i + j] + 'abc' 4. x += '0123456789'[2:7] |
 | <=> | Swap the values of x and y. Where x and y are mutable strings. (eg: x <=> y) |
@@ -161,12 +133,12 @@
 
 | STRUCTURE | DEFINITION |
 | --- | --- |
-| if | If x is true then return y else return z. eg: 1. if (x, y, z) 2. if ((x + 1) > 2y, z + 1, w / v) 3. if (x > y) z; 4. if (x <= 2*y) { z + w }; |
-| if-else | The if-else/else-if statement. Subject to the condition branch the statement will return either the value of the consequent or the alternative branch. eg: 1. if (x > y) z; else w; 2. if (x > y) z; else if (w != u) v; 3. if (x < y) { z; w + 1; } else u; 4. if ((x != y) and (z > w)) { y := sin(x) / u; z := w + 1; } else if (x > (z + 1)) { w := abs (x - y) + z; u := (x + 1) > 2y ? 2u : 3u; } |
-| switch | The first true case condition that is encountered will determine the result of the switch. If none of the case conditions hold true, the default action is assumed as the final return value. This is sometimes also known as a multi-way branch mechanism. eg: switch { case x > (y + z) : 2 * x / abs(y - z); case x < 3 : sin(x + y); default : 1 + x; } |
-| while | The structure will repeatedly evaluate the internal statement(s) 'while' the condition is true. The final statement in the final iteration shall be used as the return value of the loop. eg: while ((x -= 1) > 0) { y := x + z; w := u + y; } |
-| repeat/ / until | The structure will repeatedly evaluate the internal statement(s) 'until' the condition is true. The final statement in the final iteration shall be used as the return value of the loop. eg: repeat y := x + z; w := u + y; until ((x += 1) > 100) |
-| for | The structure will repeatedly evaluate the internal statement(s) while the condition is true. On each loop iteration, an 'incrementing' expression is evaluated. The conditional is mandatory whereas the initialiser and incrementing expressions are optional. eg: for (var x := 0; (x < n) and (x != y); x += 1) { y := y + x / 2 - z; w := u + y; } |
+| if | If x is true then return y else return z.<br>eg: <ol><li>if (x, y, z)</li><li>if ((x + 1) > 2y, z + 1, w / v)</li><li>if (x > y) z;</li><li>if (x <= 2*y) { z + w };</li></ol> |
+| if-else | The if-else/else-if statement. Subject to the condition branch the statement will return either the value of the consequent or the alternative branch.<br>eg: <ol><li>if (x > y) z; else w;</li><li>if (x > y) z; else if (w != u) v;</li><li>if (x < y) { z; w + 1; } else u;</li><li>if ((x != y) and (z > w)) { y := sin(x) / u; z := w + 1; } else if (x > (z + 1)) { w := abs (x - y) + z; u := (x + 1) > 2y ? 2u : 3u; }</li></ol> |
+| switch | The first true case condition that is encountered will determine the result of the switch. If none of the case conditions hold true, the default action is assumed as the final return value. This is sometimes also known as a multi-way branch mechanism.<br>eg: switch { case x > (y + z) : 2 * x / abs(y - z); case x < 3 : sin(x + y); default : 1 + x; } |
+| while | The structure will repeatedly evaluate the internal statement(s) 'while' the condition is true. The final statement in the final iteration shall be used as the return value of the loop.<br>eg: while ((x -= 1) > 0) { y := x + z; w := u + y; } |
+| repeat / until | The structure will repeatedly evaluate the internal statement(s) 'until' the condition is true. The final statement in the final iteration shall be used as the return value of the loop.<br>eg: repeat y := x + z; w := u + y; until ((x += 1) > 100) |
+| for | The structure will repeatedly evaluate the internal statement(s) while the condition is true. On each loop iteration, an 'incrementing' expression is evaluated. The conditional is mandatory whereas the initialiser and incrementing expressions are optional.<br>eg: for (var x := 0; (x < n) and (x != y); x += 1) { y := y + x / 2 - z; w := u + y; } |
 | break / break[] | Break terminates the execution of the nearest enclosed loop, allowing for the execution to continue on external to the loop. The default break statement will set the return value of the loop to NaN, where as the return based form will set the value to that of the break expression. eg: while ((i += 1) < 10) { if (i < 5) j -= i + 2; else if (i % 2 == 0) break; else break[2i + 3]; } |
 | continue | Continue results in the remaining portion of the nearest enclosing loop body to be skipped. eg: for (var i := 0; i < 10; i += 1) { if (i < 5) continue; j -= i + 2; } |
 | return | Return immediately from within the current expression. With the option of passing back a variable number of values (scalar, vector or string). eg: 1. return [1]; 2. return [x, 'abx']; 3. return [x, x + y,'abx']; 4. return []; 5. if (x < y) return [x, x - y, 'result-set1', 123.456]; else return [y, x + y, 'result-set2']; |
@@ -175,7 +147,7 @@
 | [*] | Evaluate any consequent for which its case statement is true. The return value will be either zero or the result of the last consequent to have been evaluated. eg: [*] { case (x + 1) > (y - 2) : x := z / 2 + sin(y / pi); case (x + 2) < abs(y + 3) : w / 4 + min(5y,9); case (x + 3) == (y * 4) : y := abs(z / 6) + 7y; } |
 | [] | The vector size operator returns the size of the vector being actioned. eg: 1. v[] 2. max_size := max(v0[],v1[],v2[],v3[]) |
 
-**Note 01.** In the tables above, the symbols x, y, z, w, u and v where appropriate may represent any of one the following:
+**Note:** In the tables above, the symbols x, y, z, w, u and v where appropriate may represent any of one the following:
 
 1. Literal numeric/string value
 1. A variable
