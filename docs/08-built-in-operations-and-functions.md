@@ -114,21 +114,6 @@
 | rad2deg | Convert x from radians to degrees. (eg: rad2deg(x)) |
 | grad2deg | Convert x from gradians to degrees. (eg: grad2deg(x)) |
 
-## String Processing
-
-| FUNCTION | DEFINITION |
-| --- | --- |
-| = , ==, !=, <>, <=, >=, < , > | All common equality/inequality operators are applicable to strings and are applied in a case sensitive manner. <br> In the following example x, y and z are of type string. (eg: not((x <= 'AbC') and ('1x2y3z' <> y)) or (z == x) |
-| in | True only if x is a substring of y. (eg: x in y or 'abc' in 'abcdefgh') |
-| like | True only if the string x matches the pattern y. Available wildcard characters are '\*' and '?' denoting zero or more and zero or one matches respectively. (eg: x like y or 'abcdefgh' like 'a?d*h') |
-| ilike | True only if the string x matches the pattern y in a case insensitive manner. Available wildcard characters are '\*' and '?' denoting zero or more and zero or one matches respectively. (eg: x ilike y or 'a1B2c3D4e5F6g7H' ilike 'a?d*h') |
-| [r0:r1] | The closed interval[r0,r1] of the specified string. <br> eg: Given a string x with a value of 'abcdefgh', then: <ol><li>x[1:4] == 'bcde'</li><li>x[ :4] == x[:8 / 2] == 'abcde'</li><li>x[2 + 1: ] == x[3:] =='defgh'</li><li>x[ : ] == x[:] == 'abcdefgh'</li><li>x[4/2:3+1] == x[2:4] == 'cde'</li></ol>Note: Both r0 and r1 are assumed to be integers, where r0 <= r1. They may also be the result of an expression, in the event they have fractional components truncation shall be performed. (eg: 1.67 --> 1) |
-| := | Assign the value of x to y. Where y is a mutable string or string range and x is either a string or a string range. eg: <ol><li>y := x</li><li>y := 'abc'</li><li>y := x[:i + j]</li><li>y := '0123456789'[2:7]</li><li>y := '0123456789'[2i + 1:7]</li><li>y := (x := '0123456789'[2:7])</li><li>y[i:j] := x</li><li>y[i:j] := (x + 'abcdefg'[8 / 4:5])[m:n]</li></ol> Note: For options 7 and 8 the shorter of the two ranges will denote the number characters that are to be copied. |
-| + | Concatenation of x and y. Where x and y are strings or string ranges. eg 1. x + y 2. x + 'abc' 3. x + y[:i + j] 4. x[i:j] + y[2:3] + '0123456789'[2:7] 5. 'abc' + x + y 6. 'abc' + '1234567' 7. (x + 'a1B2c3D4' + y)[i:2j] |
-| += | Append to x the value of y. Where x is a mutable string and y is either a string or a string range. eg: 1. x += y 2. x += 'abc' 3. x += y[:i + j] + 'abc' 4. x += '0123456789'[2:7] |
-| <=> | Swap the values of x and y. Where x and y are mutable strings. (eg: x <=> y) |
-| [] | The string size operator returns the size of the string being actioned. eg: 1. 'abc'[] == 3 2. var max_str_length := max(s0[], s1[], s2[], s3[]) 3. ('abc' + 'd')[] == 6 4. (('abc' + 'xyz')[1:4])[] == 4 |
-
 ## Control Structures
 
 | STRUCTURE | DEFINITION |
