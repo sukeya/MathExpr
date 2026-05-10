@@ -6,7 +6,7 @@
 
 MathExpr is distributed under two licenses depending on the component:
 
-## ExprTk (Core Library)
+## ExprTk
 
 Free use of the C++ Mathematical Expression Toolkit Library is permitted under the guidelines and in accordance with the most current version of the MIT License.
 
@@ -14,9 +14,9 @@ Free use of the C++ Mathematical Expression Toolkit Library is permitted under t
 1. SPDX-License-Identifier: MIT
 1. SPDX-FileCopyrightText: Copyright (C) 1999-2025 Arash Partow
 
-## MathExpr (Build System and Extensions)
+## MathExpr
 
-The build system and additional components introduced by MathExpr are licensed under the Apache License, Version 2.0.
+The modification introduced by MathExpr are licensed under the Apache License, Version 2.0.
 
 1. [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 1. SPDX-License-Identifier: Apache-2.0

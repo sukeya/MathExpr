@@ -29,6 +29,7 @@ The `include/math_expr/` directory contains the individual component headers:
 1. `include/math_expr/expression.hpp`
 1. `include/math_expr/expression_helper.hpp`
 1. `include/math_expr/function_compositor.hpp`
+1. `include/math_expr/function_registry.hpp`
 1. `include/math_expr/function_traits.hpp`
 1. `include/math_expr/fwd.hpp`
 1. `include/math_expr/ifunction.hpp`
@@ -49,6 +50,7 @@ The `include/math_expr/` directory contains the individual component headers:
 1. `include/math_expr/timer.hpp`
 1. `include/math_expr/type_defs.hpp`
 1. `include/math_expr/type_store.hpp`
+1. `include/math_expr/variable_registry.hpp`
 1. `include/math_expr/vector_access_runtime_check.hpp`
 1. `include/math_expr/vector_view.hpp`
 
