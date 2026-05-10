@@ -37,7 +37,6 @@ limitations under the License.
 #include "math_expr/core/string_utils.hpp"
 #include "math_expr/details/expression_node.hpp"
 #include "math_expr/details/node_utils.hpp"
-#include "math_expr/details/string_nodes.hpp"
 #include "math_expr/details/vector_nodes.hpp"
 
 namespace math_expr
@@ -60,9 +59,6 @@ struct scope_element
     using variable_node_ptr = details::variable_node<T>*;
     using vector_holder_ptr = vector_holder_t*;
     using expression_node_ptr = details::expression_node<T>*;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    using stringvar_node_ptr = details::string_nodes::stringvar_node<T>*;
-#endif
 
     scope_element()
         : name("???"),
@@ -75,10 +71,6 @@ struct scope_element
           active(false),
           var_node(nullptr),
           vec_node(nullptr)
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-          ,
-          str_node(nullptr)
-#endif
     {
     }
 
@@ -112,14 +104,8 @@ struct scope_element
         ip_index = 0;
         scalar_data.reset();
         vector_data.reset();
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        str_data.reset();
-#endif
         var_node = nullptr;
         vec_node = nullptr;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        str_node = nullptr;
-#endif
     }
 
     std::string name;
@@ -132,14 +118,8 @@ struct scope_element
     bool active;
     std::unique_ptr<T> scalar_data;
     std::unique_ptr<T[]> vector_data;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    std::unique_ptr<std::string> str_data;
-#endif
     expression_node_ptr var_node;
     vector_holder_ptr vec_node;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    stringvar_node_ptr str_node;
-#endif
 };
 
 template <typename T>
@@ -293,15 +273,6 @@ class scope_element_manager
                     std::exchange(se.vec_node, nullptr));
                 break;
             }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            case scope_element_t::element_type::e_string:
-            {
-                std::unique_ptr<details::string_nodes::stringvar_node<T>> node(
-                    std::exchange(se.str_node, nullptr));
-                break;
-            }
-#endif
 
             default:
                 return;

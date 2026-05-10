@@ -45,7 +45,6 @@ limitations under the License.
 #include "math_expr/lexer/parser_helper.hpp"
 #include "math_expr/parser_error.hpp"
 #include "math_expr/results_context.hpp"
-#include "math_expr/stringvar_base.hpp"
 #include "math_expr/symbol_table.hpp"
 #include "math_expr/type_store.hpp"
 #include "math_expr/vector_view.hpp"
@@ -79,7 +78,6 @@ limitations under the License.
 #include "math_expr/parser/statement_parser.hpp"
 #include "math_expr/parser/symbol_parser.hpp"
 #include "math_expr/parser/symbol_resolution_parser.hpp"
-#include "math_expr/parser/string_range_parser.hpp"
 #include "math_expr/parser/switch_parser.hpp"
 #include "math_expr/parser/vararg_parser.hpp"
 #include "math_expr/parser/vector_definition_parser.hpp"
@@ -147,18 +145,6 @@ class parser : public lexer::parser_helper
     using vector_node_t = details::vector_node<T>;
     using vector_size_node_t = details::vector_size_node<T>;
     using range_t = details::range_pack<T>;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    using stringvar_node_t = details::string_nodes::stringvar_node<T>;
-    using string_literal_node_t = details::string_literal_node<T>;
-    using string_range_node_t = details::string_nodes::string_range_node<T>;
-    using const_string_range_node_t = details::string_nodes::const_string_range_node<T>;
-    using generic_string_range_node_t = details::string_nodes::generic_string_range_node<T>;
-    using string_concat_node_t = details::string_nodes::string_concat_node<T>;
-    using assignment_string_node_t = details::string_nodes::assignment_string_node<T>;
-    using assignment_string_range_node_t = details::string_nodes::assignment_string_range_node<T>;
-    using conditional_string_node_t = details::string_nodes::conditional_string_node<T>;
-    using cons_conditional_str_node_t = details::string_nodes::cons_conditional_str_node<T>;
-#endif
     using assignment_node_t = details::assignment_node<T>;
     using assignment_vec_elem_node_t = details::assignment_vec_elem_node<T>;
     using assignment_vec_elem_rtc_node_t = details::assignment_vec_elem_rtc_node<T>;
@@ -1646,16 +1632,6 @@ class parser : public lexer::parser_helper
             return parser_.expression_generator_.conditional(condition, consequent, alternative);
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr conditional_string(expression_node_ptr condition,
-                                                      expression_node_ptr consequent,
-                                                      expression_node_ptr alternative)
-        {
-            return parser_.expression_generator_.conditional_string(condition, consequent,
-                                                                    alternative);
-        }
-#endif
-
         inline expression_node_ptr conditional_vector(expression_node_ptr condition,
                                                       expression_node_ptr consequent,
                                                       expression_node_ptr alternative)
@@ -1969,69 +1945,6 @@ class parser : public lexer::parser_helper
         details::node_allocator& node_allocator;
     };
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    struct string_range_context
-    {
-        using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
-        using range_t = typename parser<T>::range_t;
-
-        explicit string_range_context(parser<T>& parser)
-            : parser_(parser), node_allocator(parser.node_allocator_)
-        {
-        }
-
-        inline const token_t& current_token() const
-        {
-            return parser_.current_token();
-        }
-
-        inline bool token_is(const token_t::token_type type,
-                             const token_advance_mode mode = token_advance_mode::e_advance)
-        {
-            return parser_.token_is(type, mode);
-        }
-
-        inline bool parse_range(range_t& rp, const bool skip_lsqr = false)
-        {
-            return parser_.parse_range(rp, skip_lsqr);
-        }
-
-        inline void set_error(const parser_error::type& error)
-        {
-            parser_.set_error(error);
-        }
-
-        static inline expression_node_ptr error_node()
-        {
-            return parser<T>::error_node();
-        }
-
-        inline expression_node_ptr make_string_size_node(expression_node_ptr expression)
-        {
-            return node_allocator.template allocate<details::string_nodes::string_size_node<T>>(
-                expression);
-        }
-
-        inline expression_node_ptr string_range(expression_node_ptr expression, range_t& rp)
-        {
-            return parser_.expression_generator_(expression, rp);
-        }
-
-        inline void free_node(expression_node_ptr& node)
-        {
-            details::free_node(node_allocator, node);
-        }
-
-        inline bool errors_empty() const
-        {
-            return parser_.error_list_.empty();
-        }
-
-        parser<T>& parser_;
-        details::node_allocator& node_allocator;
-    };
-#endif
-
     struct vector_index_context
     {
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
@@ -2108,10 +2021,6 @@ class parser : public lexer::parser_helper
         using symbol_table_t = typename parser<T>::symbol_table_t;
         using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
         using vector_context_t = typename symtab_store_t::vector_context;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        using string_context_t = typename symtab_store_t::string_context;
-        using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
-#endif
 
         explicit entity_context(parser<T>& parser)
             : parser_(parser),
@@ -2172,50 +2081,6 @@ class parser : public lexer::parser_helper
         {
             return sem.get_active_element(symbol);
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline string_context_t get_string_context(const std::string& symbol) const
-        {
-            return symtab_store.get_string_context(symbol);
-        }
-
-        inline bool is_conststr_stringvar(const std::string& symbol) const
-        {
-            return symtab_store.is_conststr_stringvar(symbol);
-        }
-
-        inline bool is_constant_string(const std::string& symbol) const
-        {
-            return symtab_store.is_constant_string(symbol);
-        }
-
-        inline expression_node_ptr make_string_literal(const std::string& value)
-        {
-            return parser_.expression_generator_(value);
-        }
-
-        inline expression_node_ptr make_const_string_range(const std::string& value, range_t& range)
-        {
-            return parser_.expression_generator_(value, range);
-        }
-
-        inline expression_node_ptr make_string_range(stringvar_node_ptr node, range_t& range)
-        {
-            return parser_.expression_generator_(node->ref(), range);
-        }
-
-        inline expression_node_ptr make_stringvar_size_node(stringvar_node_ptr node)
-        {
-            return node_allocator.template allocate<details::string_nodes::stringvar_size_node<T>>(
-                node->ref());
-        }
-
-        inline void lodge_immutable_string_symbol(const lexer::token& token, core::char_cptr begin,
-                                                  const std::size_t size)
-        {
-            parser_.lodge_immutable_symbol(token, parser_.make_memory_range(begin, size));
-        }
-#endif
 
         inline vector_context_t get_vector_context(const std::string& vector_name) const
         {
@@ -2419,40 +2284,6 @@ class parser : public lexer::parser_helper
         {
             return sem.get_active_element(symbol);
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline bool is_stringvar(const std::string& symbol) const
-        {
-            return symtab_store.is_stringvar(symbol);
-        }
-
-        inline expression_node_ptr parse_string()
-        {
-            return parser_.parse_string();
-        }
-
-        inline igeneric_function<T>* get_string_function(const std::string& symbol) const
-        {
-            return symtab_store.get_string_function(symbol);
-        }
-
-        inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function,
-                                                              const std::string& function_name)
-        {
-            return parser_.parse_string_function_call(function, function_name);
-        }
-
-        inline igeneric_function<T>* get_overload_function(const std::string& symbol) const
-        {
-            return symtab_store.get_overload_function(symbol);
-        }
-
-        inline expression_node_ptr parse_overload_function_call(igeneric_function<T>* function,
-                                                                const std::string& function_name)
-        {
-            return parser_.parse_overload_function_call(function, function_name);
-        }
-#endif
 
         inline expression_node_ptr parse_vector()
         {
@@ -2822,9 +2653,6 @@ class parser : public lexer::parser_helper
         using scope_element_t = math_expr::scope_element<T>;
         using variable_node_ptr = typename parser<T>::variable_node_t*;
         using literal_node_ptr = typename parser<T>::literal_node_t*;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        using stringvar_node_ptr = typename parser<T>::stringvar_node_t*;
-#endif
 
         explicit definition_context(parser<T>& parser)
             : parser_(parser),
@@ -2928,13 +2756,6 @@ class parser : public lexer::parser_helper
             return static_cast<literal_node_ptr>(
                 node_allocator.template allocate<literal_node_t>(value));
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline stringvar_node_ptr make_stringvar_node(std::string& value)
-        {
-            return new stringvar_node_t(value);
-        }
-#endif
 
         inline expression_node_ptr make_numeric_literal(const T& value)
         {
@@ -3134,13 +2955,6 @@ class parser : public lexer::parser_helper
         {
             return parser_.parse_symbol();
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr parse_const_string()
-        {
-            return parser_.parse_const_string();
-        }
-#endif
 
         inline expression_node_ptr parse_ternary_conditional_statement(
             expression_node_ptr condition)
@@ -3354,22 +3168,6 @@ class parser : public lexer::parser_helper
                                                                        param_seq_index);
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr string_function_call(igeneric_function<T>* function,
-                                                        std::vector<expression_node_ptr>& arg_list)
-        {
-            return parser_.expression_generator_.string_function_call(function, arg_list);
-        }
-
-        inline expression_node_ptr string_function_call(igeneric_function<T>* function,
-                                                        std::vector<expression_node_ptr>& arg_list,
-                                                        std::size_t param_seq_index)
-        {
-            return parser_.expression_generator_.string_function_call(function, arg_list,
-                                                                      param_seq_index);
-        }
-#endif
-
         parser<T>& parser_;
         parser_state& state;
         details::node_allocator& node_allocator;
@@ -3494,27 +3292,14 @@ class parser : public lexer::parser_helper
         return parser_vararg<T>::parse_vararg_function(context);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline expression_node_ptr parse_string_range_statement(expression_node_ptr& expression)
-    {
-        string_range_context context(*this);
-        return parser_string_range<T>::parse_string_range_statement(context, expression);
-    }
-#else
     inline expression_node_ptr parse_string_range_statement(expression_node_ptr&)
     {
         return error_node();
     }
-#endif
 
     inline bool parse_pending_string_rangesize(expression_node_ptr& expression)
     {
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        string_range_context context(*this);
-        return parser_string_range<T>::parse_pending_string_rangesize(context, expression);
-#else
         return false;
-#endif
     }
 
     inline void parse_pending_vector_index_operator(expression_node_ptr& expression)
@@ -3618,31 +3403,15 @@ class parser : public lexer::parser_helper
         dec_.add_symbol(symbol, st);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline expression_node_ptr parse_string()
-    {
-        entity_context context(*this);
-        return parser_entity<T>::parse_string(context);
-    }
-#else
     inline expression_node_ptr parse_string()
     {
         return error_node();
     }
-#endif
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline expression_node_ptr parse_const_string()
-    {
-        entity_context context(*this);
-        return parser_entity<T>::parse_const_string(context);
-    }
-#else
     inline expression_node_ptr parse_const_string()
     {
         return error_node();
     }
-#endif
 
     inline expression_node_ptr parse_vector_index(const std::string& vector_name = "")
     {
@@ -3966,24 +3735,6 @@ class parser : public lexer::parser_helper
         return parser_dynamic_function<T>::parse_igeneric_function_params(
             context, param_type_list, arg_list, function_name, function, tc);
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline expression_node_ptr parse_string_function_call(igeneric_function<T>* function,
-                                                          const std::string& function_name)
-    {
-        dynamic_function_context context(*this);
-        return parser_dynamic_function<T>::parse_string_function_call(context, function,
-                                                                      function_name);
-    }
-
-    inline expression_node_ptr parse_overload_function_call(igeneric_function<T>* function,
-                                                            const std::string& function_name)
-    {
-        dynamic_function_context context(*this);
-        return parser_dynamic_function<T>::parse_overload_function_call(context, function,
-                                                                        function_name);
-    }
-#endif
 
     inline expression_node_ptr parse_special_function()
     {
@@ -4324,31 +4075,6 @@ class parser : public lexer::parser_helper
             return node_allocator_->allocate<literal_node_t>(v);
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr operator()(const std::string& s) const
-        {
-            return node_allocator_->allocate<string_literal_node_t>(s);
-        }
-
-        inline expression_node_ptr operator()(std::string& s, range_t& rp) const
-        {
-            return node_allocator_->allocate_rr<string_range_node_t>(s, rp);
-        }
-
-        inline expression_node_ptr operator()(const std::string& s, range_t& rp) const
-        {
-            return node_allocator_->allocate_tt<const_string_range_node_t>(s, rp);
-        }
-
-        inline expression_node_ptr operator()(expression_node_ptr branch, range_t& rp) const
-        {
-            if (is_generally_string_node(branch))
-                return node_allocator_->allocate_tt<generic_string_range_node_t>(branch, rp);
-            else
-                return error_node();
-        }
-#endif
-
         inline bool unary_optimisable(const core::operators::operator_type& operation) const
         {
             return (core::operators::operator_type::abs == operation) ||
@@ -4488,29 +4214,10 @@ class parser : public lexer::parser_helper
                    parser_->settings_.assignment_enabled(operation);
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline bool valid_string_operation(const core::operators::operator_type& operation) const
-        {
-            return (core::operators::operator_type::add == operation) ||
-                   (core::operators::operator_type::lt == operation) ||
-                   (core::operators::operator_type::lte == operation) ||
-                   (core::operators::operator_type::gt == operation) ||
-                   (core::operators::operator_type::gte == operation) ||
-                   (core::operators::operator_type::eq == operation) ||
-                   (core::operators::operator_type::ne == operation) ||
-                   (core::operators::operator_type::in == operation) ||
-                   (core::operators::operator_type::like == operation) ||
-                   (core::operators::operator_type::ilike == operation) ||
-                   (core::operators::operator_type::assign == operation) ||
-                   (core::operators::operator_type::addass == operation) ||
-                   (core::operators::operator_type::swap == operation);
-        }
-#else
         inline bool valid_string_operation(const core::operators::operator_type&) const
         {
             return false;
         }
-#endif
 
         inline std::string to_str(const core::operators::operator_type& operation) const
         {
@@ -5195,78 +4902,11 @@ class parser : public lexer::parser_helper
             return error_node();
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr conditional_string(expression_node_ptr condition,
-                                                      expression_node_ptr consequent,
-                                                      expression_node_ptr alternative) const
-        {
-            if ((nullptr == condition) || (nullptr == consequent))
-            {
-                details::free_node(*node_allocator_, condition);
-                details::free_node(*node_allocator_, consequent);
-                details::free_node(*node_allocator_, alternative);
-
-                const std::string invalid_branches =
-                    ((nullptr == condition) ? std::string("condition ") : "") +
-                    ((nullptr == consequent) ? std::string("consequent") : "");
-
-                parser_->set_error(parser_error::make_error(
-                    parser_error::error_mode::e_parser, parser_->current_state().token,
-                    "ERR257 - Invalid " + invalid_branches + " for string conditional statement",
-                    core::error_location()));
-
-                return error_node();
-            }
-            // Can the condition be immediately evaluated? if so optimise.
-            else if (details::is_constant_node(condition))
-            {
-                // True branch
-                if (details::is_true(condition))
-                {
-                    details::free_node(*node_allocator_, condition);
-                    details::free_node(*node_allocator_, alternative);
-
-                    return consequent;
-                }
-                // False branch
-                else
-                {
-                    details::free_node(*node_allocator_, condition);
-                    details::free_node(*node_allocator_, consequent);
-
-                    if (alternative)
-                        return alternative;
-                    else
-                        return node_allocator_->allocate_c<details::string_literal_node<Type>>("");
-                }
-            }
-            else if ((nullptr != consequent) && (nullptr != alternative))
-            {
-                expression_node_ptr result = node_allocator_->allocate<conditional_string_node_t>(
-                    condition, consequent, alternative);
-
-                if (result && result->valid())
-                {
-                    return result;
-                }
-
-                parser_->set_error(parser_error::make_error(
-                    parser_error::error_mode::e_parser, token_t(),
-                    "ERR258 - Failed to synthesize node: conditional_string_node_t",
-                    core::error_location()));
-
-                details::free_node(*node_allocator_, result);
-            }
-
-            return error_node();
-        }
-#else
         inline expression_node_ptr conditional_string(expression_node_ptr, expression_node_ptr,
                                                       expression_node_ptr) const
         {
             return error_node();
         }
-#endif
 
         inline expression_node_ptr conditional_vector(expression_node_ptr condition,
                                                       expression_node_ptr consequent,
@@ -6439,26 +6079,6 @@ class parser : public lexer::parser_helper
             else if (all_nodes_variables(arg_list))
                 return varnode_optimise_varargfunc(operation, arg_list);
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            if (core::operators::operator_type::smulti == operation)
-            {
-                expression_node_ptr result = node_allocator_->allocate<
-                    details::string_nodes::str_vararg_node<Type, details::vararg_multi_op<Type>>>(
-                    arg_list);
-                if (result && result->valid())
-                {
-                    return result;
-                }
-
-                parser_->set_error(parser_error::make_error(
-                    parser_error::error_mode::e_synthesis, token_t(),
-                    "ERR262 - Failed to synthesize node: str_vararg_node<vararg_multi_op>",
-                    core::error_location()));
-
-                details::free_node(*node_allocator_, result);
-            }
-            else
-#endif
             {
                 expression_node_ptr result = error_node();
 
@@ -6661,76 +6281,6 @@ class parser : public lexer::parser_helper
                 return error_node();
             }
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr string_function_call(
-            igeneric_function_t* gf, std::vector<expression_node_ptr>& arg_list,
-            const std::size_t& param_seq_index = std::numeric_limits<std::size_t>::max())
-        {
-            if (!all_nodes_valid(arg_list))
-            {
-                details::free_all_nodes(*node_allocator_, arg_list);
-                return error_node();
-            }
-
-            using alloc_type1 = details::string_function_node<Type, igeneric_function_t>;
-            using alloc_type2 = details::multimode_strfunction_node<Type, igeneric_function_t>;
-
-            const std::size_t no_psi = std::numeric_limits<std::size_t>::max();
-
-            expression_node_ptr result = error_node();
-            std::string node_name = "Unknown";
-
-            if (no_psi == param_seq_index)
-            {
-                result = node_allocator_->allocate<alloc_type1>(gf, arg_list);
-                node_name = "string_function_node<igeneric_function_t>";
-            }
-            else
-            {
-                result = node_allocator_->allocate<alloc_type2>(gf, param_seq_index, arg_list);
-                node_name = "multimode_strfunction_node<igeneric_function_t>";
-            }
-
-            alloc_type1* strfunc_node_ptr = static_cast<alloc_type1*>(result);
-
-            assert(strfunc_node_ptr);
-
-            if (!arg_list.empty() && !gf->has_side_effects() &&
-                fold_passes_t::is_constant_foldable(arg_list))
-            {
-                strfunc_node_ptr->init_branches();
-
-                const Type v = result->value();
-
-                details::free_node(*node_allocator_, result);
-
-                return node_allocator_->allocate<literal_node_t>(v);
-            }
-            else if (strfunc_node_ptr->init_branches())
-            {
-                if (result && result->valid())
-                {
-                    parser_->state_.activate_side_effect("string_function_call()");
-                    return result;
-                }
-
-                parser_->set_error(parser_error::make_error(
-                    parser_error::error_mode::e_synthesis, token_t(),
-                    "ERR267 - Failed to synthesize node: " + node_name, core::error_location()));
-
-                details::free_node(*node_allocator_, result);
-                return error_node();
-            }
-            else
-            {
-                details::free_node(*node_allocator_, result);
-                details::free_all_nodes(*node_allocator_, arg_list);
-
-                return error_node();
-            }
-        }
-#endif
 
 #ifndef MATH_EXPR_DISABLE_RETURN_STATEMENT
         inline expression_node_ptr return_call(std::vector<expression_node_ptr>& arg_list)
@@ -6975,12 +6525,6 @@ class parser : public lexer::parser_helper
                     symbol_name = parser_->symtab_store_.get_variable_name(node);
                     break;
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                case symbol_type::e_st_string:
-                    symbol_name = parser_->symtab_store_.get_stringvar_name(node);
-                    break;
-#endif
-
                 case symbol_type::e_st_vector:
                 {
                     using vector_holder_t = details::vector_holder<T>;
@@ -7059,15 +6603,6 @@ class parser : public lexer::parser_helper
                         return reinterpret_cast<std::uintptr_t>(
                             static_cast<vector_node_t*>(node)->vec_holder().data());
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                    case details::expression_node<T>::node_type::e_stringvar:
-                        return reinterpret_cast<std::uintptr_t>(
-                            static_cast<stringvar_node_t*>(node)->base());
-
-                    case details::expression_node<T>::node_type::e_stringvarrng:
-                        return reinterpret_cast<std::uintptr_t>(
-                            static_cast<string_range_node_t*>(node)->base());
-#endif
                     default:
                         return 0;
                 }
@@ -7149,18 +6684,6 @@ class parser : public lexer::parser_helper
                 return synthesize_expression<assignment_rebasevec_celem_node_t, 2>(operation,
                                                                                    branch);
             }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            else if (details::is_string_node(branch[0]))
-            {
-                lodge_assignment(symbol_type::e_st_string, branch[0]);
-                return synthesize_expression<assignment_string_node_t, 2>(operation, branch);
-            }
-            else if (details::is_string_range_node(branch[0]))
-            {
-                lodge_assignment(symbol_type::e_st_string, branch[0]);
-                return synthesize_expression<assignment_string_range_node_t, 2>(operation, branch);
-            }
-#endif
             else if (details::is_vector_node(branch[0]))
             {
                 lodge_assignment(symbol_type::e_st_vector, branch[0]);
@@ -7443,19 +6966,6 @@ class parser : public lexer::parser_helper
                     }
                 }
             }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            else if ((core::operators::operator_type::addass == operation) &&
-                     details::is_string_node(branch[0]))
-            {
-                using addass_t = details::string_nodes::assignment_string_node<
-                    T, details::string_nodes::asn_addassignment>;
-
-                lodge_assignment(symbol_type::e_st_string, branch[0]);
-
-                result = synthesize_expression<addass_t, 2>(operation, branch);
-                node_name = "assignment_string_node<T,details::string_nodes::asn_addassignment>";
-            }
-#endif
             else
             {
                 parser_->set_error(parser_error::make_error(
@@ -7676,11 +7186,6 @@ class parser : public lexer::parser_helper
             const bool v0_is_ivec = details::is_ivector_node(branch[0]);
             const bool v1_is_ivec = details::is_ivector_node(branch[1]);
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            const bool v0_is_str = details::is_generally_string_node(branch[0]);
-            const bool v1_is_str = details::is_generally_string_node(branch[1]);
-#endif
-
             expression_node_ptr result = error_node();
             std::string node_name = "Unknown";
 
@@ -7712,24 +7217,6 @@ class parser : public lexer::parser_helper
                     node_allocator_->allocate<details::swap_vecvec_node<T>>(branch[0], branch[1]);
                 node_name = "swap_vecvec_node";
             }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            else if (v0_is_str && v1_is_str)
-            {
-                if (is_string_node(branch[0]) && is_string_node(branch[1]))
-                {
-                    result = node_allocator_->allocate<details::string_nodes::swap_string_node<T>>(
-                        branch[0], branch[1]);
-                    node_name = "swap_string_node";
-                }
-                else
-                {
-                    result =
-                        node_allocator_->allocate<details::string_nodes::swap_genstrings_node<T>>(
-                            branch[0], branch[1]);
-                    node_name = "swap_genstrings_node";
-                }
-            }
-#endif
             else
             {
                 parser_->set_synthesis_error(
@@ -14123,703 +13610,19 @@ class parser : public lexer::parser_helper
 #undef EXTENDED_OPR_SWITCH_STATEMENTS
 #undef UNARY_OPR_SWITCH_STATEMENTS
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-
-#define STRING_OPR_SWITCH_STATEMENTS                                   \
-    CASE_STMT(core::operators::operator_type::lt, details::lt_op);     \
-    CASE_STMT(core::operators::operator_type::lte, details::lte_op);   \
-    CASE_STMT(core::operators::operator_type::gt, details::gt_op);     \
-    CASE_STMT(core::operators::operator_type::gte, details::gte_op);   \
-    CASE_STMT(core::operators::operator_type::eq, details::eq_op);     \
-    CASE_STMT(core::operators::operator_type::ne, details::ne_op);     \
-    CASE_STMT(core::operators::operator_type::in, details::in_op);     \
-    CASE_STMT(core::operators::operator_type::like, details::like_op); \
-    CASE_STMT(core::operators::operator_type::ilike, details::ilike_op);
-
-        template <typename T0, typename T1>
-        inline expression_node_ptr synthesize_str_xrox_expression_impl(
-            const core::operators::operator_type& opr, T0 s0, T1 s1, range_t rp0)
-        {
-            switch (opr)
-            {
-#define CASE_STMT(op0, op1)                                                                    \
-    case op0:                                                                                  \
-        return node_allocator_->allocate_ttt<                                                  \
-            typename details::str_xrox_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
-                                                                                       rp0);
-
-                STRING_OPR_SWITCH_STATEMENTS
-#undef CASE_STMT
-                default:
-                    return error_node();
-            }
-        }
-
-        template <typename T0, typename T1>
-        inline expression_node_ptr synthesize_str_xoxr_expression_impl(
-            const core::operators::operator_type& opr, T0 s0, T1 s1, range_t rp1)
-        {
-            switch (opr)
-            {
-#define CASE_STMT(op0, op1)                                                                    \
-    case op0:                                                                                  \
-        return node_allocator_->allocate_ttt<                                                  \
-            typename details::str_xoxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
-                                                                                       rp1);
-
-                STRING_OPR_SWITCH_STATEMENTS
-#undef CASE_STMT
-                default:
-                    return error_node();
-            }
-        }
-
-        template <typename T0, typename T1>
-        inline expression_node_ptr synthesize_str_xroxr_expression_impl(
-            const core::operators::operator_type& opr, T0 s0, T1 s1, range_t rp0, range_t rp1)
-        {
-            switch (opr)
-            {
-#define CASE_STMT(op0, op1)                                                                     \
-    case op0:                                                                                   \
-        return node_allocator_->allocate_tttt<                                                  \
-            typename details::str_xroxr_node<Type, T0, T1, range_t, op1<Type>>, T0, T1>(s0, s1, \
-                                                                                        rp0, rp1);
-
-                STRING_OPR_SWITCH_STATEMENTS
-#undef CASE_STMT
-                default:
-                    return error_node();
-            }
-        }
-
-        template <typename T0, typename T1>
-        inline expression_node_ptr synthesize_sos_expression_impl(
-            const core::operators::operator_type& opr, T0 s0, T1 s1)
-        {
-            switch (opr)
-            {
-#define CASE_STMT(op0, op1)    \
-    case op0:                  \
-        return node_allocator_ \
-            ->allocate_tt<typename details::sos_node<Type, T0, T1, op1<Type>>, T0, T1>(s0, s1);
-
-                STRING_OPR_SWITCH_STATEMENTS
-#undef CASE_STMT
-                default:
-                    return error_node();
-            }
-        }
-
-        inline expression_node_ptr synthesize_sos_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-            std::string& s1 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-
-            return synthesize_sos_expression_impl<std::string&, std::string&>(opr, s0, s1);
-        }
-
-        inline expression_node_ptr synthesize_sros_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
-            std::string& s1 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-            range_t rp0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range();
-
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-
-            return synthesize_str_xrox_expression_impl<std::string&, std::string&>(opr, s0, s1,
-                                                                                   rp0);
-        }
-
-        inline expression_node_ptr synthesize_sosr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-            std::string& s1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref();
-            range_t rp1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range();
-
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xoxr_expression_impl<std::string&, std::string&>(opr, s0, s1,
-                                                                                   rp1);
-        }
-
-        inline expression_node_ptr synthesize_socsr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-            std::string s1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->str();
-            range_t rp1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->range();
-
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xoxr_expression_impl<std::string&, const std::string>(opr, s0, s1,
-                                                                                        rp1);
-        }
-
-        inline expression_node_ptr synthesize_srosr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
-            std::string& s1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref();
-            range_t rp0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range();
-            range_t rp1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range();
-
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xroxr_expression_impl<std::string&, std::string&>(opr, s0, s1,
-                                                                                    rp0, rp1);
-        }
-
-        inline expression_node_ptr synthesize_socs_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-            std::string s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_sos_expression_impl<std::string&, const std::string>(opr, s0, s1);
-        }
-
-        inline expression_node_ptr synthesize_csos_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-            std::string& s1 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-
-            details::free_node(*node_allocator_, branch[0]);
-
-            return synthesize_sos_expression_impl<const std::string, std::string&>(opr, s0, s1);
-        }
-
-        inline expression_node_ptr synthesize_csosr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-            std::string& s1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref();
-            range_t rp1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range();
-
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xoxr_expression_impl<const std::string, std::string&>(opr, s0, s1,
-                                                                                        rp1);
-        }
-
-        inline expression_node_ptr synthesize_srocs_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
-            std::string s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-            range_t rp0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range();
-
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xrox_expression_impl<std::string&, const std::string>(opr, s0, s1,
-                                                                                        rp0);
-        }
-
-        inline expression_node_ptr synthesize_srocsr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string& s0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->ref();
-            std::string s1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->str();
-            range_t rp0 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])->range();
-            range_t rp1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->range();
-
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xroxr_expression_impl<std::string&, const std::string>(
-                opr, s0, s1, rp0, rp1);
-        }
-
-        inline expression_node_ptr synthesize_csocs_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            const std::string s0 =
-                static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-            const std::string s1 =
-                static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-
-            expression_node_ptr result = error_node();
-
-            if (core::operators::operator_type::add == opr)
-                result = node_allocator_->allocate_c<details::string_literal_node<Type>>(s0 + s1);
-            else if (core::operators::operator_type::in == opr)
-                result = node_allocator_->allocate_c<details::literal_node<Type>>(
-                    details::in_op<Type>::process(s0, s1));
-            else if (core::operators::operator_type::like == opr)
-                result = node_allocator_->allocate_c<details::literal_node<Type>>(
-                    details::like_op<Type>::process(s0, s1));
-            else if (core::operators::operator_type::ilike == opr)
-                result = node_allocator_->allocate_c<details::literal_node<Type>>(
-                    details::ilike_op<Type>::process(s0, s1));
-            else
-            {
-                expression_node_ptr temp =
-                    synthesize_sos_expression_impl<const std::string, const std::string>(opr, s0,
-                                                                                         s1);
-
-                const Type v = temp->value();
-
-                details::free_node(*node_allocator_, temp);
-
-                result = node_allocator_->allocate<literal_node_t>(v);
-            }
-
-            details::free_all_nodes(*node_allocator_, branch);
-
-            return result;
-        }
-
-        inline expression_node_ptr synthesize_csocsr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            const std::string s0 =
-                static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-            std::string s1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->str();
-            range_t rp1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->range();
-
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xoxr_expression_impl<const std::string, const std::string>(
-                opr, s0, s1, rp1);
-        }
-
-        inline expression_node_ptr synthesize_csros_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            std::string s0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->str();
-            std::string& s1 =
-                static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-            range_t rp0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->range();
-
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-
-            return synthesize_str_xrox_expression_impl<const std::string, std::string&>(opr, s0, s1,
-                                                                                        rp0);
-        }
-
-        inline expression_node_ptr synthesize_csrosr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            const std::string s0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->str();
-            std::string& s1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->ref();
-            const range_t rp0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->range();
-            const range_t rp1 =
-                static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])->range();
-
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-            static_cast<details::string_nodes::string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_node(*node_allocator_, branch[0]);
-            details::free_node(*node_allocator_, branch[1]);
-
-            return synthesize_str_xroxr_expression_impl<const std::string, std::string&>(
-                opr, s0, s1, rp0, rp1);
-        }
-
-        inline expression_node_ptr synthesize_csrocs_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            const std::string s0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->str();
-            const std::string s1 =
-                static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-            const range_t rp0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->range();
-
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-
-            details::free_all_nodes(*node_allocator_, branch);
-
-            return synthesize_str_xrox_expression_impl<const std::string, std::string>(opr, s0, s1,
-                                                                                       rp0);
-        }
-
-        inline expression_node_ptr synthesize_csrocsr_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            const std::string s0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->str();
-            const std::string s1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->str();
-            const range_t rp0 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                    ->range();
-            const range_t rp1 =
-                static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                    ->range();
-
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[0])
-                ->range_ref()
-                .clear();
-            static_cast<details::string_nodes::const_string_range_node<Type>*>(branch[1])
-                ->range_ref()
-                .clear();
-
-            details::free_all_nodes(*node_allocator_, branch);
-
-            return synthesize_str_xroxr_expression_impl<const std::string, const std::string>(
-                opr, s0, s1, rp0, rp1);
-        }
-
-        inline expression_node_ptr synthesize_strogen_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            switch (opr)
-            {
-#define CASE_STMT(op0, op1)                                                                       \
-    case op0:                                                                                     \
-        return node_allocator_->allocate_ttt<typename details::str_sogens_node<Type, op1<Type>>>( \
-            opr, branch[0], branch[1]);
-
-                STRING_OPR_SWITCH_STATEMENTS
-#undef CASE_STMT
-                default:
-                    return error_node();
-            }
-        }
-
-#undef STRING_OPR_SWITCH_STATEMENTS
-#endif
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr synthesize_string_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[2])
-        {
-            if ((nullptr == branch[0]) || (nullptr == branch[1]))
-            {
-                details::free_all_nodes(*node_allocator_, branch);
-
-                return error_node();
-            }
-
-            const bool b0_is_s = details::is_string_node(branch[0]);
-            const bool b0_is_cs = details::is_const_string_node(branch[0]);
-            const bool b0_is_sr = details::is_string_range_node(branch[0]);
-            const bool b0_is_csr = details::is_const_string_range_node(branch[0]);
-
-            const bool b1_is_s = details::is_string_node(branch[1]);
-            const bool b1_is_cs = details::is_const_string_node(branch[1]);
-            const bool b1_is_sr = details::is_string_range_node(branch[1]);
-            const bool b1_is_csr = details::is_const_string_range_node(branch[1]);
-
-            const bool b0_is_gen = details::is_string_assignment_node(branch[0]) ||
-                                   details::is_genricstring_range_node(branch[0]) ||
-                                   details::is_string_concat_node(branch[0]) ||
-                                   details::is_string_function_node(branch[0]) ||
-                                   details::is_string_condition_node(branch[0]) ||
-                                   details::is_string_ccondition_node(branch[0]) ||
-                                   details::is_string_vararg_node(branch[0]);
-
-            const bool b1_is_gen = details::is_string_assignment_node(branch[1]) ||
-                                   details::is_genricstring_range_node(branch[1]) ||
-                                   details::is_string_concat_node(branch[1]) ||
-                                   details::is_string_function_node(branch[1]) ||
-                                   details::is_string_condition_node(branch[1]) ||
-                                   details::is_string_ccondition_node(branch[1]) ||
-                                   details::is_string_vararg_node(branch[1]);
-
-            if (core::operators::operator_type::add == opr)
-            {
-                if (!b0_is_cs || !b1_is_cs)
-                {
-                    return synthesize_expression<string_concat_node_t, 2>(opr, branch);
-                }
-            }
-
-            if (b0_is_gen || b1_is_gen)
-            {
-                return synthesize_strogen_expression(opr, branch);
-            }
-            else if (b0_is_s)
-            {
-                if (b1_is_s)
-                    return synthesize_sos_expression(opr, branch);
-                else if (b1_is_cs)
-                    return synthesize_socs_expression(opr, branch);
-                else if (b1_is_sr)
-                    return synthesize_sosr_expression(opr, branch);
-                else if (b1_is_csr)
-                    return synthesize_socsr_expression(opr, branch);
-            }
-            else if (b0_is_cs)
-            {
-                if (b1_is_s)
-                    return synthesize_csos_expression(opr, branch);
-                else if (b1_is_cs)
-                    return synthesize_csocs_expression(opr, branch);
-                else if (b1_is_sr)
-                    return synthesize_csosr_expression(opr, branch);
-                else if (b1_is_csr)
-                    return synthesize_csocsr_expression(opr, branch);
-            }
-            else if (b0_is_sr)
-            {
-                if (b1_is_s)
-                    return synthesize_sros_expression(opr, branch);
-                else if (b1_is_sr)
-                    return synthesize_srosr_expression(opr, branch);
-                else if (b1_is_cs)
-                    return synthesize_srocs_expression(opr, branch);
-                else if (b1_is_csr)
-                    return synthesize_srocsr_expression(opr, branch);
-            }
-            else if (b0_is_csr)
-            {
-                if (b1_is_s)
-                    return synthesize_csros_expression(opr, branch);
-                else if (b1_is_sr)
-                    return synthesize_csrosr_expression(opr, branch);
-                else if (b1_is_cs)
-                    return synthesize_csrocs_expression(opr, branch);
-                else if (b1_is_csr)
-                    return synthesize_csrocsr_expression(opr, branch);
-            }
-
-            return error_node();
-        }
-#else
         inline expression_node_ptr synthesize_string_expression(
             const core::operators::operator_type&, expression_node_ptr (&branch)[2])
         {
             details::free_all_nodes(*node_allocator_, branch);
             return error_node();
         }
-#endif
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        inline expression_node_ptr synthesize_string_expression(
-            const core::operators::operator_type& opr, expression_node_ptr (&branch)[3])
-        {
-            if (core::operators::operator_type::inrange != opr)
-                return error_node();
-            else if ((nullptr == branch[0]) || (nullptr == branch[1]) || (nullptr == branch[2]))
-            {
-                details::free_all_nodes(*node_allocator_, branch);
-
-                return error_node();
-            }
-            else if (details::is_const_string_node(branch[0]) &&
-                     details::is_const_string_node(branch[1]) &&
-                     details::is_const_string_node(branch[2]))
-            {
-                const std::string s0 =
-                    static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-                const std::string s1 =
-                    static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-                const std::string s2 =
-                    static_cast<details::string_literal_node<Type>*>(branch[2])->str();
-
-                const Type v = (((s0 <= s1) && (s1 <= s2)) ? Type(1) : Type(0));
-
-                details::free_all_nodes(*node_allocator_, branch);
-
-                return node_allocator_->allocate_c<details::literal_node<Type>>(v);
-            }
-            else if (details::is_string_node(branch[0]) && details::is_string_node(branch[1]) &&
-                     details::is_string_node(branch[2]))
-            {
-                std::string& s0 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string& s2 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
-
-                using inrange_t =
-                    typename details::sosos_node<Type, std::string&, std::string&, std::string&,
-                                                 details::inrange_op<Type>>;
-
-                return node_allocator_
-                    ->allocate_type<inrange_t, std::string&, std::string&, std::string&>(s0, s1,
-                                                                                         s2);
-            }
-            else if (details::is_const_string_node(branch[0]) &&
-                     details::is_string_node(branch[1]) && details::is_const_string_node(branch[2]))
-            {
-                std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
-
-                using inrange_t =
-                    typename details::sosos_node<Type, std::string, std::string&, std::string,
-                                                 details::inrange_op<Type>>;
-
-                details::free_node(*node_allocator_, branch[0]);
-                details::free_node(*node_allocator_, branch[2]);
-
-                return node_allocator_
-                    ->allocate_type<inrange_t, std::string, std::string&, std::string>(s0, s1, s2);
-            }
-            else if (details::is_string_node(branch[0]) &&
-                     details::is_const_string_node(branch[1]) && details::is_string_node(branch[2]))
-            {
-                std::string& s0 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-                std::string s1 = static_cast<details::string_literal_node<Type>*>(branch[1])->str();
-                std::string& s2 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
-
-                using inrange_t =
-                    typename details::sosos_node<Type, std::string&, std::string, std::string&,
-                                                 details::inrange_op<Type>>;
-
-                details::free_node(*node_allocator_, branch[1]);
-
-                return node_allocator_
-                    ->allocate_type<inrange_t, std::string&, std::string, std::string&>(s0, s1, s2);
-            }
-            else if (details::is_string_node(branch[0]) && details::is_string_node(branch[1]) &&
-                     details::is_const_string_node(branch[2]))
-            {
-                std::string& s0 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[0])->ref();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string s2 = static_cast<details::string_literal_node<Type>*>(branch[2])->str();
-
-                using inrange_t =
-                    typename details::sosos_node<Type, std::string&, std::string&, std::string,
-                                                 details::inrange_op<Type>>;
-
-                details::free_node(*node_allocator_, branch[2]);
-
-                return node_allocator_
-                    ->allocate_type<inrange_t, std::string&, std::string&, std::string>(s0, s1, s2);
-            }
-            else if (details::is_const_string_node(branch[0]) &&
-                     details::is_string_node(branch[1]) && details::is_string_node(branch[2]))
-            {
-                std::string s0 = static_cast<details::string_literal_node<Type>*>(branch[0])->str();
-                std::string& s1 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[1])->ref();
-                std::string& s2 =
-                    static_cast<details::string_nodes::stringvar_node<Type>*>(branch[2])->ref();
-
-                using inrange_t =
-                    typename details::sosos_node<Type, std::string, std::string&, std::string&,
-                                                 details::inrange_op<Type>>;
-
-                details::free_node(*node_allocator_, branch[0]);
-
-                return node_allocator_
-                    ->allocate_type<inrange_t, std::string, std::string&, std::string&>(s0, s1, s2);
-            }
-            else
-                return error_node();
-        }
-#else
         inline expression_node_ptr synthesize_string_expression(
             const core::operators::operator_type&, expression_node_ptr (&branch)[3])
         {
             details::free_all_nodes(*node_allocator_, branch);
             return error_node();
         }
-#endif
 
         inline expression_node_ptr synthesize_null_expression(
             const core::operators::operator_type& operation, expression_node_ptr (&branch)[2])
@@ -15075,26 +13878,9 @@ class parser : public lexer::parser_helper
                     e.register_local_data(std::move(se.vector_data), se.size);
                 }
             }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            else if (scope_element::element_type::e_string == se.type)
-            {
-                if (se.str_node)
-                {
-                    e.register_local_var(se.str_node);
-                }
-
-                if (se.str_data)
-                {
-                    e.register_local_data(std::move(se.str_data), se.size);
-                }
-            }
-#endif
 
             se.var_node = nullptr;
             se.vec_node = nullptr;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            se.str_node = nullptr;
-#endif
             se.ref_count = 0;
             se.active = false;
         }

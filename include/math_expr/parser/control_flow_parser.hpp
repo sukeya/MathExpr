@@ -151,41 +151,6 @@ class parser_control_flow
             result = false;
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consequent_is_string = is_generally_string_node(consequent);
-            const bool alternative_is_string = is_generally_string_node(alternative);
-
-            if (consequent_is_string || alternative_is_string)
-            {
-                if (consequent_is_string && alternative_is_string)
-                {
-                    expression_node_ptr result_node =
-                        ctx.conditional_string(condition, consequent, alternative);
-
-                    if (result_node && result_node->valid())
-                    {
-                        return result_node;
-                    }
-
-                    ctx.set_error(parser_error::make_error(
-                        parser_error::error_mode::e_synthesis, ctx.current_token(),
-                        "ERR040 - Failed to synthesize node: conditional_string",
-                        core::error_location()));
-                    ctx.free_node(result_node);
-                    return Context::error_node();
-                }
-
-                ctx.set_error(parser_error::make_error(
-                    parser_error::error_mode::e_syntax, ctx.current_token(),
-                    "ERR041 - Return types of if-statement differ: string/non-string",
-                    core::error_location()));
-                result = false;
-            }
-        }
-#endif
-
         if (result)
         {
             const bool consequent_is_vector = is_ivector_node(consequent);
@@ -342,28 +307,6 @@ class parser_control_flow
             }
         }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consequent_is_string = is_generally_string_node(consequent);
-            const bool alternative_is_string = is_generally_string_node(alternative);
-
-            if (consequent_is_string || alternative_is_string)
-            {
-                if (consequent_is_string && alternative_is_string)
-                {
-                    return ctx.conditional_string(condition, consequent, alternative);
-                }
-
-                ctx.set_error(parser_error::make_error(
-                    parser_error::error_mode::e_syntax, ctx.current_token(),
-                    "ERR051 - Return types of if-statement differ: string/non-string",
-                    core::error_location()));
-                result = false;
-            }
-        }
-#endif
-
         if (result)
         {
             const bool consequent_is_vector = is_ivector_node(consequent);
@@ -483,28 +426,6 @@ class parser_control_flow
                 core::error_location()));
             result = false;
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (result)
-        {
-            const bool consequent_is_string = is_generally_string_node(consequent);
-            const bool alternative_is_string = is_generally_string_node(alternative);
-
-            if (consequent_is_string || alternative_is_string)
-            {
-                if (consequent_is_string && alternative_is_string)
-                {
-                    return ctx.conditional_string(condition, consequent, alternative);
-                }
-
-                ctx.set_error(parser_error::make_error(
-                    parser_error::error_mode::e_syntax, ctx.current_token(),
-                    "ERR061 - Return types of ternary differ: string/non-string",
-                    core::error_location()));
-                result = false;
-            }
-        }
-#endif
 
         if (result)
         {

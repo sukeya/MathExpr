@@ -40,9 +40,6 @@ limitations under the License.
 #include "math_expr/vector_access_runtime_check.hpp"
 #include "math_expr/details/range_pack.hpp"
 #include "math_expr/details/loop_nodes.hpp"
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-#include "math_expr/details/string_nodes.hpp"
-#endif
 
 namespace math_expr::details
 {
@@ -1657,14 +1654,6 @@ class assert_node final : public expression_node<T>
         construct_branch_pair(assert_condition_node_, assert_condition_node);
         construct_branch_pair(assert_message_node_, assert_message_node);
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (assert_message_node_.first &&
-            details::is_generally_string_node(assert_message_node_.first))
-        {
-            assert_message_str_base_ = assert_message_node_.first->as_string_base();
-        }
-#endif
-
         assert(valid());
     }
 
@@ -1674,15 +1663,6 @@ class assert_node final : public expression_node<T>
         {
             return T(1);
         }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        if (assert_message_node_.first)
-        {
-            assert_message_node_.first->value();
-            assert(assert_message_str_base_);
-            context_.message = assert_message_str_base_->str();
-        }
-#endif
 
         assert_check_->handle_assert(context_);
         return T(0);

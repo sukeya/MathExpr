@@ -27,16 +27,12 @@ set(example_files
     12_compilation_options.cpp
     13_expression_structures.cpp
     14_variable_vector_and_string_def.cpp
-    15_vector_processing.cpp
     16_user_defined_functions.cpp
     17_expression_dependents.cpp
     18_hierarchies_of_symbol_tables.cpp
     19_unknown_unknowns.cpp
     20_enabling_and_disabling_features.cpp
-    21_expression_return_values.cpp
-    22_compilation_errors.cpp
     23_runtime_library_packages.cpp
-    24_helpers_and_utils.cpp
 )
 
 foreach(example_file ${example_files})

@@ -49,83 +49,12 @@ class parser_definition
         return (se.name == symbol) && se.active;
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    template <typename Context>
-    static inline expression_node_ptr parse_define_string_statement(
-        Context& ctx, const std::string& str_name, expression_node_ptr initialisation_expression)
-    {
-        typename Context::stringvar_node_ptr str_node = nullptr;
-
-        typename Context::scope_element_t& se = ctx.get_element(str_name);
-
-        if (se.name == str_name)
-        {
-            if (se.active)
-            {
-                ctx.set_error(parser_error::make_error(
-                    parser_error::error_mode::e_syntax, ctx.current_token(),
-                    "ERR175 - Illegal redefinition of local variable: '" + str_name + "'",
-                    core::error_location()));
-
-                ctx.free_node(initialisation_expression);
-
-                return Context::error_node();
-            }
-            else if (Context::scope_element_t::element_type::e_string == se.type)
-            {
-                str_node = se.str_node;
-                se.active = true;
-                se.depth = ctx.state.scope_depth;
-                se.ref_count++;
-            }
-        }
-
-        if (nullptr == str_node)
-        {
-            typename Context::scope_element_t nse;
-            nse.name = str_name;
-            nse.active = true;
-            nse.ref_count = 1;
-            nse.type = Context::scope_element_t::element_type::e_string;
-            nse.depth = ctx.state.scope_depth;
-            nse.str_data = std::make_unique<std::string>();
-            nse.str_node = ctx.make_stringvar_node(*nse.str_data);
-
-            if (!ctx.add_element(std::move(nse)))
-            {
-                ctx.set_error(parser_error::make_error(
-                    parser_error::error_mode::e_syntax, ctx.current_token(),
-                    "ERR176 - Failed to add new local string variable '" + str_name + "' to SEM",
-                    core::error_location()));
-
-                ctx.free_node(initialisation_expression);
-                ctx.free_element(nse);
-
-                return Context::error_node();
-            }
-
-            assert(ctx.total_local_symb_size_bytes() <= ctx.max_total_local_symbol_size_bytes());
-
-            str_node = nse.str_node;
-
-            core::debug_print(
-                "parse_define_string_statement() - INFO - Added new local string variable: %s\n",
-                nse.name.c_str());
-        }
-
-        ctx.lodge_symbol(str_name, symbol_type::e_st_local_string);
-        ctx.activate_side_effect("parse_define_string_statement()");
-
-        return ctx.make_assignment(str_node, initialisation_expression);
-    }
-#else
     template <typename Context>
     static inline expression_node_ptr parse_define_string_statement(Context&, const std::string&,
                                                                     expression_node_ptr)
     {
         return Context::error_node();
     }
-#endif
 
     template <typename Context>
     static inline expression_node_ptr parse_define_var_statement(Context& ctx)

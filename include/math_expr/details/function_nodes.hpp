@@ -2663,45 +2663,6 @@ class generic_function_node : public expression_node<T>
                     }
                 }
             }
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-            else if (is_generally_string_node(arg_list_[i]))
-            {
-                string_base_node<T>* sbn = nullptr;
-
-                sbn = arg_list_[i]->as_string_base();
-                if (sbn == nullptr)
-                    return false;
-
-                ts.size = sbn->size();
-                ts.data = const_cast<char*>(sbn->base());
-                ts.type = type_store_t::store_type::e_string;
-
-                range_list_[i].data = std::get<char*>(ts.data);
-                range_list_[i].size = ts.size;
-                range_list_[i].type_size = sizeof(char);
-                range_list_[i].str_node = sbn;
-
-                range_interface_t* ri = nullptr;
-
-                ri = arg_list_[i]->as_range_iface();
-                if (ri == nullptr)
-                    return false;
-
-                const range_t& rp = ri->range_ref();
-
-                if (rp.const_range() && is_const_string_range_node(arg_list_[i]))
-                {
-                    ts.size = rp.const_size();
-                    ts.data = std::get<char*>(ts.data) + rp.n0_c.second;
-                    range_list_[i].range = nullptr;
-                }
-                else
-                {
-                    range_list_[i].range = &(ri->range_ref());
-                    range_param_list_.push_back(i);
-                }
-            }
-#endif
             else if (is_variable_node(arg_list_[i]))
             {
                 variable_node_ptr_t var =
@@ -2777,12 +2738,7 @@ class generic_function_node : public expression_node<T>
                 std::size_t r0 = 0;
                 std::size_t r1 = 0;
 
-                const std::size_t data_size =
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                    rdt.str_node ? rdt.str_node->size() : rdt.size;
-#else
-                    rdt.size;
-#endif
+                const std::size_t data_size = rdt.size;
 
                 if (!rp(r0, r1, data_size))
                 {
@@ -2792,13 +2748,8 @@ class generic_function_node : public expression_node<T>
                 type_store_t& ts = typestore_list_[index];
 
                 ts.size = rp.cache_size();
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-                if (ts.type == type_store_t::store_type::e_string)
-                    ts.data = const_cast<char*>(rdt.str_node->base()) + rp.cache.first;
-                else
-#endif
-                    ts.data = reinterpret_cast<char*>(std::get<T*>(rdt.data)) +
-                              (rp.cache.first * rdt.type_size);
+                ts.data = reinterpret_cast<char*>(std::get<T*>(rdt.data)) +
+                          (rp.cache.first * rdt.type_size);
             }
         }
 
@@ -2816,100 +2767,6 @@ class generic_function_node : public expression_node<T>
     mutable range_list_t range_list_;
     std::vector<std::size_t> range_param_list_;
 };
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-template <typename T, typename StringFunction>
-class string_function_node : public generic_function_node<T, StringFunction>,
-                             public string_base_node<T>,
-                             public range_interface<T>
-{
-   public:
-    using gen_function_t = generic_function_node<T, StringFunction>;
-    using range_t = typename range_interface<T>::range_t;
-
-    string_function_node(StringFunction* func,
-                         const std::vector<typename gen_function_t::expression_ptr>& arg_list)
-        : gen_function_t(arg_list, func)
-    {
-        range_.n0_c = std::make_pair<bool, std::size_t>(true, 0);
-        range_.n1_c = std::make_pair<bool, std::size_t>(true, 0);
-        range_.cache.first = range_.n0_c.second;
-        range_.cache.second = range_.n1_c.second;
-        assert(valid());
-    }
-
-    inline bool operator<(const string_function_node<T, StringFunction>& fn) const
-    {
-        return this < (&fn);
-    }
-
-    inline T value() const override
-    {
-        if (gen_function_t::populate_value_list())
-        {
-            using parameter_list_t = typename StringFunction::parameter_list_t;
-
-            const T result = (*gen_function_t::function_)(
-                ret_string_, parameter_list_t(gen_function_t::typestore_list_));
-
-            range_.n1_c.second = ret_string_.size();
-            range_.cache.second = range_.n1_c.second;
-
-            return result;
-        }
-
-        return std::numeric_limits<T>::quiet_NaN();
-    }
-
-    inline typename expression_node<T>::node_type type() const override
-    {
-        return expression_node<T>::node_type::e_strfunction;
-    }
-
-    string_base_node<T>* as_string_base() override
-    {
-        return this;
-    }
-    range_interface<T>* as_range_iface() override
-    {
-        return this;
-    }
-
-    inline bool valid() const override
-    {
-        return gen_function_t::function_;
-    }
-
-    std::string str() const override
-    {
-        return ret_string_;
-    }
-
-    core::char_cptr base() const override
-    {
-        return &ret_string_[0];
-    }
-
-    std::size_t size() const override
-    {
-        return ret_string_.size();
-    }
-
-    range_t& range_ref() override
-    {
-        return range_;
-    }
-
-    const range_t& range_ref() const override
-    {
-        return range_;
-    }
-
-   protected:
-    mutable range_t range_;
-    mutable std::string ret_string_;
-};
-#endif
 
 template <typename T, typename GenericFunction>
 class multimode_genfunction_node : public generic_function_node<T, GenericFunction>
@@ -2947,49 +2804,6 @@ class multimode_genfunction_node : public generic_function_node<T, GenericFuncti
    private:
     std::size_t param_seq_index_;
 };
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-template <typename T, typename StringFunction>
-class multimode_strfunction_node final : public string_function_node<T, StringFunction>
-{
-   public:
-    using str_function_t = string_function_node<T, StringFunction>;
-    using range_t = typename str_function_t::range_t;
-
-    multimode_strfunction_node(StringFunction* func, const std::size_t& param_seq_index,
-                               const std::vector<typename str_function_t::expression_ptr>& arg_list)
-        : str_function_t(func, arg_list), param_seq_index_(param_seq_index)
-    {
-    }
-
-    inline T value() const override
-    {
-        if (str_function_t::populate_value_list())
-        {
-            using parameter_list_t = typename StringFunction::parameter_list_t;
-
-            const T result =
-                (*str_function_t::function_)(param_seq_index_, str_function_t::ret_string_,
-                                             parameter_list_t(str_function_t::typestore_list_));
-
-            str_function_t::range_.n1_c.second = str_function_t::ret_string_.size();
-            str_function_t::range_.cache.second = str_function_t::range_.n1_c.second;
-
-            return result;
-        }
-
-        return std::numeric_limits<T>::quiet_NaN();
-    }
-
-    inline typename expression_node<T>::node_type type() const override
-    {
-        return expression_node<T>::node_type::e_strfunction;
-    }
-
-   private:
-    const std::size_t param_seq_index_;
-};
-#endif
 
 }  // namespace math_expr::details
 

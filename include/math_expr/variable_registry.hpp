@@ -34,17 +34,12 @@ limitations under the License.
 #define MATH_EXPR_VARIABLE_REGISTRY_HPP
 
 #include "math_expr/core/std_includes.hpp"
-#include "math_expr/details/string_nodes.hpp"
 #include "math_expr/details/vector_nodes.hpp"
 #include "math_expr/vector_view.hpp"
 
 namespace math_expr
 {
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-template <typename T, typename VariableStore, typename VectorStore, typename StringStore>
-#else
 template <typename T, typename VariableStore, typename VectorStore>
-#endif
 class variable_registry
 {
    public:
@@ -53,23 +48,7 @@ class variable_registry
     using vector_holder_t = details::vector_holder<T>;
     using variable_ptr = variable_t*;
     using vector_holder_ptr = vector_holder_t*;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    using stringvar_t = details::string_nodes::stringvar_node<T>;
-    using stringvar_ptr = stringvar_t*;
-#endif
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    variable_registry(VariableStore& variable_store, VectorStore& vector_store,
-                      StringStore& stringvar_store, std::list<T>& local_symbol_list,
-                      std::list<std::string>& local_stringvar_list)
-        : variable_store(variable_store),
-          vector_store(vector_store),
-          stringvar_store(stringvar_store),
-          local_symbol_list_(local_symbol_list),
-          local_stringvar_list_(local_stringvar_list)
-    {
-    }
-#else
     variable_registry(VariableStore& variable_store, VectorStore& vector_store,
                       std::list<T>& local_symbol_list)
         : variable_store(variable_store),
@@ -77,7 +56,6 @@ class variable_registry
           local_symbol_list_(local_symbol_list)
     {
     }
-#endif
 
     inline void clear_variables(const bool delete_node = true)
     {
@@ -89,13 +67,7 @@ class variable_registry
         vector_store.clear();
     }
 
-    inline void clear_strings()
-    {
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        stringvar_store.clear();
-        local_stringvar_list_.clear();
-#endif
-    }
+    inline void clear_strings() {}
 
     inline void clear_local_constants()
     {
@@ -106,13 +78,6 @@ class variable_registry
     {
         return variable_store.size;
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline std::size_t stringvar_count() const
-    {
-        return stringvar_store.size;
-    }
-#endif
 
     inline std::size_t vector_count() const
     {
@@ -129,13 +94,6 @@ class variable_registry
         return variable_store.get_from_varptr(&var_ref);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline stringvar_ptr get_stringvar(const std::string& string_name) const
-    {
-        return stringvar_store.get(string_name);
-    }
-#endif
-
     inline vector_holder_ptr get_vector(const std::string& vector_name) const
     {
         return vector_store.get(vector_name);
@@ -146,25 +104,10 @@ class variable_registry
         return variable_store.type_ref(symbol_name);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline std::string& stringvar_ref(const std::string& symbol_name)
-    {
-        return stringvar_store.type_ref(symbol_name);
-    }
-#endif
-
     inline bool is_constant_node(const std::string& symbol_name) const
     {
         return variable_store.is_constant(symbol_name);
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool is_constant_string(const std::string& symbol_name) const
-    {
-        return stringvar_store.symbol_exists(symbol_name) &&
-               stringvar_store.is_constant(symbol_name);
-    }
-#endif
 
     inline bool create_variable(const std::string& variable_name, const T& value = T(0))
     {
@@ -172,16 +115,6 @@ class variable_registry
         T& t = local_symbol_list_.back();
         return add_variable(variable_name, t);
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool create_stringvar(const std::string& stringvar_name,
-                                 const std::string& value = std::string(""))
-    {
-        local_stringvar_list_.push_back(value);
-        std::string& s = local_stringvar_list_.back();
-        return add_stringvar(stringvar_name, s);
-    }
-#endif
 
     inline bool add_variable(const std::string& variable_name, T& t, const bool is_constant = false)
     {
@@ -194,14 +127,6 @@ class variable_registry
         T& t = local_symbol_list_.back();
         return add_variable(constant_name, t, true);
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool add_stringvar(const std::string& stringvar_name, std::string& s,
-                              const bool is_constant = false)
-    {
-        return stringvar_store.add(stringvar_name, s, is_constant);
-    }
-#endif
 
     template <std::size_t N>
     inline bool add_vector(const std::string& vector_name, T (&v)[N])
@@ -230,13 +155,6 @@ class variable_registry
         return variable_store.remove(variable_name, delete_node);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool remove_stringvar(const std::string& string_name)
-    {
-        return stringvar_store.remove(string_name);
-    }
-#endif
-
     inline bool remove_vector(const std::string& vector_name)
     {
         return vector_store.remove(vector_name);
@@ -255,21 +173,6 @@ class variable_registry
         return variable_store.get_list(vlist);
     }
 
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    template <typename Allocator, template <typename, typename> class Sequence>
-    inline std::size_t get_stringvar_list(
-        Sequence<std::pair<std::string, std::string>, Allocator>& svlist) const
-    {
-        return stringvar_store.get_list(svlist);
-    }
-
-    template <typename Allocator, template <typename, typename> class Sequence>
-    inline std::size_t get_stringvar_list(Sequence<std::string, Allocator>& svlist) const
-    {
-        return stringvar_store.get_list(svlist);
-    }
-#endif
-
     template <typename Allocator, template <typename, typename> class Sequence>
     inline std::size_t get_vector_list(Sequence<std::string, Allocator>& vec_list) const
     {
@@ -280,10 +183,6 @@ class variable_registry
     {
         if (variable_store.symbol_exists(symbol_name))
             return true;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-        else if (stringvar_store.symbol_exists(symbol_name))
-            return true;
-#endif
         else
             return vector_store.symbol_exists(symbol_name);
     }
@@ -292,20 +191,6 @@ class variable_registry
     {
         return variable_store.symbol_exists(variable_name);
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline bool is_stringvar(const std::string& stringvar_name) const
-    {
-        return stringvar_store.symbol_exists(stringvar_name);
-    }
-
-    inline bool is_conststr_stringvar(const std::string& symbol_name) const
-    {
-        return stringvar_store.symbol_exists(symbol_name) &&
-               (stringvar_store.symbol_exists(symbol_name) ||
-                stringvar_store.is_constant(symbol_name));
-    }
-#endif
 
     inline bool is_vector(const std::string& vector_name) const
     {
@@ -321,18 +206,6 @@ class variable_registry
     {
         return vector_store.entity_name(ptr);
     }
-
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    inline std::string get_stringvar_name(const expression_ptr& ptr) const
-    {
-        return stringvar_store.entity_name(ptr);
-    }
-
-    inline std::string get_conststr_stringvar_name(const expression_ptr& ptr) const
-    {
-        return stringvar_store.entity_name(ptr);
-    }
-#endif
 
     inline void load_variables_from(const variable_registry& registry)
     {
@@ -360,13 +233,7 @@ class variable_registry
 
     VariableStore& variable_store;
     VectorStore& vector_store;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    StringStore& stringvar_store;
-#endif
     std::list<T>& local_symbol_list_;
-#ifndef MATH_EXPR_DISABLE_STRING_CAPABILITIES
-    std::list<std::string>& local_stringvar_list_;
-#endif
 };
 }  // namespace math_expr
 
