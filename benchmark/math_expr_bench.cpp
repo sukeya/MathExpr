@@ -48,7 +48,7 @@ constexpr double kLowerBoundX = -100.0;
 constexpr double kLowerBoundY = -100.0;
 constexpr double kUpperBoundX = 100.0;
 constexpr double kUpperBoundY = 100.0;
-constexpr double kDelta = 0.0111;
+constexpr double kDelta = 1.0;
 
 template <typename T>
 struct native
