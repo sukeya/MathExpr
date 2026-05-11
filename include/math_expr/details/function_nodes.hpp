@@ -2112,6 +2112,50 @@ class scor_node final : public binary_node<T>
     }
 };
 
+template <typename T>
+class nand_node final : public binary_node<T>
+{
+   public:
+    using expression_ptr = expression_node<T>*;
+    using binary_node<T>::branch;
+
+    nand_node(const core::operators::operator_type& opr, expression_ptr branch0,
+              expression_ptr branch1)
+        : binary_node<T>(opr, branch0, branch1)
+    {
+        assert(binary_node<T>::valid());
+    }
+
+    inline T value() const override
+    {
+        return (!details::is_true(branch(0)->value()) || !details::is_true(branch(1)->value()))
+                   ? core::numeric::true_v<T>
+                   : core::numeric::false_v<T>;
+    }
+};
+
+template <typename T>
+class nor_node final : public binary_node<T>
+{
+   public:
+    using expression_ptr = expression_node<T>*;
+    using binary_node<T>::branch;
+
+    nor_node(const core::operators::operator_type& opr, expression_ptr branch0,
+             expression_ptr branch1)
+        : binary_node<T>(opr, branch0, branch1)
+    {
+        assert(binary_node<T>::valid());
+    }
+
+    inline T value() const override
+    {
+        return (!details::is_true(branch(0)->value()) && !details::is_true(branch(1)->value()))
+                   ? core::numeric::true_v<T>
+                   : core::numeric::false_v<T>;
+    }
+};
+
 template <typename T, typename IFunction, std::size_t N>
 class function_N_node final : public expression_node<T>
 {
