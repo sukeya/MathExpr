@@ -156,6 +156,8 @@ class parser : public lexer::parser_helper
     using conditional_vector_node_t = details::conditional_vector_node<T>;
     using scand_node_t = details::scand_node<T>;
     using scor_node_t = details::scor_node<T>;
+    using nand_node_t = details::nand_node<T>;
+    using nor_node_t = details::nor_node<T>;
     using token_t = lexer::token;
     using expression_node_ptr = expression_node_t*;
     using expression_t = expression<T>;
@@ -4595,12 +4597,15 @@ class parser : public lexer::parser_helper
         {
             if constexpr (::math_expr::core::build_options::kDisableScAndOr)
             {
-                return false;
+                return ((core::operators::operator_type::nand == operation) ||
+                        (core::operators::operator_type::nor == operation));
             }
             else
             {
                 return ((core::operators::operator_type::scand == operation) ||
-                        (core::operators::operator_type::scor == operation));
+                        (core::operators::operator_type::scor == operation) ||
+                        (core::operators::operator_type::nand == operation) ||
+                        (core::operators::operator_type::nor == operation));
             }
         }
 
@@ -7266,7 +7271,11 @@ class parser : public lexer::parser_helper
         {
             if constexpr (::math_expr::core::build_options::kDisableScAndOr)
             {
-                return error_node();
+                if ((core::operators::operator_type::nand != operation) &&
+                    (core::operators::operator_type::nor != operation))
+                {
+                    return error_node();
+                }
             }
 
             expression_node_ptr result = error_node();
@@ -7279,6 +7288,12 @@ class parser : public lexer::parser_helper
                 else if ((core::operators::operator_type::scor == operation) &&
                          details::is_true(branch[0]))
                     result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
+                else if ((core::operators::operator_type::nand == operation) &&
+                         details::is_false(branch[0]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
+                else if ((core::operators::operator_type::nor == operation) &&
+                         details::is_true(branch[0]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::false_v<T>);
             }
 
             if (details::is_constant_node(branch[1]) && (nullptr == result))
@@ -7289,6 +7304,12 @@ class parser : public lexer::parser_helper
                 else if ((core::operators::operator_type::scor == operation) &&
                          details::is_true(branch[1]))
                     result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
+                else if ((core::operators::operator_type::nand == operation) &&
+                         details::is_false(branch[1]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::true_v<T>);
+                else if ((core::operators::operator_type::nor == operation) &&
+                         details::is_true(branch[1]))
+                    result = node_allocator_->allocate_c<literal_node_t>(core::numeric::false_v<T>);
             }
 
             if (result)
@@ -7305,6 +7326,14 @@ class parser : public lexer::parser_helper
             else if (core::operators::operator_type::scor == operation)
             {
                 return synthesize_expression<scor_node_t, 2>(operation, branch);
+            }
+            else if (core::operators::operator_type::nand == operation)
+            {
+                return synthesize_expression<nand_node_t, 2>(operation, branch);
+            }
+            else if (core::operators::operator_type::nor == operation)
+            {
+                return synthesize_expression<nor_node_t, 2>(operation, branch);
             }
             else
                 return error_node();
