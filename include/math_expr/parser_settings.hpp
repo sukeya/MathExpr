@@ -169,7 +169,6 @@ class settings_store
         e_ineq_eq,
         e_ineq_equal,
         e_ineq_ne,
-        e_ineq_nequal,
         e_ineq_gte,
         e_ineq_gt
     };
@@ -758,8 +757,6 @@ class settings_store
                 return "=";
             case core::operators::operator_type::ne:
                 return "!=";
-            case core::operators::operator_type::nequal:
-                return "<>";
             case core::operators::operator_type::gte:
                 return ">=";
             case core::operators::operator_type::gt:

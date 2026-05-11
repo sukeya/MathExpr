@@ -244,8 +244,6 @@ struct token
                 return ":";
             case e_ternary:
                 return "?";
-            case e_swap:
-                return "<=>";
             default:
                 return "UNKNOWN";
         }

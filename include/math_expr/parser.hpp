@@ -2511,6 +2511,8 @@ class parser : public lexer::parser_helper
         using token_advance_mode = typename prsrhlpr_t::token_advance_mode;
         using variable_node_ptr = details::variable_node<T>*;
         using scope_element_t = math_expr::scope_element<T>;
+        using vector_holder_ptr = typename parser<T>::vector_holder_ptr;
+        using vector_context_t = typename symtab_store_t::vector_context;
 
         explicit statement_context(parser<T>& parser)
             : parser_(parser),
@@ -2606,6 +2608,27 @@ class parser : public lexer::parser_helper
         {
             return node_allocator.template allocate<details::swap_generic_node<T>>(variable0,
                                                                                    variable1);
+        }
+
+        inline bool is_vector(const std::string& symbol) const
+        {
+            return symtab_store.is_vector(symbol);
+        }
+
+        inline vector_context_t get_vector_context(const std::string& vector_name) const
+        {
+            return symtab_store.get_vector_context(vector_name);
+        }
+
+        inline expression_node_ptr make_vector_node(vector_holder_ptr vector_holder)
+        {
+            return node_allocator.template allocate<details::vector_node<T>>(vector_holder);
+        }
+
+        inline expression_node_ptr make_swap_vecvec_node(expression_node_ptr v0,
+                                                         expression_node_ptr v1)
+        {
+            return node_allocator.template allocate<details::swap_vecvec_node<T>>(v0, v1);
         }
 
         inline expression_node_ptr return_call(std::vector<expression_node_ptr>& arg_list)

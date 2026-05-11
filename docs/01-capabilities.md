@@ -12,7 +12,7 @@ The MathExpr expression evaluator supports the following fundamental arithmetic 
 
 1. Assignment: :=, +=, -=, *=, /=, %=
 
-1. Equalities & Inequalities: =, ==, <>, !=, <, <=, >, >=
+1. Equalities & Inequalities: =, ==, !=, <, <=, >, >=
 
 1. Logic operators: and, mand, mor, nand, nor, not, or, shl, shr, xnor, xor, true, false
 

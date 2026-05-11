@@ -371,8 +371,7 @@ static constexpr std::string_view assignment_ops_list[] = {":=", "+=", "-=", "*=
 
 static constexpr std::size_t assignment_ops_list_size = std::size(assignment_ops_list);
 
-static constexpr std::string_view inequality_ops_list[] = {"<",  "<=", "==", "=",
-                                                           "!=", "<>", ">=", ">"};
+static constexpr std::string_view inequality_ops_list[] = {"<", "<=", "==", "=", "!=", ">=", ">"};
 
 static constexpr std::size_t inequality_ops_list_size = std::size(inequality_ops_list);
 

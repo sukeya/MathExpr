@@ -273,7 +273,6 @@ static const test_t global_test_list[] = {
     test_t("1 >  2", 0.0),
     test_t("1 >= 2", 0.0),
     test_t("(1.0 + 0.1) >= (2.0 + 0.2)", 0.0),
-    test_t("1 <> 2", 1.0),
     test_t("1 != 2", 1.0),
     test_t("(1.0 + 0.1) != (2.0 + 0.2)", 1.0),
     test_t("1 == 1", 1.0),
@@ -3222,37 +3221,37 @@ bool run_test10()
             "var x:= 2; var y := 3; (abs(x + 0)*-abs(y - 0))  == -6     ",
             "var x:= 2; var y := 3; (abs(x + 0)/-abs(y - 0))  == -(2/3) ",
             "var x := 1; var y := 2; swap(x,y); (x == 2) and (y == 1)",
-            "var x := 1; var y := 2; x <=> y     ; (x    == 2) and (y    == 1)",
+            "var x := 1; var y := 2; swap(x, y)     ; (x    == 2) and (y    == 1)",
             "var v[2] := {1,2}; swap(v[0],v[1]); (v[0] == 2) and (v[1] == 1)",
-            "var v[2] := {1,2}; v[0] <=> v[1]  ; (v[0] == 2) and (v[1] == 1)",
+            "var v[2] := {1,2}; swap(v[0], v[1])  ; (v[0] == 2) and (v[1] == 1)",
             "var x := 1; var y := 2; ~(swap(x,y),(x == 2) and (y == 1))",
-            "var x := 1; var y := 2; ~(x <=> y     , (x    == 2) and (y    == 1))",
+            "var x := 1; var y := 2; ~(swap(x, y)     , (x    == 2) and (y    == 1))",
             "var v[2] := {1,2}; ~(swap(v[0],v[1]), (v[0] == 2) and (v[1] == 1))",
-            "var v[2] := {1,2}; ~(v[0] <=> v[1]  , (v[0] == 2) and (v[1] == 1))",
+            "var v[2] := {1,2}; ~(swap(v[0], v[1])  , (v[0] == 2) and (v[1] == 1))",
             "var v[2] := {1,2}; swap(v[zero],v[one]); (v[zero] == 2) and (v[one] == 1)",
-            "var v[2] := {1,2}; v[zero] <=> v[one]  ; (v[zero] == 2) and (v[one] == 1)",
+            "var v[2] := {1,2}; swap(v[zero], v[one])  ; (v[zero] == 2) and (v[one] == 1)",
             "var v[2] := {1,2}; ~(swap(v[zero],v[one]), (v[zero] == 2) and (v[one] == 1))",
-            "var v[2] := {1,2}; ~(v[zero] <=> v[one]  , (v[zero] == 2) and (v[one] == 1))",
+            "var v[2] := {1,2}; ~(swap(v[zero], v[one])  , (v[zero] == 2) and (v[one] == 1))",
             "var v[2] := {1,2}; swap(v[2 * zero],v[(2 * one) / (1 + 1)]); (v[2 * zero] == 2) and "
             "(v[(2 * one) / (1 + 1)] == 1)",
-            "var v[2] := {1,2}; v[2 * zero] <=> v[(2*one)/(1+1)]  ; (v[2 * zero] == 2) and (v[(2 * "
-            "one) / (1 + 1)] == 1)",
+            "var v[2] := {1,2}; swap(v[2 * zero], v[(2*one)/(1+1)])  ; (v[2 * zero] == 2) and "
+            "(v[(2 * one) / (1 + 1)] == 1)",
             "var v[2] := {1,2}; ~(swap(v[2 * zero],v[(2 * one) / (1 + 1)]), (v[2 * zero] == 2) and "
             "(v[(2 * one) / (1 + 1)] == 1))",
-            "var v[2] := {1,2}; ~(v[2 * zero] <=> v[(2 * one) / (1 + 1)]  , (v[2 * zero] == 2) and "
-            "(v[(2 * one) / (1 + 1)] == 1))",
+            "var v[2] := {1,2}; ~(swap(v[2 * zero], v[(2 * one) / (1 + 1)])  , (v[2 * zero] == 2) "
+            "and (v[(2 * one) / (1 + 1)] == 1))",
             "var x := 1; var y := 2; var v[2] := {3,4}; swap(x,v[0]); swap(v[1],y); (x == 3) and "
             "(y == 4)",
-            "var x := 1; var y := 2; var v[2] := {3,4}; x <=> v[0]; v[1] <=> y; (x == 3) and (y == "
-            "4)",
+            "var x := 1; var y := 2; var v[2] := {3,4}; swap(x, v[0]); swap(v[1], y); (x == 3) and "
+            "(y == 4)",
             "var x := 1; var y := 2; var v[2] := {3,4}; swap(x,v[zero]); swap(v[one],y); (x == 3) "
             "and (y == 4)",
-            "var x := 1; var y := 2; var v[2] := {3,4}; x <=> v[zero]; v[one] <=> y; (x == 3) and "
-            "(y == 4)",
+            "var x := 1; var y := 2; var v[2] := {3,4}; swap(x, v[zero]); swap(v[one], y); (x == "
+            "3) and (y == 4)",
             "var x := 1; var y := 2; var v[2] := {3,4}; swap(x,v[2 * zero]); swap(v[(2 * one) / (1 "
             "+ 1)],y); (x == 3) and (y == 4)",
-            "var x := 1; var y := 2; var v[2] := {3,4}; x <=> v[zero / 3]; v[(2 * one)/(1 + 1)] "
-            "<=> y; (x == 3) and (y == 4)",
+            "var x := 1; var y := 2; var v[2] := {3,4}; swap(x, v[zero / 3]); swap(v[(2 * one)/(1 "
+            "+ 1)], y); (x == 3) and (y == 4)",
             "~{ var x := 1 } + ~{ var x := 2 } == 3",
             "(~{ var x := 1 } + ~{ var x := 2 }) == (~{ var x := 2 } + ~{ var x := 1 })",
             "(~{ var x := 1 } + ~{ var x := 2 } + ~{~{ var x := 1 } + ~{ var x := 2 }}) == 6",
@@ -3351,37 +3350,49 @@ bool run_test10()
             "0)                   ",
             "var x[3] := {};  var y[1] := {1};       x += (y+=1); (x[0] == y[0]) and (x[1] ==    "
             "0) and (x[2] ==    0)",
-            "var x[3] := [9]; var y[4] := {1,2,3,4}; x <=> y; (x[0] == 1) and (x[1] == 2) and "
+            "var x[3] := [9]; var y[4] := {1,2,3,4}; swap(x, y); (x[0] == 1) and (x[1] == 2) and "
             "(x[2] == 3)",
-            "var x[3] := [9]; var y[3] := {1,2,3};   x <=> y; (x[0] == 1) and (x[1] == 2) and "
+            "var x[3] := [9]; var y[3] := {1,2,3};   swap(x, y); (x[0] == 1) and (x[1] == 2) and "
             "(x[2] == 3)",
-            "var x[3] := [9]; var y[2] := {1,2};     x <=> y; (x[0] == 1) and (x[1] == 2) and "
+            "var x[3] := [9]; var y[2] := {1,2};     swap(x, y); (x[0] == 1) and (x[1] == 2) and "
             "(x[2] == 9)",
-            "var x[3] := [9]; var y[1] := {1};       x <=> y; (x[0] == 1) and (x[1] == 9) and "
+            "var x[3] := [9]; var y[1] := {1};       swap(x, y); (x[0] == 1) and (x[1] == 9) and "
             "(x[2] == 9)",
-            "var x[3] := [9]; var y[4] := {1,2,3,4}; x <=> (y += 1); (x[0] == 2) and (x[1] == 3) "
+            "var x[3] := [9]; var y[4] := {1,2,3,4}; swap(x, (y += 1)); (x[0] == 2) and (x[1] == "
+            "3) "
             "and (x[2] == 4)",
-            "var x[3] := [9]; var y[3] := {1,2,3};   x <=> (y += 1); (x[0] == 2) and (x[1] == 3) "
+            "var x[3] := [9]; var y[3] := {1,2,3};   swap(x, (y += 1)); (x[0] == 2) and (x[1] == "
+            "3) "
             "and (x[2] == 4)",
-            "var x[3] := [9]; var y[2] := {1,2};     x <=> (y += 1); (x[0] == 2) and (x[1] == 3) "
+            "var x[3] := [9]; var y[2] := {1,2};     swap(x, (y += 1)); (x[0] == 2) and (x[1] == "
+            "3) "
             "and (x[2] == 9)",
-            "var x[3] := [9]; var y[1] := {1};       x <=> (y += 1); (x[0] == 2) and (x[1] == 9) "
+            "var x[3] := [9]; var y[1] := {1};       swap(x, (y += 1)); (x[0] == 2) and (x[1] == "
+            "9) "
             "and (x[2] == 9)",
-            "var x[3] := [8]; var y[4] := {1,2,3,4}; (x += 1) <=> y; (x[0] == 1) and (x[1] == 2) "
+            "var x[3] := [8]; var y[4] := {1,2,3,4}; swap((x += 1), y); (x[0] == 1) and (x[1] == "
+            "2) "
             "and (x[2] == 3)",
-            "var x[3] := [8]; var y[3] := {1,2,3};   (x += 1) <=> y; (x[0] == 1) and (x[1] == 2) "
+            "var x[3] := [8]; var y[3] := {1,2,3};   swap((x += 1), y); (x[0] == 1) and (x[1] == "
+            "2) "
             "and (x[2] == 3)",
-            "var x[3] := [8]; var y[2] := {1,2};     (x += 1) <=> y; (x[0] == 1) and (x[1] == 2) "
+            "var x[3] := [8]; var y[2] := {1,2};     swap((x += 1), y); (x[0] == 1) and (x[1] == "
+            "2) "
             "and (x[2] == 9)",
-            "var x[3] := [8]; var y[1] := {1};       (x += 1) <=> y; (x[0] == 1) and (x[1] == 9) "
+            "var x[3] := [8]; var y[1] := {1};       swap((x += 1), y); (x[0] == 1) and (x[1] == "
+            "9) "
             "and (x[2] == 9)",
-            "var x[3] := [8]; var y[4] := {1,2,3,4}; (x += 1) <=> (y += 1); (x[0] == 2) and (x[1] "
+            "var x[3] := [8]; var y[4] := {1,2,3,4}; swap((x += 1), (y += 1)); (x[0] == 2) and "
+            "(x[1] "
             "== 3) and (x[2] == 4)",
-            "var x[3] := [8]; var y[3] := {1,2,3};   (x += 1) <=> (y += 1); (x[0] == 2) and (x[1] "
+            "var x[3] := [8]; var y[3] := {1,2,3};   swap((x += 1), (y += 1)); (x[0] == 2) and "
+            "(x[1] "
             "== 3) and (x[2] == 4)",
-            "var x[3] := [8]; var y[2] := {1,2};     (x += 1) <=> (y += 1); (x[0] == 2) and (x[1] "
+            "var x[3] := [8]; var y[2] := {1,2};     swap((x += 1), (y += 1)); (x[0] == 2) and "
+            "(x[1] "
             "== 3) and (x[2] == 9)",
-            "var x[3] := [8]; var y[1] := {1};       (x += 1) <=> (y += 1); (x[0] == 2) and (x[1] "
+            "var x[3] := [8]; var y[1] := {1};       swap((x += 1), (y += 1)); (x[0] == 2) and "
+            "(x[1] "
             "== 9) and (x[2] == 9)",
             "var x[3] := [0]; var y[4] := {1,2,3,4}; X <  y",
             "var x[3] := [0]; var y[3] := {1,2,3};   x <  Y",
@@ -6165,12 +6176,14 @@ bool run_test18()
             std::make_pair(" for (var i := 0; i < v[]; i += 1) { v[i + v[]] := i;     }            "
                            "           ",
                            5),
-            std::make_pair(" for (var i := 0; i < v[]; i += 1) { v[i + v[]] <=> v[i]; }            "
-                           "           ",
-                           5),
-            std::make_pair(" for (var i := 0; i < v[]; i += 1) { v[i] <=> v[i + v[]]; }            "
-                           "           ",
-                           10),
+            std::make_pair(
+                " for (var i := 0; i < v[]; i += 1) { swap(v[i + v[]], v[i]); }            "
+                "           ",
+                5),
+            std::make_pair(
+                " for (var i := 0; i < v[]; i += 1) { swap(v[i], v[i + v[]]); }            "
+                "           ",
+                10),
             std::make_pair(" var z[5] := [1]; for (var i := 0; i < z[]; i += 1) { z[i + z[]]; }    "
                            "           ",
                            5),
@@ -6180,8 +6193,8 @@ bool run_test18()
             std::make_pair(" var z[5] := [1]; for (var i := 0; i < z[]; i += 1) { z[i + z[]] := i; "
                            "}          ",
                            5),
-            std::make_pair(" var z[5] := [1]; for (var i := 0; i < z[]; i += 1) { z[i + z[]] <=> "
-                           "z[i]; }      ",
+            std::make_pair(" var z[5] := [1]; for (var i := 0; i < z[]; i += 1) { swap(z[i + z[]], "
+                           "z[i]); }      ",
                            5),
             std::make_pair(" for (var i := 0; i < v[]; i += 1) { v[i+v[]] := (v*w)[i + v[]]; }     "
                            "           ",
@@ -8132,28 +8145,36 @@ bool run_test21()
             "var x[3] := [3]; var y[3] := [1]; vv1 := 2x[1]+y[1]; sum(vv1) == (vv1[] * 7)",
 
             // swap vec vec node
-            "var v[8] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 8 + 0)",
-            "var v[7] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 7 + (7))",
-            "var v[6] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 6 + (6+7))",
-            "var v[5] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 5 + (5+6+7))",
-            "var v[4] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 4 + (4+5+6+7))",
-            "var v[3] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 3 + (3+4+5+6+7))",
-            "var v[2] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 2 + (2+3+4+5+6+7))",
-            "var v[1] := [-1]; vv8 <=> v; sum(vv8) == (-1 * 1 + (1+2+3+4+5+6+7))",
-            "var v[8] := [-1]; vv8 <=> v; var x[8] := { -1, -1, -1, -1, -1, -1, -1, -1 }; x == vv8",
-            "var v[7] := [-1]; vv8 <=> v; var x[8] := { -1, -1, -1, -1, -1, -1, -1,  7 }; x == vv8",
-            "var v[6] := [-1]; vv8 <=> v; var x[8] := { -1, -1, -1, -1, -1, -1,  6,  7 }; x == vv8",
-            "var v[5] := [-1]; vv8 <=> v; var x[8] := { -1, -1, -1, -1, -1,  5,  6,  7 }; x == vv8",
-            "var v[4] := [-1]; vv8 <=> v; var x[8] := { -1, -1, -1, -1,  4,  5,  6,  7 }; x == vv8",
-            "var v[3] := [-1]; vv8 <=> v; var x[8] := { -1, -1, -1,  3,  4,  5,  6,  7 }; x == vv8",
-            "var v[2] := [-1]; vv8 <=> v; var x[8] := { -1, -1,  2,  3,  4,  5,  6,  7 }; x == vv8",
-            "var v[1] := [-1]; vv8 <=> v; var x[8] := { -1,  1,  2,  3,  4,  5,  6,  7 }; x == vv8",
-            "var v[3] := [-1]; vv3 <=> v; sum(vv3) == (-1 * 3 + (0))",
-            "var v[2] := [-1]; vv3 <=> v; sum(vv3) == (-1 * 2 + (2))",
-            "var v[1] := [-1]; vv3 <=> v; sum(vv3) == (-1 * 1 + (1+2))",
-            "var v[3] := [-1]; vv3 <=> v; var x[3] := { -1, -1, -1}; x == vv3",
-            "var v[2] := [-1]; vv3 <=> v; var x[3] := { -1, -1,  2}; x == vv3",
-            "var v[1] := [-1]; vv3 <=> v; var x[3] := { -1,  1,  2}; x == vv3",
+            "var v[8] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 8 + 0)",
+            "var v[7] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 7 + (7))",
+            "var v[6] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 6 + (6+7))",
+            "var v[5] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 5 + (5+6+7))",
+            "var v[4] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 4 + (4+5+6+7))",
+            "var v[3] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 3 + (3+4+5+6+7))",
+            "var v[2] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 2 + (2+3+4+5+6+7))",
+            "var v[1] := [-1]; swap(vv8, v); sum(vv8) == (-1 * 1 + (1+2+3+4+5+6+7))",
+            "var v[8] := [-1]; swap(vv8, v); var x[8] := { -1, -1, -1, -1, -1, -1, -1, -1 }; x == "
+            "vv8",
+            "var v[7] := [-1]; swap(vv8, v); var x[8] := { -1, -1, -1, -1, -1, -1, -1,  7 }; x == "
+            "vv8",
+            "var v[6] := [-1]; swap(vv8, v); var x[8] := { -1, -1, -1, -1, -1, -1,  6,  7 }; x == "
+            "vv8",
+            "var v[5] := [-1]; swap(vv8, v); var x[8] := { -1, -1, -1, -1, -1,  5,  6,  7 }; x == "
+            "vv8",
+            "var v[4] := [-1]; swap(vv8, v); var x[8] := { -1, -1, -1, -1,  4,  5,  6,  7 }; x == "
+            "vv8",
+            "var v[3] := [-1]; swap(vv8, v); var x[8] := { -1, -1, -1,  3,  4,  5,  6,  7 }; x == "
+            "vv8",
+            "var v[2] := [-1]; swap(vv8, v); var x[8] := { -1, -1,  2,  3,  4,  5,  6,  7 }; x == "
+            "vv8",
+            "var v[1] := [-1]; swap(vv8, v); var x[8] := { -1,  1,  2,  3,  4,  5,  6,  7 }; x == "
+            "vv8",
+            "var v[3] := [-1]; swap(vv3, v); sum(vv3) == (-1 * 3 + (0))",
+            "var v[2] := [-1]; swap(vv3, v); sum(vv3) == (-1 * 2 + (2))",
+            "var v[1] := [-1]; swap(vv3, v); sum(vv3) == (-1 * 1 + (1+2))",
+            "var v[3] := [-1]; swap(vv3, v); var x[3] := { -1, -1, -1}; x == vv3",
+            "var v[2] := [-1]; swap(vv3, v); var x[3] := { -1, -1,  2}; x == vv3",
+            "var v[1] := [-1]; swap(vv3, v); var x[3] := { -1,  1,  2}; x == vv3",
 
             // rebasevector_elem_node
             "vv8[0] == 0",

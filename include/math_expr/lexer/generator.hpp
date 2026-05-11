@@ -387,27 +387,12 @@ class generator
         {
             const char_t c1 = s_itr_[1];
 
-            if (!is_end(s_itr_ + 2))
-            {
-                const char_t c2 = s_itr_[2];
-
-                if ((c0 == '<') && (c1 == '=') && (c2 == '>'))
-                {
-                    t.set_operator(token_t::e_swap, s_itr_, s_itr_ + 3, base_itr_);
-                    token_list_.push_back(t);
-                    s_itr_ += 3;
-                    return;
-                }
-            }
-
             token_t::token_type ttype = token_t::e_none;
 
             if ((c0 == '<') && (c1 == '='))
                 ttype = token_t::e_lte;
             else if ((c0 == '>') && (c1 == '='))
                 ttype = token_t::e_gte;
-            else if ((c0 == '<') && (c1 == '>'))
-                ttype = token_t::e_ne;
             else if ((c0 == '!') && (c1 == '='))
                 ttype = token_t::e_ne;
             else if ((c0 == '=') && (c1 == '='))
